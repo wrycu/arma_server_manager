@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: arma_server_manager_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - arma_server_manager
+
+  # Optional: Redis Commander for Redis GUI management
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: arma_server_manager_redis_commander
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - arma_server_manager
+    profiles:
+      - tools
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  arma_server_manager:
+    driver: bridge

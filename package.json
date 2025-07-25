@@ -1,0 +1,47 @@
+{
+  "name": "arma-server-manager",
+  "version": "1.0.0",
+  "description": "Arma 3 server manager with mod management, server configuration, and scheduling capabilities",
+  "scripts": {
+    "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
+    "dev:backend": "cd backend && uv run python main.py",
+    "dev:frontend": "cd frontend && pnpm dev",
+    "dev:celery": "cd backend && uv run celery -A app.celery worker --loglevel=info",
+    "dev:full": "concurrently \"pnpm run dev:backend\" \"wait-on http://localhost:5000 && pnpm run dev:celery\" \"wait-on http://localhost:5000 && pnpm run dev:frontend\"",
+    "install:all": "pnpm install && cd backend && uv sync && cd ../frontend && pnpm install",
+    "build": "pnpm run build:frontend",
+    "build:frontend": "cd frontend && pnpm build",
+    "build:docker": "docker build -t arma-server-manager .",
+    "start:prod": "FLASK_ENV=production cd backend && uv run python main.py",
+    "test": "pnpm run test:backend && pnpm run test:frontend",
+    "test:backend": "cd backend && uv run pytest",
+    "test:frontend": "cd frontend && pnpm test",
+    "lint": "pnpm run lint:backend && pnpm run lint:frontend",
+    "lint:backend": "cd backend && uv run ruff check . && uv run mypy .",
+    "lint:frontend": "cd frontend && pnpm lint",
+    "format": "pnpm run format:backend && pnpm run format:frontend",
+    "format:backend": "cd backend && uv run ruff format . && uv run black .",
+    "format:frontend": "cd frontend && pnpm format",
+    "clean": "rm -rf frontend/dist backend/.pytest_cache backend/__pycache__",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "cross-env": "^7.0.3",
+    "husky": "^9.1.7",
+    "wait-on": "^8.0.4"
+  },
+  "keywords": [
+    "arma3",
+    "server-manager",
+    "mod-management",
+    "steamcmd",
+    "python",
+    "flask",
+    "react",
+    "typescript",
+    "celery"
+  ],
+  "author": "",
+  "license": "MIT"
+}

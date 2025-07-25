@@ -1,0 +1,95 @@
+name: CI 
+
+on:
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend CI
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+          enable-cache: true
+          
+      - name: Set up Python
+        run: uv python install 3.11
+        
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: uv sync
+        
+      - name: Lint with Ruff
+        working-directory: ./backend
+        run: uv run ruff check .
+        
+      - name: Check formatting with Ruff
+        working-directory: ./backend
+        run: uv run ruff format --check .
+        
+      - name: Check formatting with Black
+        working-directory: ./backend
+        run: uv run black --check .
+        
+      - name: Type check with MyPy
+        working-directory: ./backend
+        run: uv run mypy .
+        
+      - name: Run tests
+        working-directory: ./backend
+        run: uv run pytest
+
+  frontend:
+    name: Frontend CI
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+          
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: pnpm install --frozen-lockfile
+        
+      - name: Lint with ESLint
+        working-directory: ./frontend
+        run: pnpm lint
+        
+      - name: Check formatting with Prettier
+        working-directory: ./frontend
+        run: pnpm exec prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
+        
+      - name: Type check with TypeScript
+        working-directory: ./frontend
+        run: pnpm exec tsc --noEmit
+        
+      - name: Run tests
+        working-directory: ./frontend
+        run: pnpm test
+        
+      - name: Build application
+        working-directory: ./frontend
+        run: pnpm build
