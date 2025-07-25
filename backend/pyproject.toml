@@ -1,0 +1,81 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Flask backend with Celery, SQLAlchemy, and modern Python tooling"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "celery[sqlalchemy]>=5.5.3",
+    "flask>=3.1.1",
+    "flask-cors>=6.0.1",
+    "flask-migrate>=4.1.0",
+    "flask-sqlalchemy>=3.1.1",
+    "gunicorn>=23.0.0",
+    "python-dotenv>=1.1.1",
+    "sqlalchemy>=2.0.41",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+    "mypy>=1.17.0",
+    "pytest>=8.4.1",
+    "ruff>=0.12.5",
+    "types-flask>=1.1.6",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long, handled by black
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app"]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+# Relaxed for fun development - still catches bugs but less pedantic
+# disallow_untyped_defs = true
+# disallow_incomplete_defs = true  
+# disallow_untyped_decorators = true
+# warn_return_any = true
+# warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = [
+    "celery.*",
+    "flask_migrate.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
