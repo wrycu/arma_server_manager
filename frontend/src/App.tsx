@@ -1,50 +1,35 @@
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { Card, CardDescription, CardHeader, CardTitle } from './components/ui/card';
-import { apiService } from './services/api';
+import { useState } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Dashboard } from './components/Dashboard';
+import { AppSidebar } from './components/app-sidebar';
+import { SidebarProvider, SidebarInset } from './components/ui/sidebar';
+import LoginPage from './components/LoginPage';
+import { NavigationContext } from './hooks/use-navigation';
 
 const queryClient = new QueryClient();
 
-function HealthCheck() {
-  const { data: healthData } = useQuery({
-    queryKey: ['health'],
-    queryFn: () => apiService.healthCheck(),
-  });
-
-  return (
-    <div className="space-y-4">
-      {healthData && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-green-600">API Status</CardTitle>
-            <CardDescription>
-              {healthData.status ? 'Online' : 'Offline'}
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      )}
-    </div>
-  );
-}
-
 function App() {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto p-6">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              ARMA Server Manager
-            </h1>
-            <p className="text-muted-foreground">This is where the frontend will go.</p>
-          </div>
-
-          <div className="grid gap-6">
-            <div>
-              <HealthCheck />
-            </div>
-          </div>
-        </div>
-      </div>
+      <NavigationContext.Provider value={{ currentPage, setCurrentPage }}>
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <Dashboard />
+          </SidebarInset>
+        </SidebarProvider>
+      </NavigationContext.Provider>
     </QueryClientProvider>
   );
 }
