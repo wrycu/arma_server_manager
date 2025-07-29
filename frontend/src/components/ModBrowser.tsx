@@ -1,20 +1,18 @@
 import { useState } from 'react';
 import {
-  IconDownload,
-  IconSearch,
-  IconStar,
-  IconCalendar,
-  IconUser,
-  IconTag,
+  IconTrash,
   IconRefresh,
+  IconSearch,
+  IconUser,
+  IconPuzzle,
+  IconFlag,
+  IconMap,
 } from '@tabler/icons-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
@@ -28,136 +26,116 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-interface WorkshopMod {
+interface InstalledMod {
   id: number;
   steamId: number;
   name: string;
   author: string;
-  description: string;
-  imageUrl?: string;
-  rating: number;
-  subscribers: number;
   lastUpdated: string;
-  size: string;
-  tags: string[];
   type: 'mod' | 'mission' | 'map';
-  isInstalled: boolean;
   hasUpdate: boolean;
+  sizeOnDisk?: string;
 }
 
-export function ModBrowser() {
+export function InstalledModsManager() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(false);
 
-  const [mods] = useState<WorkshopMod[]>([
+  const [mods] = useState<InstalledMod[]>([
     {
       id: 1,
       steamId: 843577117,
       name: '@ACE3',
       author: 'ACE3 Team',
-      description:
-        'Advanced Combat Environment 3 - A comprehensive mod that enhances the realism and authenticity of Arma 3.',
-      imageUrl: '/mod-images/ace3.jpg',
-      rating: 4.8,
-      subscribers: 2450000,
       lastUpdated: '2024-01-15',
-      size: '1.2 GB',
-      tags: ['Realism', 'Medical', 'Ballistics'],
       type: 'mod',
-      isInstalled: true,
       hasUpdate: false,
+      sizeOnDisk: '245 MB',
     },
     {
       id: 2,
       steamId: 450814997,
       name: 'CBA_A3',
       author: 'CBA Team',
-      description:
-        'Community Base Addons A3 - Provides a common framework for Arma 3 mods.',
-      imageUrl: '/mod-images/cba.jpg',
-      rating: 4.9,
-      subscribers: 3200000,
       lastUpdated: '2024-01-20',
-      size: '45 MB',
-      tags: ['Framework', 'Dependency'],
       type: 'mod',
-      isInstalled: true,
       hasUpdate: true,
+      sizeOnDisk: '15 MB',
     },
     {
       id: 3,
       steamId: 1673456286,
       name: 'RHS: Armed Forces of the Russian Federation',
       author: 'Red Hammer Studios',
-      description: 'Adds Russian military units, vehicles, and equipment to Arma 3.',
-      imageUrl: '/mod-images/rhs-afrf.jpg',
-      rating: 4.7,
-      subscribers: 1800000,
       lastUpdated: '2024-01-10',
-      size: '2.8 GB',
-      tags: ['Vehicles', 'Weapons', 'Units'],
       type: 'mod',
-      isInstalled: false,
       hasUpdate: false,
+      sizeOnDisk: '1.2 GB',
     },
     {
       id: 4,
       steamId: 1858075458,
       name: 'Altis Life Framework',
       author: 'Altis Life Community',
-      description:
-        'Complete framework for creating Altis Life servers with economy and roleplay features.',
-      type: 'mission',
-      rating: 4.2,
-      subscribers: 650000,
       lastUpdated: '2024-01-18',
-      size: '156 MB',
-      tags: ['Roleplay', 'Economy', 'Framework'],
-      isInstalled: false,
+      type: 'mission',
       hasUpdate: false,
+      sizeOnDisk: '85 MB',
     },
   ]);
 
-  const handleDownload = async (_modId: number) => {
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'mod':
+        return <IconPuzzle className="size-3 text-muted-foreground" />;
+      case 'mission':
+        return <IconFlag className="size-3 text-muted-foreground" />;
+      case 'map':
+        return <IconMap className="size-3 text-muted-foreground" />;
+      default:
+        return <IconPuzzle className="size-3 text-muted-foreground" />;
+    }
+  };
+
+  const handleUpdate = async (_modId: number) => {
     setIsLoading(true);
-    // Simulate download process
+    // Simulate update process
     await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsLoading(false);
+  };
+
+  const handleDelete = async (_modId: number) => {
+    setIsLoading(true);
+    // Simulate delete process
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
   };
 
   const filteredMods = mods.filter((mod) => {
     const matchesSearch =
       mod.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mod.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mod.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      mod.author.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesType = filterType === 'all' || mod.type === filterType;
 
     return matchesSearch && matchesType;
   });
 
-  const formatNumber = (num: number) => {
-    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-    if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
-    return num.toString();
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">Steam Workshop Browser</h2>
-        <Button variant="outline">
-          <IconRefresh className="size-4 mr-2" />
-          Refresh
-        </Button>
+        <div>
+          <h2 className="font-semibold">Installed Mods</h2>
+          <p className="text-xs text-muted-foreground">Manage your installed content</p>
+        </div>
       </div>
 
       <div className="flex gap-4">
         <div className="relative flex-1">
           <IconSearch className="absolute left-3 top-3 size-4 text-muted-foreground" />
           <Input
-            placeholder="Search mods, authors, or tags..."
+            placeholder="Search mods or authors..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -176,107 +154,64 @@ export function ModBrowser() {
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredMods.map((mod) => (
           <Card key={mod.id} className="flex flex-col">
-            <div className="relative">
-              {mod.imageUrl ? (
-                <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center">
-                  <span className="text-muted-foreground">Mod Preview</span>
-                </div>
-              ) : (
-                <div className="aspect-video bg-muted rounded-t-lg flex items-center justify-center">
-                  <span className="text-muted-foreground">No Preview</span>
-                </div>
-              )}
-              <div className="absolute top-2 right-2 flex gap-1">
-                <Badge variant="secondary" className="text-xs">
-                  {mod.type}
-                </Badge>
-                {mod.hasUpdate && (
-                  <Badge variant="destructive" className="text-xs">
-                    Update
-                  </Badge>
+            <CardHeader className="pb-2">
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-sm leading-tight flex-1">
+                  {mod.name}
+                </CardTitle>
+                {getTypeIcon(mod.type)}
+              </div>
+              <div className="space-y-1">
+                <CardDescription className="flex items-center gap-2 text-xs">
+                  <IconUser className="size-3" />
+                  {mod.author}
+                </CardDescription>
+                {mod.sizeOnDisk && (
+                  <div className="text-xs text-muted-foreground">{mod.sizeOnDisk}</div>
                 )}
               </div>
-            </div>
-
-            <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-lg leading-tight">{mod.name}</CardTitle>
-                <div className="flex items-center gap-1 text-yellow-500">
-                  <IconStar className="size-4 fill-current" />
-                  <span className="text-sm">{mod.rating}</span>
-                </div>
-              </div>
-              <CardDescription className="flex items-center gap-2 text-sm">
-                <IconUser className="size-3" />
-                {mod.author}
-              </CardDescription>
             </CardHeader>
 
-            <CardContent className="flex-1 space-y-3">
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {mod.description}
-              </p>
-
-              <div className="flex flex-wrap gap-1">
-                {mod.tags.slice(0, 3).map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs">
-                    <IconTag className="size-3 mr-1" />
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <IconDownload className="size-3" />
-                  {formatNumber(mod.subscribers)}
-                </div>
-                <div className="flex items-center gap-1">
-                  <IconCalendar className="size-3" />
-                  {new Date(mod.lastUpdated).toLocaleDateString()}
-                </div>
-              </div>
-
-              <div className="text-xs text-muted-foreground">Size: {mod.size}</div>
-            </CardContent>
-
-            <CardFooter className="pt-2">
-              {mod.isInstalled ? (
-                <div className="flex gap-2 w-full">
-                  <Button variant="outline" className="flex-1" disabled>
-                    Installed
+            <CardFooter className="pt-0 mt-auto">
+              <div className="flex gap-2 w-full">
+                {mod.hasUpdate ? (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="flex-1 h-8"
+                    onClick={() => handleUpdate(mod.id)}
+                    disabled={isLoading}
+                  >
+                    <IconRefresh className="size-3 mr-1" />
+                    <span className="text-xs">
+                      {isLoading ? 'Updating...' : 'Update'}
+                    </span>
                   </Button>
-                  {mod.hasUpdate && (
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => handleDownload(mod.id)}
-                      disabled={isLoading}
-                    >
-                      Update
-                    </Button>
-                  )}
-                </div>
-              ) : (
+                ) : (
+                  <Button variant="outline" size="sm" className="flex-1 h-8" disabled>
+                    <span className="text-xs">Up to date</span>
+                  </Button>
+                )}
                 <Button
-                  className="w-full"
-                  onClick={() => handleDownload(mod.id)}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDelete(mod.id)}
                   disabled={isLoading}
+                  className="text-muted-foreground hover:text-destructive h-8 px-2"
                 >
-                  <IconDownload className="size-4 mr-2" />
-                  {isLoading ? 'Downloading...' : 'Download'}
+                  <IconTrash className="size-3" />
                 </Button>
-              )}
+              </div>
             </CardFooter>
           </Card>
         ))}
       </div>
 
       {filteredMods.length === 0 && (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-muted-foreground">
             No mods found matching your search criteria.
           </p>

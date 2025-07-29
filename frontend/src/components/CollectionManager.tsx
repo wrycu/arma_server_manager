@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  IconFolder,
-  IconPlus,
-  IconTrash,
-  IconDownload,
-  IconServer,
-  IconGripVertical,
-  IconX,
-} from '@tabler/icons-react';
+import { IconFolder, IconPlus, IconTrash, IconArrowLeft } from '@tabler/icons-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +15,8 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { UpdatingModCard } from './UpdatingModCard';
 
 interface ModItem {
   id: number;
@@ -32,6 +26,7 @@ interface ModItem {
   type: 'mod' | 'mission' | 'map';
   isServerMod: boolean;
   hasUpdate: boolean;
+  disabled: boolean;
 }
 
 interface Collection {
@@ -41,7 +36,15 @@ interface Collection {
   mods: ModItem[];
   createdAt: string;
   isActive: boolean;
-  serverConfigs: string[];
+}
+
+interface UpdatingMod {
+  id: number;
+  name: string;
+  version?: string;
+  progress: number;
+  status: 'downloading' | 'installing' | 'verifying' | 'completed' | 'error';
+  error?: string;
 }
 
 export function CollectionManager() {
@@ -59,6 +62,7 @@ export function CollectionManager() {
           type: 'mod',
           isServerMod: false,
           hasUpdate: false,
+          disabled: false,
         },
         {
           id: 2,
@@ -68,6 +72,7 @@ export function CollectionManager() {
           type: 'mod',
           isServerMod: false,
           hasUpdate: true,
+          disabled: false,
         },
         {
           id: 3,
@@ -77,11 +82,11 @@ export function CollectionManager() {
           type: 'mod',
           isServerMod: false,
           hasUpdate: false,
+          disabled: true,
         },
       ],
       createdAt: '2024-01-15',
       isActive: true,
-      serverConfigs: ['Main Server', 'Training Server'],
     },
     {
       id: 2,
@@ -96,6 +101,7 @@ export function CollectionManager() {
           type: 'mod',
           isServerMod: false,
           hasUpdate: false,
+          disabled: false,
         },
         {
           id: 5,
@@ -105,17 +111,26 @@ export function CollectionManager() {
           type: 'mod',
           isServerMod: false,
           hasUpdate: false,
+          disabled: false,
         },
       ],
       createdAt: '2024-01-10',
       isActive: false,
-      serverConfigs: [],
     },
   ]);
 
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
+  const [modToRemove, setModToRemove] = useState<{
+    collectionId: number;
+    modId: number;
+    modName: string;
+  } | null>(null);
   const [newCollection, setNewCollection] = useState({ name: '', description: '' });
+  const [updatingMods, setUpdatingMods] = useState<UpdatingMod[]>([]);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editingTitle, setEditingTitle] = useState('');
 
   const handleCreateCollection = () => {
     const collection: Collection = {
@@ -125,7 +140,6 @@ export function CollectionManager() {
       mods: [],
       createdAt: new Date().toISOString().split('T')[0],
       isActive: false,
-      serverConfigs: [],
     };
 
     setCollections((prev) => [...prev, collection]);
@@ -140,10 +154,17 @@ export function CollectionManager() {
     }
   };
 
-  const handleRemoveModFromCollection = (collectionId: number, modId: number) => {
+  const handleToggleMod = (collectionId: number, modId: number) => {
     setCollections((prev) =>
       prev.map((c) =>
-        c.id === collectionId ? { ...c, mods: c.mods.filter((m) => m.id !== modId) } : c
+        c.id === collectionId
+          ? {
+              ...c,
+              mods: c.mods.map((m) =>
+                m.id === modId ? { ...m, disabled: !m.disabled } : m
+              ),
+            }
+          : c
       )
     );
 
@@ -152,60 +173,496 @@ export function CollectionManager() {
         prev
           ? {
               ...prev,
-              mods: prev.mods.filter((m) => m.id !== modId),
+              mods: prev.mods.map((m) =>
+                m.id === modId ? { ...m, disabled: !m.disabled } : m
+              ),
             }
           : null
       );
     }
   };
 
-  const getModTypeColor = (type: string) => {
-    switch (type) {
-      case 'mod':
-        return 'bg-blue-500';
-      case 'mission':
-        return 'bg-green-500';
-      case 'map':
-        return 'bg-purple-500';
-      default:
-        return 'bg-gray-500';
+  const handleRemoveModFromCollection = (
+    collectionId: number,
+    modId: number,
+    modName: string
+  ) => {
+    setModToRemove({ collectionId, modId, modName });
+    setIsRemoveDialogOpen(true);
+  };
+
+  const confirmRemoveMod = () => {
+    if (!modToRemove) return;
+
+    setCollections((prev) =>
+      prev.map((c) =>
+        c.id === modToRemove.collectionId
+          ? { ...c, mods: c.mods.filter((m) => m.id !== modToRemove.modId) }
+          : c
+      )
+    );
+
+    if (selectedCollection?.id === modToRemove.collectionId) {
+      setSelectedCollection((prev) =>
+        prev
+          ? {
+              ...prev,
+              mods: prev.mods.filter((m) => m.id !== modToRemove.modId),
+            }
+          : null
+      );
+    }
+
+    setModToRemove(null);
+    setIsRemoveDialogOpen(false);
+  };
+
+  const handleUpdateMod = async (mod: ModItem) => {
+    // Add mod to updating list
+    const updatingMod: UpdatingMod = {
+      id: mod.id,
+      name: mod.name,
+      version: mod.version,
+      progress: 0,
+      status: 'downloading',
+    };
+
+    setUpdatingMods((prev) => [...prev, updatingMod]);
+
+    // Simulate update process
+    const updateSteps = [
+      { status: 'downloading' as const, duration: 2000, progress: 50 },
+      { status: 'installing' as const, duration: 1500, progress: 80 },
+      { status: 'verifying' as const, duration: 1000, progress: 95 },
+      { status: 'completed' as const, duration: 500, progress: 100 },
+    ];
+
+    for (const step of updateSteps) {
+      await new Promise((resolve) => setTimeout(resolve, step.duration));
+
+      setUpdatingMods((prev) =>
+        prev.map((m) =>
+          m.id === mod.id ? { ...m, status: step.status, progress: step.progress } : m
+        )
+      );
+    }
+
+    // Update the mod in collections to remove hasUpdate flag
+    setCollections((prev) =>
+      prev.map((c) => ({
+        ...c,
+        mods: c.mods.map((m) => (m.id === mod.id ? { ...m, hasUpdate: false } : m)),
+      }))
+    );
+
+    if (selectedCollection) {
+      setSelectedCollection((prev) =>
+        prev
+          ? {
+              ...prev,
+              mods: prev.mods.map((m) =>
+                m.id === mod.id ? { ...m, hasUpdate: false } : m
+              ),
+            }
+          : null
+      );
+    }
+
+    // Auto-dismiss after 3 seconds
+    setTimeout(() => {
+      setUpdatingMods((prev) => prev.filter((m) => m.id !== mod.id));
+    }, 3000);
+  };
+
+  const handleCancelUpdate = (modId: number) => {
+    setUpdatingMods((prev) => prev.filter((m) => m.id !== modId));
+  };
+
+  const handleDismissUpdate = (modId: number) => {
+    setUpdatingMods((prev) => prev.filter((m) => m.id !== modId));
+  };
+
+  const handleUpdateAllMods = async () => {
+    if (!selectedCollection) return;
+
+    const modsWithUpdates = selectedCollection.mods.filter((mod) => mod.hasUpdate);
+
+    for (const mod of modsWithUpdates) {
+      await handleUpdateMod(mod);
     }
   };
 
+  const handleSetActive = (collectionId: number) => {
+    setCollections((prev) =>
+      prev.map((c) => ({
+        ...c,
+        isActive: c.id === collectionId,
+      }))
+    );
+
+    if (selectedCollection && selectedCollection.id === collectionId) {
+      setSelectedCollection((prev) => (prev ? { ...prev, isActive: true } : null));
+    }
+  };
+
+  const handleStartEditingTitle = () => {
+    if (selectedCollection) {
+      setEditingTitle(selectedCollection.name);
+      setIsEditingTitle(true);
+    }
+  };
+
+  const handleSaveTitle = () => {
+    if (!selectedCollection || !editingTitle.trim()) return;
+
+    const trimmedTitle = editingTitle.trim();
+
+    // Update collections
+    setCollections((prev) =>
+      prev.map((c) =>
+        c.id === selectedCollection.id ? { ...c, name: trimmedTitle } : c
+      )
+    );
+
+    // Update selectedCollection
+    setSelectedCollection((prev) => (prev ? { ...prev, name: trimmedTitle } : null));
+
+    setIsEditingTitle(false);
+    setEditingTitle('');
+  };
+
+  const handleCancelEditingTitle = () => {
+    setIsEditingTitle(false);
+    setEditingTitle('');
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSaveTitle();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelEditingTitle();
+    }
+  };
+
+  if (selectedCollection) {
+    return (
+      <div className="h-screen flex flex-col bg-background">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between px-4 py-2 border-b bg-background/95 backdrop-blur">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedCollection(null)}
+              className="h-7 w-7 p-0"
+            >
+              <IconArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center gap-2">
+              <IconFolder className="h-4 w-4 text-muted-foreground" />
+              {isEditingTitle ? (
+                <Input
+                  value={editingTitle}
+                  onChange={(e) => setEditingTitle(e.target.value)}
+                  onBlur={handleSaveTitle}
+                  onKeyDown={handleTitleKeyDown}
+                  className="h-6 px-2 py-0 font-medium text-sm border-none shadow-none focus-visible:ring-1 focus-visible:ring-ring bg-transparent"
+                  style={{ width: `${Math.max(editingTitle.length * 8 + 20, 120)}px` }}
+                  autoFocus
+                />
+              ) : (
+                <span
+                  className="font-medium cursor-pointer hover:text-foreground/80 transition-colors px-2 py-1 rounded-sm hover:bg-muted/50"
+                  onClick={handleStartEditingTitle}
+                  title="Click to edit collection name"
+                >
+                  {selectedCollection.name}
+                </span>
+              )}
+              {selectedCollection.isActive && (
+                <Badge
+                  variant="secondary"
+                  className="h-5 px-1.5 text-xs bg-green-500/10 text-green-600 border-green-500/20"
+                >
+                  Active
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <Badge variant="outline" className="h-6 px-2 text-xs">
+                {selectedCollection.mods.length} mods
+              </Badge>
+              {selectedCollection.mods.some((m) => m.hasUpdate) && (
+                <Badge className="h-6 px-2 text-xs bg-orange-500/10 text-orange-600 border-orange-500/20">
+                  {selectedCollection.mods.filter((m) => m.hasUpdate).length} updates
+                </Badge>
+              )}
+            </div>
+            {selectedCollection.mods.some((mod) => mod.hasUpdate) && (
+              <Button
+                size="sm"
+                onClick={handleUpdateAllMods}
+                className="h-7 px-3 text-xs"
+              >
+                Update All
+              </Button>
+            )}
+            {!selectedCollection.isActive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleSetActive(selectedCollection.id)}
+                className="h-7 px-3 text-xs"
+              >
+                Set Active
+              </Button>
+            )}
+            <Button variant="outline" size="sm" className="h-7 px-3 text-xs">
+              <IconPlus className="h-3 w-3 mr-1" />
+              Add
+            </Button>
+          </div>
+        </div>
+
+        {/* Compact Mods List */}
+        <div className="flex-1 overflow-auto p-3">
+          {selectedCollection.mods.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <IconFolder className="h-12 w-12 text-muted-foreground/30 mb-3" />
+              <p className="text-sm text-muted-foreground mb-3">
+                No mods in this collection
+              </p>
+              <Button size="sm">
+                <IconPlus className="h-3 w-3 mr-1" />
+                Add Mods
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {selectedCollection.mods.map((mod) => (
+                <div
+                  key={mod.id}
+                  className={`group flex items-center gap-3 px-3 py-2 rounded-md border bg-card hover:bg-muted/30 transition-colors ${
+                    mod.disabled ? 'opacity-50' : ''
+                  }`}
+                >
+                  <Checkbox
+                    checked={!mod.disabled}
+                    onCheckedChange={() =>
+                      handleToggleMod(selectedCollection.id, mod.id)
+                    }
+                    className="h-4 w-4"
+                  />
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-sm font-medium truncate ${mod.disabled ? 'line-through text-muted-foreground' : ''}`}
+                      >
+                        {mod.name}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        {mod.hasUpdate && (
+                          <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                        )}
+                        {mod.isServerMod && (
+                          <Badge variant="outline" className="h-4 px-1 text-xs">
+                            S
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>v{mod.version}</span>
+                      <span>•</span>
+                      <span>{mod.size}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    {mod.hasUpdate && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleUpdateMod(mod)}
+                        className="h-6 px-2 text-xs"
+                      >
+                        Update
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        handleRemoveModFromCollection(
+                          selectedCollection.id,
+                          mod.id,
+                          mod.name
+                        )
+                      }
+                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
+                    >
+                      <IconTrash className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Updating Mods Cards */}
+        {updatingMods.length > 0 && (
+          <div className="fixed bottom-4 right-4 space-y-2 z-50">
+            {updatingMods.map((mod) => (
+              <UpdatingModCard
+                key={mod.id}
+                mod={mod}
+                onCancel={handleCancelUpdate}
+                onDismiss={handleDismissUpdate}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Remove Mod Confirmation Dialog */}
+        <Dialog open={isRemoveDialogOpen} onOpenChange={setIsRemoveDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-base">Remove Mod</DialogTitle>
+              <DialogDescription className="text-sm">
+                Remove "{modToRemove?.modName}" from this collection?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsRemoveDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" size="sm" onClick={confirmRemoveMod}>
+                Remove
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-screen">
-      {/* Collections Sidebar */}
-      <div className="w-80 border-r bg-background flex flex-col h-full">
-        <div className="p-4 border-b">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Collections</h2>
+    <div className="h-screen flex flex-col bg-background">
+      {/* Compact Header */}
+      <div className="flex items-center justify-between px-4 py-2 border-b bg-background/95 backdrop-blur">
+        <div>
+          <h1 className="font-semibold">Collections</h1>
+          <p className="text-xs text-muted-foreground">Manage your mod collections</p>
+        </div>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button size="sm" className="h-7 px-3 text-xs">
+              <IconPlus className="h-3 w-3 mr-1" />
+              New
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-base">Create Collection</DialogTitle>
+              <DialogDescription className="text-sm">
+                Create a new mod collection to organize your mods.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="name" className="text-xs">
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  value={newCollection.name}
+                  onChange={(e) =>
+                    setNewCollection((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder="Collection name"
+                  className="h-8 text-sm"
+                />
+              </div>
+              <div>
+                <Label htmlFor="description" className="text-xs">
+                  Description
+                </Label>
+                <Textarea
+                  id="description"
+                  value={newCollection.description}
+                  onChange={(e) =>
+                    setNewCollection((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  placeholder="Collection description"
+                  className="min-h-16 text-sm resize-none"
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button
+                size="sm"
+                onClick={handleCreateCollection}
+                disabled={!newCollection.name.trim()}
+              >
+                Create
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Collections List */}
+      <div className="flex-1 overflow-auto p-3">
+        {collections.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <IconFolder className="h-12 w-12 text-muted-foreground/30 mb-3" />
+            <p className="text-sm text-muted-foreground mb-3">No collections yet</p>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm">
-                  <IconPlus className="size-4" />
+                  <IconPlus className="h-3 w-3 mr-1" />
+                  Create Collection
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Create New Collection</DialogTitle>
-                  <DialogDescription>
+                  <DialogTitle className="text-base">Create Collection</DialogTitle>
+                  <DialogDescription className="text-sm">
                     Create a new mod collection to organize your mods.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div>
-                    <Label htmlFor="name">Collection Name</Label>
+                    <Label htmlFor="name" className="text-xs">
+                      Name
+                    </Label>
                     <Input
                       id="name"
                       value={newCollection.name}
                       onChange={(e) =>
                         setNewCollection((prev) => ({ ...prev, name: e.target.value }))
                       }
-                      placeholder="Enter collection name"
+                      placeholder="Collection name"
+                      className="h-8 text-sm"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description" className="text-xs">
+                      Description
+                    </Label>
                     <Textarea
                       id="description"
                       value={newCollection.description}
@@ -215,195 +672,92 @@ export function CollectionManager() {
                           description: e.target.value,
                         }))
                       }
-                      placeholder="Enter collection description"
+                      placeholder="Collection description"
+                      className="min-h-16 text-sm resize-none"
                     />
                   </div>
                 </div>
-                <DialogFooter>
+                <DialogFooter className="gap-2">
                   <Button
+                    size="sm"
                     onClick={handleCreateCollection}
                     disabled={!newCollection.name.trim()}
                   >
-                    Create Collection
+                    Create
                   </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-1">
+            {collections.map((collection) => {
+              const updateCount = collection.mods.filter((m) => m.hasUpdate).length;
 
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-2">
-            {collections.map((collection) => (
-              <button
-                key={collection.id}
-                onClick={() => setSelectedCollection(collection)}
-                className={`w-full text-left p-3 rounded-lg transition-colors hover:bg-accent ${
-                  selectedCollection?.id === collection.id
-                    ? 'bg-accent border border-border'
-                    : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <IconFolder className="size-4 text-muted-foreground flex-shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <div className="font-medium truncate">{collection.name}</div>
-                      <div className="text-xs text-muted-foreground truncate">
-                        {collection.description}
+              return (
+                <div
+                  key={collection.id}
+                  className="group flex items-center gap-3 px-3 py-3 rounded-md border bg-card hover:bg-muted/30 transition-colors"
+                >
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <IconFolder className="h-4 w-4 text-muted-foreground" />
+                  </div>
+
+                  <div
+                    className="flex-1 min-w-0 cursor-pointer"
+                    onClick={() => setSelectedCollection(collection)}
+                  >
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-medium text-sm truncate">
+                        {collection.name}
+                      </span>
+                      <div className="flex items-center gap-1">
+                        {collection.isActive && (
+                          <Badge className="h-4 px-1 text-xs bg-green-500/10 text-green-600 border-green-500/20">
+                            Active
+                          </Badge>
+                        )}
+                        <Badge variant="outline" className="h-4 px-1 text-xs">
+                          {collection.mods.length} mods
+                        </Badge>
+                        {updateCount > 0 && (
+                          <Badge className="h-4 px-1 text-xs bg-orange-500/10 text-orange-600 border-orange-500/20">
+                            {updateCount} updates
+                          </Badge>
+                        )}
                       </div>
                     </div>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {collection.description}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    {collection.isActive && (
-                      <div className="size-2 rounded-full bg-green-500" />
+
+                  <div className="flex items-center gap-2">
+                    {!collection.isActive && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSetActive(collection.id)}
+                        className="h-6 px-2 text-xs"
+                      >
+                        Set active
+                      </Button>
                     )}
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="size-6 p-0"
+                      className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteCollection(collection.id);
                       }}
                     >
-                      <IconTrash className="size-3" />
+                      <IconTrash className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col h-full">
-        {selectedCollection ? (
-          <>
-            {/* Collection Header */}
-            <div className="p-6 border-b">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-3">
-                    <IconFolder className="size-6" />
-                    <h1 className="text-2xl font-bold">{selectedCollection.name}</h1>
-                    {selectedCollection.isActive && (
-                      <Badge className="bg-green-500 hover:bg-green-600">Active</Badge>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground mt-1">
-                    {selectedCollection.description}
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="outline">
-                    <IconDownload className="size-4 mr-2" />
-                    Update All
-                  </Button>
-                  <Button variant="outline">
-                    <IconServer className="size-4 mr-2" />
-                    Deploy
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Collection Content */}
-            <div className="flex-1 p-6 overflow-y-auto">
-              <div className="space-y-6">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium">
-                      Mods ({selectedCollection.mods.length})
-                    </h3>
-                    <Button variant="outline">
-                      <IconPlus className="size-4 mr-2" />
-                      Add Mod
-                    </Button>
-                  </div>
-
-                  {selectedCollection.mods.length === 0 ? (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <IconFolder className="size-16 mx-auto mb-4 opacity-50" />
-                      <p className="text-lg">No mods in this collection</p>
-                      <p className="text-sm">Add mods to get started</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {selectedCollection.mods.map((mod) => (
-                        <div
-                          key={mod.id}
-                          className="flex items-center gap-4 p-4 border rounded-lg"
-                        >
-                          <IconGripVertical className="size-4 text-muted-foreground cursor-grab" />
-
-                          <div
-                            className={`size-3 rounded-full ${getModTypeColor(mod.type)}`}
-                          />
-
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium truncate">{mod.name}</span>
-                              {mod.hasUpdate && (
-                                <Badge variant="destructive" className="text-xs">
-                                  Update Available
-                                </Badge>
-                              )}
-                              {mod.isServerMod && (
-                                <Badge variant="secondary" className="text-xs">
-                                  Server
-                                </Badge>
-                              )}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              v{mod.version} • {mod.size}
-                            </div>
-                          </div>
-
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() =>
-                              handleRemoveModFromCollection(
-                                selectedCollection.id,
-                                mod.id
-                              )
-                            }
-                          >
-                            <IconX className="size-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {selectedCollection.serverConfigs.length > 0 && (
-                  <div className="pt-6 border-t">
-                    <h3 className="text-lg font-medium mb-3">Deployed to Servers</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedCollection.serverConfigs.map((serverName) => (
-                        <Badge key={serverName} variant="outline">
-                          <IconServer className="size-3 mr-1" />
-                          {serverName}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <IconFolder className="size-16 mx-auto mb-4 opacity-50" />
-              <p className="text-lg">Select a collection to view details</p>
-              <p className="text-sm">
-                Choose a collection from the sidebar to get started
-              </p>
-            </div>
+              );
+            })}
           </div>
         )}
       </div>

@@ -1,11 +1,5 @@
 import * as React from 'react';
-import {
-  IconServer,
-  IconDashboard,
-  IconSettings,
-  IconFolder,
-  IconWorld,
-} from '@tabler/icons-react';
+import { IconServer, IconSettings, IconFolder, IconPackage } from '@tabler/icons-react';
 
 import { NavControl } from '@/components/nav-control';
 import { NavContent } from '@/components/nav-content';
@@ -29,11 +23,6 @@ const data = {
   },
   navControl: [
     {
-      title: 'Overview',
-      url: 'dashboard',
-      icon: IconDashboard,
-    },
-    {
       title: 'Control Panel',
       url: 'server-control',
       icon: IconServer,
@@ -41,14 +30,14 @@ const data = {
   ],
   navContent: [
     {
-      title: 'Workshop',
-      url: 'mod-management',
-      icon: IconWorld,
-    },
-    {
-      title: 'Mod Collections',
+      title: 'Collections',
       url: 'collections',
       icon: IconFolder,
+    },
+    {
+      title: 'Installed',
+      url: 'mod-management',
+      icon: IconPackage,
     },
   ],
   navTools: [
