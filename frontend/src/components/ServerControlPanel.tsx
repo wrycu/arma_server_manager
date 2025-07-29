@@ -44,7 +44,7 @@ interface ServerStatus {
 export function ServerControlPanel() {
   const { setCurrentPage } = useNavigation();
   const [server, setServer] = useState<ServerStatus>({
-    name: 'ARMA 3 Server',
+    name: 'My ARMA 3 Server Name',
     status: 'online',
     uptime: 234567,
     players: 24,
