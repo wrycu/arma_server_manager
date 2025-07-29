@@ -2,6 +2,8 @@
 
 import os
 
+from app.utils.helpers import Arma3ModManager
+
 
 class Config:
     """Base configuration class."""
@@ -27,6 +29,26 @@ class Config:
 
     # CORS settings
     CORS_ORIGINS = ["http://localhost:3000", "http://localhost:5173"]
+
+    # SteamCMD settings
+    STEAMCMD = {
+        "STEAMCMD_PATH": os.environ.get("STEAMCMD_PATH"),
+        "STEAMCMD_USER": os.environ.get("STEAMCMD_USER"),
+        "MOD_STAGING_DIR": os.environ.get("MOD_STAGING_DIR"),
+        "MOD_INSTALL_DIR": os.environ.get("MOD_INSTALL_DIR"),
+        "MOD_BACKUP_DIR": os.environ.get("MOD_BACKUP_DIR"),
+    }
+
+    # Classes to actually subscribe, download, etc. mods
+    MOD_MANAGERS = {
+        "ARMA3": Arma3ModManager(
+            STEAMCMD["STEAMCMD_PATH"] or "",
+            STEAMCMD["STEAMCMD_USER"] or "",
+            STEAMCMD["MOD_STAGING_DIR"] or "",
+            STEAMCMD["MOD_INSTALL_DIR"] or "",
+            STEAMCMD["MOD_BACKUP_DIR"] or "",
+        ),
+    }
 
 
 class DevelopmentConfig(Config):

@@ -52,8 +52,10 @@ def create_app(config_name: str | None = None) -> Flask:
 
     # Register blueprints
     from .routes.api import api_bp
+    from .routes.arma3 import a3_bp
 
     app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(a3_bp, url_prefix="/api/arma3")
 
     # Serve static files in production
     if config_name == "production":
