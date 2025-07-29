@@ -1,4 +1,5 @@
 """Utility helper functions."""
+
 import os
 import shutil
 import subprocess
@@ -19,7 +20,15 @@ class Arma3ModManager:
     Manager for all things Arma 3 mods
     Note that "mod_id" refers to the internal ID used by this application, and "steam_mod_id" refers to the steam mod ID
     """
-    def __init__(self, steam_cmd_path: str, steam_cmd_user: str, mod_staging_dir: str, mod_dest_dir: str, mod_backup_dir:str) -> None:
+
+    def __init__(
+        self,
+        steam_cmd_path: str,
+        steam_cmd_user: str,
+        mod_staging_dir: str,
+        mod_dest_dir: str,
+        mod_backup_dir: str,
+    ) -> None:
         self.steam_cmd_path = steam_cmd_path
         self.steam_cmd_user = steam_cmd_user
         self.arma3_app_id = 107410
@@ -40,9 +49,9 @@ class Arma3ModManager:
             details = result.to_dict()
             try:
                 ModImage.query.filter(ModImage.id == result.id).first()
-                details['image_available'] = True
+                details["image_available"] = True
             except sqlalchemy.orm.exc.NoResultFound:
-                details['image_available'] = False
+                details["image_available"] = False
             results.append(details)
         return results
 
@@ -57,9 +66,9 @@ class Arma3ModManager:
         details = result.to_dict()
         try:
             ModImage.query.filter(ModImage.id == result.id).first()
-            details['image_available'] = True
+            details["image_available"] = True
         except sqlalchemy.orm.exc.NoResultFound:
-            details['image_available'] = False
+            details["image_available"] = False
         return details
 
     @staticmethod
@@ -75,7 +84,10 @@ class Arma3ModManager:
         try:
             result = Mod.query.filter(Mod.id == mod_id).first()
             if result:
-                disallowed_attrs = ['id', 'updated_at']  # do not allow certain fields to be modified
+                disallowed_attrs = [
+                    "id",
+                    "updated_at",
+                ]  # do not allow certain fields to be modified
                 for key, value in updated_data.items():
                     if key not in disallowed_attrs:
                         setattr(result, key, value)
@@ -106,23 +118,21 @@ class Arma3ModManager:
         """
         # TODO: enqueue a download job
         mod_details = self.steam_api.get_mod_details(mod_steam_id)
-        if mod_details['mod_type'] == 'mission':
+        if mod_details["mod_type"] == "mission":
             local_path = self.mission_dir
         else:
             local_path = self.dst_dir
 
         prepared_mod = Mod(
             steam_id=mod_steam_id,
-            filename=mod_details.get('filename', mod_details['title']),
-            name=mod_details['title'],
-            mod_type=mod_details['mod_type'],
+            filename=mod_details.get("filename", mod_details["title"]),
+            name=mod_details["title"],
+            mod_type=mod_details["mod_type"],
             local_path=local_path,
-            arguments='',
+            arguments="",
             server_mod=False,
-            size_bytes=mod_details['file_size'],
-            steam_last_updated=datetime.utcfromtimestamp(
-                mod_details['time_updated']
-            ),
+            size_bytes=mod_details["file_size"],
+            steam_last_updated=datetime.utcfromtimestamp(mod_details["time_updated"]),
         )
         db.session.add(prepared_mod)
         try:
@@ -130,11 +140,11 @@ class Arma3ModManager:
         except sqlalchemy.exc.IntegrityError as e:
             raise Exception("This mod is already subscribed") from e
 
-        img_data = httpx.get(mod_details['preview_url'])
+        img_data = httpx.get(mod_details["preview_url"])
         preview_image = ModImage(
             mod_id=prepared_mod.id,
             image_data=bytes(img_data.content),
-            content_type=img_data.headers.get('content-type'),
+            content_type=img_data.headers.get("content-type"),
         )
         db.session.add(preview_image)
         db.session.commit()
@@ -145,7 +155,11 @@ class Arma3ModManager:
         :param mod_id: - INT, the internal ID of the mod to get details for
         :return:
         """
-        return ModImage.query.filter(ModImage.id == mod_id).first().to_dict(include_data=True)
+        return (
+            ModImage.query.filter(ModImage.id == mod_id)
+            .first()
+            .to_dict(include_data=True)
+        )
 
     def _download_single_mod_(self, mod_id: int, dst_dir: str):
         """
@@ -192,10 +206,7 @@ class Arma3ModManager:
         )
         if os.path.exists(backup_dir):
             shutil.rmtree(backup_dir)
-        os.rename(
-            src_dir,
-            backup_dir
-        )
+        os.rename(src_dir, backup_dir)
 
     def _move_single_mod_(self, mod_id: int, dst_dir: str):
         """
@@ -216,7 +227,7 @@ class Arma3ModManager:
             os.path.join(
                 self.dst_dir,
                 dst_dir,
-            )
+            ),
         )
         self._lowercase_mod_(
             os.path.join(
@@ -232,11 +243,14 @@ class Arma3ModManager:
         :param dst_dir: - STR, the directory to lowercase all files and directories within
         :return:
         """
+
         # https://stackoverflow.com/a/3075668
         def rename_all(root, items):
             for name in items:
                 try:
-                    os.rename(os.path.join(root, name), os.path.join(root, name.lower()))
+                    os.rename(
+                        os.path.join(root, name), os.path.join(root, name.lower())
+                    )
                 except OSError:
                     pass  # can't rename it, skip
 
@@ -268,6 +282,7 @@ class SteamAPI:
     """
     Helper class used to interact with Steam API (that is, the web API, not steamCMD)
     """
+
     def __init__(self):
         self.URLs = {
             "fileDetails": "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/",
@@ -297,14 +312,14 @@ class SteamAPI:
             "publishedfileids[0]": steam_mod_id,
         }
         reply = httpx.post(
-            self.URLs['fileDetails'],
+            self.URLs["fileDetails"],
             data=payload,
         )
-        details = reply.json()['response']['publishedfiledetails'][0]
-        if any(x['tag'] == 'Scenario' for x in details['tags']):
-            details['mod_type'] = 'mission'
-        elif any(x['tag'] == 'Map' for x in details['tags']):
-            details['mod_type'] = 'map'
+        details = reply.json()["response"]["publishedfiledetails"][0]
+        if any(x["tag"] == "Scenario" for x in details["tags"]):
+            details["mod_type"] = "mission"
+        elif any(x["tag"] == "Map" for x in details["tags"]):
+            details["mod_type"] = "map"
         else:
-            details['mod_type'] = 'mod'
+            details["mod_type"] = "mod"
         return details
