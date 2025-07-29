@@ -2,7 +2,7 @@
 
 import os
 
-from backend.app.utils.helpers import Arma3ModManager
+from app.utils.helpers import Arma3ModManager
 
 
 class Config:
@@ -42,11 +42,11 @@ class Config:
     # Classes to actually subscribe, download, etc. mods
     MOD_MANAGERS = {
         "ARMA3": Arma3ModManager(
-            STEAMCMD["STEAMCMD_PATH"],
-            STEAMCMD["STEAMCMD_USER"],
-            STEAMCMD["MOD_STAGING_DIR"],
-            STEAMCMD["MOD_INSTALL_DIR"],
-            STEAMCMD["MOD_BACKUP_DIR"],
+            STEAMCMD["STEAMCMD_PATH"] or "",
+            STEAMCMD["STEAMCMD_USER"] or "",
+            STEAMCMD["MOD_STAGING_DIR"] or "",
+            STEAMCMD["MOD_INSTALL_DIR"] or "",
+            STEAMCMD["MOD_BACKUP_DIR"] or "",
         ),
     }
 
