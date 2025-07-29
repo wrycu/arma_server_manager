@@ -1,7 +1,6 @@
 """API routes with proper type hints and documentation."""
 
 from http import HTTPStatus
-
 from flask import Blueprint
 
 api_bp = Blueprint("api", __name__)

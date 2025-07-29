@@ -24,7 +24,6 @@ class ModImage(db.Model):  # type: ignore[name-defined]
         mod_id: Foreign key to associated mod
         image_data: Binary image data
         content_type: MIME type of the image
-        filename: Original filename of the image
         created_at: When image was stored
     """
 
@@ -36,7 +35,6 @@ class ModImage(db.Model):  # type: ignore[name-defined]
     )
     image_data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
     content_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    filename: Mapped[str] = mapped_column(String(255), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), nullable=False
     )
@@ -57,7 +55,6 @@ class ModImage(db.Model):  # type: ignore[name-defined]
             "id": self.id,
             "mod_id": self.mod_id,
             "content_type": self.content_type,
-            "filename": self.filename,
             "size_bytes": len(self.image_data),
             "created_at": self.created_at.isoformat(),
         }
@@ -66,7 +63,3 @@ class ModImage(db.Model):  # type: ignore[name-defined]
             result["image_data"] = self.image_data
 
         return result
-
-    def __repr__(self) -> str:
-        """String representation of ModImage instance."""
-        return f"<ModImage {self.filename} for mod {self.mod_id}>"
