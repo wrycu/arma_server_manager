@@ -51,9 +51,10 @@ def get_mod_subscriptions() -> tuple[dict[str, str], int]:
         JSON response with list of existing mod subscriptions
     """
     try:
-        return current_app.config["MOD_MANAGERS"][
-            "ARMA3"
-        ].get_subscribed_mods(), HTTPStatus.OK
+        return (
+            current_app.config["MOD_MANAGERS"]["ARMA3"].get_subscribed_mods(),
+            HTTPStatus.OK,
+        )
     except Exception as e:
         return {
             "message": str(e),
@@ -160,10 +161,13 @@ def get_mod_subscription_image(
         image = current_app.config["MOD_MANAGERS"]["ARMA3"].get_subscribed_mod_image(
             mod_id
         )
-        return Response(
-            image["image_data"],
-            headers={"Content-Type": image["content_type"]},
-        ), HTTPStatus.OK
+        return (
+            Response(
+                image["image_data"],
+                headers={"Content-Type": image["content_type"]},
+            ),
+            HTTPStatus.OK,
+        )
     except AttributeError:
         return {
             "message": "Image not found",
