@@ -1,15 +1,16 @@
 """Utility helper functions."""
-import subprocess
 import os
 import shutil
+import subprocess
+from datetime import datetime
 from xmlrpc.client import Binary
 
 import httpx
-from datetime import datetime
 import sqlalchemy
+
+from app import db
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
-from app import db
 
 
 # Helper functions will be added here as needed
@@ -80,7 +81,7 @@ class Arma3ModManager:
                         setattr(result, key, value)
                 db.session.commit()
         except Exception as e:
-            raise Exception("Failed to update mod (mod not found?)")
+            raise Exception("Failed to update mod (mod not found?)") from e
 
     def remove_subscribed_mod(self, mod_id: int) -> None:
         """
@@ -94,8 +95,8 @@ class Arma3ModManager:
             db.session.commit()
             db.session.delete(Mod.query.filter(Mod.id == mod_id).first())
             db.session.commit()
-        except sqlalchemy.orm.exc.UnmappedInstanceError:
-            raise Exception("Cannot find subscribed mod")
+        except sqlalchemy.orm.exc.UnmappedInstanceError as e:
+            raise Exception("Cannot find subscribed mod") from e
 
     def add_subscribed_mod(self, mod_steam_id: int) -> None:
         """
@@ -127,8 +128,7 @@ class Arma3ModManager:
         try:
             db.session.commit()
         except sqlalchemy.exc.IntegrityError as e:
-            print(str(e))
-            raise Exception("This mod is already subscribed")
+            raise Exception("This mod is already subscribed") from e
 
         img_data = httpx.get(mod_details['preview_url'])
         preview_image = ModImage(
@@ -176,7 +176,7 @@ class Arma3ModManager:
         self._move_single_mod_(mod_id, dst_dir)
 
     @staticmethod
-    def _backup_single_mod_(src_dir: str, dst_dir: str, mod_id: int):
+    def _backup_single_mod_(src_dir: str, dst_dir: str, mod_id: str):
         """
         Moves an existing mod to a different location
         Intended to prevent a single corrupted file from ruining the night
@@ -254,8 +254,8 @@ class Arma3ModManager:
             assert os.path.exists(self.staging_dir)
             assert os.path.exists(self.dst_dir)
             assert os.path.exists(self.backup_dir)
-        except AssertionError:
-            raise Exception("One or more directories were not found")
+        except AssertionError as e:
+            raise Exception("One or more directories were not found") from e
 
     def add_mod_entry(self, mod_data: dict[str, str]):
         pass
