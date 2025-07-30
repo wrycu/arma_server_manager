@@ -31,10 +31,12 @@ class Mod(db.Model):  # type: ignore[name-defined]
     Attributes:
         id: Primary key identifier
         steam_id: Steam Workshop ID
-        filename: Local filename of the mod
+        filename: Desired naming scheme for the specific mod.
+            If not provided, an "@" is added to the steam-defined "title"
+            e.g., "CBA_A3" becomes "@CBA_A3"
         name: Display name of the mod
         mod_type: Type of mod (mod, mission, map)
-        local_path: Local file system path
+        local_path: Local file system path, e.g. /home/user/server/arma3/addons/@CBA_A3
         arguments: Command line arguments for server
         server_mod: Whether this is a server-side only mod
         size_bytes: Size of mod in bytes
