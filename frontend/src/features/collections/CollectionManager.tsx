@@ -16,7 +16,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { UpdatingModCard } from './UpdatingModCard';
+import { UpdatingModCard } from '@/features/mods';
 
 interface ModItem {
   id: number;
@@ -637,56 +637,6 @@ export function CollectionManager() {
                   Create Collection
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle className="text-base">Create Collection</DialogTitle>
-                  <DialogDescription className="text-sm">
-                    Create a new mod collection to organize your mods.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="name" className="text-xs">
-                      Name
-                    </Label>
-                    <Input
-                      id="name"
-                      value={newCollection.name}
-                      onChange={(e) =>
-                        setNewCollection((prev) => ({ ...prev, name: e.target.value }))
-                      }
-                      placeholder="Collection name"
-                      className="h-8 text-sm"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="description" className="text-xs">
-                      Description
-                    </Label>
-                    <Textarea
-                      id="description"
-                      value={newCollection.description}
-                      onChange={(e) =>
-                        setNewCollection((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                      placeholder="Collection description"
-                      className="min-h-16 text-sm resize-none"
-                    />
-                  </div>
-                </div>
-                <DialogFooter className="gap-2">
-                  <Button
-                    size="sm"
-                    onClick={handleCreateCollection}
-                    disabled={!newCollection.name.trim()}
-                  >
-                    Create
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
             </Dialog>
           </div>
         ) : (
@@ -761,6 +711,60 @@ export function CollectionManager() {
           </div>
         )}
       </div>
+
+      {/* Create Collection Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">Create Collection</DialogTitle>
+            <DialogDescription className="text-sm">
+              Create a new mod collection to organize your mods.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="name" className="text-xs">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={newCollection.name}
+                onChange={(e) =>
+                  setNewCollection((prev) => ({ ...prev, name: e.target.value }))
+                }
+                placeholder="Collection name"
+                className="h-8 text-sm"
+              />
+            </div>
+            <div>
+              <Label htmlFor="description" className="text-xs">
+                Description
+              </Label>
+              <Textarea
+                id="description"
+                value={newCollection.description}
+                onChange={(e) =>
+                  setNewCollection((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
+                placeholder="Collection description"
+                className="min-h-16 text-sm resize-none"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              size="sm"
+              onClick={handleCreateCollection}
+              disabled={!newCollection.name.trim()}
+            >
+              Create
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

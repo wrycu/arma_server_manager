@@ -19,7 +19,7 @@ interface UpdatingModCardProps {
 }
 
 export function UpdatingModCard({ mod, onCancel, onDismiss }: UpdatingModCardProps) {
-  const getStatusText = (_status: string) => {
+  const getStatusText = () => {
     return 'Updating...';
   };
 
@@ -34,7 +34,7 @@ export function UpdatingModCard({ mod, onCancel, onDismiss }: UpdatingModCardPro
             variant={mod.status === 'error' ? 'destructive' : 'secondary'}
             className="text-xs"
           >
-            {getStatusText(mod.status)}
+            {getStatusText()}
           </Badge>
         </div>
         <div className="text-sm text-muted-foreground mb-2">

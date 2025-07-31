@@ -1,10 +1,8 @@
 import * as React from 'react';
 import { IconServer, IconSettings, IconFolder, IconPackage } from '@tabler/icons-react';
 
-import { NavControl } from '@/components/nav-control';
-import { NavContent } from '@/components/nav-content';
-import { NavSecondary } from '@/components/nav-secondary';
-import { NavUser } from '@/components/nav-user';
+import { NavSection } from '@/components/common';
+import { NavUser } from './NavUser';
 import {
   Sidebar,
   SidebarContent,
@@ -60,7 +58,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="#">
-                <IconServer className="!size-5" />
+                <img src="/tuna.png" alt="ARMA 3 Server Manager" className="size-4" />
                 <span className="text-base font-semibold">ARMA Server Manager</span>
               </a>
             </SidebarMenuButton>
@@ -68,9 +66,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavControl items={data.navControl} />
-        <NavContent items={data.navContent} />
-        <NavSecondary items={data.navTools} className="mt-auto" />
+        <NavSection title="Server Management" items={data.navControl} />
+        <NavSection title="Content Library" items={data.navContent} />
+        <NavSection
+          title="Tools"
+          items={data.navTools}
+          enableNavigation={false}
+          className="mt-auto"
+        />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />
