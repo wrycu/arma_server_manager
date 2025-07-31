@@ -12,7 +12,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
           <div className="bg-muted text-primary-foreground flex size-6 items-center justify-center rounded-md">
             <img src="/tuna.png" alt="ARMA 3 Server Manager" className="size-4" />
           </div>
-          Arma 3 Server Manager
+          Arma Server Manager
         </a>
         <LoginForm onLogin={onLogin} />
       </div>
