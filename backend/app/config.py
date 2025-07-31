@@ -46,7 +46,6 @@ class Config:
             STEAMCMD["STEAMCMD_USER"] or "",
             STEAMCMD["MOD_STAGING_DIR"] or "",
             STEAMCMD["MOD_INSTALL_DIR"] or "",
-            STEAMCMD["MOD_BACKUP_DIR"] or "",
         ),
     }
 

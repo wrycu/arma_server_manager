@@ -1,7 +1,6 @@
 """Utility helper functions."""
 
 import os
-import shutil
 import subprocess
 from datetime import datetime
 from xmlrpc.client import Binary
@@ -27,14 +26,12 @@ class Arma3ModManager:
         steam_cmd_user: str,
         mod_staging_dir: str,
         mod_dest_dir: str,
-        mod_backup_dir: str,
     ) -> None:
         self.steam_cmd_path = steam_cmd_path
         self.steam_cmd_user = steam_cmd_user
         self.arma3_app_id = 107410
         self.staging_dir = mod_staging_dir
         self.dst_dir = mod_dest_dir
-        self.backup_dir = mod_backup_dir
         self.mission_dir = os.path.join(mod_dest_dir, "mpmissions")
         self._validate_dirs()
         self.steam_api = SteamAPI()
@@ -110,25 +107,25 @@ class Arma3ModManager:
         except sqlalchemy.orm.exc.UnmappedInstanceError as e:
             raise Exception("Cannot find subscribed mod") from e
 
-    def add_subscribed_mod(self, mod_steam_id: int) -> None:
+    def add_subscribed_mod(self, mod_steam_id: int) -> int:
         """
-        Adds a subscribed mod, which triggers a download
+        Adds a subscribed mod, which allows downloading of it
         :param mod_steam_id: - INT, the internal ID of the mod to get details for
         :return:
+            The ID of the newly subscribed mod
         """
-        # TODO: enqueue a download job
         mod_details = self.steam_api.get_mod_details(mod_steam_id)
-        if mod_details["mod_type"] == "mission":
-            local_path = self.mission_dir
-        else:
-            local_path = self.dst_dir
+
+        # TODO: this should probably be a bit more complex, to handle maps and missions
+        filename = f"@{mod_details['title']}"
+        if mod_details["filename"]:
+            filename = mod_details["filename"]
 
         prepared_mod = Mod(
             steam_id=mod_steam_id,
-            filename=mod_details.get("filename", mod_details["title"]),
+            filename=filename,
             name=mod_details["title"],
             mod_type=mod_details["mod_type"],
-            local_path=local_path,
             arguments="",
             server_mod=False,
             size_bytes=mod_details["file_size"],
@@ -148,6 +145,7 @@ class Arma3ModManager:
         )
         db.session.add(preview_image)
         db.session.commit()
+        return prepared_mod.id
 
     def get_subscribed_mod_image(self, mod_id: int) -> Binary:
         """
@@ -161,7 +159,7 @@ class Arma3ModManager:
             .to_dict(include_data=True)
         )
 
-    def _download_single_mod_(self, mod_id: int, dst_dir: str):
+    def download_single_mod(self, mod_id: int, dst_dir: str):
         """
         Downloads a single mod using steamcmd
         :param mod_id: - INT, the internal ID of the mod to get details for
@@ -179,34 +177,7 @@ class Arma3ModManager:
                 "+quit",
             ],
         )
-        self._backup_single_mod_(
-            os.path.join(
-                self.dst_dir,
-                dst_dir,
-            ),
-            self.backup_dir,
-            dst_dir,
-        )
         self._move_single_mod_(mod_id, dst_dir)
-
-    @staticmethod
-    def _backup_single_mod_(src_dir: str, dst_dir: str, mod_id: str):
-        """
-        Moves an existing mod to a different location
-        Intended to prevent a single corrupted file from ruining the night
-        Not really a backup and of questionable value, TBH
-        :param src_dir: - STR, the source directory to move the mod from
-        :param dst_dir: - STR, the destination directory to move the mod to
-        :param mod_id:  - INT, the internal ID of the mod
-        :return:
-        """
-        backup_dir = os.path.join(
-            dst_dir,
-            mod_id,
-        )
-        if os.path.exists(backup_dir):
-            shutil.rmtree(backup_dir)
-        os.rename(src_dir, backup_dir)
 
     def _move_single_mod_(self, mod_id: int, dst_dir: str):
         """
@@ -267,7 +238,6 @@ class Arma3ModManager:
         try:
             assert os.path.exists(self.staging_dir)
             assert os.path.exists(self.dst_dir)
-            assert os.path.exists(self.backup_dir)
         except AssertionError as e:
             raise Exception("One or more directories were not found") from e
 

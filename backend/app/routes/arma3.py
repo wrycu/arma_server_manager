@@ -1,6 +1,10 @@
 from http import HTTPStatus
+from typing import Any
 
+from celery.result import AsyncResult
 from flask import Blueprint, Response, current_app, request
+
+from app.tasks.background import download_arma3_mod, remove_arma3_mod
 
 a3_bp = Blueprint("arma3", __name__)
 
@@ -62,22 +66,25 @@ def get_mod_subscriptions() -> tuple[dict[str, str], int]:
 
 
 @a3_bp.route("/mod/subscription", methods=["POST"])
-def add_mod_subscription() -> tuple[dict[str, str], int]:
+def add_mod_subscription() -> tuple[dict[str, Any], int]:
     """
     Adds a mod to the tracked mod list, aka subscribes to it
     :return:
     """
+    created = []
     try:
         for mod in request.json["mods"]:
-            current_app.config["MOD_MANAGERS"]["ARMA3"].add_subscribed_mod(
-                mod["steam_id"]
+            created.append(
+                current_app.config["MOD_MANAGERS"]["ARMA3"].add_subscribed_mod(
+                    mod["steam_id"]
+                )
             )
     except Exception as e:
         return {
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
 
-    return {"message": "Successfully subscribed"}, HTTPStatus.OK
+    return {"message": "Successfully subscribed", "ids": created}, HTTPStatus.OK
 
 
 @a3_bp.route("/mod/subscription", methods=["GET"])
@@ -140,7 +147,7 @@ def remove_mod_subscription(mod_id: int) -> tuple[dict[str, str], int]:
     try:
         current_app.config["MOD_MANAGERS"]["ARMA3"].remove_subscribed_mod(mod_id)
         return {
-            "message": "Subscribed successfully",
+            "message": "Unsubscribed successfully",
         }, HTTPStatus.OK
     except Exception as e:
         return {
@@ -176,6 +183,40 @@ def get_mod_subscription_image(
         return {
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/mod/<int:mod_id>/download", methods=["POST"])
+def trigger_mod_download(
+    mod_id: int,
+) -> tuple[Response, int] | tuple[dict[str, str], int]:
+    return {
+        "status": download_arma3_mod.delay(mod_id).id,
+        "message": "Downloaded queued",
+    }, HTTPStatus.OK
+
+
+@a3_bp.route("/mod/<int:mod_id>/download", methods=["DELETE"])
+def trigger_mod_delete(
+    mod_id: int,
+) -> tuple[Response, int] | tuple[dict[str, str], int]:
+    return {
+        "status": remove_arma3_mod.delay(mod_id).id,
+        "message": "Remove queued",
+    }, HTTPStatus.OK
+
+
+@a3_bp.route("/async/<job_id>", methods=["GET"])
+def async_status(job_id) -> tuple[dict[str, str], int]:
+    """Look up the current state of a running async job, including the result (if finished)
+
+    Returns:
+        JSON response with current status and result (if applicable)
+    """
+    result = AsyncResult(job_id)
+    if result.state == "SUCCESS":
+        return result.result, HTTPStatus.OK
+    else:
+        return {"status": result.status, "message": result.result}, HTTPStatus.OK
 
 
 """
