@@ -1,8 +1,7 @@
-import { ServerControlPanel } from './ServerControlPanel';
-import { InstalledModsManager } from './ModBrowser';
-import { CollectionManager } from './CollectionManager';
-import { ServerConfigEditor } from './ServerConfigEditor';
-import { useNavigation } from '../hooks/use-navigation';
+import { ServerControlPanel, ServerConfigEditor } from '@/features/server';
+import { InstalledModsManager } from '@/features/mods';
+import { CollectionManager } from '@/features/collections';
+import { useNavigation } from '@/hooks/use-navigation';
 
 export function MainContent() {
   const { currentPage } = useNavigation();

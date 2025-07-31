@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigation } from '../hooks/use-navigation';
+import { useNavigation } from '@/hooks/use-navigation';
 import {
   IconPlayerPlay,
   IconPlayerStop,
