@@ -10,7 +10,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       <div className="flex w-full max-w-sm flex-col gap-6">
         <a href="#" className="flex items-center gap-2 self-center font-medium">
           <div className="bg-muted text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <img src="/tuna.png" alt="ARMA 3 Server Manager" className="size-4" />
+            <img src="/tuna.png" alt="ARMA Server Manager" className="size-4" />
           </div>
           Arma Server Manager
         </a>
