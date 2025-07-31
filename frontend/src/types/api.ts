@@ -1,115 +1,69 @@
-// Shared API types for Arma Server Manager
+// API types for Arma Server Manager
+// Contains only types for endpoints that actually exist in the backend
 
-export interface Mod {
-  id: number;
-  steam_id?: number;
-  filename: string;
-  name: string;
-  version?: string;
-  mod_type: 'mod' | 'mission' | 'map';
-  local_path?: string;
-  arguments?: string;
-  server_mod: boolean;
-  size_bytes?: number;
+// Arma3 API specific types
+
+export interface ModHelper {
+  description: string;
+  file_size: string;
+  preview_url: string;
+  tags: string[];
+  time_updated: string;
+  title: string;
+}
+
+export interface ModHelperResponse {
+  results: ModHelper;
+  message: string;
+}
+
+export interface ModSubscription {
+  steam_id: number;
+  // Add other subscription properties based on actual backend model
+  name?: string;
+  status?: string;
   last_updated?: string;
-  steam_last_updated?: string;
-  created_at: string;
-  updated_at: string;
 }
 
-export interface CreateModRequest {
-  steam_id?: number;
-  filename: string;
-  name: string;
-  version?: string;
-  mod_type?: 'mod' | 'mission' | 'map';
-  local_path?: string;
-  arguments?: string;
-  server_mod?: boolean;
+export interface ModSubscriptionsResponse {
+  results: ModSubscription[];
+  message: string;
 }
 
-export interface Collection {
-  id: number;
-  name: string;
-  description?: string;
-  mod_count: number;
-  created_at: string;
-  updated_at: string;
-  mods?: ModCollectionEntry[];
+export interface AddModSubscriptionRequest {
+  mods: Array<{
+    steam_id: number;
+  }>;
 }
 
-export interface ModCollectionEntry {
-  id: number;
-  collection_id: number;
-  mod_id: number;
-  arguments?: string;
-  added_at: string;
-  mod?: Mod;
+export interface AddModSubscriptionResponse {
+  message: string;
+  ids: number[];
 }
 
-export interface CreateCollectionRequest {
-  name: string;
-  description?: string;
+export interface ModSubscriptionDetailsResponse {
+  results: ModSubscription;
+  message: string;
 }
 
-export interface ServerConfig {
-  id: number;
-  name: string;
-  description?: string;
-  server_name: string;
-  password?: string;
-  admin_password?: string;
-  max_players: number;
-  mission_file?: string;
-  server_config_file?: string;
-  basic_config_file?: string;
-  server_mods?: string;
-  client_mods?: string;
-  additional_params?: string;
-  auto_restart: boolean;
-  restart_interval_hours?: number;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
+export interface UpdateModSubscriptionRequest {
+  // Define based on what fields can be updated
+  name?: string;
+  status?: string;
+  [key: string]: string | number | boolean | undefined;
 }
 
-export interface CreateServerConfigRequest {
-  name: string;
-  description?: string;
-  server_name: string;
-  password?: string;
-  admin_password: string;
-  max_players?: number;
-  mission_file?: string;
-  server_config_file?: string;
-  basic_config_file?: string;
-  server_mods?: string;
-  client_mods?: string;
-  additional_params?: string;
-  auto_restart?: boolean;
-  restart_interval_hours?: number;
+export interface ModDownloadResponse {
+  status: string; // job_id
+  message: string;
 }
 
-export interface PaginationInfo {
-  page: number;
-  per_page: number;
-  total: number;
-  pages: number;
-  has_next: boolean;
-  has_prev: boolean;
+export interface AsyncJobStatusResponse {
+  status: string;
+  message: string;
 }
 
-export interface ModsResponse {
-  mods: Mod[];
-  pagination: PaginationInfo;
-}
-
-export interface CollectionsResponse {
-  collections: Collection[];
-  pagination: PaginationInfo;
-}
-
-export interface ServerConfigsResponse {
-  server_configs: ServerConfig[];
-  pagination: PaginationInfo;
+export interface AsyncJobSuccessResponse {
+  // The result structure when job is successful
+  [key: string]: string | number | boolean | object | undefined;
 }

@@ -1,15 +1,16 @@
 import axios, { type AxiosResponse } from 'axios';
 import type {
-  Mod,
-  CreateModRequest,
-  Collection,
-  ModCollectionEntry,
-  CreateCollectionRequest,
-  ServerConfig,
-  CreateServerConfigRequest,
-  ModsResponse,
-  CollectionsResponse,
-  ServerConfigsResponse,
+  ModHelper,
+  ModHelperResponse,
+  ModSubscription,
+  ModSubscriptionsResponse,
+  AddModSubscriptionRequest,
+  AddModSubscriptionResponse,
+  ModSubscriptionDetailsResponse,
+  UpdateModSubscriptionRequest,
+  ModDownloadResponse,
+  AsyncJobStatusResponse,
+  AsyncJobSuccessResponse,
 } from '@/types';
 
 // API base configuration
@@ -60,178 +61,99 @@ export const apiService = {
     return response.data;
   },
 
-  // Mod management
-  getMods: async (page = 1, per_page = 10): Promise<ModsResponse> => {
-    const response: AxiosResponse<ModsResponse> = await api.get('/mods', {
-      params: { page, per_page },
-    });
-    return response.data;
-  },
+  // Arma3 API endpoints
+  arma3: {
+    // Get mod overview from Steam API
+    getModHelper: async (modId: number): Promise<ModHelper> => {
+      const response: AxiosResponse<ModHelperResponse> = await api.get(
+        `/arma3/mod/helper/${modId}`
+      );
+      return response.data.results;
+    },
 
-  getModById: async (id: number): Promise<Mod> => {
-    const response: AxiosResponse<{ mod: Mod }> = await api.get(`/mods/${id}`);
-    return response.data.mod;
-  },
+    // Get list of existing mod subscriptions
+    getModSubscriptions: async (): Promise<ModSubscription[]> => {
+      const response: AxiosResponse<ModSubscriptionsResponse> = await api.get(
+        '/arma3/mod/subscriptions'
+      );
+      return response.data.results;
+    },
 
-  createMod: async (modData: CreateModRequest): Promise<Mod> => {
-    const response: AxiosResponse<{ mod: Mod }> = await api.post('/mods', modData);
-    return response.data.mod;
-  },
+    // Add mod subscription(s)
+    addModSubscriptions: async (
+      mods: Array<{ steam_id: number }>
+    ): Promise<AddModSubscriptionResponse> => {
+      const requestData: AddModSubscriptionRequest = { mods };
+      const response: AxiosResponse<AddModSubscriptionResponse> = await api.post(
+        '/arma3/mod/subscription',
+        requestData
+      );
+      return response.data;
+    },
 
-  updateMod: async (id: number, modData: Partial<CreateModRequest>): Promise<Mod> => {
-    const response: AxiosResponse<{ mod: Mod }> = await api.put(`/mods/${id}`, modData);
-    return response.data.mod;
-  },
+    // Get specific mod subscription details
+    getModSubscriptionDetails: async (modId: number): Promise<ModSubscription> => {
+      const response: AxiosResponse<ModSubscriptionDetailsResponse> = await api.get(
+        `/arma3/mod/subscription/${modId}`
+      );
+      return response.data.results;
+    },
 
-  deleteMod: async (id: number): Promise<void> => {
-    await api.delete(`/mods/${id}`);
-  },
+    // Update mod subscription details
+    updateModSubscription: async (
+      modId: number,
+      updateData: UpdateModSubscriptionRequest
+    ): Promise<{ message: string }> => {
+      const response: AxiosResponse<{ message: string }> = await api.patch(
+        `/arma3/mod/subscription/${modId}`,
+        updateData
+      );
+      return response.data;
+    },
 
-  downloadMod: async (steamId: number): Promise<Mod> => {
-    const response: AxiosResponse<{ mod: Mod }> = await api.post('/mods/download', {
-      steam_id: steamId,
-    });
-    return response.data.mod;
-  },
+    // Remove mod subscription
+    removeModSubscription: async (modId: number): Promise<{ message: string }> => {
+      const response: AxiosResponse<{ message: string }> = await api.delete(
+        `/arma3/mod/subscription/${modId}`
+      );
+      return response.data;
+    },
 
-  updateModFromSteam: async (id: number): Promise<Mod> => {
-    const response: AxiosResponse<{ mod: Mod }> = await api.post(`/mods/${id}/update`);
-    return response.data.mod;
-  },
+    // Get mod subscription image (returns binary data)
+    getModSubscriptionImage: async (modId: number): Promise<Blob> => {
+      const response: AxiosResponse<Blob> = await api.get(
+        `/arma3/mod/subscription/${modId}/image`,
+        {
+          responseType: 'blob',
+        }
+      );
+      return response.data;
+    },
 
-  // Collection management
-  getCollections: async (page = 1, per_page = 10): Promise<CollectionsResponse> => {
-    const response: AxiosResponse<CollectionsResponse> = await api.get('/collections', {
-      params: { page, per_page },
-    });
-    return response.data;
-  },
+    // Trigger mod download (returns job ID)
+    downloadMod: async (modId: number): Promise<ModDownloadResponse> => {
+      const response: AxiosResponse<ModDownloadResponse> = await api.post(
+        `/arma3/mod/${modId}/download`
+      );
+      return response.data;
+    },
 
-  getCollectionById: async (id: number, include_mods = false): Promise<Collection> => {
-    const response: AxiosResponse<{ collection: Collection }> = await api.get(
-      `/collections/${id}`,
-      {
-        params: { include_mods },
-      }
-    );
-    return response.data.collection;
-  },
+    // Trigger mod deletion (returns job ID)
+    deleteMod: async (modId: number): Promise<ModDownloadResponse> => {
+      const response: AxiosResponse<ModDownloadResponse> = await api.delete(
+        `/arma3/mod/${modId}/download`
+      );
+      return response.data;
+    },
 
-  createCollection: async (
-    collectionData: CreateCollectionRequest
-  ): Promise<Collection> => {
-    const response: AxiosResponse<{ collection: Collection }> = await api.post(
-      '/collections',
-      collectionData
-    );
-    return response.data.collection;
-  },
-
-  updateCollection: async (
-    id: number,
-    collectionData: Partial<CreateCollectionRequest>
-  ): Promise<Collection> => {
-    const response: AxiosResponse<{ collection: Collection }> = await api.put(
-      `/collections/${id}`,
-      collectionData
-    );
-    return response.data.collection;
-  },
-
-  deleteCollection: async (id: number): Promise<void> => {
-    await api.delete(`/collections/${id}`);
-  },
-
-  addModToCollection: async (
-    collectionId: number,
-    modId: number,
-    args?: string
-  ): Promise<ModCollectionEntry> => {
-    const response: AxiosResponse<{ entry: ModCollectionEntry }> = await api.post(
-      `/collections/${collectionId}/mods`,
-      {
-        mod_id: modId,
-        arguments: args,
-      }
-    );
-    return response.data.entry;
-  },
-
-  removeModFromCollection: async (
-    collectionId: number,
-    modId: number
-  ): Promise<void> => {
-    await api.delete(`/collections/${collectionId}/mods/${modId}`);
-  },
-
-  // Server configuration management
-  getServerConfigs: async (page = 1, per_page = 10): Promise<ServerConfigsResponse> => {
-    const response: AxiosResponse<ServerConfigsResponse> = await api.get(
-      '/server-configs',
-      {
-        params: { page, per_page },
-      }
-    );
-    return response.data;
-  },
-
-  getServerConfigById: async (
-    id: number,
-    include_sensitive = false
-  ): Promise<ServerConfig> => {
-    const response: AxiosResponse<{ config: ServerConfig }> = await api.get(
-      `/server-configs/${id}`,
-      {
-        params: { include_sensitive },
-      }
-    );
-    return response.data.config;
-  },
-
-  createServerConfig: async (
-    configData: CreateServerConfigRequest
-  ): Promise<ServerConfig> => {
-    const response: AxiosResponse<{ config: ServerConfig }> = await api.post(
-      '/server-configs',
-      configData
-    );
-    return response.data.config;
-  },
-
-  updateServerConfig: async (
-    id: number,
-    configData: Partial<CreateServerConfigRequest>
-  ): Promise<ServerConfig> => {
-    const response: AxiosResponse<{ config: ServerConfig }> = await api.put(
-      `/server-configs/${id}`,
-      configData
-    );
-    return response.data.config;
-  },
-
-  deleteServerConfig: async (id: number): Promise<void> => {
-    await api.delete(`/server-configs/${id}`);
-  },
-
-  startServer: async (
-    configId: number
-  ): Promise<{ status: string; message: string }> => {
-    const response = await api.post(`/server-configs/${configId}/start`);
-    return response.data;
-  },
-
-  stopServer: async (
-    configId: number
-  ): Promise<{ status: string; message: string }> => {
-    const response = await api.post(`/server-configs/${configId}/stop`);
-    return response.data;
-  },
-
-  getServerStatus: async (
-    configId: number
-  ): Promise<{ status: string; uptime?: number; players?: number }> => {
-    const response = await api.get(`/server-configs/${configId}/status`);
-    return response.data;
+    // Get async job status
+    getAsyncJobStatus: async (
+      jobId: string
+    ): Promise<AsyncJobStatusResponse | AsyncJobSuccessResponse> => {
+      const response: AxiosResponse<AsyncJobStatusResponse | AsyncJobSuccessResponse> =
+        await api.get(`/arma3/async/${jobId}`);
+      return response.data;
+    },
   },
 };
 
