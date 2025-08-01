@@ -232,14 +232,19 @@ class Arma3ModManager:
 
     def _validate_dirs(self):
         """
-        Validate that directories exist before attempting to use them
+        Validate that directories exist before attempting to use them, creating them if they don't exist
         :return:
         """
-        try:
-            assert os.path.exists(self.staging_dir)
-            assert os.path.exists(self.dst_dir)
-        except AssertionError as e:
-            raise Exception("One or more directories were not found") from e
+        directories = [self.staging_dir, self.dst_dir, self.mission_dir]
+
+        for directory in directories:
+            if not os.path.exists(directory):
+                try:
+                    os.makedirs(directory, exist_ok=True)
+                except OSError as e:
+                    raise Exception(
+                        f"Failed to create directory {directory}: {e}"
+                    ) from e
 
     def add_mod_entry(self, mod_data: dict[str, str]):
         pass

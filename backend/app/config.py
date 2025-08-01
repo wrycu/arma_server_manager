@@ -32,20 +32,23 @@ class Config:
 
     # SteamCMD settings
     STEAMCMD = {
-        "STEAMCMD_PATH": os.environ.get("STEAMCMD_PATH"),
-        "STEAMCMD_USER": os.environ.get("STEAMCMD_USER"),
-        "MOD_STAGING_DIR": os.environ.get("MOD_STAGING_DIR"),
-        "MOD_INSTALL_DIR": os.environ.get("MOD_INSTALL_DIR"),
-        "MOD_BACKUP_DIR": os.environ.get("MOD_BACKUP_DIR"),
+        "STEAMCMD_PATH": os.environ.get("STEAMCMD_PATH") or "steamcmd",
+        "STEAMCMD_USER": os.environ.get("STEAMCMD_USER") or "anonymous",
+        "MOD_STAGING_DIR": os.environ.get("MOD_STAGING_DIR")
+        or os.path.join(os.getcwd(), "temp", "steamcmd_staging"),
+        "MOD_INSTALL_DIR": os.environ.get("MOD_INSTALL_DIR")
+        or os.path.join(os.getcwd(), "temp", "mods"),
+        "MOD_BACKUP_DIR": os.environ.get("MOD_BACKUP_DIR")
+        or os.path.join(os.getcwd(), "temp", "backups"),
     }
 
     # Classes to actually subscribe, download, etc. mods
     MOD_MANAGERS = {
         "ARMA3": Arma3ModManager(
-            STEAMCMD["STEAMCMD_PATH"] or "",
-            STEAMCMD["STEAMCMD_USER"] or "",
-            STEAMCMD["MOD_STAGING_DIR"] or "",
-            STEAMCMD["MOD_INSTALL_DIR"] or "",
+            STEAMCMD["STEAMCMD_PATH"],
+            STEAMCMD["STEAMCMD_USER"],
+            STEAMCMD["MOD_STAGING_DIR"],
+            STEAMCMD["MOD_INSTALL_DIR"],
         ),
     }
 
