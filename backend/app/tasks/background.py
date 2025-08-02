@@ -7,8 +7,8 @@ from typing import Any
 
 from celery import shared_task
 from flask import current_app
+from peewee import DoesNotExist
 
-from app import db
 from app.models.mod import Mod
 
 
@@ -16,7 +16,10 @@ from app.models.mod import Mod
 def download_arma3_mod(mod_id: int) -> dict[str, Any]:
     # TODO: this is vulnerable to path traversal, and will even write it wherever the attacker chooses!
     current_app.logger.info("Starting background task with duration")
-    mod_data = Mod.query.get(mod_id)
+    try:
+        mod_data = Mod.get_by_id(mod_id)
+    except DoesNotExist:
+        mod_data = None
     if not mod_data:
         return {
             "status": "aborted",
@@ -44,7 +47,7 @@ def download_arma3_mod(mod_id: int) -> dict[str, Any]:
     )
     mod_data.local_path = mod_dir
     mod_data.last_updated = datetime.now()
-    db.session.commit()
+    mod_data.save()
 
     result = {
         "status": "completed",
@@ -60,7 +63,10 @@ def download_arma3_mod(mod_id: int) -> dict[str, Any]:
 @shared_task()
 def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
     current_app.logger.info("Starting background task")
-    mod_data = Mod.query.get(mod_id)
+    try:
+        mod_data = Mod.get_by_id(mod_id)
+    except DoesNotExist:
+        mod_data = None
     if not mod_data:
         return {
             "status": "aborted",
@@ -84,7 +90,7 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
     shutil.rmtree(mod_dir)
     mod_data.local_path = None
     mod_data.last_updated = datetime.now()
-    db.session.commit()
+    mod_data.save()
 
     result = {
         "status": "completed",

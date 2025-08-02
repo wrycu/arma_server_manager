@@ -1,17 +1,18 @@
 """Mod model for Arma 3 mod management."""
 
 import enum
-from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from sqlalchemy import Boolean, DateTime, Enum, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from peewee import (
+    BooleanField,
+    CharField,
+    DateTimeField,
+    IntegerField,
+    Model,
+    TextField,
+)
 
-from .. import db
-
-if TYPE_CHECKING:
-    from .mod_collection_entry import ModCollectionEntry
-    from .mod_image import ModImage
+from ..database import db
 
 
 class ModType(enum.Enum):
@@ -22,7 +23,7 @@ class ModType(enum.Enum):
     map = "map"
 
 
-class Mod(db.Model):  # type: ignore[name-defined]
+class Mod(Model):
     """Mod model for Arma 3 mod management.
 
     This model represents an Arma 3 mod or map with metadata
@@ -44,29 +45,21 @@ class Mod(db.Model):  # type: ignore[name-defined]
         steam_last_updated: When mod was last updated on Steam
     """
 
-    __tablename__ = "mods"
+    id = IntegerField(primary_key=True)
+    steam_id = IntegerField(unique=True, index=True, null=True)
+    filename = CharField(max_length=255)
+    name = CharField(max_length=255, index=True)
+    mod_type = CharField(max_length=20, default="mod")
+    local_path = CharField(max_length=500, null=True)
+    arguments = TextField(null=True)
+    server_mod = BooleanField(default=False)
+    size_bytes = IntegerField(null=True)
+    last_updated = DateTimeField(null=True)
+    steam_last_updated = DateTimeField(null=True)
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    steam_id: Mapped[int | None] = mapped_column(Integer, unique=True, index=True)
-    filename: Mapped[str] = mapped_column(String(255), nullable=False)
-    name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    mod_type: Mapped[ModType] = mapped_column(
-        Enum(ModType), default=ModType.mod, nullable=False
-    )
-    local_path: Mapped[str | None] = mapped_column(String(500))
-    arguments: Mapped[str | None] = mapped_column(Text)
-    server_mod: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    size_bytes: Mapped[int | None] = mapped_column(Integer)
-    last_updated: Mapped[datetime | None] = mapped_column(DateTime)
-    steam_last_updated: Mapped[datetime | None] = mapped_column(DateTime)
-
-    # Relationships
-    images: Mapped[list["ModImage"]] = relationship(
-        "ModImage", back_populates="mod", cascade="all, delete-orphan"
-    )
-    collection_entries: Mapped[list["ModCollectionEntry"]] = relationship(
-        "ModCollectionEntry", back_populates="mod", cascade="all, delete-orphan"
-    )
+    class Meta:
+        database = db
+        table_name = "mods"
 
     def to_dict(self) -> dict[str, Any]:
         """Convert mod instance to dictionary representation.
@@ -79,7 +72,7 @@ class Mod(db.Model):  # type: ignore[name-defined]
             "steam_id": self.steam_id,
             "filename": self.filename,
             "name": self.name,
-            "mod_type": self.mod_type.value if self.mod_type else None,
+            "mod_type": self.mod_type,
             "local_path": self.local_path,
             "arguments": self.arguments,
             "server_mod": self.server_mod,

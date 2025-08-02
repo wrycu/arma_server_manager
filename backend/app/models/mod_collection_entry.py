@@ -1,20 +1,20 @@
 """Mod collection entry model for many-to-many relationship between mods and collections."""
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Text
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
+from peewee import (
+    DateTimeField,
+    DeferredForeignKey,
+    IntegerField,
+    Model,
+    TextField,
+)
 
-from .. import db
-
-if TYPE_CHECKING:
-    from .collection import Collection
-    from .mod import Mod
+from ..database import db
 
 
-class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
+class ModCollectionEntry(Model):
     """Entry model for mods within collections.
 
     This model represents the many-to-many relationship between
@@ -28,28 +28,29 @@ class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
         added_at: When mod was added to collection
     """
 
-    __tablename__ = "mod_collection_entries"
+    id = IntegerField(primary_key=True)
+    collection = DeferredForeignKey(
+        "Collection", backref="mod_entries", on_delete="CASCADE", index=True
+    )
+    mod = DeferredForeignKey(
+        "Mod", backref="collection_entries", on_delete="CASCADE", index=True
+    )
+    arguments = TextField(null=True)
+    added_at = DateTimeField(default=datetime.now)
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    collection_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("collections.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    mod_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("mods.id", ondelete="CASCADE"), nullable=False, index=True
-    )
-    arguments: Mapped[str] = mapped_column(Text)
-    added_at: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), nullable=False
-    )
+    class Meta:
+        database = db
+        table_name = "mod_collection_entries"
 
-    # Relationships
-    collection: Mapped["Collection"] = relationship(
-        "Collection", back_populates="mod_entries"
-    )
-    mod: Mapped["Mod"] = relationship("Mod", back_populates="collection_entries")
+    @property
+    def collection_id(self) -> int:
+        """Get collection ID for backward compatibility."""
+        return self.collection.id if self.collection else 0
+
+    @property
+    def mod_id(self) -> int:
+        """Get mod ID for backward compatibility."""
+        return self.mod.id if self.mod else 0
 
     def to_dict(self, include_mod_details: bool = True) -> dict[str, Any]:
         """Convert mod collection entry to dictionary representation.
@@ -65,7 +66,7 @@ class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
             "collection_id": self.collection_id,
             "mod_id": self.mod_id,
             "arguments": self.arguments,
-            "added_at": self.added_at.isoformat(),
+            "added_at": self.added_at.isoformat() if self.added_at else None,
         }
 
         if include_mod_details and self.mod:

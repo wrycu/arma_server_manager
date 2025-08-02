@@ -1,6 +1,7 @@
 """Application entry point for Flask development server."""
 
-from app import create_app, db
+from app import create_app
+from app.database import db
 
 app = create_app()
 
@@ -12,8 +13,5 @@ def make_shell_context() -> dict[str, object]:
 
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-
     debug_mode = app.config.get("DEBUG", False)
     app.run(debug=debug_mode, host="0.0.0.0", port=5000)

@@ -3,14 +3,19 @@
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy.sql import func
+from peewee import (
+    BooleanField,
+    CharField,
+    DateTimeField,
+    IntegerField,
+    Model,
+    TextField,
+)
 
-from .. import db
+from ..database import db
 
 
-class ServerConfig(db.Model):  # type: ignore[name-defined]
+class ServerConfig(Model):
     """Server configuration model for Arma 3 server settings.
 
     This model stores server configuration profiles that can be
@@ -37,30 +42,33 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
         updated_at: When configuration was last modified
     """
 
-    __tablename__ = "server_configs"
+    id = IntegerField(primary_key=True)
+    name = CharField(max_length=255, index=True)
+    description = TextField(null=True)
+    server_name = CharField(max_length=255)
+    password = CharField(max_length=255, null=True)
+    admin_password = CharField(max_length=255)
+    max_players = IntegerField(default=32)
+    mission_file = CharField(max_length=500, null=True)
+    server_config_file = CharField(max_length=500, null=True)
+    basic_config_file = CharField(max_length=500, null=True)
+    server_mods = TextField(null=True)
+    client_mods = TextField(null=True)
+    additional_params = TextField(null=True)
+    auto_restart = BooleanField(default=False)
+    restart_interval_hours = IntegerField(null=True)
+    is_active = BooleanField(default=False)
+    created_at = DateTimeField(default=datetime.now)
+    updated_at = DateTimeField(default=datetime.now)
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
-    description: Mapped[str | None] = mapped_column(Text)
-    server_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    password: Mapped[str | None] = mapped_column(String(255))
-    admin_password: Mapped[str] = mapped_column(String(255), nullable=False)
-    max_players: Mapped[int] = mapped_column(Integer, default=32, nullable=False)
-    mission_file: Mapped[str | None] = mapped_column(String(500))
-    server_config_file: Mapped[str | None] = mapped_column(String(500))
-    basic_config_file: Mapped[str | None] = mapped_column(String(500))
-    server_mods: Mapped[str | None] = mapped_column(Text)
-    client_mods: Mapped[str | None] = mapped_column(Text)
-    additional_params: Mapped[str | None] = mapped_column(Text)
-    auto_restart: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    restart_interval_hours: Mapped[int | None] = mapped_column(Integer)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), nullable=False
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), onupdate=func.now(), nullable=False
-    )
+    class Meta:
+        database = db
+        table_name = "server_configs"
+
+    def save(self, *args, **kwargs):
+        """Override save to update the updated_at field."""
+        self.updated_at = datetime.now()
+        return super().save(*args, **kwargs)
 
     def to_dict(self, include_sensitive: bool = False) -> dict[str, Any]:
         """Convert server config instance to dictionary representation.
@@ -86,8 +94,8 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
             "auto_restart": self.auto_restart,
             "restart_interval_hours": self.restart_interval_hours,
             "is_active": self.is_active,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
         if include_sensitive:

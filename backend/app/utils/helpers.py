@@ -6,9 +6,8 @@ from datetime import datetime
 from xmlrpc.client import Binary
 
 import httpx
-import sqlalchemy
+from peewee import DoesNotExist
 
-from app import db
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
 
@@ -42,12 +41,12 @@ class Arma3ModManager:
         Retrieves details about subscribed mods
         """
         results = []
-        for result in Mod.query.all():
+        for result in Mod.select():
             details = result.to_dict()
             try:
-                ModImage.query.filter(ModImage.id == result.id).first()
+                ModImage.get(ModImage.id == result.id)
                 details["image_available"] = True
-            except sqlalchemy.orm.exc.NoResultFound:
+            except DoesNotExist:
                 details["image_available"] = False
             results.append(details)
         return results
@@ -59,12 +58,12 @@ class Arma3ModManager:
         :param mod_id: - INT, the internal ID of the mod to get details for
         :return:
         """
-        result = Mod.query.filter(Mod.id == mod_id).first()
+        result = Mod.get_by_id(mod_id)
         details = result.to_dict()
         try:
-            ModImage.query.filter(ModImage.id == result.id).first()
+            ModImage.get(ModImage.id == result.id)
             details["image_available"] = True
-        except sqlalchemy.orm.exc.NoResultFound:
+        except DoesNotExist:
             details["image_available"] = False
         return details
 
@@ -79,17 +78,16 @@ class Arma3ModManager:
         :return:
         """
         try:
-            result = Mod.query.filter(Mod.id == mod_id).first()
-            if result:
-                disallowed_attrs = [
-                    "id",
-                    "updated_at",
-                ]  # do not allow certain fields to be modified
-                for key, value in updated_data.items():
-                    if key not in disallowed_attrs:
-                        setattr(result, key, value)
-                db.session.commit()
-        except Exception as e:
+            result = Mod.get_by_id(mod_id)
+            disallowed_attrs = [
+                "id",
+                "updated_at",
+            ]  # do not allow certain fields to be modified
+            for key, value in updated_data.items():
+                if key not in disallowed_attrs:
+                    setattr(result, key, value)
+            result.save()
+        except DoesNotExist as e:
             raise Exception("Failed to update mod (mod not found?)") from e
 
     def remove_subscribed_mod(self, mod_id: int) -> None:
@@ -100,11 +98,12 @@ class Arma3ModManager:
         """
         # TODO: delete the local files
         try:
-            db.session.delete(ModImage.query.filter(ModImage.mod_id == mod_id).first())
-            db.session.commit()
-            db.session.delete(Mod.query.filter(Mod.id == mod_id).first())
-            db.session.commit()
-        except sqlalchemy.orm.exc.UnmappedInstanceError as e:
+            # Delete associated mod images first
+            mod = Mod.get_by_id(mod_id)
+            ModImage.delete().where(ModImage.mod == mod).execute()
+            # Delete the mod
+            mod.delete_instance()
+        except DoesNotExist as e:
             raise Exception("Cannot find subscribed mod") from e
 
     def add_subscribed_mod(self, mod_steam_id: int) -> int:
@@ -131,21 +130,19 @@ class Arma3ModManager:
             size_bytes=mod_details["file_size"],
             steam_last_updated=datetime.utcfromtimestamp(mod_details["time_updated"]),
         )
-        db.session.add(prepared_mod)
         try:
-            db.session.commit()
-        except sqlalchemy.exc.IntegrityError as e:
+            prepared_mod.save()
+        except Exception as e:
             raise Exception("This mod is already subscribed") from e
 
         img_data = httpx.get(mod_details["preview_url"])
         preview_image = ModImage(
-            mod_id=prepared_mod.id,
+            mod=prepared_mod,
             image_data=bytes(img_data.content),
             content_type=img_data.headers.get("content-type"),
         )
-        db.session.add(preview_image)
-        db.session.commit()
-        return prepared_mod.id
+        preview_image.save()
+        return int(prepared_mod.id)
 
     def get_subscribed_mod_image(self, mod_id: int) -> Binary:
         """
@@ -153,11 +150,7 @@ class Arma3ModManager:
         :param mod_id: - INT, the internal ID of the mod to get details for
         :return:
         """
-        return (
-            ModImage.query.filter(ModImage.id == mod_id)
-            .first()
-            .to_dict(include_data=True)
-        )
+        return ModImage.get(ModImage.id == mod_id).to_dict(include_data=True)
 
     def download_single_mod(self, mod_id: int, dst_dir: str):
         """

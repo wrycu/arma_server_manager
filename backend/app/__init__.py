@@ -4,13 +4,9 @@ import os
 
 from celery import Celery, Task
 from flask import Flask, Response
-from flask_cors import CORS  # type: ignore[import-untyped]
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 # Initialize extensions
-db = SQLAlchemy()
-migrate = Migrate()
 celery = Celery(__name__)
 
 
@@ -43,9 +39,12 @@ def create_app(config_name: str | None = None) -> Flask:
         app.config.from_object(Config)
 
     # Initialize extensions with app
-    db.init_app(app)
-    migrate.init_app(app, db)
     CORS(app)
+
+    # Initialize Peewee database
+    from .database import create_tables
+
+    create_tables()
 
     # Configure Celery
     celery.conf.update(app.config)

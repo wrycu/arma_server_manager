@@ -1,19 +1,21 @@
 """Mod image model for storing mod preview images."""
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from sqlalchemy import DateTime, ForeignKey, Integer, LargeBinary, String
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql import func
+from peewee import (
+    BlobField,
+    CharField,
+    DateTimeField,
+    DeferredForeignKey,
+    IntegerField,
+    Model,
+)
 
-from .. import db
-
-if TYPE_CHECKING:
-    from .mod import Mod
+from ..database import db
 
 
-class ModImage(db.Model):  # type: ignore[name-defined]
+class ModImage(Model):
     """Model for storing mod preview images.
 
     This model stores image data (as blobs) associated with mods
@@ -27,20 +29,20 @@ class ModImage(db.Model):  # type: ignore[name-defined]
         created_at: When image was stored
     """
 
-    __tablename__ = "mod_images"
+    id = IntegerField(primary_key=True)
+    mod = DeferredForeignKey("Mod", backref="images", on_delete="CASCADE", index=True)
+    image_data = BlobField()
+    content_type = CharField(max_length=50)
+    created_at = DateTimeField(default=datetime.now)
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    mod_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("mods.id", ondelete="CASCADE"), nullable=False, index=True
-    )
-    image_data: Mapped[bytes] = mapped_column(LargeBinary, nullable=False)
-    content_type: Mapped[str] = mapped_column(String(50), nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now(), nullable=False
-    )
+    class Meta:
+        database = db
+        table_name = "mod_images"
 
-    # Relationships
-    mod: Mapped["Mod"] = relationship("Mod", back_populates="images")
+    @property
+    def mod_id(self) -> int:
+        """Get mod ID for backward compatibility."""
+        return self.mod.id if self.mod else 0
 
     def to_dict(self, include_data: bool = False) -> dict[str, Any]:
         """Convert mod image instance to dictionary representation.
@@ -55,8 +57,8 @@ class ModImage(db.Model):  # type: ignore[name-defined]
             "id": self.id,
             "mod_id": self.mod_id,
             "content_type": self.content_type,
-            "size_bytes": len(self.image_data),
-            "created_at": self.created_at.isoformat(),
+            "size_bytes": len(self.image_data) if self.image_data else 0,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
         if include_data:
