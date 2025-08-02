@@ -44,11 +44,12 @@ This is an Arma 3 server management application with a Flask backend and React f
 ## Architecture Overview
 
 ### Backend Architecture
-- **Flask** application with SQLAlchemy ORM using SQLite database
-- **Celery** for background tasks (mod downloads, server operations) - supports SQLite or Redis broker
-- **Models**: Core entities are `Mod`, `Collection`, `ModCollectionEntry`, `ServerConfig`
-- **API Routes**: RESTful API in `app/routes/api.py`
+- **Flask** application with Peewee ORM using SQLite database
+- **Celery** for background tasks (mod downloads, server operations) - supports Redis broker
+- **Models**: Core entities are `Mod`, `Collection`, `ModCollectionEntry`, `ModImage`, `ServerConfig`
+- **API Routes**: RESTful API in `app/routes/api.py` and `app/routes/arma3.py`
 - **Background Tasks**: Celery tasks in `app/tasks/background.py`
+- **Database**: Initialized via `app/database.py` with `create_tables()` function
 
 ### Key Domain Concepts
 - **Mods**: Arma 3 mods with Steam Workshop integration, can be server-side only or client mods
@@ -64,20 +65,21 @@ This is an Arma 3 server management application with a Flask backend and React f
 
 ### Data Flow
 - Frontend calls REST API endpoints defined in `frontend/src/services/api.ts`
-- Backend models use `to_dict()` methods for JSON serialization
+- Backend models use Peewee's built-in serialization with custom `to_dict()` methods
 - Sensitive data (passwords) excluded from API responses unless explicitly requested
-- Background tasks handle Steam Workshop downloads and server management
+- Background tasks handle Steam Workshop downloads and server management via SteamCMD
 
 ### Environment Configuration
-- Backend: Uses `.env` file for Flask configuration, database URI, Celery broker
+- Backend: Uses `.env` file for Flask config, database path, Celery broker, SteamCMD settings
 - Frontend: Uses `.env.local` for Vite environment variables (API base URL)
 - Default ports: Backend (5000), Frontend (5173), Redis (6379), Redis Commander (8081)
-- Celery can use SQLite (default) or Redis (via docker-compose) - see `backend/.env.example`
+- Celery uses Redis broker (via docker-compose) - see `backend/.env.example`
+- SteamCMD configuration required: path to steamcmd binary, staging/install directories
 
 ### Code Quality Standards
 - **Python**: Type hints required, Ruff formatting (88 char line length), MyPy type checking, Pydoc docstrings
 - **TypeScript**: ESLint + Prettier, strict TypeScript configuration
-- **Database**: SQLAlchemy 2.0 with mapped columns and type annotations
+- **Database**: Peewee ORM with type annotations and model relationships
 
 ## Development Guidelines
 - All development commands must support unix or windows. We have multiple developers and they both use a different OS.
