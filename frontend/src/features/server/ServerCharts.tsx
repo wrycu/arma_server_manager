@@ -24,18 +24,18 @@ interface ServerChartsProps {
 const playerChartConfig = {
   players: {
     label: 'Players',
-    color: 'hsl(var(--chart-1))',
+    color: 'var(--chart-1)',
   },
 } satisfies ChartConfig;
 
 const resourceChartConfig = {
   cpu: {
     label: 'CPU',
-    color: 'hsl(var(--chart-2))',
+    color: 'var(--chart-2)',
   },
   memory: {
     label: 'Memory',
-    color: 'hsl(var(--chart-1))',
+    color: 'var(--chart-1)',
   },
 } satisfies ChartConfig;
 

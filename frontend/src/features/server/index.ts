@@ -5,6 +5,9 @@ export { ServerMetrics } from './ServerMetrics';
 export { ServerControls } from './ServerControls';
 export { ServerCharts } from './ServerCharts';
 
+// Server feature components
+export { CollectionSelector } from './components';
+
 // Server feature types
 export type {
   ServerStatus,

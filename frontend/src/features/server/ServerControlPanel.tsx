@@ -1,18 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigation } from '@/hooks/use-navigation';
 import { IconTerminal, IconServer, IconSettings } from '@tabler/icons-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageTitle } from '@/components/common/PageTitle';
 
 import { ServerMetrics } from './ServerMetrics';
 import { ServerControls } from './ServerControls';
 import { ServerCharts } from './ServerCharts';
+import { useCollections } from '@/features/collections/hooks/useCollections';
 import type {
   ServerStatus,
   ServerAction,
   ServerMetrics as ServerMetricsType,
 } from './types';
+import type { Collection } from '@/features/collections/types';
 
 // Mock historical data - replace with real API calls
 const generateMockMetrics = (): ServerMetricsType[] => {
@@ -36,8 +39,12 @@ const generateMockMetrics = (): ServerMetricsType[] => {
 
 export function ServerControlPanel() {
   const { setCurrentPage } = useNavigation();
+  const { collections } = useCollections();
+  const [selectedStartupCollection, setSelectedStartupCollection] =
+    useState<Collection | null>(null);
+
   const [server, setServer] = useState<ServerStatus>({
-    name: 'arma-3-test.nodecraft.gg',
+    name: 'My ARMA 3 Server',
     status: 'online',
     uptime: 234567,
     players: 1,
@@ -48,45 +55,90 @@ export function ServerControlPanel() {
     memory: 30,
     mods: 43,
     version: '2.18.151618',
+    activeCollection: {
+      id: 1,
+      name: 'Combat Enhancement',
+    },
   });
+
+  // Set the selected collection when collections are loaded and server has an active collection
+  useEffect(() => {
+    if (collections.length > 0 && server.activeCollection) {
+      const activeCollection = collections.find(
+        (c) => c.id === server.activeCollection?.id
+      );
+      if (activeCollection) {
+        setSelectedStartupCollection(activeCollection);
+      }
+    }
+  }, [collections, server.activeCollection]);
 
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [metricsHistory] = useState<ServerMetricsType[]>(generateMockMetrics());
 
-  const handleServerAction = async (action: ServerAction) => {
+  const handleServerAction = async (action: ServerAction, collectionId?: number) => {
     setIsLoading(action);
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    setServer((prev) => ({
-      ...prev,
-      status:
-        action === 'start' ? 'starting' : action === 'stop' ? 'stopping' : 'starting',
-    }));
+    if ((action === 'start' || action === 'restart') && collectionId) {
+      const collection = collections.find((c) => c.id === collectionId);
+      console.log(
+        `${action === 'start' ? 'Starting' : 'Restarting'} server with collection: ${collection?.name || 'Unknown'}`
+      );
+
+      setServer((prev) => ({
+        ...prev,
+        status: 'starting',
+        activeCollection: collection
+          ? {
+              id: collection.id,
+              name: collection.name,
+            }
+          : undefined,
+      }));
+    } else {
+      setServer((prev) => ({
+        ...prev,
+        status:
+          action === 'start' ? 'starting' : action === 'stop' ? 'stopping' : 'starting',
+        ...(action === 'stop' && { activeCollection: undefined }),
+      }));
+    }
 
     setIsLoading(null);
+  };
+
+  const handleStartupCollectionChange = (collection: Collection | null) => {
+    setSelectedStartupCollection(collection);
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl text-foreground">Control Panel</h1>
-          <p className="text-muted-foreground text-sm">Manage your ARMA 3 server</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setCurrentPage('server-configs')}>
-            <IconSettings className="size-4 mr-2" />
-            Configure
-          </Button>
-          <Button variant="outline">
-            <IconTerminal className="size-4 mr-2" />
-            Console
-          </Button>
-        </div>
-      </div>
+      <PageTitle
+        title="Control Panel"
+        description="Manage your ARMA 3 server"
+        breadcrumbs={[
+          {
+            label: 'Server',
+            onClick: () => setCurrentPage('server'),
+          },
+        ]}
+        actions={
+          <>
+            <Button variant="outline" onClick={() => setCurrentPage('server-configs')}>
+              <IconSettings className="size-4 mr-2" />
+              Configure
+            </Button>
+            <Button variant="outline">
+              <IconTerminal className="size-4 mr-2" />
+              Console
+            </Button>
+          </>
+        }
+      />
 
       {/* Server Status Header */}
       <Card>
@@ -111,9 +163,10 @@ export function ServerControlPanel() {
           <ServerControls
             server={server}
             isLoading={isLoading}
+            collections={collections}
+            selectedStartupCollection={selectedStartupCollection}
             onServerAction={handleServerAction}
-            onNavigateToMods={() => setCurrentPage('mod-management')}
-            onNavigateToCollections={() => setCurrentPage('collections')}
+            onStartupCollectionChange={handleStartupCollectionChange}
           />
         </div>
       </div>

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { IconServer, IconSettings, IconFolder, IconPackage } from '@tabler/icons-react';
 
-import { NavSection } from '@/components/common';
+import { NavSection } from '@/components/common/NavSection';
 import { LogoutButton } from './LogoutButton';
 import {
   Sidebar,

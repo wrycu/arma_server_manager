@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PageTitle } from '@/components/common/PageTitle';
 
 interface InstalledMod {
   id: number;
@@ -124,12 +125,7 @@ export function InstalledModsManager() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-semibold">Installed Mods</h2>
-          <p className="text-xs text-muted-foreground">Manage your installed content</p>
-        </div>
-      </div>
+      <PageTitle title="Installed Mods" description="Manage your installed content" />
 
       <div className="flex gap-4">
         <div className="relative flex-1">

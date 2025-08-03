@@ -10,6 +10,10 @@ export interface ServerStatus {
   memory: number;
   mods: number;
   version: string;
+  activeCollection?: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface ServerMetrics {
@@ -20,3 +24,8 @@ export interface ServerMetrics {
 }
 
 export type ServerAction = 'start' | 'stop' | 'restart';
+
+export interface ServerActionWithCollection {
+  action: ServerAction;
+  collectionId?: number;
+}
