@@ -51,8 +51,8 @@ function PlayerChart({ data }: { data: ServerMetrics[] }) {
   }));
 
   return (
-    <ChartContainer config={playerChartConfig} className="h-[300px] w-full">
-      <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+    <ChartContainer config={playerChartConfig} className="h-[180px] w-full">
+      <LineChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         <XAxis
           dataKey="time"
@@ -106,8 +106,8 @@ function ResourceChart({ data }: { data: ServerMetrics[] }) {
   }));
 
   return (
-    <ChartContainer config={resourceChartConfig} className="h-[300px] w-full">
-      <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+    <ChartContainer config={resourceChartConfig} className="h-[180px] w-full">
+      <LineChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 5 }}>
         <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
         <XAxis
           dataKey="time"
@@ -162,31 +162,31 @@ function ResourceChart({ data }: { data: ServerMetrics[] }) {
 
 export function ServerCharts({ playerHistory, resourceHistory }: ServerChartsProps) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="flex flex-col gap-4 h-full">
       {/* Player Count Over Time */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconUsers className="size-5" />
+      <Card className="flex-1">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <IconUsers className="size-4" />
             Player Activity
           </CardTitle>
-          <CardDescription>Player count over the last 24 hours</CardDescription>
+          <CardDescription className="text-xs">Last 24 hours</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <PlayerChart data={playerHistory} />
         </CardContent>
       </Card>
 
       {/* Resource Usage Over Time */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconActivity className="size-5" />
+      <Card className="flex-1">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-sm">
+            <IconActivity className="size-4" />
             Resource Usage
           </CardTitle>
-          <CardDescription>CPU and memory usage over the last 24 hours</CardDescription>
+          <CardDescription className="text-xs">Last 24 hours</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           <ResourceChart data={resourceHistory} />
         </CardContent>
       </Card>
