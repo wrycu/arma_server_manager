@@ -20,12 +20,12 @@ interface SecuritySettingsProps {
 export function SecuritySettings({ settings, onUpdate }: SecuritySettingsProps) {
   const handleInputChange =
     (field: keyof SecuritySettingsType) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      onUpdate({
-        ...settings,
-        [field]: event.target.value,
-      });
-    };
+      (event: React.ChangeEvent<HTMLInputElement>) => {
+        onUpdate({
+          ...settings,
+          [field]: event.target.value,
+        });
+      };
 
   return (
     <Card>
