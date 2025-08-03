@@ -5,6 +5,8 @@ import {
   IconFolder,
   IconPackage,
   IconLogout,
+  IconChevronsLeft,
+  IconChevronsRight,
 } from '@tabler/icons-react';
 
 import { NavSection } from '@/components/common/NavSection';
@@ -17,6 +19,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 
 const data = {
@@ -43,9 +46,11 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setCurrentPage } = useNavigation();
+  const { state, toggleSidebar } = useSidebar();
+  const isCollapsed = state === 'collapsed';
 
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -67,6 +72,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={toggleSidebar}
+              tooltip={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            >
+              {isCollapsed ? <IconChevronsRight /> : <IconChevronsLeft />}
+              <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={() => setCurrentPage('settings')}
