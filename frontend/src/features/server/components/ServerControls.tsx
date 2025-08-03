@@ -52,7 +52,7 @@ export function ServerControls({
 
               {/* Show restart with collection button if different collection is selected */}
               {selectedStartupCollection &&
-                selectedStartupCollection.id !== server.activeCollection?.id ? (
+              selectedStartupCollection.id !== server.activeCollection?.id ? (
                 <Button
                   variant="default"
                   className="w-full"
