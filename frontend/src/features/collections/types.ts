@@ -18,14 +18,8 @@ export interface Collection {
   isActive: boolean;
 }
 
-export interface UpdatingMod {
-  id: number;
-  name: string;
-  version?: string;
-  progress: number;
-  status: 'downloading' | 'installing' | 'verifying' | 'completed' | 'error';
-  error?: string;
-}
+// UpdatingMod is now imported from mods feature to avoid duplication
+export type { UpdatingMod } from '../mods';
 
 export interface ModToRemove {
   collectionId: number;
