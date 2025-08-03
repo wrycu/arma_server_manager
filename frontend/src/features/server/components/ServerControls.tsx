@@ -7,8 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CollectionSelector } from './components';
-import type { ServerStatus, ServerAction } from './types';
+import { CollectionSelector } from './CollectionSelector';
+import type { ServerStatus, ServerAction } from '../types';
 import type { Collection } from '@/features/collections/types';
 
 interface ServerControlsProps {
@@ -52,7 +52,7 @@ export function ServerControls({
 
               {/* Show restart with collection button if different collection is selected */}
               {selectedStartupCollection &&
-              selectedStartupCollection.id !== server.activeCollection?.id ? (
+                selectedStartupCollection.id !== server.activeCollection?.id ? (
                 <Button
                   variant="default"
                   className="w-full"

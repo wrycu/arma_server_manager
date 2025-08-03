@@ -13,7 +13,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import type { ServerMetrics } from './types';
+import type { ServerMetrics } from '../types';
 
 interface ServerChartsProps {
   playerHistory: ServerMetrics[];
