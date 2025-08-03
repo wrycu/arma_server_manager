@@ -2,6 +2,7 @@ import { ServerControlPanel } from '@/features/server';
 import { ServerConfigEditor } from '@/features/server/components/ServerConfigEditor';
 import { InstalledModsManager } from '@/features/mods';
 import { CollectionManager } from '@/features/collections';
+import { Settings } from '@/features/settings';
 import { useNavigation } from '@/hooks/use-navigation';
 
 export function MainContent() {
@@ -17,6 +18,8 @@ export function MainContent() {
         return <CollectionManager />;
       case 'server-configs':
         return <ServerConfigEditor />;
+      case 'settings':
+        return <Settings />;
       default:
         return <ServerControlPanel />;
     }

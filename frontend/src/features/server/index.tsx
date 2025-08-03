@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigation } from '@/hooks/use-navigation';
-import { IconTerminal, IconServer, IconSettings } from '@tabler/icons-react';
+import { IconTerminal, IconSettings } from '@tabler/icons-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageTitle } from '@/components/common/PageTitle';
 
-import { ServerMetrics } from './components/ServerMetrics';
-import { ServerControls } from './components/ServerControls';
+import { CompactServerStatus } from './components/CompactServerStatus';
 import { ServerCharts } from './components/ServerCharts';
 import { useCollections } from '@/features/collections/hooks/useCollections';
 import type {
@@ -140,27 +138,11 @@ export function ServerControlPanel() {
         }
       />
 
-      {/* Server Status Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconServer className="size-5" />
-            {server.name}
-          </CardTitle>
-          <CardDescription>ARMA 3 Server • Version {server.version}</CardDescription>
-        </CardHeader>
-      </Card>
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Server Metrics */}
-        <div className="lg:col-span-2">
-          <ServerMetrics server={server} />
-        </div>
-
-        {/* Server Controls */}
-        <div>
-          <ServerControls
+      {/* Main Content Grid: Server Status (1/2) + Charts (1/2) */}
+      <div className="grid grid-cols-2 gap-6 items-start">
+        {/* Server Management Panel - 1/2 width */}
+        <div className="col-span-1 h-full">
+          <CompactServerStatus
             server={server}
             isLoading={isLoading}
             collections={collections}
@@ -169,10 +151,15 @@ export function ServerControlPanel() {
             onStartupCollectionChange={handleStartupCollectionChange}
           />
         </div>
-      </div>
 
-      {/* Charts Section */}
-      <ServerCharts playerHistory={metricsHistory} resourceHistory={metricsHistory} />
+        {/* Charts Section - 1/2 width */}
+        <div className="col-span-1 h-full">
+          <ServerCharts
+            playerHistory={metricsHistory}
+            resourceHistory={metricsHistory}
+          />
+        </div>
+      </div>
     </div>
   );
 }

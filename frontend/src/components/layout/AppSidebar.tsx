@@ -1,8 +1,14 @@
 import * as React from 'react';
-import { IconServer, IconSettings, IconFolder, IconPackage } from '@tabler/icons-react';
+import {
+  IconServer,
+  IconSettings,
+  IconFolder,
+  IconPackage,
+  IconLogout,
+} from '@tabler/icons-react';
 
 import { NavSection } from '@/components/common/NavSection';
-import { LogoutButton } from './LogoutButton';
+import { useNavigation } from '@/hooks/use-navigation';
 import {
   Sidebar,
   SidebarContent,
@@ -36,6 +42,8 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { setCurrentPage } = useNavigation();
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -56,15 +64,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavSection title="Server Management" items={data.navControl} />
         <NavSection title="Content Library" items={data.navContent} />
-        <NavSection
-          title="Settings"
-          items={[{ title: 'Settings', url: '#', icon: IconSettings }]}
-          enableNavigation={false}
-          className="mt-auto"
-        />
       </SidebarContent>
       <SidebarFooter>
-        <LogoutButton />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => setCurrentPage('settings')}
+              tooltip="Settings"
+            >
+              <IconSettings />
+              <span>Settings</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={() => {
+                // TODO: Implement logout logic
+                console.log('Logout clicked');
+              }}
+              tooltip="Logout"
+            >
+              <IconLogout />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );
