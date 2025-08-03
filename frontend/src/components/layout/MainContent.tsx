@@ -1,4 +1,5 @@
-import { ServerControlPanel, ServerConfigEditor } from '@/features/server';
+import { ServerControlPanel } from '@/features/server';
+import { ServerConfigEditor } from '@/features/server/components/ServerConfigEditor';
 import { InstalledModsManager } from '@/features/mods';
 import { CollectionManager } from '@/features/collections';
 import { useNavigation } from '@/hooks/use-navigation';

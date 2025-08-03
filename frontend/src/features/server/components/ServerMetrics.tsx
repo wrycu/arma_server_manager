@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import type { ServerStatus } from './types';
+import type { ServerStatus } from '../types';
 
 interface ServerMetricsProps {
   server: ServerStatus;

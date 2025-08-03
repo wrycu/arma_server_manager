@@ -1,7 +1,3 @@
-// Mods feature barrel export
-export { InstalledModsManager } from './ModBrowser';
-export { UpdatingModCard } from './UpdatingModCard';
-
 // Mods feature types
 export interface InstalledMod {
   id: number;

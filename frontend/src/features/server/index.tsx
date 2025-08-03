@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageTitle } from '@/components/common/PageTitle';
 
-import { ServerMetrics } from './ServerMetrics';
-import { ServerControls } from './ServerControls';
-import { ServerCharts } from './ServerCharts';
+import { ServerMetrics } from './components/ServerMetrics';
+import { ServerControls } from './components/ServerControls';
+import { ServerCharts } from './components/ServerCharts';
 import { useCollections } from '@/features/collections/hooks/useCollections';
 import type {
   ServerStatus,

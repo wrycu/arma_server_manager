@@ -19,7 +19,7 @@ export interface Collection {
 }
 
 // UpdatingMod is now imported from mods feature to avoid duplication
-export type { UpdatingMod } from '../mods';
+export type { UpdatingMod } from '../mods/types';
 
 export interface ModToRemove {
   collectionId: number;

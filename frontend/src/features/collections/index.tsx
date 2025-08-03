@@ -3,15 +3,13 @@ import { IconPlus } from '@tabler/icons-react';
 
 import { Button } from '@/components/ui/button';
 import { PageTitle } from '@/components/common/PageTitle';
-import { UpdatingModCard } from '@/features/mods';
+import { UpdatingModCard } from '@/features/mods/components/UpdatingModCard';
 
 import { useCollections } from './hooks/useCollections';
-import {
-  CreateCollectionDialog,
-  RemoveModDialog,
-  ModsList,
-  CollectionsList,
-} from './components';
+import { CreateCollectionDialog } from './components/CreateCollectionDialog';
+import { RemoveModDialog } from './components/RemoveModDialog';
+import { ModsList } from './components/ModsList';
+import { CollectionsList } from './components/CollectionsList';
 import type { ModToRemove } from './types';
 
 export function CollectionManager() {

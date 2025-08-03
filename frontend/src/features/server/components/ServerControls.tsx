@@ -7,8 +7,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { CollectionSelector } from './components';
-import type { ServerStatus, ServerAction } from './types';
+import { CollectionSelector } from './CollectionSelector';
+import type { ServerStatus, ServerAction } from '../types';
 import type { Collection } from '@/features/collections/types';
 
 interface ServerControlsProps {
