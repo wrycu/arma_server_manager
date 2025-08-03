@@ -350,7 +350,7 @@ export function CollectionManager() {
     return (
       <div className="h-screen flex flex-col bg-background">
         {/* Compact Header */}
-        <div className="flex items-center justify-between px-4 py-2 border-b bg-background/95 backdrop-blur">
+        <div className="flex items-center justify-between border-b bg-background/95 backdrop-blur">
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"

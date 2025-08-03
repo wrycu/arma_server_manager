@@ -1,18 +1,13 @@
 // Server feature barrel export
 export { ServerControlPanel } from './ServerControlPanel';
 export { ServerConfigEditor } from './ServerConfigEditor';
+export { ServerMetrics } from './ServerMetrics';
+export { ServerControls } from './ServerControls';
+export { ServerCharts } from './ServerCharts';
 
 // Server feature types
-export interface ServerStatus {
-  name: string;
-  status: 'online' | 'offline' | 'starting' | 'stopping';
-  uptime?: number;
-  players: number;
-  maxPlayers: number;
-  mission?: string;
-  lastRestart?: string;
-  cpu: number;
-  memory: number;
-  mods: number;
-  version: string;
-}
+export type {
+  ServerStatus,
+  ServerMetrics as ServerMetricsType,
+  ServerAction,
+} from './types';

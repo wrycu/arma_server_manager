@@ -2,7 +2,7 @@ import * as React from 'react';
 import { IconServer, IconSettings, IconFolder, IconPackage } from '@tabler/icons-react';
 
 import { NavSection } from '@/components/common';
-import { NavUser } from './NavUser';
+import { LogoutButton } from './LogoutButton';
 import {
   Sidebar,
   SidebarContent,
@@ -14,11 +14,6 @@ import {
 } from '@/components/ui/sidebar';
 
 const data = {
-  user: {
-    name: 'ARMA Admin',
-    email: 'admin@armaserver.local',
-    avatar: '/avatars/admin.jpg',
-  },
   navControl: [
     {
       title: 'Control Panel',
@@ -36,13 +31,6 @@ const data = {
       title: 'Installed',
       url: 'mod-management',
       icon: IconPackage,
-    },
-  ],
-  navTools: [
-    {
-      title: 'Settings',
-      url: '#',
-      icon: IconSettings,
     },
   ],
 };
@@ -69,14 +57,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSection title="Server Management" items={data.navControl} />
         <NavSection title="Content Library" items={data.navContent} />
         <NavSection
-          title="Tools"
-          items={data.navTools}
+          title="Settings"
+          items={[{ title: 'Settings', url: '#', icon: IconSettings }]}
           enableNavigation={false}
           className="mt-auto"
         />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <LogoutButton />
       </SidebarFooter>
     </Sidebar>
   );

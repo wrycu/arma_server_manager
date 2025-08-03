@@ -23,7 +23,7 @@ export function MainContent() {
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-4">
-      <div className="flex flex-col gap-6 py-6 md:gap-8 md:py-8">
+      <div className="flex flex-col gap-6 py-12 md:gap-8 md:py-14">
         <div className="px-6 lg:px-8">{renderCurrentPage()}</div>
       </div>
     </div>
