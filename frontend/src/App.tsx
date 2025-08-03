@@ -9,7 +9,7 @@ const queryClient = new QueryClient();
 
 function App() {
   const [currentPage, setCurrentPage] = useState('server-control');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Temporarily set to true for development
 
   const handleLogin = () => {
     setIsLoggedIn(true);
