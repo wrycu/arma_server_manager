@@ -76,6 +76,16 @@ export function ServerControls({
                 </Button>
               )}
             </>
+          ) : server.status === 'starting' ? (
+            <Button variant="outline" size="lg" className="w-full h-12" disabled={true}>
+              <IconPlayerPlay className="size-5 mr-2" />
+              Starting Server...
+            </Button>
+          ) : server.status === 'stopping' ? (
+            <Button variant="outline" size="lg" className="w-full h-12" disabled={true}>
+              <IconPlayerStop className="size-5 mr-2" />
+              Stopping Server...
+            </Button>
           ) : (
             <Button
               variant="default"

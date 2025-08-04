@@ -25,7 +25,8 @@ export function CollectionSelector({
   const hasActiveCollection = isServerOnline && server.activeCollection;
   const isDifferentCollectionSelected =
     selectedStartupCollection &&
-    selectedStartupCollection.id !== server.activeCollection?.id;
+    server.activeCollection &&
+    selectedStartupCollection.id !== server.activeCollection.id;
 
   return (
     <div className="space-y-3">
@@ -35,11 +36,7 @@ export function CollectionSelector({
             {/* Active Collection Display/Selector */}
             <div className="space-y-2">
               <Select
-                value={
-                  selectedStartupCollection?.id?.toString() ||
-                  server.activeCollection?.id?.toString() ||
-                  'none'
-                }
+                value={selectedStartupCollection?.id?.toString() || 'none'}
                 onValueChange={(value) => {
                   if (value === 'none') {
                     onStartupCollectionChange(null);
@@ -62,30 +59,42 @@ export function CollectionSelector({
                       </div>
                     ) : (
                       <div className="flex items-center justify-between w-full">
-                        <span>{server.activeCollection?.name}</span>
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
-                          Active
+                        <span>
+                          {server.activeCollection?.name || 'Select collection'}
                         </span>
+                        {server.activeCollection && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
+                            Active
+                          </span>
+                        )}
                       </div>
                     )}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={server.activeCollection?.id?.toString() || 'none'}>
+                  <SelectItem value="none">
                     <div className="flex flex-col items-start">
-                      <span className="font-medium">
-                        {server.activeCollection?.name || 'No collection'}
-                        <span className="ml-2 text-xs bg-green-100 text-green-800 px-1.5 py-0.5 rounded">
-                          Active
-                        </span>
+                      <span className="font-medium">No collection selected</span>
+                      <span className="text-xs text-muted-foreground">
+                        Use current active collection on startup
                       </span>
-                      {server.activeCollection && (
+                    </div>
+                  </SelectItem>
+                  {server.activeCollection && (
+                    <SelectItem value={server.activeCollection.id.toString()}>
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium">
+                          {server.activeCollection.name}
+                          <span className="ml-2 text-xs bg-green-100 text-green-800 px-1.5 py-0.5 rounded">
+                            Active
+                          </span>
+                        </span>
                         <span className="text-xs text-muted-foreground">
                           Currently running on server
                         </span>
-                      )}
-                    </div>
-                  </SelectItem>
+                      </div>
+                    </SelectItem>
+                  )}
                   {collections
                     .filter((c) => c.id !== server.activeCollection?.id)
                     .map((collection) => (
@@ -126,7 +135,14 @@ export function CollectionSelector({
                 <SelectValue placeholder="Select a collection for startup" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">No collection</SelectItem>
+                <SelectItem value="none">
+                  <div className="flex flex-col items-start">
+                    <span className="font-medium">No collection</span>
+                    <span className="text-xs text-muted-foreground">
+                      Start server without any mods
+                    </span>
+                  </div>
+                </SelectItem>
                 {collections.map((collection) => (
                   <SelectItem key={collection.id} value={collection.id.toString()}>
                     <div className="flex flex-col items-start">

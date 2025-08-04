@@ -214,6 +214,16 @@ export function CompactServerStatus({
                   </Button>
                 )}
               </>
+            ) : server.status === 'starting' ? (
+              <Button variant="outline" className="w-full" disabled={true}>
+                <IconPlayerPlay className="size-4 mr-2" />
+                Starting Server...
+              </Button>
+            ) : server.status === 'stopping' ? (
+              <Button variant="outline" className="w-full" disabled={true}>
+                <IconPlayerStop className="size-4 mr-2" />
+                Stopping Server...
+              </Button>
             ) : (
               <Button
                 variant="default"

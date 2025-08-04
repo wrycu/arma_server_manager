@@ -11,13 +11,14 @@ import { RemoveModDialog } from './components/RemoveModDialog';
 import { ModsList } from './components/ModsList';
 import { CollectionsList } from './components/CollectionsList';
 import type { ModToRemove } from './types';
+import type { Collection } from './types';
 
 export function CollectionManager() {
   const {
     collections,
     selectedCollection,
     updatingMods,
-    setSelectedCollection,
+    setSelectedCollectionId,
     createCollection,
     deleteCollection,
     toggleMod,
@@ -38,6 +39,10 @@ export function CollectionManager() {
     description: string;
   }) => {
     createCollection(newCollection);
+  };
+
+  const handleSelectCollection = (collection: Collection) => {
+    setSelectedCollectionId(collection.id);
   };
 
   const handleRemoveModFromCollection = (
@@ -67,7 +72,7 @@ export function CollectionManager() {
             breadcrumbs={[
               {
                 label: 'Collections',
-                onClick: () => setSelectedCollection(null),
+                onClick: () => setSelectedCollectionId(null),
               },
             ]}
             actions={
@@ -158,7 +163,7 @@ export function CollectionManager() {
       <div className="flex-1 overflow-auto py-6">
         <CollectionsList
           collections={collections}
-          onSelectCollection={setSelectedCollection}
+          onSelectCollection={handleSelectCollection}
           onDeleteCollection={deleteCollection}
         />
       </div>
