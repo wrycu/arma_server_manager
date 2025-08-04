@@ -23,6 +23,7 @@ export interface ModSubscription {
   name?: string;
   status?: string;
   last_updated?: string;
+  type?: 'mod' | 'mission' | 'map';
 }
 
 export interface ModSubscriptionsResponse {
@@ -66,4 +67,142 @@ export interface AsyncJobStatusResponse {
 export interface AsyncJobSuccessResponse {
   // The result structure when job is successful
   [key: string]: string | number | boolean | object | undefined;
+}
+
+// Collections API types
+export interface CollectionResponse {
+  id: number;
+  name: string;
+  description: string;
+  mods: ModItemResponse[];
+  createdAt: string;
+  isActive: boolean;
+}
+
+export interface ModItemResponse {
+  id: number;
+  name: string;
+  version?: string;
+  size: string;
+  type: 'mod' | 'mission' | 'map';
+  isServerMod: boolean;
+  hasUpdate: boolean;
+  disabled: boolean;
+}
+
+export interface CollectionsListResponse {
+  results: CollectionResponse[];
+  message: string;
+}
+
+export interface CollectionDetailsResponse {
+  results: CollectionResponse;
+  message: string;
+}
+
+export interface CreateCollectionRequest {
+  name: string;
+  description: string;
+}
+
+export interface CreateCollectionResponse {
+  results: CollectionResponse;
+  message: string;
+}
+
+export interface UpdateCollectionRequest {
+  name?: string;
+  description?: string;
+  isActive?: boolean;
+  mods?: ModItemResponse[];
+}
+
+export interface UpdateCollectionResponse {
+  results: CollectionResponse;
+  message: string;
+}
+
+export interface AddModToCollectionRequest {
+  modIds: number[];
+}
+
+export interface RemoveModFromCollectionRequest {
+  modId: number;
+}
+
+// Server API types
+export interface ServerStatusResponse {
+  id: number;
+  name: string;
+  status: 'online' | 'offline' | 'starting' | 'stopping';
+  uptime?: number;
+  players: number;
+  maxPlayers: number;
+  mission?: string;
+  lastRestart?: string;
+  cpu: number;
+  memory: number;
+  mods: number;
+  version: string;
+  activeCollection?: {
+    id: number;
+    name: string;
+  };
+}
+
+export interface ServerMetricsResponse {
+  timestamp: number;
+  players: number;
+  cpu: number;
+  memory: number;
+}
+
+export interface ServerMetricsHistoryResponse {
+  results: ServerMetricsResponse[];
+  message: string;
+}
+
+export interface ServerActionRequest {
+  action: 'start' | 'stop' | 'restart';
+  collectionId?: number;
+}
+
+export interface ServerActionResponse {
+  message: string;
+  status: string;
+}
+
+export interface ServerConfigResponse {
+  id: number;
+  name: string;
+  port: number;
+  maxPlayers: number;
+  password?: string;
+  adminPassword?: string;
+  serverPassword?: string;
+  mission: string;
+  difficulty: string;
+  timeLimit: number;
+  autoRestart: boolean;
+  autoRestartTime: number;
+  mods: string[];
+  customParams: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateServerConfigRequest {
+  name?: string;
+  port?: number;
+  maxPlayers?: number;
+  password?: string;
+  adminPassword?: string;
+  serverPassword?: string;
+  mission?: string;
+  difficulty?: string;
+  timeLimit?: number;
+  autoRestart?: boolean;
+  autoRestartTime?: number;
+  mods?: string[];
+  customParams?: string[];
 }

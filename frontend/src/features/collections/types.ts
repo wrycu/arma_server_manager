@@ -30,4 +30,5 @@ export interface ModToRemove {
 export interface NewCollection {
   name: string;
   description: string;
+  mods?: ModItem[];
 }

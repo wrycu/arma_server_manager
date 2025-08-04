@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -13,13 +14,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import type { NewCollection } from '../types';
+import type { NewCollection, ModItem } from '../types';
 
 interface CreateCollectionDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreate: (collection: NewCollection) => void;
   trigger?: React.ReactNode;
+  selectedMods?: ModItem[];
 }
 
 export function CreateCollectionDialog({
@@ -27,6 +29,7 @@ export function CreateCollectionDialog({
   onOpenChange,
   onCreate,
   trigger,
+  selectedMods = [],
 }: CreateCollectionDialogProps) {
   const [newCollection, setNewCollection] = useState<NewCollection>({
     name: '',
@@ -34,7 +37,10 @@ export function CreateCollectionDialog({
   });
 
   const handleCreate = () => {
-    onCreate(newCollection);
+    onCreate({
+      ...newCollection,
+      mods: selectedMods.length > 0 ? selectedMods : undefined,
+    });
     setNewCollection({ name: '', description: '' });
     onOpenChange(false);
   };
@@ -53,7 +59,9 @@ export function CreateCollectionDialog({
         <DialogHeader>
           <DialogTitle className="text-base">Create Collection</DialogTitle>
           <DialogDescription className="text-sm">
-            Create a new mod collection to organize your mods.
+            {selectedMods.length > 0
+              ? `Create a new collection with ${selectedMods.length} selected mod${selectedMods.length === 1 ? '' : 's'}.`
+              : 'Create a new mod collection to organize your mods.'}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -88,6 +96,20 @@ export function CreateCollectionDialog({
               className="min-h-16 text-sm resize-none"
             />
           </div>
+          {selectedMods.length > 0 && (
+            <div>
+              <Label className="text-xs py-1">Selected Mods</Label>
+              <div className="max-h-32 overflow-y-auto border rounded-md p-2 bg-muted/50">
+                <div className="flex flex-wrap gap-1">
+                  {selectedMods.map((mod) => (
+                    <Badge key={mod.id} variant="secondary" className="text-xs">
+                      {mod.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <DialogFooter className="gap-2">
           <Button
