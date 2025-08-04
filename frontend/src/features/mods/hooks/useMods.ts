@@ -196,7 +196,9 @@ export function useMods() {
         if (jobStatus.status === 'failed' || jobStatus.status === 'error') {
           setUpdatingMods((prev) =>
             prev.map((m) =>
-              m.id === modId ? { ...m, status: 'error', error: String(jobStatus.message) } : m
+              m.id === modId
+                ? { ...m, status: 'error', error: String(jobStatus.message) }
+                : m
             )
           );
           return;
