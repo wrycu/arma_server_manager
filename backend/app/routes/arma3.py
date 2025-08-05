@@ -56,7 +56,10 @@ def get_mod_subscriptions() -> tuple[dict[str, str], int]:
     """
     try:
         return (
-            current_app.config["MOD_MANAGERS"]["ARMA3"].get_subscribed_mods(),
+            {
+                "results": current_app.config["MOD_MANAGERS"]["ARMA3"].get_subscribed_mods(),
+                "message": "Retrieved successfully",
+            },
             HTTPStatus.OK,
         )
     except Exception as e:

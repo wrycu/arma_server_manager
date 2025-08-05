@@ -102,6 +102,10 @@ class Arma3ModManager:
         try:
             db.session.delete(ModImage.query.filter(ModImage.mod_id == mod_id).first())
             db.session.commit()
+        except sqlalchemy.orm.exc.UnmappedInstanceError:
+            # preview image is not required, so ignore it being missing
+            pass
+        try:
             db.session.delete(Mod.query.filter(Mod.id == mod_id).first())
             db.session.commit()
         except sqlalchemy.orm.exc.UnmappedInstanceError as e:
@@ -135,6 +139,7 @@ class Arma3ModManager:
         try:
             db.session.commit()
         except sqlalchemy.exc.IntegrityError as e:
+            db.session.rollback()
             raise Exception("This mod is already subscribed") from e
 
         img_data = httpx.get(mod_details["preview_url"])
