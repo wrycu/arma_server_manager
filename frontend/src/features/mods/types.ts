@@ -1,7 +1,3 @@
-// Mods feature barrel export
-export { InstalledModsManager } from './ModBrowser';
-export { UpdatingModCard } from './UpdatingModCard';
-
 // Mods feature types
 export interface InstalledMod {
   id: number;
@@ -11,6 +7,18 @@ export interface InstalledMod {
   lastUpdated: string;
   type: 'mod' | 'mission' | 'map';
   hasUpdate: boolean;
+  sizeOnDisk?: string;
+}
+
+// Extended mod subscription with UI-specific data
+export interface ExtendedModSubscription {
+  steam_id: number;
+  name?: string;
+  status?: string;
+  last_updated?: string;
+  author?: string;
+  type?: 'mod' | 'mission' | 'map';
+  hasUpdate?: boolean;
   sizeOnDisk?: string;
 }
 

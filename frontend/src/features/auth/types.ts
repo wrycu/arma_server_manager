@@ -1,7 +1,3 @@
-// Auth feature barrel export
-export { LoginPage } from './LoginPage';
-export { LoginForm } from './LoginForm';
-
 // Auth feature types
 export interface AuthUser {
   username: string;

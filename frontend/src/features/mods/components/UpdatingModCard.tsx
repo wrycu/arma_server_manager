@@ -3,14 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 
-interface UpdatingMod {
-  id: number;
-  name: string;
-  version?: string;
-  progress: number;
-  status: 'downloading' | 'installing' | 'verifying' | 'completed' | 'error';
-  error?: string;
-}
+import type { UpdatingMod } from '../types';
 
 interface UpdatingModCardProps {
   mod: UpdatingMod;
