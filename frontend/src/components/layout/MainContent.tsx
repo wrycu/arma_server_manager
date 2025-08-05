@@ -2,6 +2,7 @@ import { ServerControlPanel } from '@/features/server';
 import { ServerConfigEditor } from '@/features/server/components/ServerConfigEditor';
 import { InstalledModsManager } from '@/features/mods';
 import { CollectionManager } from '@/features/collections';
+import { SchedulesManager } from '@/features/schedules';
 import { Settings } from '@/features/settings';
 import { useNavigation } from '@/hooks/use-navigation';
 
@@ -16,6 +17,8 @@ export function MainContent() {
         return <InstalledModsManager />;
       case 'collections':
         return <CollectionManager />;
+      case 'schedules':
+        return <SchedulesManager />;
       case 'server-configs':
         return <ServerConfigEditor />;
       case 'settings':

@@ -15,6 +15,9 @@ import type {
   ModDownloadResponse,
   AsyncJobStatusResponse,
   AsyncJobSuccessResponse,
+  ScheduleResponse,
+  CreateScheduleRequest,
+  UpdateScheduleRequest,
 } from '@/types/api';
 
 // Environment flag to enable/disable mock data
@@ -1073,6 +1076,95 @@ const mockModSubscriptions: ModSubscription[] = [
   },
 ];
 
+// Mock schedule data
+const mockSchedules: ScheduleResponse[] = [
+  {
+    id: 1,
+    name: 'Daily Server Restart',
+    description: 'Restart server daily at 3 AM to maintain performance',
+    operationType: 'restart',
+    frequency: 'daily at 3am',
+    cronExpression: '0 3 * * *',
+    nextRun: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours from now
+    lastRun: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(), // 20 hours ago
+    status: 'active',
+    operationData: {
+      collectionId: 1, // Essential Framework
+    },
+    createdAt: '2024-01-15T08:00:00Z',
+    updatedAt: '2024-01-15T08:00:00Z',
+  },
+  {
+    id: 2,
+    name: 'Weekly Mod Updates',
+    description: 'Check and update all mods every Sunday morning',
+    operationType: 'mod_update',
+    frequency: 'every Sunday at 6am',
+    cronExpression: '0 6 * * 0',
+    nextRun: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
+    lastRun: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+    status: 'active',
+    operationData: {},
+    createdAt: '2024-01-10T10:30:00Z',
+    updatedAt: '2024-01-10T10:30:00Z',
+  },
+  {
+    id: 3,
+    name: 'Hourly Server Backup',
+    description: 'Create backup of server data every 2 hours',
+    operationType: 'backup',
+    frequency: 'every 2 hours',
+    cronExpression: '0 */2 * * *',
+    nextRun: new Date(Date.now() + 45 * 60 * 1000).toISOString(), // 45 minutes from now
+    lastRun: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
+    status: 'active',
+    operationData: {},
+    createdAt: '2024-01-12T14:00:00Z',
+    updatedAt: '2024-01-12T14:00:00Z',
+  },
+  {
+    id: 4,
+    name: 'Weekly Server Stop',
+    description: 'Stop server every Friday evening for maintenance',
+    operationType: 'stop',
+    frequency: 'every Friday at 8pm',
+    cronExpression: '0 20 * * 5',
+    nextRun: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
+    lastRun: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
+    status: 'paused',
+    operationData: {},
+    createdAt: '2024-01-08T16:45:00Z',
+    updatedAt: '2024-01-14T09:20:00Z',
+  },
+  {
+    id: 5,
+    name: 'Hourly Server Start',
+    description: 'Start server if it goes down',
+    operationType: 'start',
+    frequency: 'every hour',
+    cronExpression: '0 * * * *',
+    nextRun: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes from now
+    lastRun: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
+    status: 'active',
+    operationData: {},
+    createdAt: '2024-01-14T11:00:00Z',
+    updatedAt: '2024-01-14T11:00:00Z',
+  },
+  {
+    id: 6,
+    name: 'Server Maintenance',
+    description: 'Monthly server restart with full maintenance',
+    operationType: 'restart',
+    frequency: 'monthly on the 1st at 2am',
+    cronExpression: '0 2 1 * *',
+    nextRun: new Date(Date.now() + 16 * 24 * 60 * 60 * 1000).toISOString(), // 16 days from now
+    status: 'inactive',
+    operationData: {},
+    createdAt: '2024-01-05T12:30:00Z',
+    updatedAt: '2024-01-05T12:30:00Z',
+  },
+];
+
 // Simulate API delay for realistic testing
 const simulateNetworkDelay = (min: number = 50, max: number = 100): Promise<void> => {
   const delay = Math.random() * (max - min) + min;
@@ -1397,6 +1489,138 @@ export const mockModService = {
     return {
       status: 'completed',
       message: 'Job completed successfully',
+    };
+  },
+};
+
+// Mock Schedule Service
+export const mockScheduleService = {
+  getSchedules: async (): Promise<ScheduleResponse[]> => {
+    await simulateNetworkDelay();
+    console.log('🎭 Mock API: Fetching schedules');
+    return [...mockSchedules];
+  },
+
+  getSchedule: async (id: number): Promise<ScheduleResponse> => {
+    await simulateNetworkDelay();
+    console.log(`🎭 Mock API: Fetching schedule ${id}`);
+    const schedule = mockSchedules.find((s) => s.id === id);
+    if (!schedule) {
+      throw new Error(`Schedule with id ${id} not found`);
+    }
+    return { ...schedule };
+  },
+
+  createSchedule: async (
+    scheduleData: CreateScheduleRequest
+  ): Promise<ScheduleResponse> => {
+    await simulateNetworkDelay();
+    console.log('🎭 Mock API: Creating schedule', scheduleData);
+
+    // Generate a mock cron expression based on frequency
+    const generateMockCron = (frequency: string): string => {
+      if (frequency.includes('hour')) return '0 */2 * * *';
+      if (frequency.includes('daily')) return '0 3 * * *';
+      if (frequency.includes('week')) return '0 6 * * 0';
+      if (frequency.includes('month')) return '0 2 1 * *';
+      return '*/30 * * * *'; // Default to every 30 minutes
+    };
+
+    // Calculate next run time (mock - just add some time)
+    const getNextRun = (frequency: string): string => {
+      const now = Date.now();
+      if (frequency.includes('hour'))
+        return new Date(now + 2 * 60 * 60 * 1000).toISOString();
+      if (frequency.includes('daily'))
+        return new Date(now + 4 * 60 * 60 * 1000).toISOString();
+      if (frequency.includes('week'))
+        return new Date(now + 2 * 24 * 60 * 60 * 1000).toISOString();
+      if (frequency.includes('month'))
+        return new Date(now + 16 * 24 * 60 * 60 * 1000).toISOString();
+      return new Date(now + 30 * 60 * 1000).toISOString(); // Default
+    };
+
+    const newSchedule: ScheduleResponse = {
+      id: Math.max(...mockSchedules.map((s) => s.id)) + 1,
+      name: scheduleData.name,
+      description: scheduleData.description,
+      operationType: scheduleData.operationType,
+      frequency: scheduleData.frequency,
+      cronExpression: generateMockCron(scheduleData.frequency),
+      nextRun: getNextRun(scheduleData.frequency),
+      status: 'active',
+      operationData: scheduleData.operationData || {},
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    mockSchedules.push(newSchedule);
+    return { ...newSchedule };
+  },
+
+  updateSchedule: async (
+    id: number,
+    scheduleData: UpdateScheduleRequest
+  ): Promise<ScheduleResponse> => {
+    await simulateNetworkDelay();
+    console.log(`🎭 Mock API: Updating schedule ${id}`, scheduleData);
+
+    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id);
+    if (scheduleIndex === -1) {
+      throw new Error(`Schedule with id ${id} not found`);
+    }
+
+    mockSchedules[scheduleIndex] = {
+      ...mockSchedules[scheduleIndex],
+      ...scheduleData,
+      updatedAt: new Date().toISOString(),
+    };
+
+    return { ...mockSchedules[scheduleIndex] };
+  },
+
+  deleteSchedule: async (id: number): Promise<void> => {
+    await simulateNetworkDelay();
+    console.log(`🎭 Mock API: Deleting schedule ${id}`);
+
+    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id);
+    if (scheduleIndex === -1) {
+      throw new Error(`Schedule with id ${id} not found`);
+    }
+
+    mockSchedules.splice(scheduleIndex, 1);
+  },
+
+  toggleSchedule: async (id: number, enabled: boolean): Promise<ScheduleResponse> => {
+    await simulateNetworkDelay();
+    console.log(`🎭 Mock API: Toggling schedule ${id}`, { enabled });
+
+    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id);
+    if (scheduleIndex === -1) {
+      throw new Error(`Schedule with id ${id} not found`);
+    }
+
+    mockSchedules[scheduleIndex].status = enabled ? 'active' : 'inactive';
+    mockSchedules[scheduleIndex].updatedAt = new Date().toISOString();
+
+    return { ...mockSchedules[scheduleIndex] };
+  },
+
+  executeSchedule: async (id: number): Promise<{ message: string }> => {
+    await simulateNetworkDelay(1000, 2000); // Longer delay for execution
+    console.log(`🎭 Mock API: Executing schedule ${id}`);
+
+    const schedule = mockSchedules.find((s) => s.id === id);
+    if (!schedule) {
+      throw new Error(`Schedule with id ${id} not found`);
+    }
+
+    // Update lastRun time
+    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id);
+    mockSchedules[scheduleIndex].lastRun = new Date().toISOString();
+
+    return {
+      message: `Schedule "${schedule.name}" executed successfully`,
     };
   },
 };
