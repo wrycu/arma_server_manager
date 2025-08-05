@@ -29,3 +29,32 @@ export interface ServerActionWithCollection {
   action: ServerAction;
   collectionId?: number;
 }
+
+// Schedule-related types
+export type ScheduleOperationType =
+  | 'restart'
+  | 'backup'
+  | 'mod_update'
+  | 'stop'
+  | 'start';
+
+export type ScheduleStatus = 'active' | 'inactive' | 'paused';
+
+export interface Schedule {
+  id: number;
+  name: string;
+  description?: string;
+  operationType: ScheduleOperationType;
+  frequency: string; // Natural language like "every 2 hours", "daily at 3am"
+  cronExpression: string; // Generated cron expression for backend
+  nextRun: string; // ISO date string
+  lastRun?: string; // ISO date string
+  status: ScheduleStatus;
+  operationData?: {
+    collectionId?: number; // For restart with collection or collection_switch
+    customCommand?: string; // For custom commands
+    parameters?: Record<string, unknown>; // Additional parameters
+  };
+  createdAt: string;
+  updatedAt: string;
+}

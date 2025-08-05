@@ -4,6 +4,7 @@ import {
   IconFolder,
   IconPackage,
   IconLogout,
+  IconCalendarTime,
 } from '@tabler/icons-react';
 
 import { useNavigation } from '@/hooks/use-navigation';
@@ -25,6 +26,12 @@ const navigationData = {
       url: 'server-control',
       icon: IconServer,
       shortcut: '⌘C',
+    },
+    {
+      title: 'Schedules',
+      url: 'schedules',
+      icon: IconCalendarTime,
+      shortcut: '⌘H',
     },
   ],
   contentLibrary: [
