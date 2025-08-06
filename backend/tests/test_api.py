@@ -1,10 +1,8 @@
 """API endpoint tests."""
 
 import json
-import time
 from datetime import datetime
 from http import HTTPStatus
-from typing import Any
 
 import pytest
 from flask.testing import FlaskClient
@@ -12,19 +10,6 @@ from flask.testing import FlaskClient
 from app import db
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
-
-
-class TestArma3Helpers:
-    def test_health_check(self, client: FlaskClient) -> None:
-        pass
-
-def wait_for_job(client: FlaskClient, job_id: str) -> dict[str, Any]:
-    status = "PENDING"
-    while status == "PENDING":
-        resp = client.get(f"/api/arma3/async/{job_id}")
-        status = resp.json["status"]
-        time.sleep(0.2)
-    return resp.json
 
 
 @pytest.fixture
@@ -194,8 +179,3 @@ class TestArma3API:
         :return:
         """
         pass
-
-
-
-# for helper function stuff:
-# https://docs.pytest.org/en/6.2.x/fixture.html#yield-fixtures-recommended
