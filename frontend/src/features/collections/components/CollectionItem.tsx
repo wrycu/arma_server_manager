@@ -1,8 +1,8 @@
-import { IconFolder, IconTrash } from "@tabler/icons-react"
+import { IconFolder, IconTrash } from '@tabler/icons-react'
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import type { Collection } from "../types"
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import type { Collection } from '../types'
 
 interface CollectionItemProps {
   collection: Collection

@@ -1,4 +1,4 @@
-type TimeUnit = "minutes" | "hours" | "days"
+type TimeUnit = 'minutes' | 'hours' | 'days'
 
 export const toCron = (interval: number, unit: TimeUnit): string => {
   const patterns = {

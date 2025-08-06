@@ -1,16 +1,16 @@
-import { useState } from "react"
-import { Clock, Plus } from "lucide-react"
+import { useState } from 'react'
+import { Clock, Plus } from 'lucide-react'
 
-import { Button } from "@/components/ui/button"
-import { PageTitle } from "@/components/common/PageTitle"
-import { useNavigation } from "@/hooks/use-navigation"
+import { Button } from '@/components/ui/button'
+import { PageTitle } from '@/components/common/PageTitle'
+import { useNavigation } from '@/hooks/use-navigation'
 
-import { SchedulesDataTable } from "./components/SchedulesDataTable"
-import { CreateScheduleDialog } from "./components/CreateScheduleDialog"
-import { EditScheduleDialog } from "./components/EditScheduleDialog"
-import { getColumns } from "./components/columns"
-import { useSchedules } from "../server/hooks"
-import type { Schedule, ScheduleOperationType } from "../server/types"
+import { SchedulesDataTable } from './components/SchedulesDataTable'
+import { CreateScheduleDialog } from './components/CreateScheduleDialog'
+import { EditScheduleDialog } from './components/EditScheduleDialog'
+import { getColumns } from './components/columns'
+import { useSchedules } from '../server/hooks'
+import type { Schedule, ScheduleOperationType } from '../server/types'
 
 export function SchedulesManager() {
   const { setCurrentPage } = useNavigation()
@@ -35,19 +35,19 @@ export function SchedulesManager() {
     try {
       const newSchedule: Omit<
         Schedule,
-        "id" | "createdAt" | "updatedAt" | "cronExpression" | "nextRun" | "lastRun"
+        'id' | 'createdAt' | 'updatedAt' | 'cronExpression' | 'nextRun' | 'lastRun'
       > = {
         name: scheduleData.name.trim(),
         operationType: scheduleData.operationType,
         frequency: scheduleData.frequency,
-        status: "active",
+        status: 'active',
         operationData: {},
       }
 
       await createSchedule(newSchedule)
       setCreateDialogOpen(false)
     } catch (error) {
-      console.error("Failed to create schedule:", error)
+      console.error('Failed to create schedule:', error)
     }
   }
 
@@ -67,7 +67,7 @@ export function SchedulesManager() {
   ) => {
     try {
       // For now, log the update. This will need to be implemented in the useSchedules hook
-      console.log("Updating schedule:", id, scheduleData)
+      console.log('Updating schedule:', id, scheduleData)
 
       // TODO: Implement actual update functionality
       // await updateSchedule(id, scheduleData);
@@ -75,7 +75,7 @@ export function SchedulesManager() {
       setEditDialogOpen(false)
       setEditingSchedule(null)
     } catch (error) {
-      console.error("Failed to update schedule:", error)
+      console.error('Failed to update schedule:', error)
     }
   }
 
@@ -97,8 +97,8 @@ export function SchedulesManager() {
         description="Manage automated server operations and schedules"
         breadcrumbs={[
           {
-            label: "Server",
-            onClick: () => setCurrentPage("server-control"),
+            label: 'Server',
+            onClick: () => setCurrentPage('server-control'),
           },
         ]}
         actions={
@@ -122,7 +122,7 @@ export function SchedulesManager() {
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">
-              {schedules.length} schedule{schedules.length !== 1 ? "s" : ""} configured
+              {schedules.length} schedule{schedules.length !== 1 ? 's' : ''} configured
             </span>
           </div>
         </div>

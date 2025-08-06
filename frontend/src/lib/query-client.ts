@@ -1,4 +1,4 @@
-import { QueryClient } from "@tanstack/react-query"
+import { QueryClient } from '@tanstack/react-query'
 
 // Configure the QueryClient with sensible defaults
 export const queryClient = new QueryClient({
@@ -15,7 +15,7 @@ export const queryClient = new QueryClient({
       // Refetch on window focus
       refetchOnWindowFocus: false,
       // Refetch when reconnecting
-      refetchOnReconnect: "always",
+      refetchOnReconnect: 'always',
     },
     mutations: {
       // Retry mutations once on failure

@@ -1,8 +1,8 @@
-import { useState } from "react"
+import { useState } from 'react'
 
 export function useTitleEditing() {
   const [isEditingTitle, setIsEditingTitle] = useState(false)
-  const [editingTitle, setEditingTitle] = useState("")
+  const [editingTitle, setEditingTitle] = useState('')
 
   const startEditingTitle = (currentTitle: string) => {
     setEditingTitle(currentTitle)
@@ -15,22 +15,22 @@ export function useTitleEditing() {
     const trimmedTitle = editingTitle.trim()
     onSave(trimmedTitle)
     setIsEditingTitle(false)
-    setEditingTitle("")
+    setEditingTitle('')
   }
 
   const cancelEditingTitle = () => {
     setIsEditingTitle(false)
-    setEditingTitle("")
+    setEditingTitle('')
   }
 
   const handleTitleKeyDown = (
     e: React.KeyboardEvent,
     onSave: (title: string) => void,
   ) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       e.preventDefault()
       saveTitle(onSave)
-    } else if (e.key === "Escape") {
+    } else if (e.key === 'Escape') {
       e.preventDefault()
       cancelEditingTitle()
     }

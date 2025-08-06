@@ -1,15 +1,15 @@
-import { IconLogout } from "@tabler/icons-react"
+import { IconLogout } from '@tabler/icons-react'
 
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar'
 
 export function LogoutButton() {
   const handleLogout = () => {
     // TODO: Implement logout logic
-    console.log("Logout clicked")
+    console.log('Logout clicked')
   }
 
   return (

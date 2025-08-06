@@ -27,4 +27,4 @@ export interface SettingsData {
   security: SecuritySettings
 }
 
-export type SettingsTab = "notifications" | "server" | "security"
+export type SettingsTab = 'notifications' | 'server' | 'security'

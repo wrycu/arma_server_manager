@@ -23,7 +23,7 @@ export interface ModSubscription {
   name?: string
   status?: string
   last_updated?: string
-  type?: "mod" | "mission" | "map"
+  type?: 'mod' | 'mission' | 'map'
 }
 
 export interface ModSubscriptionsResponse {
@@ -84,7 +84,7 @@ export interface ModItemResponse {
   name: string
   version?: string
   size: string
-  type: "mod" | "mission" | "map"
+  type: 'mod' | 'mission' | 'map'
   isServerMod: boolean
   hasUpdate: boolean
   disabled: boolean
@@ -134,7 +134,7 @@ export interface RemoveModFromCollectionRequest {
 export interface ServerStatusResponse {
   id: number
   name: string
-  status: "online" | "offline" | "starting" | "stopping"
+  status: 'online' | 'offline' | 'starting' | 'stopping'
   uptime?: number
   players: number
   maxPlayers: number
@@ -163,7 +163,7 @@ export interface ServerMetricsHistoryResponse {
 }
 
 export interface ServerActionRequest {
-  action: "start" | "stop" | "restart"
+  action: 'start' | 'stop' | 'restart'
   collectionId?: number
 }
 
@@ -212,12 +212,12 @@ export interface ScheduleResponse {
   id: number
   name: string
   description?: string
-  operationType: "restart" | "backup" | "mod_update" | "stop" | "start"
+  operationType: 'restart' | 'backup' | 'mod_update' | 'stop' | 'start'
   frequency: string
   cronExpression: string
   nextRun: string
   lastRun?: string
-  status: "active" | "inactive" | "paused"
+  status: 'active' | 'inactive' | 'paused'
   operationData?: {
     collectionId?: number
     customCommand?: string
@@ -235,7 +235,7 @@ export interface SchedulesListResponse {
 export interface CreateScheduleRequest {
   name: string
   description?: string
-  operationType: "restart" | "backup" | "mod_update" | "stop" | "start"
+  operationType: 'restart' | 'backup' | 'mod_update' | 'stop' | 'start'
   frequency: string
   operationData?: {
     collectionId?: number
@@ -253,7 +253,7 @@ export interface UpdateScheduleRequest {
   name?: string
   description?: string
   frequency?: string
-  status?: "active" | "inactive" | "paused"
+  status?: 'active' | 'inactive' | 'paused'
   operationData?: {
     collectionId?: number
     customCommand?: string

@@ -18,7 +18,7 @@
     "test:frontend": "cd frontend && pnpm test",
     "lint": "pnpm run lint:backend && pnpm run lint:frontend",
     "lint:backend": "cd backend && uv run ruff check . && uv run mypy .",
-    "lint:frontend": "cd frontend && pnpm lint",
+    "lint:frontend": "cd frontend && pnpm lint:fix",
     "format": "pnpm run format:backend && pnpm run format:frontend",
     "format:backend": "cd backend && uv run ruff format . && uv run black .",
     "format:frontend": "cd frontend && pnpm format",

@@ -1,10 +1,10 @@
-import React, { createContext, useContext } from "react"
+import React, { createContext, useContext } from 'react'
 import {
   collectionsCollection,
   serverCollection,
   serverConfigCollection,
   modsCollection,
-} from "@/lib/db-config"
+} from '@/lib/db-config'
 
 // Create DB context with all collections
 const DBContext = createContext({
@@ -18,7 +18,7 @@ const DBContext = createContext({
 export function useCollectionsDB() {
   const context = useContext(DBContext)
   if (!context) {
-    throw new Error("useCollectionsDB must be used within a DBProvider")
+    throw new Error('useCollectionsDB must be used within a DBProvider')
   }
   return context.collectionsCollection
 }
@@ -27,7 +27,7 @@ export function useCollectionsDB() {
 export function useServerDB() {
   const context = useContext(DBContext)
   if (!context) {
-    throw new Error("useServerDB must be used within a DBProvider")
+    throw new Error('useServerDB must be used within a DBProvider')
   }
   return context.serverCollection
 }
@@ -36,7 +36,7 @@ export function useServerDB() {
 export function useServerConfigDB() {
   const context = useContext(DBContext)
   if (!context) {
-    throw new Error("useServerConfigDB must be used within a DBProvider")
+    throw new Error('useServerConfigDB must be used within a DBProvider')
   }
   return context.serverConfigCollection
 }
@@ -45,7 +45,7 @@ export function useServerConfigDB() {
 export function useModsDB() {
   const context = useContext(DBContext)
   if (!context) {
-    throw new Error("useModsDB must be used within a DBProvider")
+    throw new Error('useModsDB must be used within a DBProvider')
   }
   return context.modsCollection
 }

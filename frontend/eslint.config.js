@@ -27,6 +27,7 @@ export default tseslint.config([
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_' 
       }],
+      'quotes': ['error', 'single'],
       'semi': ['error', 'never'],
       'comma-dangle': ['error', 'always-multiline'],
       'object-curly-spacing': ['error', 'always'],

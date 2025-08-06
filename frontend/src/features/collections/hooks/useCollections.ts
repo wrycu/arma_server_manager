@@ -1,7 +1,7 @@
-import { useState } from "react"
-import { useLiveQuery } from "@tanstack/react-db"
-import { useCollectionsDB } from "@/providers/db-provider"
-import type { Collection, ModItem, UpdatingMod, NewCollection } from "../types"
+import { useState } from 'react'
+import { useLiveQuery } from '@tanstack/react-db'
+import { useCollectionsDB } from '@/providers/db-provider'
+import type { Collection, ModItem, UpdatingMod, NewCollection } from '../types'
 
 export function useCollections() {
   const collectionsCollection = useCollectionsDB()
@@ -31,7 +31,7 @@ export function useCollections() {
       name: newCollection.name,
       description: newCollection.description,
       mods: [],
-      createdAt: new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString().split('T')[0],
       isActive: false,
     }
 
@@ -106,7 +106,7 @@ export function useCollections() {
       // TanStack DB will handle the API call automatically via onInsert
       return collections.find((c: Collection) => c.name === newCollection.name)
     } catch (error) {
-      console.error("Create collection failed:", error)
+      console.error('Create collection failed:', error)
       return undefined
     }
   }
@@ -120,7 +120,7 @@ export function useCollections() {
       }
       // TanStack DB will handle the API call automatically via onDelete
     } catch (error) {
-      console.error("Delete collection failed:", error)
+      console.error('Delete collection failed:', error)
     }
   }
 
@@ -129,7 +129,7 @@ export function useCollections() {
       await toggleModOptimistic(collectionId, modId)
       // TanStack DB will handle state updates automatically
     } catch (error) {
-      console.error("Toggle mod failed:", error)
+      console.error('Toggle mod failed:', error)
     }
   }
 
@@ -138,7 +138,7 @@ export function useCollections() {
       await removeModOptimistic(collectionId, modId)
       // TanStack DB will handle state updates automatically
     } catch (error) {
-      console.error("Remove mod failed:", error)
+      console.error('Remove mod failed:', error)
     }
   }
 
@@ -149,17 +149,17 @@ export function useCollections() {
       name: mod.name,
       version: mod.version,
       progress: 0,
-      status: "downloading",
+      status: 'downloading',
     }
 
     setUpdatingMods(prev => [...prev, updatingMod])
 
     // Simulate update process (this would be replaced with real API calls)
     const updateSteps = [
-      { status: "downloading" as const, duration: 2000, progress: 50 },
-      { status: "installing" as const, duration: 1500, progress: 80 },
-      { status: "verifying" as const, duration: 1000, progress: 95 },
-      { status: "completed" as const, duration: 500, progress: 100 },
+      { status: 'downloading' as const, duration: 2000, progress: 50 },
+      { status: 'installing' as const, duration: 1500, progress: 80 },
+      { status: 'verifying' as const, duration: 1000, progress: 95 },
+      { status: 'completed' as const, duration: 500, progress: 100 },
     ]
 
     for (const step of updateSteps) {
@@ -196,7 +196,7 @@ export function useCollections() {
       await updateCollectionOptimistic(collectionId, { isActive: true })
       // TanStack DB will handle the API call automatically via onUpdate
     } catch (error) {
-      console.error("Set active failed:", error)
+      console.error('Set active failed:', error)
     }
   }
 
@@ -208,7 +208,7 @@ export function useCollections() {
       await updateCollectionOptimistic(collectionId, { name: trimmedName })
       // TanStack DB will handle the API call automatically via onUpdate
     } catch (error) {
-      console.error("Update collection name failed:", error)
+      console.error('Update collection name failed:', error)
     }
   }
 

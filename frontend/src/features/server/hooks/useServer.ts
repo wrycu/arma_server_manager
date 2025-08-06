@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from "react"
-import { useLiveQuery } from "@tanstack/react-db"
-import { useServerDB, useServerConfigDB } from "@/providers/db-provider"
-import { server } from "@/services"
-import type { ServerStatus, ServerMetrics, ServerActionWithCollection } from "../types"
+import { useState, useEffect, useCallback } from 'react'
+import { useLiveQuery } from '@tanstack/react-db'
+import { useServerDB, useServerConfigDB } from '@/providers/db-provider'
+import { server } from '@/services'
+import type { ServerStatus, ServerMetrics, ServerActionWithCollection } from '../types'
 import type {
   ServerStatusResponse,
   ServerMetricsResponse,
   ServerConfigResponse,
-} from "@/types/api"
+} from '@/types/api'
 
 export function useServer() {
   const serverCollection = useServerDB()
@@ -75,18 +75,18 @@ export function useServer() {
 
     try {
       // Optimistic update based on action
-      if (actionData.action === "start" || actionData.action === "restart") {
-        await updateServerStatusOptimistic({ status: "starting" })
+      if (actionData.action === 'start' || actionData.action === 'restart') {
+        await updateServerStatusOptimistic({ status: 'starting' })
         if (actionData.collectionId && serverStatus) {
           await updateServerStatusOptimistic({
             activeCollection: {
               id: actionData.collectionId,
-              name: "Loading...", // Will be updated by API response
+              name: 'Loading...', // Will be updated by API response
             },
           })
         }
-      } else if (actionData.action === "stop") {
-        await updateServerStatusOptimistic({ status: "stopping" })
+      } else if (actionData.action === 'stop') {
+        await updateServerStatusOptimistic({ status: 'stopping' })
       }
 
       // Call the API
@@ -120,9 +120,9 @@ export function useServer() {
     try {
       // Trigger a refetch by invalidating the query
       // This will cause TanStack DB to refetch the data
-      console.log("Refreshing server status...")
+      console.log('Refreshing server status...')
     } catch (error) {
-      console.error("Failed to refresh server status:", error)
+      console.error('Failed to refresh server status:', error)
     }
   }
 
@@ -132,7 +132,7 @@ export function useServer() {
       const transformedMetrics = transformServerMetrics(metrics)
       setMetricsHistory(transformedMetrics)
     } catch (error) {
-      console.error("Failed to refresh server metrics:", error)
+      console.error('Failed to refresh server metrics:', error)
     }
   }, [])
 
@@ -150,7 +150,7 @@ export function useServer() {
       )
       // TanStack DB will handle the API call automatically via onUpdate
     } catch (error) {
-      console.error("Failed to update server config:", error)
+      console.error('Failed to update server config:', error)
     }
   }
 
@@ -175,9 +175,9 @@ export function useServer() {
     updateServerConfig,
 
     // Helper functions
-    isOnline: serverStatus?.status === "online",
-    isStarting: serverStatus?.status === "starting",
-    isStopping: serverStatus?.status === "stopping",
-    isOffline: serverStatus?.status === "offline",
+    isOnline: serverStatus?.status === 'online',
+    isStarting: serverStatus?.status === 'starting',
+    isStopping: serverStatus?.status === 'stopping',
+    isOffline: serverStatus?.status === 'offline',
   }
 }

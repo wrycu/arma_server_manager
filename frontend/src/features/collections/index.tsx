@@ -1,17 +1,17 @@
-import { useState } from "react"
-import { IconPlus } from "@tabler/icons-react"
+import { useState } from 'react'
+import { IconPlus } from '@tabler/icons-react'
 
-import { Button } from "@/components/ui/button"
-import { PageTitle } from "@/components/common/PageTitle"
-import { UpdatingModCard } from "@/features/mods/components/UpdatingModCard"
+import { Button } from '@/components/ui/button'
+import { PageTitle } from '@/components/common/PageTitle'
+import { UpdatingModCard } from '@/features/mods/components/UpdatingModCard'
 
-import { useCollections } from "./hooks/useCollections"
-import { CreateCollectionDialog } from "./components/CreateCollectionDialog"
-import { RemoveModDialog } from "./components/RemoveModDialog"
-import { ModsList } from "./components/ModsList"
-import { CollectionsList } from "./components/CollectionsList"
-import type { ModToRemove } from "./types"
-import type { Collection } from "./types"
+import { useCollections } from './hooks/useCollections'
+import { CreateCollectionDialog } from './components/CreateCollectionDialog'
+import { RemoveModDialog } from './components/RemoveModDialog'
+import { ModsList } from './components/ModsList'
+import { CollectionsList } from './components/CollectionsList'
+import type { ModToRemove } from './types'
+import type { Collection } from './types'
 
 export function CollectionManager() {
   const {
@@ -71,7 +71,7 @@ export function CollectionManager() {
             description={`${selectedCollection.mods.length} mods in this collection`}
             breadcrumbs={[
               {
-                label: "Collections",
+                label: 'Collections',
                 onClick: () => setSelectedCollectionId(null),
               },
             ]}
