@@ -29,7 +29,7 @@ export default tseslint.config([
       }],
       'quotes': ['error', 'single'],
       'semi': ['error', 'never'],
-      'comma-dangle': ['error', 'always-multiline'],
+      'comma-dangle': ['error', 'only-multiline'],
       'object-curly-spacing': ['error', 'always'],
       'array-bracket-spacing': ['error', 'never'],
       'prefer-const': 'error',

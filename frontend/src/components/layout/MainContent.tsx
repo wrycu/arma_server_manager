@@ -1,27 +1,27 @@
-import { ServerControlPanel } from "@/features/server"
-import { ServerConfigEditor } from "@/features/server/components/ServerConfigEditor"
-import { InstalledModsManager } from "@/features/mods"
-import { CollectionManager } from "@/features/collections"
-import { SchedulesManager } from "@/features/schedules"
-import { Settings } from "@/features/settings"
-import { useNavigation } from "@/hooks/use-navigation"
+import { ServerControlPanel } from '@/features/server'
+import { ServerConfigEditor } from '@/features/server/components/ServerConfigEditor'
+import { InstalledModsManager } from '@/features/mods'
+import { CollectionManager } from '@/features/collections'
+import { SchedulesManager } from '@/features/schedules'
+import { Settings } from '@/features/settings'
+import { useNavigation } from '@/hooks/use-navigation'
 
 export function MainContent() {
   const { currentPage } = useNavigation()
 
   const renderCurrentPage = () => {
     switch (currentPage) {
-      case "server-control":
+      case 'server-control':
         return <ServerControlPanel />
-      case "mod-management":
+      case 'mod-management':
         return <InstalledModsManager />
-      case "collections":
+      case 'collections':
         return <CollectionManager />
-      case "schedules":
+      case 'schedules':
         return <SchedulesManager />
-      case "server-configs":
+      case 'server-configs':
         return <ServerConfigEditor />
-      case "settings":
+      case 'settings':
         return <Settings />
       default:
         return <ServerControlPanel />

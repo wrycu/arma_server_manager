@@ -3,7 +3,7 @@ export interface ModItem {
   name: string
   version?: string
   size: string
-  type: "mod" | "mission" | "map"
+  type: 'mod' | 'mission' | 'map'
   isServerMod: boolean
   hasUpdate: boolean
   disabled: boolean
@@ -19,7 +19,7 @@ export interface Collection {
 }
 
 // UpdatingMod is now imported from mods feature to avoid duplication
-export type { UpdatingMod } from "../mods/types"
+export type { UpdatingMod } from '../mods/types'
 
 export interface ModToRemove {
   collectionId: number

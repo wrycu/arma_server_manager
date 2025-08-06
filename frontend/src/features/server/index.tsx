@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react"
-import { useNavigation } from "@/hooks/use-navigation"
-import { IconTerminal, IconSettings } from "@tabler/icons-react"
+import { useState, useEffect } from 'react'
+import { useNavigation } from '@/hooks/use-navigation'
+import { IconTerminal, IconSettings } from '@tabler/icons-react'
 
-import { Button } from "@/components/ui/button"
-import { PageTitle } from "@/components/common/PageTitle"
+import { Button } from '@/components/ui/button'
+import { PageTitle } from '@/components/common/PageTitle'
 
-import { CompactServerStatus } from "./components/CompactServerStatus"
-import { ServerCharts } from "./components/ServerCharts"
-import { useCollections } from "@/features/collections/hooks/useCollections"
-import { useServer } from "./hooks"
-import type { Collection } from "@/features/collections/types"
+import { CompactServerStatus } from './components/CompactServerStatus'
+import { ServerCharts } from './components/ServerCharts'
+import { useCollections } from '@/features/collections/hooks/useCollections'
+import { useServer } from './hooks'
+import type { Collection } from '@/features/collections/types'
 
 export function ServerControlPanel() {
   const { setCurrentPage } = useNavigation()
@@ -23,7 +23,7 @@ export function ServerControlPanel() {
   useEffect(() => {
     if (collections.length > 0 && server?.activeCollection) {
       const activeCollection = collections.find(
-        (c: Collection) => c.id === server.activeCollection?.id,
+        (c: Collection) => c.id === server.activeCollection?.id
       )
       if (activeCollection && !selectedStartupCollection) {
         setSelectedStartupCollection(activeCollection)
@@ -32,8 +32,8 @@ export function ServerControlPanel() {
   }, [collections, server?.activeCollection, selectedStartupCollection])
 
   const handleServerAction = async (
-    action: "start" | "stop" | "restart",
-    collectionId?: number,
+    action: 'start' | 'stop' | 'restart',
+    collectionId?: number
   ) => {
     await performServerAction({
       action,
@@ -54,8 +54,8 @@ export function ServerControlPanel() {
           description="Manage your ARMA 3 server"
           breadcrumbs={[
             {
-              label: "Server",
-              onClick: () => setCurrentPage("server"),
+              label: 'Server',
+              onClick: () => setCurrentPage('server'),
             },
           ]}
         />
@@ -77,13 +77,13 @@ export function ServerControlPanel() {
         description="Manage your ARMA 3 server"
         breadcrumbs={[
           {
-            label: "Server",
-            onClick: () => setCurrentPage("server"),
+            label: 'Server',
+            onClick: () => setCurrentPage('server'),
           },
         ]}
         actions={
           <>
-            <Button variant="outline" onClick={() => setCurrentPage("server-configs")}>
+            <Button variant="outline" onClick={() => setCurrentPage('server-configs')}>
               <IconSettings className="size-4 mr-2" />
               Configure
             </Button>

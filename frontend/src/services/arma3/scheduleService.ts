@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from '../api'
 import type {
   ScheduleResponse,
   SchedulesListResponse,
@@ -6,13 +6,13 @@ import type {
   CreateScheduleResponse,
   UpdateScheduleRequest,
   UpdateScheduleResponse,
-} from "@/types/api"
+} from '@/types/api'
 
 // Schedule API endpoints
 export const scheduleService = {
   // Get all schedules
   getSchedules: async (): Promise<ScheduleResponse[]> => {
-    const response = await api.get<SchedulesListResponse>("/server/schedules")
+    const response = await api.get<SchedulesListResponse>('/server/schedules')
     return response.data.results
   },
 
@@ -24,11 +24,11 @@ export const scheduleService = {
 
   // Create new schedule
   createSchedule: async (
-    scheduleData: CreateScheduleRequest,
+    scheduleData: CreateScheduleRequest
   ): Promise<ScheduleResponse> => {
     const response = await api.post<CreateScheduleResponse>(
-      "/server/schedules",
-      scheduleData,
+      '/server/schedules',
+      scheduleData
     )
     return response.data.results
   },
@@ -36,11 +36,11 @@ export const scheduleService = {
   // Update schedule
   updateSchedule: async (
     id: number,
-    scheduleData: UpdateScheduleRequest,
+    scheduleData: UpdateScheduleRequest
   ): Promise<ScheduleResponse> => {
     const response = await api.patch<UpdateScheduleResponse>(
       `/server/schedules/${id}`,
-      scheduleData,
+      scheduleData
     )
     return response.data.results
   },
@@ -54,7 +54,7 @@ export const scheduleService = {
   toggleSchedule: async (id: number, enabled: boolean): Promise<ScheduleResponse> => {
     const response = await api.patch<UpdateScheduleResponse>(
       `/server/schedules/${id}`,
-      { status: enabled ? "active" : "inactive" },
+      { status: enabled ? 'active' : 'inactive' }
     )
     return response.data.results
   },
@@ -62,7 +62,7 @@ export const scheduleService = {
   // Execute schedule immediately (manual trigger)
   executeSchedule: async (id: number): Promise<{ message: string }> => {
     const response = await api.post<{ message: string }>(
-      `/server/schedules/${id}/execute`,
+      `/server/schedules/${id}/execute`
     )
     return response.data
   },

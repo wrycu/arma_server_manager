@@ -1,4 +1,4 @@
-import { type ReactNode } from "react"
+import { type ReactNode } from 'react'
 
 interface BreadcrumbItem {
   label: string
@@ -30,8 +30,8 @@ export function PageTitle({
                     onClick={item.onClick}
                     className={`font-medium transition-all duration-200 ${
                       item.onClick
-                        ? "text-muted-foreground hover:text-foreground cursor-pointer rounded-md hover:bg-muted/50"
-                        : "text-muted-foreground"
+                        ? 'text-muted-foreground hover:text-foreground cursor-pointer rounded-md hover:bg-muted/50'
+                        : 'text-muted-foreground'
                     }`}
                     disabled={!item.onClick}
                   >

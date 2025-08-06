@@ -1,22 +1,22 @@
-import { useState, useCallback } from "react"
-import { useLiveQuery } from "@tanstack/react-db"
-import { useModsDB } from "@/providers/db-provider"
-import { mods } from "@/services"
+import { useState, useCallback } from 'react'
+import { useLiveQuery } from '@tanstack/react-db'
+import { useModsDB } from '@/providers/db-provider'
+import { mods } from '@/services'
 import type {
   ModSubscription,
   ModHelper,
   ModDownloadResponse,
   AsyncJobStatusResponse,
   AsyncJobSuccessResponse,
-} from "@/types/api"
-import type { UpdatingMod } from "../types"
+} from '@/types/api'
+import type { UpdatingMod } from '../types'
 
 export function useMods() {
   const modsCollection = useModsDB()
 
   // Get mod subscriptions from TanStack DB using live query (automatically reactive)
   const { data: modSubscriptions = [] } = useLiveQuery(query =>
-    query.from({ mods: modsCollection }),
+    query.from({ mods: modsCollection })
   )
 
   // Local state for UI-specific concerns
@@ -32,7 +32,7 @@ export function useMods() {
     const optimisticMod: ModSubscription = {
       steam_id: steamId,
       name: name || `Mod ${steamId}`,
-      status: "pending",
+      status: 'pending',
       last_updated: new Date().toISOString(),
     }
 
@@ -42,7 +42,7 @@ export function useMods() {
 
   const updateModSubscriptionOptimistic = async (
     steamId: number,
-    updates: Partial<ModSubscription>,
+    updates: Partial<ModSubscription>
   ) => {
     const existingMod = findModSubscription(steamId)
     if (!existingMod) return
@@ -62,26 +62,26 @@ export function useMods() {
 
   // Action functions
   const addModSubscription = async (steamId: number): Promise<void> => {
-    setIsLoading("adding")
+    setIsLoading('adding')
     try {
       // Get mod info first
       const modHelper = await getModHelper(steamId)
       await addModSubscriptionOptimistic(steamId, modHelper.title)
       // TanStack DB will handle the API call automatically via onInsert
     } catch (error) {
-      console.error("Add mod subscription failed:", error)
+      console.error('Add mod subscription failed:', error)
     } finally {
       setIsLoading(null)
     }
   }
 
   const removeModSubscription = async (steamId: number): Promise<void> => {
-    setIsLoading("removing")
+    setIsLoading('removing')
     try {
       await deleteModSubscriptionOptimistic(steamId)
       // TanStack DB will handle the API call automatically via onDelete
     } catch (error) {
-      console.error("Remove mod subscription failed:", error)
+      console.error('Remove mod subscription failed:', error)
     } finally {
       setIsLoading(null)
     }
@@ -89,14 +89,14 @@ export function useMods() {
 
   const updateModSubscription = async (
     steamId: number,
-    updates: Partial<ModSubscription>,
+    updates: Partial<ModSubscription>
   ): Promise<void> => {
-    setIsLoading("updating")
+    setIsLoading('updating')
     try {
       await updateModSubscriptionOptimistic(steamId, updates)
       // TanStack DB will handle the API call automatically via onUpdate
     } catch (error) {
-      console.error("Update mod subscription failed:", error)
+      console.error('Update mod subscription failed:', error)
     } finally {
       setIsLoading(null)
     }
@@ -107,7 +107,7 @@ export function useMods() {
     try {
       return await mods.getModHelper(modId)
     } catch (error) {
-      console.error("Get mod helper failed:", error)
+      console.error('Get mod helper failed:', error)
       throw error
     }
   }, [])
@@ -122,7 +122,7 @@ export function useMods() {
       id: steamId,
       name: mod.name || `Mod ${steamId}`,
       progress: 0,
-      status: "downloading",
+      status: 'downloading',
     }
 
     setUpdatingMods(prev => [...prev, updatingMod])
@@ -135,11 +135,11 @@ export function useMods() {
       // Poll job status
       await pollJobStatus(jobId, steamId)
     } catch (error) {
-      console.error("Download mod failed:", error)
+      console.error('Download mod failed:', error)
       setUpdatingMods(prev =>
         prev.map(m =>
-          m.id === steamId ? { ...m, status: "error", error: String(error) } : m,
-        ),
+          m.id === steamId ? { ...m, status: 'error', error: String(error) } : m
+        )
       )
     }
   }
@@ -155,7 +155,7 @@ export function useMods() {
       // Poll job status
       await pollJobStatus(jobId, steamId)
     } catch (error) {
-      console.error("Delete mod failed:", error)
+      console.error('Delete mod failed:', error)
     }
   }
 
@@ -168,8 +168,8 @@ export function useMods() {
       if (pollCount >= maxPolls) {
         setUpdatingMods(prev =>
           prev.map(m =>
-            m.id === modId ? { ...m, status: "error", error: "Timeout" } : m,
-          ),
+            m.id === modId ? { ...m, status: 'error', error: 'Timeout' } : m
+          )
         )
         return
       }
@@ -178,11 +178,11 @@ export function useMods() {
         const jobStatus: AsyncJobStatusResponse | AsyncJobSuccessResponse =
           await mods.getAsyncJobStatus(jobId)
 
-        if (jobStatus.status === "completed") {
+        if (jobStatus.status === 'completed') {
           setUpdatingMods(prev =>
             prev.map(m =>
-              m.id === modId ? { ...m, status: "completed", progress: 100 } : m,
-            ),
+              m.id === modId ? { ...m, status: 'completed', progress: 100 } : m
+            )
           )
 
           // Auto-dismiss after 3 seconds
@@ -193,13 +193,13 @@ export function useMods() {
           return
         }
 
-        if (jobStatus.status === "failed" || jobStatus.status === "error") {
+        if (jobStatus.status === 'failed' || jobStatus.status === 'error') {
           setUpdatingMods(prev =>
             prev.map(m =>
               m.id === modId
-                ? { ...m, status: "error", error: String(jobStatus.message) }
-                : m,
-            ),
+                ? { ...m, status: 'error', error: String(jobStatus.message) }
+                : m
+            )
           )
           return
         }
@@ -208,8 +208,8 @@ export function useMods() {
         const progress = Math.min(pollCount * 2, 95) // Simulate progress
         setUpdatingMods(prev =>
           prev.map(m =>
-            m.id === modId ? { ...m, progress, status: "downloading" } : m,
-          ),
+            m.id === modId ? { ...m, progress, status: 'downloading' } : m
+          )
         )
 
         pollCount++
@@ -217,8 +217,8 @@ export function useMods() {
       } catch (error) {
         setUpdatingMods(prev =>
           prev.map(m =>
-            m.id === modId ? { ...m, status: "error", error: String(error) } : m,
-          ),
+            m.id === modId ? { ...m, status: 'error', error: String(error) } : m
+          )
         )
       }
     }

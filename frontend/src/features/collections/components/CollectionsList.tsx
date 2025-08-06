@@ -1,7 +1,7 @@
-import { IconFolder } from "@tabler/icons-react"
+import { IconFolder } from '@tabler/icons-react'
 
-import { CollectionItem } from "./CollectionItem"
-import type { Collection } from "../types"
+import { CollectionItem } from './CollectionItem'
+import type { Collection } from '../types'
 
 interface CollectionsListProps {
   collections: Collection[]

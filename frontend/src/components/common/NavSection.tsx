@@ -1,5 +1,5 @@
-import * as React from "react"
-import { type Icon } from "@tabler/icons-react"
+import * as React from 'react'
+import { type Icon } from '@tabler/icons-react'
 
 import {
   SidebarGroup,
@@ -8,8 +8,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { useNavigation } from "@/hooks/use-navigation"
+} from '@/components/ui/sidebar'
+import { useNavigation } from '@/hooks/use-navigation'
 
 export function NavSection({
   title,

@@ -1,10 +1,10 @@
-import { PageTitle } from "@/components/common/PageTitle"
-import { useMods } from "./hooks"
-import { UpdatingModCard } from "./components/UpdatingModCard"
-import { DataTable } from "./components/DataTable"
-import { getColumns } from "./components/columns"
-import type { ExtendedModSubscription } from "./types"
-import type { NewCollection } from "@/features/collections/types"
+import { PageTitle } from '@/components/common/PageTitle'
+import { useMods } from './hooks'
+import { UpdatingModCard } from './components/UpdatingModCard'
+import { DataTable } from './components/DataTable'
+import { getColumns } from './components/columns'
+import type { ExtendedModSubscription } from './types'
+import type { NewCollection } from '@/features/collections/types'
 
 export function InstalledModsManager() {
   const {
@@ -20,8 +20,8 @@ export function InstalledModsManager() {
   // Transform mod subscriptions to match UI expectations
   const mods: ExtendedModSubscription[] = modSubscriptions.map(mod => ({
     ...mod,
-    author: "Community", // Default fallback
-    type: mod.type || "mod", // Use type from API or default to 'mod'
+    author: 'Community', // Default fallback
+    type: mod.type || 'mod', // Use type from API or default to 'mod'
     hasUpdate: Math.random() > 0.7, // Mock update status
     sizeOnDisk: `${Math.floor(Math.random() * 500 + 50)} MB`, // Mock size
   }))
@@ -36,7 +36,7 @@ export function InstalledModsManager() {
 
   const handleCreateCollection = (collection: NewCollection) => {
     // TODO: Integrate with collections API
-    console.log("Creating collection:", collection)
+    console.log('Creating collection:', collection)
     // For now, just log the collection data
     // This will be implemented when the collections API is available
   }

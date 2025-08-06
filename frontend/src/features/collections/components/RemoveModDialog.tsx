@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -6,8 +6,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import type { ModToRemove } from "../types"
+} from '@/components/ui/dialog'
+import type { ModToRemove } from '../types'
 
 interface RemoveModDialogProps {
   open: boolean

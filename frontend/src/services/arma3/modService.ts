@@ -1,4 +1,4 @@
-import { api } from "../api"
+import { api } from '../api'
 import type {
   ModHelperResponse,
   ModHelper,
@@ -11,7 +11,7 @@ import type {
   ModDownloadResponse,
   AsyncJobStatusResponse,
   AsyncJobSuccessResponse,
-} from "@/types/api"
+} from '@/types/api'
 
 // Mod API endpoints
 export const modService = {
@@ -23,18 +23,18 @@ export const modService = {
 
   // Get list of existing mod subscriptions
   getModSubscriptions: async (): Promise<ModSubscription[]> => {
-    const response = await api.get<ModSubscriptionsResponse>("/arma3/mod/subscriptions")
+    const response = await api.get<ModSubscriptionsResponse>('/arma3/mod/subscriptions')
     return response.data.results
   },
 
   // Add mod subscription(s)
   addModSubscriptions: async (
-    mods: Array<{ steam_id: number }>,
+    mods: Array<{ steam_id: number }>
   ): Promise<AddModSubscriptionResponse> => {
     const requestData: AddModSubscriptionRequest = { mods }
     const response = await api.post<AddModSubscriptionResponse>(
-      "/arma3/mod/subscription",
-      requestData,
+      '/arma3/mod/subscription',
+      requestData
     )
     return response.data
   },
@@ -42,7 +42,7 @@ export const modService = {
   // Get specific mod subscription details
   getModSubscriptionDetails: async (modId: number): Promise<ModSubscription> => {
     const response = await api.get<ModSubscriptionDetailsResponse>(
-      `/arma3/mod/subscription/${modId}`,
+      `/arma3/mod/subscription/${modId}`
     )
     return response.data.results
   },
@@ -50,11 +50,11 @@ export const modService = {
   // Update mod subscription details
   updateModSubscription: async (
     modId: number,
-    updateData: UpdateModSubscriptionRequest,
+    updateData: UpdateModSubscriptionRequest
   ): Promise<{ message: string }> => {
     const response = await api.patch<{ message: string }>(
       `/arma3/mod/subscription/${modId}`,
-      updateData,
+      updateData
     )
     return response.data
   },
@@ -62,7 +62,7 @@ export const modService = {
   // Remove mod subscription
   removeModSubscription: async (modId: number): Promise<{ message: string }> => {
     const response = await api.delete<{ message: string }>(
-      `/arma3/mod/subscription/${modId}`,
+      `/arma3/mod/subscription/${modId}`
     )
     return response.data
   },
@@ -70,7 +70,7 @@ export const modService = {
   // Get mod subscription image (returns binary data)
   getModSubscriptionImage: async (modId: number): Promise<Blob> => {
     const response = await api.get<Blob>(`/arma3/mod/subscription/${modId}/image`, {
-      responseType: "blob",
+      responseType: 'blob',
     })
     return response.data
   },
@@ -84,17 +84,17 @@ export const modService = {
   // Trigger mod deletion (returns job ID)
   deleteMod: async (modId: number): Promise<ModDownloadResponse> => {
     const response = await api.delete<ModDownloadResponse>(
-      `/arma3/mod/${modId}/download`,
+      `/arma3/mod/${modId}/download`
     )
     return response.data
   },
 
   // Get async job status
   getAsyncJobStatus: async (
-    jobId: string,
+    jobId: string
   ): Promise<AsyncJobStatusResponse | AsyncJobSuccessResponse> => {
     const response = await api.get<AsyncJobStatusResponse | AsyncJobSuccessResponse>(
-      `/arma3/async/${jobId}`,
+      `/arma3/async/${jobId}`
     )
     return response.data
   },

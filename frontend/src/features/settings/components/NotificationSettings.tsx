@@ -1,17 +1,17 @@
-import { IconBell } from "@tabler/icons-react"
+import { IconBell } from '@tabler/icons-react'
 
-import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card'
 
-import type { NotificationSettings as NotificationSettingsType } from "../types"
+import type { NotificationSettings as NotificationSettingsType } from '../types'
 
 interface NotificationSettingsProps {
   settings: NotificationSettingsType
@@ -37,8 +37,8 @@ export function NotificationSettings({
   }
 
   const handleNotificationTypeToggle = (
-    type: keyof NotificationSettingsType["notificationTypes"],
-    value: boolean,
+    type: keyof NotificationSettingsType['notificationTypes'],
+    value: boolean
   ) => {
     onUpdate({
       ...settings,
@@ -106,7 +106,7 @@ export function NotificationSettings({
             <Switch
               checked={settings.notificationTypes.serverStartStop}
               onCheckedChange={value =>
-                handleNotificationTypeToggle("serverStartStop", value)
+                handleNotificationTypeToggle('serverStartStop', value)
               }
               disabled={!settings.enableNotifications}
             />
@@ -122,7 +122,7 @@ export function NotificationSettings({
             <Switch
               checked={settings.notificationTypes.modUpdates}
               onCheckedChange={value =>
-                handleNotificationTypeToggle("modUpdates", value)
+                handleNotificationTypeToggle('modUpdates', value)
               }
               disabled={!settings.enableNotifications}
             />
@@ -138,7 +138,7 @@ export function NotificationSettings({
             <Switch
               checked={settings.notificationTypes.playerEvents}
               onCheckedChange={value =>
-                handleNotificationTypeToggle("playerEvents", value)
+                handleNotificationTypeToggle('playerEvents', value)
               }
               disabled={!settings.enableNotifications}
             />

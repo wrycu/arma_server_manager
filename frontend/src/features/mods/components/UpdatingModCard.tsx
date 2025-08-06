@@ -1,9 +1,9 @@
-import { IconX } from "@tabler/icons-react"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
+import { IconX } from '@tabler/icons-react'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
 
-import type { UpdatingMod } from "../types"
+import type { UpdatingMod } from '../types'
 
 interface UpdatingModCardProps {
   mod: UpdatingMod
@@ -13,10 +13,10 @@ interface UpdatingModCardProps {
 
 export function UpdatingModCard({ mod, onCancel, onDismiss }: UpdatingModCardProps) {
   const getStatusText = () => {
-    return "Updating..."
+    return 'Updating...'
   }
 
-  const isCompleted = mod.status === "completed" || mod.status === "error"
+  const isCompleted = mod.status === 'completed' || mod.status === 'error'
 
   return (
     <div className="flex items-center gap-4 p-4 border rounded-lg bg-background shadow-lg min-w-80">
@@ -24,7 +24,7 @@ export function UpdatingModCard({ mod, onCancel, onDismiss }: UpdatingModCardPro
         <div className="flex items-center gap-2 mb-1">
           <span className="font-medium truncate">{mod.name}</span>
           <Badge
-            variant={mod.status === "error" ? "destructive" : "secondary"}
+            variant={mod.status === 'error' ? 'destructive' : 'secondary'}
             className="text-xs"
           >
             {getStatusText()}

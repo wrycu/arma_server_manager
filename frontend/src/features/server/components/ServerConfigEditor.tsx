@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from 'react'
 import {
   IconServer,
   IconPlus,
@@ -7,14 +7,14 @@ import {
   IconDeviceFloppy,
   IconX,
   IconCopy,
-} from "@tabler/icons-react"
+} from '@tabler/icons-react'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Badge } from "@/components/ui/badge"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -23,14 +23,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select'
 
 interface ServerConfig {
   id: number
@@ -53,35 +53,35 @@ export function ServerConfigEditor() {
   const [configs, setConfigs] = useState<ServerConfig[]>([
     {
       id: 1,
-      name: "Main Production Server",
-      description: "Primary Altis Life server configuration",
-      serverName: "ARMA Life Server | 64 Slots | Active Admins",
-      password: "",
-      adminPassword: "admin123",
+      name: 'Main Production Server',
+      description: 'Primary Altis Life server configuration',
+      serverName: 'ARMA Life Server | 64 Slots | Active Admins',
+      password: '',
+      adminPassword: 'admin123',
       maxPlayers: 64,
-      missionFile: "Altis_Life.Altis",
-      serverConfigFile: "server.cfg",
-      additionalParams: "-enableHT -hugepages",
+      missionFile: 'Altis_Life.Altis',
+      serverConfigFile: 'server.cfg',
+      additionalParams: '-enableHT -hugepages',
       autoRestart: true,
       restartIntervalHours: 6,
       isActive: true,
-      createdAt: "2024-01-15",
+      createdAt: '2024-01-15',
     },
     {
       id: 2,
-      name: "Training Server",
-      description: "Development and training environment",
-      serverName: "Training Server | Whitelist Only",
-      password: "training2024",
-      adminPassword: "trainadmin",
+      name: 'Training Server',
+      description: 'Development and training environment',
+      serverName: 'Training Server | Whitelist Only',
+      password: 'training2024',
+      adminPassword: 'trainadmin',
       maxPlayers: 32,
-      missionFile: "VR.VR",
-      serverConfigFile: "server_training.cfg",
-      additionalParams: "-noSound -world=empty",
+      missionFile: 'VR.VR',
+      serverConfigFile: 'server_training.cfg',
+      additionalParams: '-noSound -world=empty',
       autoRestart: false,
       restartIntervalHours: 12,
       isActive: false,
-      createdAt: "2024-01-10",
+      createdAt: '2024-01-10',
     },
   ])
 
@@ -100,8 +100,8 @@ export function ServerConfigEditor() {
     if (selectedConfig && formData) {
       setConfigs(prev =>
         prev.map(c =>
-          c.id === selectedConfig.id ? ({ ...c, ...formData } as ServerConfig) : c,
-        ),
+          c.id === selectedConfig.id ? ({ ...c, ...formData } as ServerConfig) : c
+        )
       )
       setIsEditing(false)
       setSelectedConfig({ ...selectedConfig, ...formData } as ServerConfig)
@@ -127,7 +127,7 @@ export function ServerConfigEditor() {
       id: Date.now(),
       name: `${config.name} (Copy)`,
       isActive: false,
-      createdAt: new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString().split('T')[0],
     }
     setConfigs(prev => [...prev, newConfig])
   }
@@ -135,19 +135,19 @@ export function ServerConfigEditor() {
   const handleCreateNew = () => {
     const newConfig: ServerConfig = {
       id: Date.now(),
-      name: "New Server Config",
-      description: "",
-      serverName: "New ARMA Server",
-      password: "",
-      adminPassword: "",
+      name: 'New Server Config',
+      description: '',
+      serverName: 'New ARMA Server',
+      password: '',
+      adminPassword: '',
       maxPlayers: 64,
-      missionFile: "",
-      serverConfigFile: "server.cfg",
-      additionalParams: "",
+      missionFile: '',
+      serverConfigFile: 'server.cfg',
+      additionalParams: '',
       autoRestart: false,
       restartIntervalHours: 6,
       isActive: false,
-      createdAt: new Date().toISOString().split("T")[0],
+      createdAt: new Date().toISOString().split('T')[0],
     }
 
     setConfigs(prev => [...prev, newConfig])
@@ -193,8 +193,8 @@ export function ServerConfigEditor() {
                 onClick={() => setSelectedConfig(config)}
                 className={`w-full text-left p-3 rounded-lg transition-colors hover:bg-accent ${
                   selectedConfig?.id === config.id
-                    ? "bg-accent border border-border"
-                    : ""
+                    ? 'bg-accent border border-border'
+                    : ''
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -203,7 +203,7 @@ export function ServerConfigEditor() {
                     <div className="min-w-0 flex-1">
                       <div className="font-medium truncate">{config.name}</div>
                       <div className="text-xs text-muted-foreground truncate">
-                        {config.description || "No description"}
+                        {config.description || 'No description'}
                       </div>
                     </div>
                   </div>
@@ -257,7 +257,7 @@ export function ServerConfigEditor() {
                     )}
                   </div>
                   <p className="text-muted-foreground mt-1">
-                    {selectedConfig.description || "No description"}
+                    {selectedConfig.description || 'No description'}
                   </p>
                 </div>
                 {!isEditing && (
@@ -279,7 +279,7 @@ export function ServerConfigEditor() {
                         <Label htmlFor="name">Configuration Name</Label>
                         <Input
                           id="name"
-                          value={formData.name || ""}
+                          value={formData.name || ''}
                           onChange={e =>
                             setFormData(prev => ({ ...prev, name: e.target.value }))
                           }
@@ -305,7 +305,7 @@ export function ServerConfigEditor() {
                       <Label htmlFor="description">Description</Label>
                       <Textarea
                         id="description"
-                        value={formData.description || ""}
+                        value={formData.description || ''}
                         onChange={e =>
                           setFormData(prev => ({
                             ...prev,
@@ -320,7 +320,7 @@ export function ServerConfigEditor() {
                       <Label htmlFor="serverName">Server Name (in browser)</Label>
                       <Input
                         id="serverName"
-                        value={formData.serverName || ""}
+                        value={formData.serverName || ''}
                         onChange={e =>
                           setFormData(prev => ({
                             ...prev,
@@ -336,7 +336,7 @@ export function ServerConfigEditor() {
                         <Input
                           id="password"
                           type="password"
-                          value={formData.password || ""}
+                          value={formData.password || ''}
                           onChange={e =>
                             setFormData(prev => ({
                               ...prev,
@@ -351,7 +351,7 @@ export function ServerConfigEditor() {
                         <Input
                           id="adminPassword"
                           type="password"
-                          value={formData.adminPassword || ""}
+                          value={formData.adminPassword || ''}
                           onChange={e =>
                             setFormData(prev => ({
                               ...prev,
@@ -366,7 +366,7 @@ export function ServerConfigEditor() {
                       <div>
                         <Label htmlFor="missionFile">Mission File</Label>
                         <Select
-                          value={formData.missionFile || ""}
+                          value={formData.missionFile || ''}
                           onValueChange={value =>
                             setFormData(prev => ({ ...prev, missionFile: value }))
                           }
@@ -390,7 +390,7 @@ export function ServerConfigEditor() {
                         <Label htmlFor="serverConfigFile">Server Config File</Label>
                         <Input
                           id="serverConfigFile"
-                          value={formData.serverConfigFile || ""}
+                          value={formData.serverConfigFile || ''}
                           onChange={e =>
                             setFormData(prev => ({
                               ...prev,
@@ -405,7 +405,7 @@ export function ServerConfigEditor() {
                       <Label htmlFor="additionalParams">Additional Parameters</Label>
                       <Textarea
                         id="additionalParams"
-                        value={formData.additionalParams || ""}
+                        value={formData.additionalParams || ''}
                         onChange={e =>
                           setFormData(prev => ({
                             ...prev,
@@ -480,7 +480,7 @@ export function ServerConfigEditor() {
                     <div>
                       <Label>Mission File</Label>
                       <p className="text-sm">
-                        {selectedConfig.missionFile || "Not set"}
+                        {selectedConfig.missionFile || 'Not set'}
                       </p>
                     </div>
 
@@ -489,7 +489,7 @@ export function ServerConfigEditor() {
                       <p className="text-sm">
                         {selectedConfig.autoRestart
                           ? `Yes, every ${selectedConfig.restartIntervalHours} hours`
-                          : "No"}
+                          : 'No'}
                       </p>
                     </div>
 

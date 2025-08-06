@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback } from "react"
-import { useLiveQuery } from "@tanstack/react-db"
-import { useServerDB, useServerConfigDB } from "@/providers/db-provider"
-import { server } from "@/services"
-import type { ServerStatus, ServerMetrics, ServerActionWithCollection } from "../types"
+import { useState, useEffect, useCallback } from 'react'
+import { useLiveQuery } from '@tanstack/react-db'
+import { useServerDB, useServerConfigDB } from '@/providers/db-provider'
+import { server } from '@/services'
+import type { ServerStatus, ServerMetrics, ServerActionWithCollection } from '../types'
 import type {
   ServerStatusResponse,
   ServerMetricsResponse,
   ServerConfigResponse,
-} from "@/types/api"
+} from '@/types/api'
 
 export function useServer() {
   const serverCollection = useServerDB()
@@ -15,12 +15,12 @@ export function useServer() {
 
   // Get server status from TanStack DB using live query (automatically reactive)
   const { data: serverStatusArray = [] } = useLiveQuery(query =>
-    query.from({ server: serverCollection }),
+    query.from({ server: serverCollection })
   )
 
   // Get server config from TanStack DB
   const { data: serverConfigArray = [] } = useLiveQuery(query =>
-    query.from({ serverConfig: serverConfigCollection }),
+    query.from({ serverConfig: serverConfigCollection })
   )
 
   // Local state for UI-specific concerns
@@ -48,7 +48,7 @@ export function useServer() {
   })
 
   const transformServerMetrics = (
-    apiMetrics: ServerMetricsResponse[],
+    apiMetrics: ServerMetricsResponse[]
   ): ServerMetrics[] => {
     return apiMetrics.map(metric => ({
       timestamp: metric.timestamp,
@@ -60,7 +60,7 @@ export function useServer() {
 
   // Helper functions for optimistic updates
   const updateServerStatusOptimistic = async (
-    updates: Partial<ServerStatusResponse>,
+    updates: Partial<ServerStatusResponse>
   ) => {
     if (!serverStatus) return
 
@@ -75,18 +75,18 @@ export function useServer() {
 
     try {
       // Optimistic update based on action
-      if (actionData.action === "start" || actionData.action === "restart") {
-        await updateServerStatusOptimistic({ status: "starting" })
+      if (actionData.action === 'start' || actionData.action === 'restart') {
+        await updateServerStatusOptimistic({ status: 'starting' })
         if (actionData.collectionId && serverStatus) {
           await updateServerStatusOptimistic({
             activeCollection: {
               id: actionData.collectionId,
-              name: "Loading...", // Will be updated by API response
+              name: 'Loading...', // Will be updated by API response
             },
           })
         }
-      } else if (actionData.action === "stop") {
-        await updateServerStatusOptimistic({ status: "stopping" })
+      } else if (actionData.action === 'stop') {
+        await updateServerStatusOptimistic({ status: 'stopping' })
       }
 
       // Call the API
@@ -108,7 +108,7 @@ export function useServer() {
           (_draft: ServerStatusResponse) => {
             // Revert to previous state - this would need more sophisticated error handling
             // For now, just log the error
-          },
+          }
         )
       }
     } finally {
@@ -120,9 +120,9 @@ export function useServer() {
     try {
       // Trigger a refetch by invalidating the query
       // This will cause TanStack DB to refetch the data
-      console.log("Refreshing server status...")
+      console.log('Refreshing server status...')
     } catch (error) {
-      console.error("Failed to refresh server status:", error)
+      console.error('Failed to refresh server status:', error)
     }
   }
 
@@ -132,7 +132,7 @@ export function useServer() {
       const transformedMetrics = transformServerMetrics(metrics)
       setMetricsHistory(transformedMetrics)
     } catch (error) {
-      console.error("Failed to refresh server metrics:", error)
+      console.error('Failed to refresh server metrics:', error)
     }
   }, [])
 
@@ -146,11 +146,11 @@ export function useServer() {
           Object.assign(draft, configData, {
             updatedAt: new Date().toISOString(),
           })
-        },
+        }
       )
       // TanStack DB will handle the API call automatically via onUpdate
     } catch (error) {
-      console.error("Failed to update server config:", error)
+      console.error('Failed to update server config:', error)
     }
   }
 
@@ -175,9 +175,9 @@ export function useServer() {
     updateServerConfig,
 
     // Helper functions
-    isOnline: serverStatus?.status === "online",
-    isStarting: serverStatus?.status === "starting",
-    isStopping: serverStatus?.status === "stopping",
-    isOffline: serverStatus?.status === "offline",
+    isOnline: serverStatus?.status === 'online',
+    isStarting: serverStatus?.status === 'starting',
+    isStopping: serverStatus?.status === 'stopping',
+    isOffline: serverStatus?.status === 'offline',
   }
 }

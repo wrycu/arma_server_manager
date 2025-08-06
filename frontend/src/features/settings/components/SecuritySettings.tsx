@@ -1,16 +1,16 @@
-import { IconShield } from "@tabler/icons-react"
+import { IconShield } from '@tabler/icons-react'
 
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card'
 
-import type { SecuritySettings as SecuritySettingsType } from "../types"
+import type { SecuritySettings as SecuritySettingsType } from '../types'
 
 interface SecuritySettingsProps {
   settings: SecuritySettingsType
@@ -44,7 +44,7 @@ export function SecuritySettings({ settings, onUpdate }: SecuritySettingsProps) 
             type="password"
             placeholder="Enter admin password"
             value={settings.adminPassword}
-            onChange={handleInputChange("adminPassword")}
+            onChange={handleInputChange('adminPassword')}
           />
         </div>
       </CardContent>

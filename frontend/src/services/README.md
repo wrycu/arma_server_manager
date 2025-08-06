@@ -25,18 +25,18 @@ The services are automatically configured to use either real or mock data based 
 ### Importing Services
 
 ```typescript
-import { collections, server, mods } from "@/services"
+import { collections, server, mods } from '@/services'
 
 // Use collections service
 const allCollections = await collections.getCollections()
 const newCollection = await collections.createCollection({
-  name: "My Collection",
-  description: "Description",
+  name: 'My Collection',
+  description: 'Description',
 })
 
 // Use server service
 const serverStatus = await server.getServerStatus()
-await server.performServerAction({ action: "start", collectionId: 1 })
+await server.performServerAction({ action: 'start', collectionId: 1 })
 
 // Use mods service
 const modSubscriptions = await mods.getModSubscriptions()

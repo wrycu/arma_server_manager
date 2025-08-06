@@ -1,10 +1,10 @@
-import { useState } from "react"
+import { useState } from 'react'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -13,8 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import type { NewCollection, ModItem } from "../types"
+} from '@/components/ui/dialog'
+import type { NewCollection, ModItem } from '../types'
 
 interface CreateCollectionDialogProps {
   open: boolean
@@ -32,8 +32,8 @@ export function CreateCollectionDialog({
   selectedMods = [],
 }: CreateCollectionDialogProps) {
   const [newCollection, setNewCollection] = useState<NewCollection>({
-    name: "",
-    description: "",
+    name: '',
+    description: '',
   })
 
   const handleCreate = () => {
@@ -41,13 +41,13 @@ export function CreateCollectionDialog({
       ...newCollection,
       mods: selectedMods.length > 0 ? selectedMods : undefined,
     })
-    setNewCollection({ name: "", description: "" })
+    setNewCollection({ name: '', description: '' })
     onOpenChange(false)
   }
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      setNewCollection({ name: "", description: "" })
+      setNewCollection({ name: '', description: '' })
     }
     onOpenChange(newOpen)
   }
@@ -60,8 +60,8 @@ export function CreateCollectionDialog({
           <DialogTitle className="text-base">Create Collection</DialogTitle>
           <DialogDescription className="text-sm">
             {selectedMods.length > 0
-              ? `Create a new collection with ${selectedMods.length} selected mod${selectedMods.length === 1 ? "" : "s"}.`
-              : "Create a new mod collection to organize your mods."}
+              ? `Create a new collection with ${selectedMods.length} selected mod${selectedMods.length === 1 ? '' : 's'}.`
+              : 'Create a new mod collection to organize your mods.'}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
