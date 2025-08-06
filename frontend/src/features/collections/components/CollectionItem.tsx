@@ -1,13 +1,13 @@
-import { IconFolder, IconTrash } from '@tabler/icons-react';
+import { IconFolder, IconTrash } from '@tabler/icons-react'
 
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import type { Collection } from '../types';
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import type { Collection } from '../types'
 
 interface CollectionItemProps {
-  collection: Collection;
-  onSelectCollection: (collection: Collection) => void;
-  onDeleteCollection: (collectionId: number) => void;
+  collection: Collection
+  onSelectCollection: (collection: Collection) => void
+  onDeleteCollection: (collectionId: number) => void
 }
 
 export function CollectionItem({
@@ -15,7 +15,7 @@ export function CollectionItem({
   onSelectCollection,
   onDeleteCollection,
 }: CollectionItemProps) {
-  const updateCount = collection.mods.filter((m) => m.hasUpdate).length;
+  const updateCount = collection.mods.filter((m) => m.hasUpdate).length
 
   return (
     <div className="group flex items-center gap-3 px-3 py-3 rounded-md border bg-card hover:bg-muted/30 transition-colors">
@@ -23,10 +23,7 @@ export function CollectionItem({
         <IconFolder className="h-4 w-4 text-muted-foreground" />
       </div>
 
-      <div
-        className="flex-1 min-w-0 cursor-pointer"
-        onClick={() => onSelectCollection(collection)}
-      >
+      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onSelectCollection(collection)}>
         <div className="flex items-center gap-2 mb-0.5">
           <span className="font-medium text-sm truncate">{collection.name}</span>
           <div className="flex items-center gap-1">
@@ -40,9 +37,7 @@ export function CollectionItem({
             )}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground truncate">
-          {collection.description}
-        </p>
+        <p className="text-xs text-muted-foreground truncate">{collection.description}</p>
       </div>
 
       <div className="flex items-center gap-2">
@@ -51,13 +46,13 @@ export function CollectionItem({
           size="sm"
           className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
           onClick={(e) => {
-            e.stopPropagation();
-            onDeleteCollection(collection.id);
+            e.stopPropagation()
+            onDeleteCollection(collection.id)
           }}
         >
           <IconTrash className="h-3 w-3" />
         </Button>
       </div>
     </div>
-  );
+  )
 }

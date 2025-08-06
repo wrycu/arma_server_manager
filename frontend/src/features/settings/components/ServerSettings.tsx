@@ -1,21 +1,15 @@
-import { IconServer } from '@tabler/icons-react';
+import { IconServer } from '@tabler/icons-react'
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import type { ServerConfiguration } from '../types';
+import type { ServerConfiguration } from '../types'
 
 interface ServerSettingsProps {
-  settings: ServerConfiguration;
-  onUpdate: (settings: ServerConfiguration) => void;
+  settings: ServerConfiguration
+  onUpdate: (settings: ServerConfiguration) => void
 }
 
 export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
@@ -25,13 +19,13 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
       const value =
         field === 'serverPort' || field === 'maxPlayers'
           ? Number(event.target.value)
-          : event.target.value;
+          : event.target.value
 
       onUpdate({
         ...settings,
         [field]: value,
-      });
-    };
+      })
+    }
 
   return (
     <Card>
@@ -102,5 +96,5 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

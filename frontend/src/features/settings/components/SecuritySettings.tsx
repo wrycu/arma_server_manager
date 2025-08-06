@@ -1,31 +1,24 @@
-import { IconShield } from '@tabler/icons-react';
+import { IconShield } from '@tabler/icons-react'
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import type { SecuritySettings as SecuritySettingsType } from '../types';
+import type { SecuritySettings as SecuritySettingsType } from '../types'
 
 interface SecuritySettingsProps {
-  settings: SecuritySettingsType;
-  onUpdate: (settings: SecuritySettingsType) => void;
+  settings: SecuritySettingsType
+  onUpdate: (settings: SecuritySettingsType) => void
 }
 
 export function SecuritySettings({ settings, onUpdate }: SecuritySettingsProps) {
   const handleInputChange =
-    (field: keyof SecuritySettingsType) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    (field: keyof SecuritySettingsType) => (event: React.ChangeEvent<HTMLInputElement>) => {
       onUpdate({
         ...settings,
         [field]: event.target.value,
-      });
-    };
+      })
+    }
 
   return (
     <Card>
@@ -49,5 +42,5 @@ export function SecuritySettings({ settings, onUpdate }: SecuritySettingsProps) 
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

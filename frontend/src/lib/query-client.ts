@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from '@tanstack/react-query'
 
 // Configure the QueryClient with sensible defaults
 export const queryClient = new QueryClient({
@@ -24,4 +24,4 @@ export const queryClient = new QueryClient({
       retryDelay: 1000,
     },
   },
-});
+})

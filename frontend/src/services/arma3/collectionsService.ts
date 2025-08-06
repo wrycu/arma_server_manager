@@ -1,4 +1,4 @@
-import { api } from '../api';
+import { api } from '../api'
 import type {
   CollectionResponse,
   CollectionsListResponse,
@@ -9,33 +9,28 @@ import type {
   UpdateCollectionResponse,
   AddModToCollectionRequest,
   RemoveModFromCollectionRequest,
-} from '@/types/api';
+} from '@/types/api'
 
 // Collections API endpoints
 export const collectionsService = {
   // Get all collections
   getCollections: async (): Promise<CollectionResponse[]> => {
-    const response = await api.get<CollectionsListResponse>('/collections');
-    return response.data.results;
+    const response = await api.get<CollectionsListResponse>('/collections')
+    return response.data.results
   },
 
   // Get specific collection details
   getCollection: async (collectionId: number): Promise<CollectionResponse> => {
-    const response = await api.get<CollectionDetailsResponse>(
-      `/collections/${collectionId}`
-    );
-    return response.data.results;
+    const response = await api.get<CollectionDetailsResponse>(`/collections/${collectionId}`)
+    return response.data.results
   },
 
   // Create new collection
   createCollection: async (
     collectionData: CreateCollectionRequest
   ): Promise<CollectionResponse> => {
-    const response = await api.post<CreateCollectionResponse>(
-      '/collections',
-      collectionData
-    );
-    return response.data.results;
+    const response = await api.post<CreateCollectionResponse>('/collections', collectionData)
+    return response.data.results
   },
 
   // Update collection
@@ -46,16 +41,14 @@ export const collectionsService = {
     const response = await api.patch<UpdateCollectionResponse>(
       `/collections/${collectionId}`,
       updateData
-    );
-    return response.data.results;
+    )
+    return response.data.results
   },
 
   // Delete collection
   deleteCollection: async (collectionId: number): Promise<{ message: string }> => {
-    const response = await api.delete<{ message: string }>(
-      `/collections/${collectionId}`
-    );
-    return response.data;
+    const response = await api.delete<{ message: string }>(`/collections/${collectionId}`)
+    return response.data
   },
 
   // Add mods to collection
@@ -66,8 +59,8 @@ export const collectionsService = {
     const response = await api.post<UpdateCollectionResponse>(
       `/collections/${collectionId}/mods`,
       modData
-    );
-    return response.data.results;
+    )
+    return response.data.results
   },
 
   // Remove mod from collection
@@ -77,8 +70,8 @@ export const collectionsService = {
   ): Promise<CollectionResponse> => {
     const response = await api.delete<UpdateCollectionResponse>(
       `/collections/${collectionId}/mods/${modData.modId}`
-    );
-    return response.data.results;
+    )
+    return response.data.results
   },
 
   // Toggle mod in collection
@@ -90,7 +83,7 @@ export const collectionsService = {
     const response = await api.patch<UpdateCollectionResponse>(
       `/collections/${collectionId}/mods/${modId}`,
       { disabled }
-    );
-    return response.data.results;
+    )
+    return response.data.results
   },
-};
+}

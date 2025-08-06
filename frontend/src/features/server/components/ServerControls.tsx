@@ -1,23 +1,17 @@
-import { IconPlayerPlay, IconPlayerStop, IconRefresh } from '@tabler/icons-react';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { CollectionSelector } from './CollectionSelector';
-import type { ServerStatus, ServerAction } from '../types';
-import type { Collection } from '@/features/collections/types';
+import { IconPlayerPlay, IconPlayerStop, IconRefresh } from '@tabler/icons-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { CollectionSelector } from './CollectionSelector'
+import type { ServerStatus, ServerAction } from '../types'
+import type { Collection } from '@/features/collections/types'
 
 interface ServerControlsProps {
-  server: ServerStatus;
-  isLoading: string | null;
-  collections: Collection[];
-  selectedStartupCollection: Collection | null;
-  onServerAction: (action: ServerAction, collectionId?: number) => void;
-  onStartupCollectionChange: (collection: Collection | null) => void;
+  server: ServerStatus
+  isLoading: string | null
+  collections: Collection[]
+  selectedStartupCollection: Collection | null
+  onServerAction: (action: ServerAction, collectionId?: number) => void
+  onStartupCollectionChange: (collection: Collection | null) => void
 }
 
 export function ServerControls({
@@ -56,9 +50,7 @@ export function ServerControls({
                 <Button
                   variant="default"
                   className="w-full"
-                  onClick={() =>
-                    onServerAction('restart', selectedStartupCollection.id)
-                  }
+                  onClick={() => onServerAction('restart', selectedStartupCollection.id)}
                   disabled={isLoading === 'restart'}
                 >
                   <IconRefresh className="size-4 mr-2" />
@@ -117,5 +109,5 @@ export function ServerControls({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

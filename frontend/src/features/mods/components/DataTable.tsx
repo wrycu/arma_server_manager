@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from 'react'
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -10,11 +10,11 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { ChevronDown, Settings2, Plus } from 'lucide-react';
+} from '@tanstack/react-table'
+import { ChevronDown, Settings2, Plus } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -22,14 +22,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -37,16 +37,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 
-import { CreateCollectionDialog } from '@/features/collections/components/CreateCollectionDialog';
-import type { ModItem, NewCollection } from '@/features/collections/types';
-import type { ExtendedModSubscription } from '../types';
+import { CreateCollectionDialog } from '@/features/collections/components/CreateCollectionDialog'
+import type { ModItem, NewCollection } from '@/features/collections/types'
+import type { ExtendedModSubscription } from '../types'
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  onCreateCollection?: (collection: NewCollection) => void;
+  columns: ColumnDef<TData, TValue>[]
+  data: TData[]
+  onCreateCollection?: (collection: NewCollection) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -54,12 +54,11 @@ export function DataTable<TData, TValue>({
   data,
   onCreateCollection,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [createCollectionDialogOpen, setCreateCollectionDialogOpen] =
-    React.useState(false);
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [createCollectionDialogOpen, setCreateCollectionDialogOpen] = React.useState(false)
 
   const table = useReactTable({
     data,
@@ -79,7 +78,7 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-  });
+  })
 
   // Convert ExtendedModSubscription to ModItem for collection dialog
   const convertToModItem = (mod: ExtendedModSubscription): ModItem => ({
@@ -91,22 +90,22 @@ export function DataTable<TData, TValue>({
     isServerMod: false, // Not available in ExtendedModSubscription
     hasUpdate: mod.hasUpdate || false,
     disabled: false, // Not available in ExtendedModSubscription
-  });
+  })
 
   // Get selected mods for collection creation
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const selectedRows = table.getFilteredSelectedRowModel().rows
   const selectedMods: ModItem[] = selectedRows.map((row) =>
     convertToModItem(row.original as ExtendedModSubscription)
-  );
-  const hasSelectedMods = selectedRows.length > 0;
+  )
+  const hasSelectedMods = selectedRows.length > 0
 
   const handleCreateCollection = (collection: NewCollection) => {
     if (onCreateCollection) {
-      onCreateCollection(collection);
+      onCreateCollection(collection)
     }
     // Clear selection after creating collection
-    setRowSelection({});
-  };
+    setRowSelection({})
+  }
 
   return (
     <div className="space-y-4">
@@ -115,9 +114,7 @@ export function DataTable<TData, TValue>({
           <Input
             placeholder="Filter mods..."
             value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-            onChange={(event) =>
-              table.getColumn('name')?.setFilterValue(event.target.value)
-            }
+            onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
             className="max-w-sm"
           />
           <Select
@@ -138,9 +135,7 @@ export function DataTable<TData, TValue>({
           </Select>
           <Select
             value={(table.getColumn('hasUpdate')?.getFilterValue() as string) ?? 'all'}
-            onValueChange={(value) =>
-              table.getColumn('hasUpdate')?.setFilterValue(value)
-            }
+            onValueChange={(value) => table.getColumn('hasUpdate')?.setFilterValue(value)}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
@@ -177,10 +172,7 @@ export function DataTable<TData, TValue>({
               <DropdownMenuSeparator />
               {table
                 .getAllColumns()
-                .filter(
-                  (column) =>
-                    typeof column.accessorFn !== 'undefined' && column.getCanHide()
-                )
+                .filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
                 .map((column) => {
                   return (
                     <DropdownMenuCheckboxItem
@@ -191,7 +183,7 @@ export function DataTable<TData, TValue>({
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
-                  );
+                  )
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -208,12 +200,9 @@ export function DataTable<TData, TValue>({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
@@ -250,7 +239,7 @@ export function DataTable<TData, TValue>({
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
-              table.setPageSize(Number(value));
+              table.setPageSize(Number(value))
             }}
           >
             <SelectTrigger className="h-8 w-[70px]">
@@ -292,5 +281,5 @@ export function DataTable<TData, TValue>({
         selectedMods={selectedMods}
       />
     </div>
-  );
+  )
 }

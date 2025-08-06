@@ -1,40 +1,31 @@
-import { IconBell } from '@tabler/icons-react';
+import { IconBell } from '@tabler/icons-react'
 
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Input } from '@/components/ui/input'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import type { NotificationSettings as NotificationSettingsType } from '../types';
+import type { NotificationSettings as NotificationSettingsType } from '../types'
 
 interface NotificationSettingsProps {
-  settings: NotificationSettingsType;
-  onUpdate: (settings: NotificationSettingsType) => void;
+  settings: NotificationSettingsType
+  onUpdate: (settings: NotificationSettingsType) => void
 }
 
-export function NotificationSettings({
-  settings,
-  onUpdate,
-}: NotificationSettingsProps) {
+export function NotificationSettings({ settings, onUpdate }: NotificationSettingsProps) {
   const handleToggleNotifications = (enableNotifications: boolean) => {
     onUpdate({
       ...settings,
       enableNotifications,
-    });
-  };
+    })
+  }
 
   const handleWebhookUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onUpdate({
       ...settings,
       webhookUrl: event.target.value,
-    });
-  };
+    })
+  }
 
   const handleNotificationTypeToggle = (
     type: keyof NotificationSettingsType['notificationTypes'],
@@ -46,8 +37,8 @@ export function NotificationSettings({
         ...settings.notificationTypes,
         [type]: value,
       },
-    });
-  };
+    })
+  }
 
   return (
     <div className="space-y-6">
@@ -57,9 +48,7 @@ export function NotificationSettings({
             <IconBell className="h-4 w-4" />
             Notification Settings
           </CardTitle>
-          <CardDescription>
-            Configure webhook notifications for server events
-          </CardDescription>
+          <CardDescription>Configure webhook notifications for server events</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center justify-between">
@@ -105,9 +94,7 @@ export function NotificationSettings({
             </div>
             <Switch
               checked={settings.notificationTypes.serverStartStop}
-              onCheckedChange={(value) =>
-                handleNotificationTypeToggle('serverStartStop', value)
-              }
+              onCheckedChange={(value) => handleNotificationTypeToggle('serverStartStop', value)}
               disabled={!settings.enableNotifications}
             />
           </div>
@@ -121,9 +108,7 @@ export function NotificationSettings({
             </div>
             <Switch
               checked={settings.notificationTypes.modUpdates}
-              onCheckedChange={(value) =>
-                handleNotificationTypeToggle('modUpdates', value)
-              }
+              onCheckedChange={(value) => handleNotificationTypeToggle('modUpdates', value)}
               disabled={!settings.enableNotifications}
             />
           </div>
@@ -137,14 +122,12 @@ export function NotificationSettings({
             </div>
             <Switch
               checked={settings.notificationTypes.playerEvents}
-              onCheckedChange={(value) =>
-                handleNotificationTypeToggle('playerEvents', value)
-              }
+              onCheckedChange={(value) => handleNotificationTypeToggle('playerEvents', value)}
               disabled={!settings.enableNotifications}
             />
           </div>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,22 +1,22 @@
-import { IconArrowLeft, IconFolder, IconPlus } from '@tabler/icons-react';
+import { IconArrowLeft, IconFolder, IconPlus } from '@tabler/icons-react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import type { Collection } from '../types';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import type { Collection } from '../types'
 
 interface CollectionHeaderProps {
-  collection: Collection;
-  onBack: () => void;
-  onTitleEdit: (title: string) => void;
-  onUpdateAll: () => void;
-  onSetActive: () => void;
-  isEditingTitle: boolean;
-  editingTitle: string;
-  onEditingTitleChange: (title: string) => void;
-  onStartEditingTitle: () => void;
-  onSaveTitle: () => void;
-  onTitleKeyDown: (e: React.KeyboardEvent) => void;
+  collection: Collection
+  onBack: () => void
+  onTitleEdit: (title: string) => void
+  onUpdateAll: () => void
+  onSetActive: () => void
+  isEditingTitle: boolean
+  editingTitle: string
+  onEditingTitleChange: (title: string) => void
+  onStartEditingTitle: () => void
+  onSaveTitle: () => void
+  onTitleKeyDown: (e: React.KeyboardEvent) => void
 }
 
 export function CollectionHeader({
@@ -86,12 +86,7 @@ export function CollectionHeader({
           </Button>
         )}
         {!collection.isActive && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onSetActive}
-            className="h-7 px-3 text-xs"
-          >
+          <Button variant="outline" size="sm" onClick={onSetActive} className="h-7 px-3 text-xs">
             Set Active
           </Button>
         )}
@@ -101,5 +96,5 @@ export function CollectionHeader({
         </Button>
       </div>
     </div>
-  );
+  )
 }

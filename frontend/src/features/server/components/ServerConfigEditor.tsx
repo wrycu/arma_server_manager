@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   IconServer,
   IconPlus,
@@ -7,14 +7,14 @@ import {
   IconDeviceFloppy,
   IconX,
   IconCopy,
-} from '@tabler/icons-react';
+} from '@tabler/icons-react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -23,30 +23,30 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 
 interface ServerConfig {
-  id: number;
-  name: string;
-  description: string;
-  serverName: string;
-  password: string;
-  adminPassword: string;
-  maxPlayers: number;
-  missionFile: string;
-  serverConfigFile: string;
-  additionalParams: string;
-  autoRestart: boolean;
-  restartIntervalHours: number;
-  isActive: boolean;
-  createdAt: string;
+  id: number
+  name: string
+  description: string
+  serverName: string
+  password: string
+  adminPassword: string
+  maxPlayers: number
+  missionFile: string
+  serverConfigFile: string
+  additionalParams: string
+  autoRestart: boolean
+  restartIntervalHours: number
+  isActive: boolean
+  createdAt: string
 }
 
 export function ServerConfigEditor() {
@@ -83,43 +83,41 @@ export function ServerConfigEditor() {
       isActive: false,
       createdAt: '2024-01-10',
     },
-  ]);
+  ])
 
-  const [selectedConfig, setSelectedConfig] = useState<ServerConfig | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<ServerConfig>>({});
+  const [selectedConfig, setSelectedConfig] = useState<ServerConfig | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [formData, setFormData] = useState<Partial<ServerConfig>>({})
 
   const handleEdit = (config: ServerConfig) => {
-    setSelectedConfig(config);
-    setFormData(config);
-    setIsEditing(true);
-  };
+    setSelectedConfig(config)
+    setFormData(config)
+    setIsEditing(true)
+  }
 
   const handleSave = () => {
     if (selectedConfig && formData) {
       setConfigs((prev) =>
-        prev.map((c) =>
-          c.id === selectedConfig.id ? ({ ...c, ...formData } as ServerConfig) : c
-        )
-      );
-      setIsEditing(false);
-      setSelectedConfig({ ...selectedConfig, ...formData } as ServerConfig);
+        prev.map((c) => (c.id === selectedConfig.id ? ({ ...c, ...formData } as ServerConfig) : c))
+      )
+      setIsEditing(false)
+      setSelectedConfig({ ...selectedConfig, ...formData } as ServerConfig)
     }
-  };
+  }
 
   const handleCancel = () => {
-    setIsEditing(false);
-    setFormData(selectedConfig || {});
-  };
+    setIsEditing(false)
+    setFormData(selectedConfig || {})
+  }
 
   const handleDelete = (id: number) => {
-    setConfigs((prev) => prev.filter((c) => c.id !== id));
+    setConfigs((prev) => prev.filter((c) => c.id !== id))
     if (selectedConfig?.id === id) {
-      setSelectedConfig(null);
-      setIsEditing(false);
+      setSelectedConfig(null)
+      setIsEditing(false)
     }
-  };
+  }
 
   const handleDuplicate = (config: ServerConfig) => {
     const newConfig: ServerConfig = {
@@ -128,9 +126,9 @@ export function ServerConfigEditor() {
       name: `${config.name} (Copy)`,
       isActive: false,
       createdAt: new Date().toISOString().split('T')[0],
-    };
-    setConfigs((prev) => [...prev, newConfig]);
-  };
+    }
+    setConfigs((prev) => [...prev, newConfig])
+  }
 
   const handleCreateNew = () => {
     const newConfig: ServerConfig = {
@@ -148,14 +146,14 @@ export function ServerConfigEditor() {
       restartIntervalHours: 6,
       isActive: false,
       createdAt: new Date().toISOString().split('T')[0],
-    };
+    }
 
-    setConfigs((prev) => [...prev, newConfig]);
-    setSelectedConfig(newConfig);
-    setFormData(newConfig);
-    setIsEditing(true);
-    setIsCreateDialogOpen(false);
-  };
+    setConfigs((prev) => [...prev, newConfig])
+    setSelectedConfig(newConfig)
+    setFormData(newConfig)
+    setIsEditing(true)
+    setIsCreateDialogOpen(false)
+  }
 
   return (
     <div className="flex h-screen">
@@ -192,9 +190,7 @@ export function ServerConfigEditor() {
                 key={config.id}
                 onClick={() => setSelectedConfig(config)}
                 className={`w-full text-left p-3 rounded-lg transition-colors hover:bg-accent ${
-                  selectedConfig?.id === config.id
-                    ? 'bg-accent border border-border'
-                    : ''
+                  selectedConfig?.id === config.id ? 'bg-accent border border-border' : ''
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -208,16 +204,14 @@ export function ServerConfigEditor() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    {config.isActive && (
-                      <div className="size-2 rounded-full bg-green-500" />
-                    )}
+                    {config.isActive && <div className="size-2 rounded-full bg-green-500" />}
                     <Button
                       variant="ghost"
                       size="sm"
                       className="size-6 p-0"
                       onClick={(e) => {
-                        e.stopPropagation();
-                        handleDuplicate(config);
+                        e.stopPropagation()
+                        handleDuplicate(config)
                       }}
                     >
                       <IconCopy className="size-3" />
@@ -227,8 +221,8 @@ export function ServerConfigEditor() {
                       size="sm"
                       className="size-6 p-0"
                       onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(config.id);
+                        e.stopPropagation()
+                        handleDelete(config.id)
                       }}
                     >
                       <IconTrash className="size-3" />
@@ -376,13 +370,9 @@ export function ServerConfigEditor() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Altis_Life.Altis">Altis Life</SelectItem>
-                            <SelectItem value="King_of_the_Hill.Altis">
-                              King of the Hill
-                            </SelectItem>
+                            <SelectItem value="King_of_the_Hill.Altis">King of the Hill</SelectItem>
                             <SelectItem value="VR.VR">VR Training</SelectItem>
-                            <SelectItem value="Stratis.Stratis">
-                              Stratis Default
-                            </SelectItem>
+                            <SelectItem value="Stratis.Stratis">Stratis Default</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -436,9 +426,7 @@ export function ServerConfigEditor() {
 
                     {formData.autoRestart && (
                       <div>
-                        <Label htmlFor="restartInterval">
-                          Restart Interval (hours)
-                        </Label>
+                        <Label htmlFor="restartInterval">Restart Interval (hours)</Label>
                         <Input
                           id="restartInterval"
                           type="number"
@@ -479,9 +467,7 @@ export function ServerConfigEditor() {
 
                     <div>
                       <Label>Mission File</Label>
-                      <p className="text-sm">
-                        {selectedConfig.missionFile || 'Not set'}
-                      </p>
+                      <p className="text-sm">{selectedConfig.missionFile || 'Not set'}</p>
                     </div>
 
                     <div>
@@ -519,5 +505,5 @@ export function ServerConfigEditor() {
         )}
       </div>
     </div>
-  );
+  )
 }

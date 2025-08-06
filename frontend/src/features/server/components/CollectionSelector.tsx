@@ -4,15 +4,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import type { ServerStatus } from '../types';
-import type { Collection } from '@/features/collections/types';
+} from '@/components/ui/select'
+import type { ServerStatus } from '../types'
+import type { Collection } from '@/features/collections/types'
 
 interface CollectionSelectorProps {
-  server: ServerStatus;
-  collections: Collection[];
-  selectedStartupCollection: Collection | null;
-  onStartupCollectionChange: (collection: Collection | null) => void;
+  server: ServerStatus
+  collections: Collection[]
+  selectedStartupCollection: Collection | null
+  onStartupCollectionChange: (collection: Collection | null) => void
 }
 
 export function CollectionSelector({
@@ -21,12 +21,12 @@ export function CollectionSelector({
   selectedStartupCollection,
   onStartupCollectionChange,
 }: CollectionSelectorProps) {
-  const isServerOnline = server.status === 'online';
-  const hasActiveCollection = isServerOnline && server.activeCollection;
+  const isServerOnline = server.status === 'online'
+  const hasActiveCollection = isServerOnline && server.activeCollection
   const isDifferentCollectionSelected =
     selectedStartupCollection &&
     server.activeCollection &&
-    selectedStartupCollection.id !== server.activeCollection.id;
+    selectedStartupCollection.id !== server.activeCollection.id
 
   return (
     <div className="space-y-3">
@@ -39,12 +39,10 @@ export function CollectionSelector({
                 value={selectedStartupCollection?.id?.toString() || 'none'}
                 onValueChange={(value) => {
                   if (value === 'none') {
-                    onStartupCollectionChange(null);
+                    onStartupCollectionChange(null)
                   } else {
-                    const collection = collections.find(
-                      (c) => c.id.toString() === value
-                    );
-                    onStartupCollectionChange(collection || null);
+                    const collection = collections.find((c) => c.id.toString() === value)
+                    onStartupCollectionChange(collection || null)
                   }
                 }}
               >
@@ -59,9 +57,7 @@ export function CollectionSelector({
                       </div>
                     ) : (
                       <div className="flex items-center justify-between w-full">
-                        <span>
-                          {server.activeCollection?.name || 'Select collection'}
-                        </span>
+                        <span>{server.activeCollection?.name || 'Select collection'}</span>
                         {server.activeCollection && (
                           <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
                             Active
@@ -124,10 +120,10 @@ export function CollectionSelector({
               value={selectedStartupCollection?.id?.toString() || 'none'}
               onValueChange={(value) => {
                 if (value === 'none') {
-                  onStartupCollectionChange(null);
+                  onStartupCollectionChange(null)
                 } else {
-                  const collection = collections.find((c) => c.id.toString() === value);
-                  onStartupCollectionChange(collection || null);
+                  const collection = collections.find((c) => c.id.toString() === value)
+                  onStartupCollectionChange(collection || null)
                 }
               }}
             >
@@ -164,14 +160,10 @@ export function CollectionSelector({
             </Select>
             {selectedStartupCollection && (
               <div className="text-xs text-muted-foreground space-y-1">
-                <p>
-                  {selectedStartupCollection.mods.length} mods will be loaded on startup
-                </p>
+                <p>{selectedStartupCollection.mods.length} mods will be loaded on startup</p>
                 <p className="text-xs">
-                  {selectedStartupCollection.mods.filter((m) => !m.disabled).length}{' '}
-                  enabled,
-                  {selectedStartupCollection.mods.filter((m) => m.disabled).length}{' '}
-                  disabled
+                  {selectedStartupCollection.mods.filter((m) => !m.disabled).length} enabled,
+                  {selectedStartupCollection.mods.filter((m) => m.disabled).length} disabled
                 </p>
               </div>
             )}
@@ -179,5 +171,5 @@ export function CollectionSelector({
         )}
       </div>
     </div>
-  );
+  )
 }

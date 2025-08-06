@@ -18,12 +18,11 @@ import type {
   ScheduleResponse,
   CreateScheduleRequest,
   UpdateScheduleRequest,
-} from '@/types/api';
+} from '@/types/api'
 
 // Environment flag to enable/disable mock data
 export const USE_MOCK_DATA =
-  import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
-  import.meta.env.MODE === 'development';
+  import.meta.env.VITE_USE_MOCK_DATA === 'true' || import.meta.env.MODE === 'development'
 
 // Mock data - Comprehensive ARMA 3 mod collections
 const mockCollections: CollectionResponse[] = [
@@ -605,7 +604,7 @@ const mockCollections: CollectionResponse[] = [
     createdAt: '2023-11-28',
     isActive: false,
   },
-];
+]
 
 const mockServerStatus: ServerStatusResponse = {
   id: 1,
@@ -624,7 +623,7 @@ const mockServerStatus: ServerStatusResponse = {
     id: 1,
     name: 'Essential Framework',
   },
-};
+}
 
 const mockServerConfig: ServerConfigResponse = {
   id: 1,
@@ -659,29 +658,29 @@ const mockServerConfig: ServerConfigResponse = {
   ],
   createdAt: '2024-01-01T00:00:00Z',
   updatedAt: '2024-01-15T12:00:00Z',
-};
+}
 
 // Generate mock metrics history
 const generateMockMetrics = (): ServerMetricsResponse[] => {
-  const now = Date.now();
-  const data: ServerMetricsResponse[] = [];
+  const now = Date.now()
+  const data: ServerMetricsResponse[] = []
 
   for (let i = 23; i >= 0; i--) {
-    const timestamp = now - i * 60 * 60 * 1000; // hourly data for 24 hours
-    const baseLoad = Math.sin(((24 - i) / 24) * Math.PI * 2) * 20 + 50; // simulate daily pattern
+    const timestamp = now - i * 60 * 60 * 1000 // hourly data for 24 hours
+    const baseLoad = Math.sin(((24 - i) / 24) * Math.PI * 2) * 20 + 50 // simulate daily pattern
 
     data.push({
       timestamp,
       players: Math.max(0, Math.floor(baseLoad / 3 + Math.random() * 10)),
       cpu: Math.max(10, Math.min(90, baseLoad + Math.random() * 20 - 10)),
       memory: Math.max(20, Math.min(85, baseLoad * 0.8 + Math.random() * 15 - 7.5)),
-    });
+    })
   }
 
-  return data;
-};
+  return data
+}
 
-const mockServerMetrics = generateMockMetrics();
+const mockServerMetrics = generateMockMetrics()
 
 // Comprehensive mod subscriptions list based on collections data
 const mockModSubscriptions: ModSubscription[] = [
@@ -1074,7 +1073,7 @@ const mockModSubscriptions: ModSubscription[] = [
     status: 'disabled',
     last_updated: '2024-01-12T13:20:00Z',
   },
-];
+]
 
 // Mock schedule data
 const mockSchedules: ScheduleResponse[] = [
@@ -1163,37 +1162,37 @@ const mockSchedules: ScheduleResponse[] = [
     createdAt: '2024-01-05T12:30:00Z',
     updatedAt: '2024-01-05T12:30:00Z',
   },
-];
+]
 
 // Simulate API delay for realistic testing
 const simulateNetworkDelay = (min: number = 50, max: number = 100): Promise<void> => {
-  const delay = Math.random() * (max - min) + min;
-  return new Promise((resolve) => setTimeout(resolve, delay));
-};
+  const delay = Math.random() * (max - min) + min
+  return new Promise((resolve) => setTimeout(resolve, delay))
+}
 
 // Mock Collections Service
 export const mockCollectionsService = {
   getCollections: async (): Promise<CollectionResponse[]> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Fetching collections');
-    return [...mockCollections];
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Fetching collections')
+    return [...mockCollections]
   },
 
   getCollection: async (collectionId: number): Promise<CollectionResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Fetching collection ${collectionId}`);
-    const collection = mockCollections.find((c) => c.id === collectionId);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Fetching collection ${collectionId}`)
+    const collection = mockCollections.find((c) => c.id === collectionId)
     if (!collection) {
-      throw new Error(`Collection with id ${collectionId} not found`);
+      throw new Error(`Collection with id ${collectionId} not found`)
     }
-    return { ...collection };
+    return { ...collection }
   },
 
   createCollection: async (
     collectionData: CreateCollectionRequest
   ): Promise<CollectionResponse> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Creating collection', collectionData);
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Creating collection', collectionData)
 
     const newCollection: CollectionResponse = {
       id: Math.max(...mockCollections.map((c) => c.id)) + 1,
@@ -1202,81 +1201,81 @@ export const mockCollectionsService = {
       mods: [],
       createdAt: new Date().toISOString().split('T')[0],
       isActive: false,
-    };
+    }
 
-    mockCollections.push(newCollection);
-    return { ...newCollection };
+    mockCollections.push(newCollection)
+    return { ...newCollection }
   },
 
   updateCollection: async (
     collectionId: number,
     updateData: UpdateCollectionRequest
   ): Promise<CollectionResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Updating collection ${collectionId}`, updateData);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Updating collection ${collectionId}`, updateData)
 
-    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId);
+    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId)
     if (collectionIndex === -1) {
-      throw new Error(`Collection with id ${collectionId} not found`);
+      throw new Error(`Collection with id ${collectionId} not found`)
     }
 
     // If setting active, make others inactive
     if (updateData.isActive) {
       mockCollections.forEach((c) => {
-        c.isActive = false;
-      });
+        c.isActive = false
+      })
     }
 
     mockCollections[collectionIndex] = {
       ...mockCollections[collectionIndex],
       ...updateData,
-    };
+    }
 
-    return { ...mockCollections[collectionIndex] };
+    return { ...mockCollections[collectionIndex] }
   },
 
   deleteCollection: async (collectionId: number): Promise<{ message: string }> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Deleting collection ${collectionId}`);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Deleting collection ${collectionId}`)
 
-    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId);
+    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId)
     if (collectionIndex === -1) {
-      throw new Error(`Collection with id ${collectionId} not found`);
+      throw new Error(`Collection with id ${collectionId} not found`)
     }
 
-    mockCollections.splice(collectionIndex, 1);
-    return { message: 'Collection deleted successfully' };
+    mockCollections.splice(collectionIndex, 1)
+    return { message: 'Collection deleted successfully' }
   },
 
   addModsToCollection: async (
     collectionId: number,
     modData: AddModToCollectionRequest
   ): Promise<CollectionResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Adding mods to collection ${collectionId}`, modData);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Adding mods to collection ${collectionId}`, modData)
 
     // This would typically fetch the mods and add them to the collection
     // For now, just return the existing collection
-    return mockCollectionsService.getCollection(collectionId);
+    return mockCollectionsService.getCollection(collectionId)
   },
 
   removeModFromCollection: async (
     collectionId: number,
     modData: RemoveModFromCollectionRequest
   ): Promise<CollectionResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Removing mod from collection ${collectionId}`, modData);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Removing mod from collection ${collectionId}`, modData)
 
-    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId);
+    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId)
     if (collectionIndex === -1) {
-      throw new Error(`Collection with id ${collectionId} not found`);
+      throw new Error(`Collection with id ${collectionId} not found`)
     }
 
-    mockCollections[collectionIndex].mods = mockCollections[
-      collectionIndex
-    ].mods.filter((mod) => mod.id !== modData.modId);
+    mockCollections[collectionIndex].mods = mockCollections[collectionIndex].mods.filter(
+      (mod) => mod.id !== modData.modId
+    )
 
-    return { ...mockCollections[collectionIndex] };
+    return { ...mockCollections[collectionIndex] }
   },
 
   toggleModInCollection: async (
@@ -1284,128 +1283,124 @@ export const mockCollectionsService = {
     modId: number,
     disabled: boolean
   ): Promise<CollectionResponse> => {
-    await simulateNetworkDelay();
+    await simulateNetworkDelay()
     console.log(`🎭 Mock API: Toggling mod ${modId} in collection ${collectionId}`, {
       disabled,
-    });
+    })
 
-    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId);
+    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId)
     if (collectionIndex === -1) {
-      throw new Error(`Collection with id ${collectionId} not found`);
+      throw new Error(`Collection with id ${collectionId} not found`)
     }
 
-    const modIndex = mockCollections[collectionIndex].mods.findIndex(
-      (m) => m.id === modId
-    );
+    const modIndex = mockCollections[collectionIndex].mods.findIndex((m) => m.id === modId)
     if (modIndex === -1) {
-      throw new Error(`Mod with id ${modId} not found in collection`);
+      throw new Error(`Mod with id ${modId} not found in collection`)
     }
 
-    mockCollections[collectionIndex].mods[modIndex].disabled = disabled;
+    mockCollections[collectionIndex].mods[modIndex].disabled = disabled
 
-    return { ...mockCollections[collectionIndex] };
+    return { ...mockCollections[collectionIndex] }
   },
-};
+}
 
 // Mock Server Service
 export const mockServerService = {
   getServerStatus: async (): Promise<ServerStatusResponse> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Fetching server status');
-    return { ...mockServerStatus };
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Fetching server status')
+    return { ...mockServerStatus }
   },
 
   getServerMetrics: async (): Promise<ServerMetricsResponse[]> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Fetching server metrics');
-    return [...mockServerMetrics];
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Fetching server metrics')
+    return [...mockServerMetrics]
   },
 
   performServerAction: async (
     actionData: ServerActionRequest
   ): Promise<{ message: string; status: string }> => {
-    await simulateNetworkDelay(1000, 3000); // Longer delay for server actions
-    console.log('🎭 Mock API: Performing server action', actionData);
+    await simulateNetworkDelay(1000, 3000) // Longer delay for server actions
+    console.log('🎭 Mock API: Performing server action', actionData)
 
     // Simulate server state changes
     if (actionData.action === 'start') {
-      mockServerStatus.status = 'starting';
+      mockServerStatus.status = 'starting'
       if (actionData.collectionId) {
-        const collection = mockCollections.find(
-          (c) => c.id === actionData.collectionId
-        );
+        const collection = mockCollections.find((c) => c.id === actionData.collectionId)
         mockServerStatus.activeCollection = collection
           ? {
               id: collection.id,
               name: collection.name,
             }
-          : undefined;
+          : undefined
       }
       // Simulate server coming online after a delay
       setTimeout(() => {
-        mockServerStatus.status = 'online';
-        mockServerStatus.players = 0;
-        mockServerStatus.cpu = 15;
-        mockServerStatus.memory = 25;
-      }, 5000);
+        mockServerStatus.status = 'online'
+        mockServerStatus.players = 0
+        mockServerStatus.cpu = 15
+        mockServerStatus.memory = 25
+      }, 5000)
     } else if (actionData.action === 'stop') {
-      mockServerStatus.status = 'stopping';
+      mockServerStatus.status = 'stopping'
       // Simulate server going offline after a delay
       setTimeout(() => {
-        mockServerStatus.status = 'offline';
-        mockServerStatus.players = 0;
-        mockServerStatus.cpu = 0;
-        mockServerStatus.memory = 0;
-        mockServerStatus.activeCollection = undefined;
-      }, 3000);
+        mockServerStatus.status = 'offline'
+        mockServerStatus.players = 0
+        mockServerStatus.cpu = 0
+        mockServerStatus.memory = 0
+        mockServerStatus.activeCollection = undefined
+      }, 3000)
     } else if (actionData.action === 'restart') {
-      mockServerStatus.status = 'stopping';
+      mockServerStatus.status = 'stopping'
       // Simulate restart sequence
       setTimeout(() => {
-        mockServerStatus.status = 'starting';
-        mockServerStatus.players = 0;
-        mockServerStatus.cpu = 0;
-        mockServerStatus.memory = 0;
+        mockServerStatus.status = 'starting'
+        mockServerStatus.players = 0
+        mockServerStatus.cpu = 0
+        mockServerStatus.memory = 0
         setTimeout(() => {
-          mockServerStatus.status = 'online';
-          mockServerStatus.players = 0;
-          mockServerStatus.cpu = 15;
-          mockServerStatus.memory = 25;
-        }, 3000);
-      }, 2000);
+          mockServerStatus.status = 'online'
+          mockServerStatus.players = 0
+          mockServerStatus.cpu = 15
+          mockServerStatus.memory = 25
+        }, 3000)
+      }, 2000)
     }
 
     return {
       message: `Server ${actionData.action} initiated successfully`,
       status: 'success',
-    };
+    }
   },
 
   getServerConfig: async (): Promise<ServerConfigResponse> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Fetching server config');
-    return { ...mockServerConfig };
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Fetching server config')
+    return { ...mockServerConfig }
   },
 
   updateServerConfig: async (
     configData: UpdateServerConfigRequest
   ): Promise<ServerConfigResponse> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Updating server config', configData);
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Updating server config', configData)
 
     Object.assign(mockServerConfig, configData, {
       updatedAt: new Date().toISOString(),
-    });
+    })
 
-    return { ...mockServerConfig };
+    return { ...mockServerConfig }
   },
-};
+}
 
 // Mock Mod Service
 export const mockModService = {
   getModHelper: async (modId: number): Promise<ModHelper> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Fetching mod helper ${modId}`);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Fetching mod helper ${modId}`)
     return {
       description: 'This is a mock mod for testing purposes',
       file_size: '500 MB',
@@ -1413,132 +1408,124 @@ export const mockModService = {
       tags: ['mock', 'test', 'arma3'],
       time_updated: new Date().toISOString(),
       title: `Mock Mod ${modId}`,
-    };
+    }
   },
 
   getModSubscriptions: async (): Promise<ModSubscription[]> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Fetching mod subscriptions');
-    return mockModSubscriptions;
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Fetching mod subscriptions')
+    return mockModSubscriptions
   },
 
-  addModSubscriptions: async (
-    mods: Array<{ steam_id: number }>
-  ): Promise<{ message: string }> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Adding mod subscriptions', mods);
-    return { message: 'Mod subscriptions added successfully' };
+  addModSubscriptions: async (mods: Array<{ steam_id: number }>): Promise<{ message: string }> => {
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Adding mod subscriptions', mods)
+    return { message: 'Mod subscriptions added successfully' }
   },
 
   getModSubscriptionDetails: async (modId: number): Promise<ModSubscription> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Fetching mod subscription details ${modId}`);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Fetching mod subscription details ${modId}`)
     return {
       steam_id: modId,
       name: `Mock Mod ${modId}`,
       status: 'active',
       last_updated: new Date().toISOString(),
-    };
+    }
   },
 
   updateModSubscription: async (
     modId: number,
     updateData: UpdateModSubscriptionRequest
   ): Promise<{ message: string }> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Updating mod subscription ${modId}`, updateData);
-    return { message: 'Mod subscription updated successfully' };
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Updating mod subscription ${modId}`, updateData)
+    return { message: 'Mod subscription updated successfully' }
   },
 
   removeModSubscription: async (modId: number): Promise<{ message: string }> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Removing mod subscription ${modId}`);
-    return { message: 'Mod subscription removed successfully' };
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Removing mod subscription ${modId}`)
+    return { message: 'Mod subscription removed successfully' }
   },
 
   getModSubscriptionImage: async (modId: number): Promise<Blob> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Fetching mod subscription image ${modId}`);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Fetching mod subscription image ${modId}`)
     // Return a mock image blob
-    return new Blob(['mock image data'], { type: 'image/png' });
+    return new Blob(['mock image data'], { type: 'image/png' })
   },
 
   downloadMod: async (modId: number): Promise<ModDownloadResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Downloading mod ${modId}`);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Downloading mod ${modId}`)
     return {
       status: `mock-job-${modId}-${Date.now()}`,
       message: 'Download job created successfully',
-    };
+    }
   },
 
   deleteMod: async (modId: number): Promise<ModDownloadResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Deleting mod ${modId}`);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Deleting mod ${modId}`)
     return {
       status: `mock-delete-job-${modId}-${Date.now()}`,
       message: 'Delete job created successfully',
-    };
+    }
   },
 
   getAsyncJobStatus: async (
     jobId: string
   ): Promise<AsyncJobStatusResponse | AsyncJobSuccessResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Checking job status ${jobId}`);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Checking job status ${jobId}`)
     return {
       status: 'completed',
       message: 'Job completed successfully',
-    };
+    }
   },
-};
+}
 
 // Mock Schedule Service
 export const mockScheduleService = {
   getSchedules: async (): Promise<ScheduleResponse[]> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Fetching schedules');
-    return [...mockSchedules];
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Fetching schedules')
+    return [...mockSchedules]
   },
 
   getSchedule: async (id: number): Promise<ScheduleResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Fetching schedule ${id}`);
-    const schedule = mockSchedules.find((s) => s.id === id);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Fetching schedule ${id}`)
+    const schedule = mockSchedules.find((s) => s.id === id)
     if (!schedule) {
-      throw new Error(`Schedule with id ${id} not found`);
+      throw new Error(`Schedule with id ${id} not found`)
     }
-    return { ...schedule };
+    return { ...schedule }
   },
 
-  createSchedule: async (
-    scheduleData: CreateScheduleRequest
-  ): Promise<ScheduleResponse> => {
-    await simulateNetworkDelay();
-    console.log('🎭 Mock API: Creating schedule', scheduleData);
+  createSchedule: async (scheduleData: CreateScheduleRequest): Promise<ScheduleResponse> => {
+    await simulateNetworkDelay()
+    console.log('🎭 Mock API: Creating schedule', scheduleData)
 
     // Generate a mock cron expression based on frequency
     const generateMockCron = (frequency: string): string => {
-      if (frequency.includes('hour')) return '0 */2 * * *';
-      if (frequency.includes('daily')) return '0 3 * * *';
-      if (frequency.includes('week')) return '0 6 * * 0';
-      if (frequency.includes('month')) return '0 2 1 * *';
-      return '*/30 * * * *'; // Default to every 30 minutes
-    };
+      if (frequency.includes('hour')) return '0 */2 * * *'
+      if (frequency.includes('daily')) return '0 3 * * *'
+      if (frequency.includes('week')) return '0 6 * * 0'
+      if (frequency.includes('month')) return '0 2 1 * *'
+      return '*/30 * * * *' // Default to every 30 minutes
+    }
 
     // Calculate next run time (mock - just add some time)
     const getNextRun = (frequency: string): string => {
-      const now = Date.now();
-      if (frequency.includes('hour'))
-        return new Date(now + 2 * 60 * 60 * 1000).toISOString();
-      if (frequency.includes('daily'))
-        return new Date(now + 4 * 60 * 60 * 1000).toISOString();
-      if (frequency.includes('week'))
-        return new Date(now + 2 * 24 * 60 * 60 * 1000).toISOString();
-      if (frequency.includes('month'))
-        return new Date(now + 16 * 24 * 60 * 60 * 1000).toISOString();
-      return new Date(now + 30 * 60 * 1000).toISOString(); // Default
-    };
+      const now = Date.now()
+      if (frequency.includes('hour')) return new Date(now + 2 * 60 * 60 * 1000).toISOString()
+      if (frequency.includes('daily')) return new Date(now + 4 * 60 * 60 * 1000).toISOString()
+      if (frequency.includes('week')) return new Date(now + 2 * 24 * 60 * 60 * 1000).toISOString()
+      if (frequency.includes('month')) return new Date(now + 16 * 24 * 60 * 60 * 1000).toISOString()
+      return new Date(now + 30 * 60 * 1000).toISOString() // Default
+    }
 
     const newSchedule: ScheduleResponse = {
       id: Math.max(...mockSchedules.map((s) => s.id)) + 1,
@@ -1552,75 +1539,75 @@ export const mockScheduleService = {
       operationData: scheduleData.operationData || {},
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
+    }
 
-    mockSchedules.push(newSchedule);
-    return { ...newSchedule };
+    mockSchedules.push(newSchedule)
+    return { ...newSchedule }
   },
 
   updateSchedule: async (
     id: number,
     scheduleData: UpdateScheduleRequest
   ): Promise<ScheduleResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Updating schedule ${id}`, scheduleData);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Updating schedule ${id}`, scheduleData)
 
-    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id);
+    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id)
     if (scheduleIndex === -1) {
-      throw new Error(`Schedule with id ${id} not found`);
+      throw new Error(`Schedule with id ${id} not found`)
     }
 
     mockSchedules[scheduleIndex] = {
       ...mockSchedules[scheduleIndex],
       ...scheduleData,
       updatedAt: new Date().toISOString(),
-    };
+    }
 
-    return { ...mockSchedules[scheduleIndex] };
+    return { ...mockSchedules[scheduleIndex] }
   },
 
   deleteSchedule: async (id: number): Promise<void> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Deleting schedule ${id}`);
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Deleting schedule ${id}`)
 
-    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id);
+    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id)
     if (scheduleIndex === -1) {
-      throw new Error(`Schedule with id ${id} not found`);
+      throw new Error(`Schedule with id ${id} not found`)
     }
 
-    mockSchedules.splice(scheduleIndex, 1);
+    mockSchedules.splice(scheduleIndex, 1)
   },
 
   toggleSchedule: async (id: number, enabled: boolean): Promise<ScheduleResponse> => {
-    await simulateNetworkDelay();
-    console.log(`🎭 Mock API: Toggling schedule ${id}`, { enabled });
+    await simulateNetworkDelay()
+    console.log(`🎭 Mock API: Toggling schedule ${id}`, { enabled })
 
-    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id);
+    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id)
     if (scheduleIndex === -1) {
-      throw new Error(`Schedule with id ${id} not found`);
+      throw new Error(`Schedule with id ${id} not found`)
     }
 
-    mockSchedules[scheduleIndex].status = enabled ? 'active' : 'inactive';
-    mockSchedules[scheduleIndex].updatedAt = new Date().toISOString();
+    mockSchedules[scheduleIndex].status = enabled ? 'active' : 'inactive'
+    mockSchedules[scheduleIndex].updatedAt = new Date().toISOString()
 
-    return { ...mockSchedules[scheduleIndex] };
+    return { ...mockSchedules[scheduleIndex] }
   },
 
   executeSchedule: async (id: number): Promise<{ message: string }> => {
-    await simulateNetworkDelay(1000, 2000); // Longer delay for execution
-    console.log(`🎭 Mock API: Executing schedule ${id}`);
+    await simulateNetworkDelay(1000, 2000) // Longer delay for execution
+    console.log(`🎭 Mock API: Executing schedule ${id}`)
 
-    const schedule = mockSchedules.find((s) => s.id === id);
+    const schedule = mockSchedules.find((s) => s.id === id)
     if (!schedule) {
-      throw new Error(`Schedule with id ${id} not found`);
+      throw new Error(`Schedule with id ${id} not found`)
     }
 
     // Update lastRun time
-    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id);
-    mockSchedules[scheduleIndex].lastRun = new Date().toISOString();
+    const scheduleIndex = mockSchedules.findIndex((s) => s.id === id)
+    mockSchedules[scheduleIndex].lastRun = new Date().toISOString()
 
     return {
       message: `Schedule "${schedule.name}" executed successfully`,
-    };
+    }
   },
-};
+}
