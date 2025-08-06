@@ -30,12 +30,13 @@ def add_cba_to_db():
     db.session.add(
         ModImage(
             mod_id=1,
-            image_data=b'',
+            image_data=b"",
             content_type="text/plain",
             created_at=datetime.utcfromtimestamp(1754197938),
         )
     )
     db.session.commit()
+
 
 @pytest.fixture
 def add_ace_to_db():
@@ -58,6 +59,7 @@ class TestArma3API:
     """
     Tests the "arma3" API endpoints
     """
+
     def test_health_check(self, client: FlaskClient) -> None:
         """Test health check returns 200 with correct response."""
         response = client.get("/api/arma3/health")
@@ -69,7 +71,10 @@ class TestArma3API:
     def test_mod_not_found(self, client: FlaskClient) -> None:
         response = client.get("/api/arma3/mod/subscription")
         assert response.status_code == HTTPStatus.BAD_REQUEST
-        assert response.json["message"] == "You must include a mod ID to get subscription status"
+        assert (
+            response.json["message"]
+            == "You must include a mod ID to get subscription status"
+        )
 
     def test_subscribe_to_mod(self, client: FlaskClient) -> None:
         """
@@ -79,11 +84,16 @@ class TestArma3API:
             a good subscribe with a DB with an entry
         """
         assert len(Mod.query.all()) == 0
-        reply = client.post("/api/arma3/mod/subscription", json={
-            "mods": [{
-                "steam_id": 450814997,  # CBA
-            }],
-        })
+        reply = client.post(
+            "/api/arma3/mod/subscription",
+            json={
+                "mods": [
+                    {
+                        "steam_id": 450814997,  # CBA
+                    }
+                ],
+            },
+        )
         assert reply.status_code == HTTPStatus.OK
         assert len(Mod.query.all()) == 1
         reply = client.post(
@@ -134,7 +144,9 @@ class TestArma3API:
         assert reply.json["results"]["steam_id"] == 450814997
         assert reply.json["results"]["steam_last_updated"] == "2025-08-03T05:12:18"
 
-    def test_get_mods(self, client: FlaskClient, add_cba_to_db: None, add_ace_to_db: None) -> None:
+    def test_get_mods(
+        self, client: FlaskClient, add_cba_to_db: None, add_ace_to_db: None
+    ) -> None:
         add_cba_to_db  # noqa: B018
         add_ace_to_db  # noqa: B018
         assert len(Mod.query.all()) == 2
@@ -151,7 +163,9 @@ class TestArma3API:
         assert reply.json["results"][1]["steam_id"] == 463939057
         assert reply.json["results"][1]["steam_last_updated"] == "2025-08-03T05:12:18"
 
-    def test_patch_subscribed_mod(self, client: FlaskClient, add_cba_to_db: None) -> None:
+    def test_patch_subscribed_mod(
+        self, client: FlaskClient, add_cba_to_db: None
+    ) -> None:
         add_cba_to_db  # noqa: B018
         assert len(Mod.query.all()) == 1
         reply = client.patch(
@@ -165,7 +179,9 @@ class TestArma3API:
         assert len(Mod.query.all()) == 1
         assert len(Mod.query.filter(Mod.name == "NOT_CBA3").all())
 
-    def test_subscribe_adds_image(self, client: FlaskClient, add_cba_to_db: None) -> None:
+    def test_subscribe_adds_image(
+        self, client: FlaskClient, add_cba_to_db: None
+    ) -> None:
         add_cba_to_db  # noqa: B018
         assert len(Mod.query.all()) == 1
         reply = client.get(
