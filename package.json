@@ -18,23 +18,21 @@
     "test:frontend": "cd frontend && pnpm test",
     "lint": "pnpm run lint:backend && pnpm run lint:frontend",
     "lint:backend": "cd backend && uv run ruff check . && uv run mypy .",
-    "lint:frontend": "cd frontend && pnpm lint:fix",
+    "lint:frontend": "cd frontend && pnpm lint",
     "format": "pnpm run format:backend && pnpm run format:frontend",
     "format:backend": "cd backend && uv run ruff format . && uv run black .",
     "format:frontend": "cd frontend && pnpm format",
     "clean": "rm -rf frontend/dist backend/.pytest_cache backend/__pycache__",
-    "prepare": "husky",
-    "lint-staged:frontend": "cd frontend && pnpm lint --fix",
-    "lint-staged:frontend-format": "cd frontend && pnpm format",
-    "lint-staged:backend": "cd backend && uv run ruff check --fix && uv run ruff format && uv run mypy"
+    "prepare": "husky"
   },
   "lint-staged": {
     "frontend/**/*.{ts,tsx,js,jsx}": [
-      "pnpm run lint-staged:frontend-format",
-      "pnpm run lint-staged:frontend"
+      "pnpm run format:frontend",
+      "pnpm run lint:frontend"
     ],
     "backend/**/*.py": [
-      "pnpm run lint-staged:backend"
+      "pnpm run format:backend",
+      "pnpm run lint:backend"
     ]
   },
   "devDependencies": {
