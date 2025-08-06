@@ -5,6 +5,7 @@ React TypeScript application providing a modern web interface for Arma 3 server 
 ## Architecture
 
 ### Tech Stack
+
 - **React 18**: Modern React with hooks and functional components
 - **TypeScript**: Static typing for better developer experience
 - **Vite**: Fast build tool and development server
@@ -40,18 +41,21 @@ frontend/
 ## Setup
 
 ### Prerequisites
+
 - Node.js 18+
 - pnpm package manager
 
 ### Installation
 
 1. **Install dependencies**:
+
    ```bash
    cd frontend
    pnpm install
    ```
 
 2. **Set up environment**:
+
    ```bash
    cp .env.example .env.local
    # Edit .env.local with your configuration
@@ -68,15 +72,15 @@ The application will be available at http://localhost:5173
 
 ### Development Commands
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start Vite development server |
-| `pnpm build` | Build for production |
-| `pnpm preview` | Preview production build |
-| `pnpm lint` | Lint TypeScript/React code |
-| `pnpm lint:fix` | Fix auto-fixable linting issues |
-| `pnpm format` | Format code with Prettier |
-| `pnpm type-check` | Run TypeScript compiler check |
+| Command           | Description                     |
+| ----------------- | ------------------------------- |
+| `pnpm dev`        | Start Vite development server   |
+| `pnpm build`      | Build for production            |
+| `pnpm preview`    | Preview production build        |
+| `pnpm lint`       | Lint TypeScript/React code      |
+| `pnpm lint:fix`   | Fix auto-fixable linting issues |
+| `pnpm format`     | Format code with Prettier       |
+| `pnpm type-check` | Run TypeScript compiler check   |
 
 ### Hot Module Replacement
 
@@ -102,28 +106,37 @@ VITE_APP_TITLE=Arma 3 Server Manager
 ### Core Components
 
 #### App.tsx
+
 Main application shell with routing and global state management.
 
 #### CollectionManager.tsx
+
 Interface for creating and managing mod collections:
+
 - Collection creation form
 - Mod selection interface
 - Collection editing and deletion
 
 #### ModBrowser.tsx
+
 Steam Workshop mod discovery and management:
+
 - Mod search functionality
 - Workshop integration
 - Mod download status tracking
 
 #### ServerConfigEditor.tsx
+
 Server configuration management:
+
 - Server settings forms
 - Collection assignment
 - Configuration validation
 
 #### ServerControlPanel.tsx
+
 Server lifecycle controls:
+
 - Start/stop server instances
 - Real-time status updates
 - Log viewing
@@ -131,6 +144,7 @@ Server lifecycle controls:
 ### UI Components (Shadcn/UI)
 
 Located in `src/components/ui/`:
+
 - `button.tsx` - Button variants and styles
 - `card.tsx` - Content containers
 - `input.tsx` - Form inputs
@@ -141,6 +155,7 @@ Located in `src/components/ui/`:
 ### Custom Hooks
 
 Located in `src/hooks/`:
+
 - `use-mobile.ts` - Mobile device detection
 - `use-navigation.ts` - Navigation state management
 
@@ -149,6 +164,7 @@ Located in `src/hooks/`:
 ### API Client
 
 The `src/services/api.ts` file contains:
+
 - Axios instance configuration
 - API endpoint functions
 - TypeScript type definitions
@@ -160,38 +176,38 @@ All API responses are typed with TypeScript interfaces:
 
 ```typescript
 interface Mod {
-  id: number;
-  steam_id: string;
-  name: string;
-  type: 'mod' | 'mission' | 'map';
-  server_side_only: boolean;
-  download_path?: string;
-  last_updated?: string;
+  id: number
+  steam_id: string
+  name: string
+  type: 'mod' | 'mission' | 'map'
+  server_side_only: boolean
+  download_path?: string
+  last_updated?: string
 }
 
 interface Collection {
-  id: number;
-  name: string;
-  description?: string;
-  mods: Mod[];
-  created_at: string;
+  id: number
+  name: string
+  description?: string
+  mods: Mod[]
+  created_at: string
 }
 ```
 
 ### API Usage Example
 
 ```typescript
-import { api } from '../services/api';
+import { api } from '../services/api'
 
 // Fetch mods
-const mods = await api.getMods();
+const mods = await api.getMods()
 
 // Create a new collection
 const collection = await api.createCollection({
   name: 'Essential Mods',
   description: 'Core mods for all servers',
-  mod_ids: [1, 2, 3]
-});
+  mod_ids: [1, 2, 3],
+})
 ```
 
 ## Styling
@@ -208,9 +224,9 @@ module.exports = {
     extend: {
       colors: {
         // Custom color palette
-      }
-    }
-  }
+      },
+    },
+  },
 }
 ```
 
@@ -238,9 +254,9 @@ Shadcn/UI components are customized through the `src/lib/utils.ts` file and can 
 Components use React hooks for local state management:
 
 ```tsx
-const [mods, setMods] = useState<Mod[]>([]);
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState<string | null>(null);
+const [mods, setMods] = useState<Mod[]>([])
+const [loading, setLoading] = useState(false)
+const [error, setError] = useState<string | null>(null)
 ```
 
 ### API State
@@ -249,17 +265,18 @@ API calls are handled with custom hooks for data fetching:
 
 ```tsx
 const useMods = () => {
-  const [mods, setMods] = useState<Mod[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [mods, setMods] = useState<Mod[]>([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.getMods()
+    api
+      .getMods()
       .then(setMods)
-      .finally(() => setLoading(false));
-  }, []);
+      .finally(() => setLoading(false))
+  }, [])
 
-  return { mods, loading };
-};
+  return { mods, loading }
+}
 ```
 
 ## Building and Deployment
@@ -279,13 +296,16 @@ The build output will be in the `dist/` directory.
 ### Deployment Options
 
 #### Static Hosting
+
 Deploy the `dist/` folder to any static hosting service:
+
 - Netlify
 - Vercel
 - GitHub Pages
 - AWS S3 + CloudFront
 
 #### Docker
+
 ```dockerfile
 FROM nginx:alpine
 COPY dist/ /usr/share/nginx/html/
@@ -296,6 +316,7 @@ CMD ["nginx", "-g", "daemon off;"]
 #### Environment Variables for Production
 
 Update `.env.production`:
+
 ```bash
 VITE_API_BASE_URL=https://api.yourserver.com/api
 VITE_NODE_ENV=production
@@ -316,10 +337,10 @@ export default [
       'eslint:recommended',
       '@typescript-eslint/recommended',
       'plugin:react/recommended',
-      'plugin:react-hooks/recommended'
-    ]
-  }
-];
+      'plugin:react-hooks/recommended',
+    ],
+  },
+]
 ```
 
 ### Prettier Configuration
@@ -389,6 +410,7 @@ test('renders mod browser component', () => {
 ### Common Issues
 
 1. **Port conflicts**: Default port 5173 might be in use
+
    ```bash
    pnpm dev --port 3000
    ```
@@ -396,12 +418,14 @@ test('renders mod browser component', () => {
 2. **API connection errors**: Verify backend is running and VITE_API_BASE_URL is correct
 
 3. **Build errors**: Clear node_modules and reinstall
+
    ```bash
    rm -rf node_modules pnpm-lock.yaml
    pnpm install
    ```
 
 4. **TypeScript errors**: Run type check to see all issues
+
    ```bash
    pnpm type-check
    ```
@@ -411,6 +435,7 @@ test('renders mod browser component', () => {
 ### Debug Mode
 
 Enable verbose logging:
+
 ```bash
 DEBUG=vite:* pnpm dev
 ```
@@ -418,6 +443,7 @@ DEBUG=vite:* pnpm dev
 ### Browser DevTools
 
 Use React Developer Tools for component inspection and debugging:
+
 - Install React DevTools browser extension
 - Use the Components and Profiler tabs
 - Monitor component renders and state changes
