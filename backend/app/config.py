@@ -35,7 +35,7 @@ class Config:
         "STEAMCMD_PATH": os.environ.get("STEAMCMD_PATH") or "steamcmd",
         "STEAMCMD_USER": os.environ.get("STEAMCMD_USER") or "anonymous",
         "MOD_STAGING_DIR": os.environ.get("MOD_STAGING_DIR")
-        or os.path.join(os.getcwd(), "temp", "steamcmd_staging"),
+        or os.path.join(os.getcwd(), "temp", "mod_staging"),
         "MOD_INSTALL_DIR": os.environ.get("MOD_INSTALL_DIR")
         or os.path.join(os.getcwd(), "temp", "mods"),
         "MOD_BACKUP_DIR": os.environ.get("MOD_BACKUP_DIR")
