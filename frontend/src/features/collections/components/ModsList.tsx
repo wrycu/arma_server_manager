@@ -1,16 +1,16 @@
-import { IconFolder, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconFolder, IconPlus, IconTrash } from "@tabler/icons-react"
 
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import type { ModItem } from '../types';
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import type { ModItem } from "../types"
 
 interface ModsListProps {
-  mods: ModItem[];
-  collectionId: number;
-  onToggleMod: (collectionId: number, modId: number) => void;
-  onUpdateMod: (mod: ModItem) => void;
-  onRemoveMod: (collectionId: number, modId: number, modName: string) => void;
+  mods: ModItem[]
+  collectionId: number
+  onToggleMod: (collectionId: number, modId: number) => void
+  onUpdateMod: (mod: ModItem) => void
+  onRemoveMod: (collectionId: number, modId: number, modName: string) => void
 }
 
 export function ModsList({
@@ -30,16 +30,16 @@ export function ModsList({
           Add Mods
         </Button>
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-1">
-      {mods.map((mod) => (
+      {mods.map(mod => (
         <div
           key={mod.id}
           className={`group flex items-center gap-3 px-3 py-2 rounded-md border bg-card hover:bg-muted/30 transition-colors ${
-            mod.disabled ? 'opacity-50' : ''
+            mod.disabled ? "opacity-50" : ""
           }`}
         >
           <Checkbox
@@ -52,7 +52,7 @@ export function ModsList({
             <div className="flex items-center gap-2">
               <span
                 className={`text-sm font-medium truncate ${
-                  mod.disabled ? 'line-through text-muted-foreground' : ''
+                  mod.disabled ? "line-through text-muted-foreground" : ""
                 }`}
               >
                 {mod.name}
@@ -97,5 +97,5 @@ export function ModsList({
         </div>
       ))}
     </div>
-  );
+  )
 }

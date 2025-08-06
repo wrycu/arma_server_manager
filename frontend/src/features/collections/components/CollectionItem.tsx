@@ -1,13 +1,13 @@
-import { IconFolder, IconTrash } from '@tabler/icons-react';
+import { IconFolder, IconTrash } from "@tabler/icons-react"
 
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import type { Collection } from '../types';
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import type { Collection } from "../types"
 
 interface CollectionItemProps {
-  collection: Collection;
-  onSelectCollection: (collection: Collection) => void;
-  onDeleteCollection: (collectionId: number) => void;
+  collection: Collection
+  onSelectCollection: (collection: Collection) => void
+  onDeleteCollection: (collectionId: number) => void
 }
 
 export function CollectionItem({
@@ -15,7 +15,7 @@ export function CollectionItem({
   onSelectCollection,
   onDeleteCollection,
 }: CollectionItemProps) {
-  const updateCount = collection.mods.filter((m) => m.hasUpdate).length;
+  const updateCount = collection.mods.filter(m => m.hasUpdate).length
 
   return (
     <div className="group flex items-center gap-3 px-3 py-3 rounded-md border bg-card hover:bg-muted/30 transition-colors">
@@ -50,14 +50,14 @@ export function CollectionItem({
           variant="ghost"
           size="sm"
           className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDeleteCollection(collection.id);
+          onClick={e => {
+            e.stopPropagation()
+            onDeleteCollection(collection.id)
           }}
         >
           <IconTrash className="h-3 w-3" />
         </Button>
       </div>
     </div>
-  );
+  )
 }

@@ -27,6 +27,16 @@ export default tseslint.config([
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_' 
       }],
+      'semi': ['error', 'never'],
+      'comma-dangle': ['error', 'always-multiline'],
+      'object-curly-spacing': ['error', 'always'],
+      'array-bracket-spacing': ['error', 'never'],
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'prefer-template': 'error',
+      'prefer-arrow-callback': 'error',
+      'arrow-spacing': 'error',
+      'no-trailing-spaces': 'error',
     },
   },
 ])

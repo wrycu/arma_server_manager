@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from "react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -10,11 +10,11 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
-import { ChevronDown, Settings2 } from 'lucide-react';
+} from "@tanstack/react-table"
+import { ChevronDown, Settings2 } from "lucide-react"
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -22,14 +22,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -37,21 +37,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table"
 
-import type { Schedule } from '../../server/types';
+import type { Schedule } from "../../server/types"
 
 export interface SchedulesDataTableProps {
-  columns: ColumnDef<Schedule>[];
-  data: Schedule[];
-  isLoading?: boolean;
+  columns: ColumnDef<Schedule>[]
+  data: Schedule[]
+  isLoading?: boolean
 }
 
 export function SchedulesDataTable(props: SchedulesDataTableProps) {
-  const { columns, data, isLoading = false } = props;
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const { columns, data, isLoading = false } = props
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
 
   const table = useReactTable({
     data,
@@ -68,7 +68,7 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-  });
+  })
 
   if (isLoading) {
     return (
@@ -87,7 +87,7 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
           ))}
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -96,17 +96,17 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
         <div className="flex flex-1 items-center space-x-2">
           <Input
             placeholder="Filter schedules..."
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-            onChange={(event) =>
-              table.getColumn('name')?.setFilterValue(event.target.value)
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={event =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
             }
             className="h-8 w-[150px] lg:w-[250px]"
           />
-          {table.getColumn('status') && (
+          {table.getColumn("status") && (
             <Select
-              value={(table.getColumn('status')?.getFilterValue() as string) ?? ''}
-              onValueChange={(value) =>
-                table.getColumn('status')?.setFilterValue(value === 'all' ? '' : value)
+              value={(table.getColumn("status")?.getFilterValue() as string) ?? ""}
+              onValueChange={value =>
+                table.getColumn("status")?.setFilterValue(value === "all" ? "" : value)
               }
             >
               <SelectTrigger className="h-8 w-[120px]">
@@ -140,20 +140,20 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
               {table
                 .getAllColumns()
                 .filter(
-                  (column) =>
-                    typeof column.accessorFn !== 'undefined' && column.getCanHide()
+                  column =>
+                    typeof column.accessorFn !== "undefined" && column.getCanHide(),
                 )
-                .map((column) => {
+                .map(column => {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
                       className="capitalize"
                       checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                      onCheckedChange={value => column.toggleVisibility(!!value)}
                     >
                       {column.id}
                     </DropdownMenuCheckboxItem>
-                  );
+                  )
                 })}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -162,28 +162,28 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map(header => {
                   return (
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
-                  );
+                  )
                 })}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map(row => (
                 <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map(cell => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
@@ -221,5 +221,5 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

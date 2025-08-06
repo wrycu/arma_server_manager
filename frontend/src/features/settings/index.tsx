@@ -1,23 +1,18 @@
-import { useState } from 'react';
-import {
-  IconBell,
-  IconServer,
-  IconShield,
-  IconDeviceFloppy,
-} from '@tabler/icons-react';
+import { useState } from "react"
+import { IconBell, IconServer, IconShield, IconDeviceFloppy } from "@tabler/icons-react"
 
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PageTitle } from '@/components/common/PageTitle';
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { PageTitle } from "@/components/common/PageTitle"
 
-import { NotificationSettings, ServerSettings, SecuritySettings } from './components';
-import type { SettingsData, SettingsTab } from './types';
+import { NotificationSettings, ServerSettings, SecuritySettings } from "./components"
+import type { SettingsData, SettingsTab } from "./types"
 
 // Mock initial data - in a real app, this would come from an API
 const initialSettings: SettingsData = {
   notifications: {
     enableNotifications: true,
-    webhookUrl: '',
+    webhookUrl: "",
     notificationTypes: {
       serverStartStop: true,
       modUpdates: false,
@@ -25,60 +20,60 @@ const initialSettings: SettingsData = {
     },
   },
   server: {
-    serverName: 'My ARMA 3 Server',
+    serverName: "My ARMA 3 Server",
     serverPort: 2302,
-    serverPassword: '',
+    serverPassword: "",
     maxPlayers: 64,
-    serverDescription: '',
+    serverDescription: "",
   },
   security: {
-    adminPassword: '',
+    adminPassword: "",
     enableLogging: true,
   },
-};
+}
 
 export function Settings() {
-  const [settings, setSettings] = useState<SettingsData>(initialSettings);
-  const [activeTab, setActiveTab] = useState<SettingsTab>('notifications');
-  const [isLoading, setIsLoading] = useState(false);
+  const [settings, setSettings] = useState<SettingsData>(initialSettings)
+  const [activeTab, setActiveTab] = useState<SettingsTab>("notifications")
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleNotificationUpdate = (
-    notificationSettings: SettingsData['notifications']
+    notificationSettings: SettingsData["notifications"],
   ) => {
-    setSettings((prev) => ({
+    setSettings(prev => ({
       ...prev,
       notifications: notificationSettings,
-    }));
-  };
+    }))
+  }
 
-  const handleServerUpdate = (serverSettings: SettingsData['server']) => {
-    setSettings((prev) => ({
+  const handleServerUpdate = (serverSettings: SettingsData["server"]) => {
+    setSettings(prev => ({
       ...prev,
       server: serverSettings,
-    }));
-  };
+    }))
+  }
 
-  const handleSecurityUpdate = (securitySettings: SettingsData['security']) => {
-    setSettings((prev) => ({
+  const handleSecurityUpdate = (securitySettings: SettingsData["security"]) => {
+    setSettings(prev => ({
       ...prev,
       security: securitySettings,
-    }));
-  };
+    }))
+  }
 
   const handleSaveSettings = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
       // In a real app, this would make an API call to save settings
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log('Settings saved:', settings);
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log("Settings saved:", settings)
       // You could show a toast notification here
     } catch (error) {
-      console.error('Failed to save settings:', error);
+      console.error("Failed to save settings:", error)
       // You could show an error toast here
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -92,7 +87,7 @@ export function Settings() {
       <div className="flex-1 overflow-auto py-6">
         <Tabs
           value={activeTab}
-          onValueChange={(value) => setActiveTab(value as SettingsTab)}
+          onValueChange={value => setActiveTab(value as SettingsTab)}
         >
           <TabsList className="w-fit mb-6">
             <TabsTrigger value="notifications" className="flex items-center gap-2">
@@ -135,10 +130,10 @@ export function Settings() {
             className="flex items-center gap-2"
           >
             <IconDeviceFloppy className="h-4 w-4" />
-            {isLoading ? 'Saving...' : 'Save Settings'}
+            {isLoading ? "Saving..." : "Save Settings"}
           </Button>
         </div>
       </div>
     </div>
-  );
+  )
 }

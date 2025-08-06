@@ -1,15 +1,15 @@
-import { type ReactNode } from 'react';
+import { type ReactNode } from "react"
 
 interface BreadcrumbItem {
-  label: string;
-  onClick?: () => void;
+  label: string
+  onClick?: () => void
 }
 
 interface PageTitleProps {
-  title: string;
-  description?: string;
-  actions?: ReactNode;
-  breadcrumbs?: BreadcrumbItem[];
+  title: string
+  description?: string
+  actions?: ReactNode
+  breadcrumbs?: BreadcrumbItem[]
 }
 
 export function PageTitle({
@@ -30,8 +30,8 @@ export function PageTitle({
                     onClick={item.onClick}
                     className={`font-medium transition-all duration-200 ${
                       item.onClick
-                        ? 'text-muted-foreground hover:text-foreground cursor-pointer rounded-md hover:bg-muted/50'
-                        : 'text-muted-foreground'
+                        ? "text-muted-foreground hover:text-foreground cursor-pointer rounded-md hover:bg-muted/50"
+                        : "text-muted-foreground"
                     }`}
                     disabled={!item.onClick}
                   >
@@ -53,5 +53,5 @@ export function PageTitle({
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
     </div>
-  );
+  )
 }

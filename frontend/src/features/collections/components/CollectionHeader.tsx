@@ -1,22 +1,22 @@
-import { IconArrowLeft, IconFolder, IconPlus } from '@tabler/icons-react';
+import { IconArrowLeft, IconFolder, IconPlus } from "@tabler/icons-react"
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import type { Collection } from '../types';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import type { Collection } from "../types"
 
 interface CollectionHeaderProps {
-  collection: Collection;
-  onBack: () => void;
-  onTitleEdit: (title: string) => void;
-  onUpdateAll: () => void;
-  onSetActive: () => void;
-  isEditingTitle: boolean;
-  editingTitle: string;
-  onEditingTitleChange: (title: string) => void;
-  onStartEditingTitle: () => void;
-  onSaveTitle: () => void;
-  onTitleKeyDown: (e: React.KeyboardEvent) => void;
+  collection: Collection
+  onBack: () => void
+  onTitleEdit: (title: string) => void
+  onUpdateAll: () => void
+  onSetActive: () => void
+  isEditingTitle: boolean
+  editingTitle: string
+  onEditingTitleChange: (title: string) => void
+  onStartEditingTitle: () => void
+  onSaveTitle: () => void
+  onTitleKeyDown: (e: React.KeyboardEvent) => void
 }
 
 export function CollectionHeader({
@@ -42,7 +42,7 @@ export function CollectionHeader({
           {isEditingTitle ? (
             <Input
               value={editingTitle}
-              onChange={(e) => onEditingTitleChange(e.target.value)}
+              onChange={e => onEditingTitleChange(e.target.value)}
               onBlur={onSaveTitle}
               onKeyDown={onTitleKeyDown}
               className="h-6 px-2 py-0 font-medium text-sm border-none shadow-none focus-visible:ring-1 focus-visible:ring-ring bg-transparent"
@@ -74,13 +74,13 @@ export function CollectionHeader({
           <Badge variant="outline" className="h-6 px-2 text-xs">
             {collection.mods.length} mods
           </Badge>
-          {collection.mods.some((m) => m.hasUpdate) && (
+          {collection.mods.some(m => m.hasUpdate) && (
             <Badge className="h-6 px-2 text-xs bg-orange-500/10 text-orange-600 border-orange-500/20">
-              {collection.mods.filter((m) => m.hasUpdate).length} updates
+              {collection.mods.filter(m => m.hasUpdate).length} updates
             </Badge>
           )}
         </div>
-        {collection.mods.some((mod) => mod.hasUpdate) && (
+        {collection.mods.some(mod => mod.hasUpdate) && (
           <Button size="sm" onClick={onUpdateAll} className="h-7 px-3 text-xs">
             Update All
           </Button>
@@ -101,5 +101,5 @@ export function CollectionHeader({
         </Button>
       </div>
     </div>
-  );
+  )
 }

@@ -4,15 +4,15 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import type { ServerStatus } from '../types';
-import type { Collection } from '@/features/collections/types';
+} from "@/components/ui/select"
+import type { ServerStatus } from "../types"
+import type { Collection } from "@/features/collections/types"
 
 interface CollectionSelectorProps {
-  server: ServerStatus;
-  collections: Collection[];
-  selectedStartupCollection: Collection | null;
-  onStartupCollectionChange: (collection: Collection | null) => void;
+  server: ServerStatus
+  collections: Collection[]
+  selectedStartupCollection: Collection | null
+  onStartupCollectionChange: (collection: Collection | null) => void
 }
 
 export function CollectionSelector({
@@ -21,12 +21,12 @@ export function CollectionSelector({
   selectedStartupCollection,
   onStartupCollectionChange,
 }: CollectionSelectorProps) {
-  const isServerOnline = server.status === 'online';
-  const hasActiveCollection = isServerOnline && server.activeCollection;
+  const isServerOnline = server.status === "online"
+  const hasActiveCollection = isServerOnline && server.activeCollection
   const isDifferentCollectionSelected =
     selectedStartupCollection &&
     server.activeCollection &&
-    selectedStartupCollection.id !== server.activeCollection.id;
+    selectedStartupCollection.id !== server.activeCollection.id
 
   return (
     <div className="space-y-3">
@@ -36,15 +36,13 @@ export function CollectionSelector({
             {/* Active Collection Display/Selector */}
             <div className="space-y-2">
               <Select
-                value={selectedStartupCollection?.id?.toString() || 'none'}
-                onValueChange={(value) => {
-                  if (value === 'none') {
-                    onStartupCollectionChange(null);
+                value={selectedStartupCollection?.id?.toString() || "none"}
+                onValueChange={value => {
+                  if (value === "none") {
+                    onStartupCollectionChange(null)
                   } else {
-                    const collection = collections.find(
-                      (c) => c.id.toString() === value
-                    );
-                    onStartupCollectionChange(collection || null);
+                    const collection = collections.find(c => c.id.toString() === value)
+                    onStartupCollectionChange(collection || null)
                   }
                 }}
               >
@@ -60,7 +58,7 @@ export function CollectionSelector({
                     ) : (
                       <div className="flex items-center justify-between w-full">
                         <span>
-                          {server.activeCollection?.name || 'Select collection'}
+                          {server.activeCollection?.name || "Select collection"}
                         </span>
                         {server.activeCollection && (
                           <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
@@ -96,8 +94,8 @@ export function CollectionSelector({
                     </SelectItem>
                   )}
                   {collections
-                    .filter((c) => c.id !== server.activeCollection?.id)
-                    .map((collection) => (
+                    .filter(c => c.id !== server.activeCollection?.id)
+                    .map(collection => (
                       <SelectItem key={collection.id} value={collection.id.toString()}>
                         <div className="flex flex-col items-start">
                           <span className="font-medium">
@@ -121,13 +119,13 @@ export function CollectionSelector({
         ) : (
           <>
             <Select
-              value={selectedStartupCollection?.id?.toString() || 'none'}
-              onValueChange={(value) => {
-                if (value === 'none') {
-                  onStartupCollectionChange(null);
+              value={selectedStartupCollection?.id?.toString() || "none"}
+              onValueChange={value => {
+                if (value === "none") {
+                  onStartupCollectionChange(null)
                 } else {
-                  const collection = collections.find((c) => c.id.toString() === value);
-                  onStartupCollectionChange(collection || null);
+                  const collection = collections.find(c => c.id.toString() === value)
+                  onStartupCollectionChange(collection || null)
                 }
               }}
             >
@@ -143,7 +141,7 @@ export function CollectionSelector({
                     </span>
                   </div>
                 </SelectItem>
-                {collections.map((collection) => (
+                {collections.map(collection => (
                   <SelectItem key={collection.id} value={collection.id.toString()}>
                     <div className="flex flex-col items-start">
                       <span className="font-medium">
@@ -168,9 +166,9 @@ export function CollectionSelector({
                   {selectedStartupCollection.mods.length} mods will be loaded on startup
                 </p>
                 <p className="text-xs">
-                  {selectedStartupCollection.mods.filter((m) => !m.disabled).length}{' '}
+                  {selectedStartupCollection.mods.filter(m => !m.disabled).length}{" "}
                   enabled,
-                  {selectedStartupCollection.mods.filter((m) => m.disabled).length}{' '}
+                  {selectedStartupCollection.mods.filter(m => m.disabled).length}{" "}
                   disabled
                 </p>
               </div>
@@ -179,5 +177,5 @@ export function CollectionSelector({
         )}
       </div>
     </div>
-  );
+  )
 }

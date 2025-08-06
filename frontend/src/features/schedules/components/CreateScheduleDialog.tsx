@@ -1,16 +1,16 @@
-import * as React from 'react';
-import { Clock } from 'lucide-react';
+import * as React from "react"
+import { Clock } from "lucide-react"
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -19,27 +19,27 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import type { ScheduleOperationType } from '../../server/types';
+} from "@/components/ui/dialog"
+import type { ScheduleOperationType } from "../../server/types"
 
 const operationTypeOptions = [
-  { value: 'restart', label: 'Restart Server' },
-  { value: 'backup', label: 'Create Backup' },
-  { value: 'mod_update', label: 'Update Mods' },
-  { value: 'stop', label: 'Stop Server' },
-  { value: 'start', label: 'Start Server' },
-] as const;
+  { value: "restart", label: "Restart Server" },
+  { value: "backup", label: "Create Backup" },
+  { value: "mod_update", label: "Update Mods" },
+  { value: "stop", label: "Stop Server" },
+  { value: "start", label: "Start Server" },
+] as const
 
 interface CreateScheduleDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  open: boolean
+  onOpenChange: (open: boolean) => void
   onCreateSchedule: (data: {
-    name: string;
-    operationType: ScheduleOperationType;
-    frequency: string;
-  }) => Promise<void>;
-  isCreating: boolean;
-  trigger?: React.ReactNode;
+    name: string
+    operationType: ScheduleOperationType
+    frequency: string
+  }) => Promise<void>
+  isCreating: boolean
+  trigger?: React.ReactNode
 }
 
 export function CreateScheduleDialog({
@@ -50,28 +50,28 @@ export function CreateScheduleDialog({
   trigger,
 }: CreateScheduleDialogProps) {
   const [formData, setFormData] = React.useState({
-    name: '',
-    operationType: 'restart' as ScheduleOperationType,
-    frequency: '',
-  });
+    name: "",
+    operationType: "restart" as ScheduleOperationType,
+    frequency: "",
+  })
 
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
+  const [errors, setErrors] = React.useState<Record<string, string>>({})
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Basic validation
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {}
     if (!formData.name.trim()) {
-      newErrors.name = 'Schedule name is required';
+      newErrors.name = "Schedule name is required"
     }
     if (!formData.frequency.trim()) {
-      newErrors.frequency = 'Frequency is required';
+      newErrors.frequency = "Frequency is required"
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+      setErrors(newErrors)
+      return
     }
 
     try {
@@ -79,27 +79,27 @@ export function CreateScheduleDialog({
         name: formData.name,
         operationType: formData.operationType,
         frequency: formData.frequency,
-      });
+      })
 
       // Reset form on success
       setFormData({
-        name: '',
-        operationType: 'restart',
-        frequency: '',
-      });
-      setErrors({});
+        name: "",
+        operationType: "restart",
+        frequency: "",
+      })
+      setErrors({})
     } catch (error) {
-      console.error('Failed to create schedule:', error);
+      console.error("Failed to create schedule:", error)
     }
-  };
+  }
 
   const updateFormData = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: '' }));
+      setErrors(prev => ({ ...prev, [field]: "" }))
     }
-  };
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -124,8 +124,8 @@ export function CreateScheduleDialog({
                 id="name"
                 placeholder="e.g., Nightly Server Restart"
                 value={formData.name}
-                onChange={(e) => updateFormData('name', e.target.value)}
-                className={errors.name ? 'border-destructive' : ''}
+                onChange={e => updateFormData("name", e.target.value)}
+                className={errors.name ? "border-destructive" : ""}
               />
               {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
             </div>
@@ -135,14 +135,14 @@ export function CreateScheduleDialog({
               <Select
                 value={formData.operationType}
                 onValueChange={(value: ScheduleOperationType) =>
-                  updateFormData('operationType', value)
+                  updateFormData("operationType", value)
                 }
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {operationTypeOptions.map((option) => (
+                  {operationTypeOptions.map(option => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -157,8 +157,8 @@ export function CreateScheduleDialog({
                 id="frequency"
                 placeholder="e.g., every 2 hours, daily at 3am"
                 value={formData.frequency}
-                onChange={(e) => updateFormData('frequency', e.target.value)}
-                className={errors.frequency ? 'border-destructive' : ''}
+                onChange={e => updateFormData("frequency", e.target.value)}
+                className={errors.frequency ? "border-destructive" : ""}
               />
               {errors.frequency && (
                 <p className="text-sm text-destructive">{errors.frequency}</p>
@@ -181,11 +181,11 @@ export function CreateScheduleDialog({
                 isCreating || !formData.name.trim() || !formData.frequency.trim()
               }
             >
-              {isCreating ? 'Creating...' : 'Create Schedule'}
+              {isCreating ? "Creating..." : "Create Schedule"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

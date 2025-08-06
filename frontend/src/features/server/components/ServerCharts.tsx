@@ -4,51 +4,51 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { IconUsers, IconActivity } from '@tabler/icons-react';
-import { Line, LineChart, XAxis, YAxis, CartesianGrid } from 'recharts';
+} from "@/components/ui/card"
+import { IconUsers, IconActivity } from "@tabler/icons-react"
+import { Line, LineChart, XAxis, YAxis, CartesianGrid } from "recharts"
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
   type ChartConfig,
-} from '@/components/ui/chart';
-import type { ServerMetrics } from '../types';
+} from "@/components/ui/chart"
+import type { ServerMetrics } from "../types"
 
 interface ServerChartsProps {
-  playerHistory: ServerMetrics[];
-  resourceHistory: ServerMetrics[];
+  playerHistory: ServerMetrics[]
+  resourceHistory: ServerMetrics[]
 }
 
 // Chart configurations
 const playerChartConfig = {
   players: {
-    label: 'Players',
-    color: 'var(--chart-1)',
+    label: "Players",
+    color: "var(--chart-1)",
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 const resourceChartConfig = {
   cpu: {
-    label: 'CPU',
-    color: 'var(--chart-2)',
+    label: "CPU",
+    color: "var(--chart-2)",
   },
   memory: {
-    label: 'Memory',
-    color: 'var(--chart-1)',
+    label: "Memory",
+    color: "var(--chart-1)",
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 function PlayerChart({ data }: { data: ServerMetrics[] }) {
-  const chartData = data.map((item) => ({
-    time: new Date(item.timestamp).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
+  const chartData = data.map(item => ({
+    time: new Date(item.timestamp).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: false,
     }),
     players: item.players,
     timestamp: item.timestamp,
-  }));
+  }))
 
   return (
     <ChartContainer config={playerChartConfig} className="h-[180px] w-full">
@@ -65,18 +65,18 @@ function PlayerChart({ data }: { data: ServerMetrics[] }) {
           tick={{ fontSize: 12 }}
           tickLine={false}
           axisLine={false}
-          domain={[0, 'dataMax + 5']}
+          domain={[0, "dataMax + 5"]}
         />
         <ChartTooltip
           content={
             <ChartTooltipContent
               labelFormatter={(value, payload) => {
                 if (payload && payload[0]) {
-                  return new Date(payload[0].payload.timestamp).toLocaleString();
+                  return new Date(payload[0].payload.timestamp).toLocaleString()
                 }
-                return value;
+                return value
               }}
-              formatter={(value) => [`${value}`, 'Players']}
+              formatter={value => [`${value}`, "Players"]}
             />
           }
         />
@@ -86,24 +86,24 @@ function PlayerChart({ data }: { data: ServerMetrics[] }) {
           stroke="var(--color-players)"
           strokeWidth={2}
           dot={false}
-          activeDot={{ r: 4, className: 'fill-primary' }}
+          activeDot={{ r: 4, className: "fill-primary" }}
         />
       </LineChart>
     </ChartContainer>
-  );
+  )
 }
 
 function ResourceChart({ data }: { data: ServerMetrics[] }) {
-  const chartData = data.map((item) => ({
-    time: new Date(item.timestamp).toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
+  const chartData = data.map(item => ({
+    time: new Date(item.timestamp).toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
       hour12: false,
     }),
     cpu: Math.round(item.cpu),
     memory: Math.round(item.memory),
     timestamp: item.timestamp,
-  }));
+  }))
 
   return (
     <ChartContainer config={resourceChartConfig} className="h-[180px] w-full">
@@ -121,20 +121,20 @@ function ResourceChart({ data }: { data: ServerMetrics[] }) {
           tickLine={false}
           axisLine={false}
           domain={[0, 100]}
-          tickFormatter={(value) => `${value}%`}
+          tickFormatter={value => `${value}%`}
         />
         <ChartTooltip
           content={
             <ChartTooltipContent
               labelFormatter={(value, payload) => {
                 if (payload && payload[0]) {
-                  return new Date(payload[0].payload.timestamp).toLocaleString();
+                  return new Date(payload[0].payload.timestamp).toLocaleString()
                 }
-                return value;
+                return value
               }}
               formatter={(value, name) => [
                 `${value}%`,
-                name === 'cpu' ? 'CPU' : 'Memory',
+                name === "cpu" ? "CPU" : "Memory",
               ]}
             />
           }
@@ -157,7 +157,7 @@ function ResourceChart({ data }: { data: ServerMetrics[] }) {
         />
       </LineChart>
     </ChartContainer>
-  );
+  )
 }
 
 export function ServerCharts({ playerHistory, resourceHistory }: ServerChartsProps) {
@@ -191,5 +191,5 @@ export function ServerCharts({ playerHistory, resourceHistory }: ServerChartsPro
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

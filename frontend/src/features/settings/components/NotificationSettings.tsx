@@ -1,21 +1,21 @@
-import { IconBell } from '@tabler/icons-react';
+import { IconBell } from "@tabler/icons-react"
 
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card"
 
-import type { NotificationSettings as NotificationSettingsType } from '../types';
+import type { NotificationSettings as NotificationSettingsType } from "../types"
 
 interface NotificationSettingsProps {
-  settings: NotificationSettingsType;
-  onUpdate: (settings: NotificationSettingsType) => void;
+  settings: NotificationSettingsType
+  onUpdate: (settings: NotificationSettingsType) => void
 }
 
 export function NotificationSettings({
@@ -26,19 +26,19 @@ export function NotificationSettings({
     onUpdate({
       ...settings,
       enableNotifications,
-    });
-  };
+    })
+  }
 
   const handleWebhookUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onUpdate({
       ...settings,
       webhookUrl: event.target.value,
-    });
-  };
+    })
+  }
 
   const handleNotificationTypeToggle = (
-    type: keyof NotificationSettingsType['notificationTypes'],
-    value: boolean
+    type: keyof NotificationSettingsType["notificationTypes"],
+    value: boolean,
   ) => {
     onUpdate({
       ...settings,
@@ -46,8 +46,8 @@ export function NotificationSettings({
         ...settings.notificationTypes,
         [type]: value,
       },
-    });
-  };
+    })
+  }
 
   return (
     <div className="space-y-6">
@@ -105,8 +105,8 @@ export function NotificationSettings({
             </div>
             <Switch
               checked={settings.notificationTypes.serverStartStop}
-              onCheckedChange={(value) =>
-                handleNotificationTypeToggle('serverStartStop', value)
+              onCheckedChange={value =>
+                handleNotificationTypeToggle("serverStartStop", value)
               }
               disabled={!settings.enableNotifications}
             />
@@ -121,8 +121,8 @@ export function NotificationSettings({
             </div>
             <Switch
               checked={settings.notificationTypes.modUpdates}
-              onCheckedChange={(value) =>
-                handleNotificationTypeToggle('modUpdates', value)
+              onCheckedChange={value =>
+                handleNotificationTypeToggle("modUpdates", value)
               }
               disabled={!settings.enableNotifications}
             />
@@ -137,8 +137,8 @@ export function NotificationSettings({
             </div>
             <Switch
               checked={settings.notificationTypes.playerEvents}
-              onCheckedChange={(value) =>
-                handleNotificationTypeToggle('playerEvents', value)
+              onCheckedChange={value =>
+                handleNotificationTypeToggle("playerEvents", value)
               }
               disabled={!settings.enableNotifications}
             />
@@ -146,5 +146,5 @@ export function NotificationSettings({
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

@@ -1,7 +1,7 @@
-import { LoginForm } from './components/LoginForm';
+import { LoginForm } from "./components/LoginForm"
 
 interface LoginPageProps {
-  onLogin: () => void;
+  onLogin: () => void
 }
 
 export function LoginPage({ onLogin }: LoginPageProps) {
@@ -17,5 +17,5 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         <LoginForm onLogin={onLogin} />
       </div>
     </div>
-  );
+  )
 }

@@ -1,21 +1,21 @@
-import { IconServer } from '@tabler/icons-react';
+import { IconServer } from "@tabler/icons-react"
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card"
 
-import type { ServerConfiguration } from '../types';
+import type { ServerConfiguration } from "../types"
 
 interface ServerSettingsProps {
-  settings: ServerConfiguration;
-  onUpdate: (settings: ServerConfiguration) => void;
+  settings: ServerConfiguration
+  onUpdate: (settings: ServerConfiguration) => void
 }
 
 export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
@@ -23,15 +23,15 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
     (field: keyof ServerConfiguration) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const value =
-        field === 'serverPort' || field === 'maxPlayers'
+        field === "serverPort" || field === "maxPlayers"
           ? Number(event.target.value)
-          : event.target.value;
+          : event.target.value
 
       onUpdate({
         ...settings,
         [field]: value,
-      });
-    };
+      })
+    }
 
   return (
     <Card>
@@ -50,7 +50,7 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
               id="server-name"
               placeholder="My ARMA 3 Server"
               value={settings.serverName}
-              onChange={handleInputChange('serverName')}
+              onChange={handleInputChange("serverName")}
             />
           </div>
 
@@ -60,8 +60,8 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
               id="server-port"
               type="number"
               placeholder="2302"
-              value={settings.serverPort || ''}
-              onChange={handleInputChange('serverPort')}
+              value={settings.serverPort || ""}
+              onChange={handleInputChange("serverPort")}
             />
           </div>
         </div>
@@ -73,7 +73,7 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
             type="password"
             placeholder="Optional server password"
             value={settings.serverPassword}
-            onChange={handleInputChange('serverPassword')}
+            onChange={handleInputChange("serverPassword")}
           />
         </div>
 
@@ -85,8 +85,8 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
             min="1"
             max="200"
             placeholder="64"
-            value={settings.maxPlayers || ''}
-            onChange={handleInputChange('maxPlayers')}
+            value={settings.maxPlayers || ""}
+            onChange={handleInputChange("maxPlayers")}
           />
         </div>
 
@@ -96,11 +96,11 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
             id="server-description"
             placeholder="A brief description of your server"
             value={settings.serverDescription}
-            onChange={handleInputChange('serverDescription')}
+            onChange={handleInputChange("serverDescription")}
             className="min-h-[100px]"
           />
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

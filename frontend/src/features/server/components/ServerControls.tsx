@@ -1,23 +1,23 @@
-import { IconPlayerPlay, IconPlayerStop, IconRefresh } from '@tabler/icons-react';
-import { Button } from '@/components/ui/button';
+import { IconPlayerPlay, IconPlayerStop, IconRefresh } from "@tabler/icons-react"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { CollectionSelector } from './CollectionSelector';
-import type { ServerStatus, ServerAction } from '../types';
-import type { Collection } from '@/features/collections/types';
+} from "@/components/ui/card"
+import { CollectionSelector } from "./CollectionSelector"
+import type { ServerStatus, ServerAction } from "../types"
+import type { Collection } from "@/features/collections/types"
 
 interface ServerControlsProps {
-  server: ServerStatus;
-  isLoading: string | null;
-  collections: Collection[];
-  selectedStartupCollection: Collection | null;
-  onServerAction: (action: ServerAction, collectionId?: number) => void;
-  onStartupCollectionChange: (collection: Collection | null) => void;
+  server: ServerStatus
+  isLoading: string | null
+  collections: Collection[]
+  selectedStartupCollection: Collection | null
+  onServerAction: (action: ServerAction, collectionId?: number) => void
+  onStartupCollectionChange: (collection: Collection | null) => void
 }
 
 export function ServerControls({
@@ -37,17 +37,17 @@ export function ServerControls({
       <CardContent className="space-y-4 flex-1 flex flex-col">
         {/* Primary Controls */}
         <div className="space-y-3">
-          {server.status === 'online' ? (
+          {server.status === "online" ? (
             <>
               <Button
                 variant="destructive"
                 size="lg"
                 className="w-full h-12"
-                onClick={() => onServerAction('stop')}
-                disabled={isLoading === 'stop'}
+                onClick={() => onServerAction("stop")}
+                disabled={isLoading === "stop"}
               >
                 <IconPlayerStop className="size-5 mr-2" />
-                {isLoading === 'stop' ? 'Stopping...' : 'Stop Server'}
+                {isLoading === "stop" ? "Stopping..." : "Stop Server"}
               </Button>
 
               {/* Show restart with collection button if different collection is selected */}
@@ -57,31 +57,31 @@ export function ServerControls({
                   variant="default"
                   className="w-full"
                   onClick={() =>
-                    onServerAction('restart', selectedStartupCollection.id)
+                    onServerAction("restart", selectedStartupCollection.id)
                   }
-                  disabled={isLoading === 'restart'}
+                  disabled={isLoading === "restart"}
                 >
                   <IconRefresh className="size-4 mr-2" />
-                  {isLoading === 'restart' ? 'Restarting...' : 'Restart to Apply'}
+                  {isLoading === "restart" ? "Restarting..." : "Restart to Apply"}
                 </Button>
               ) : (
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => onServerAction('restart')}
-                  disabled={isLoading === 'restart'}
+                  onClick={() => onServerAction("restart")}
+                  disabled={isLoading === "restart"}
                 >
                   <IconRefresh className="size-4 mr-2" />
-                  {isLoading === 'restart' ? 'Restarting...' : 'Restart Server'}
+                  {isLoading === "restart" ? "Restarting..." : "Restart Server"}
                 </Button>
               )}
             </>
-          ) : server.status === 'starting' ? (
+          ) : server.status === "starting" ? (
             <Button variant="outline" size="lg" className="w-full h-12" disabled={true}>
               <IconPlayerPlay className="size-5 mr-2" />
               Starting Server...
             </Button>
-          ) : server.status === 'stopping' ? (
+          ) : server.status === "stopping" ? (
             <Button variant="outline" size="lg" className="w-full h-12" disabled={true}>
               <IconPlayerStop className="size-5 mr-2" />
               Stopping Server...
@@ -91,11 +91,11 @@ export function ServerControls({
               variant="default"
               size="lg"
               className="w-full h-12 bg-green-600 hover:bg-green-700"
-              onClick={() => onServerAction('start', selectedStartupCollection?.id)}
-              disabled={isLoading === 'start'}
+              onClick={() => onServerAction("start", selectedStartupCollection?.id)}
+              disabled={isLoading === "start"}
             >
               <IconPlayerPlay className="size-5 mr-2" />
-              {isLoading === 'start' ? 'Starting...' : 'Start Server'}
+              {isLoading === "start" ? "Starting..." : "Start Server"}
             </Button>
           )}
         </div>
@@ -117,5 +117,5 @@ export function ServerControls({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

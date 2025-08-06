@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState } from "react"
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -13,15 +13,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import type { NewCollection, ModItem } from '../types';
+} from "@/components/ui/dialog"
+import type { NewCollection, ModItem } from "../types"
 
 interface CreateCollectionDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCreate: (collection: NewCollection) => void;
-  trigger?: React.ReactNode;
-  selectedMods?: ModItem[];
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCreate: (collection: NewCollection) => void
+  trigger?: React.ReactNode
+  selectedMods?: ModItem[]
 }
 
 export function CreateCollectionDialog({
@@ -32,25 +32,25 @@ export function CreateCollectionDialog({
   selectedMods = [],
 }: CreateCollectionDialogProps) {
   const [newCollection, setNewCollection] = useState<NewCollection>({
-    name: '',
-    description: '',
-  });
+    name: "",
+    description: "",
+  })
 
   const handleCreate = () => {
     onCreate({
       ...newCollection,
       mods: selectedMods.length > 0 ? selectedMods : undefined,
-    });
-    setNewCollection({ name: '', description: '' });
-    onOpenChange(false);
-  };
+    })
+    setNewCollection({ name: "", description: "" })
+    onOpenChange(false)
+  }
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      setNewCollection({ name: '', description: '' });
+      setNewCollection({ name: "", description: "" })
     }
-    onOpenChange(newOpen);
-  };
+    onOpenChange(newOpen)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -60,8 +60,8 @@ export function CreateCollectionDialog({
           <DialogTitle className="text-base">Create Collection</DialogTitle>
           <DialogDescription className="text-sm">
             {selectedMods.length > 0
-              ? `Create a new collection with ${selectedMods.length} selected mod${selectedMods.length === 1 ? '' : 's'}.`
-              : 'Create a new mod collection to organize your mods.'}
+              ? `Create a new collection with ${selectedMods.length} selected mod${selectedMods.length === 1 ? "" : "s"}.`
+              : "Create a new mod collection to organize your mods."}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -72,8 +72,8 @@ export function CreateCollectionDialog({
             <Input
               id="name"
               value={newCollection.name}
-              onChange={(e) =>
-                setNewCollection((prev) => ({ ...prev, name: e.target.value }))
+              onChange={e =>
+                setNewCollection(prev => ({ ...prev, name: e.target.value }))
               }
               placeholder="Collection name"
               className="h-8 text-sm"
@@ -86,8 +86,8 @@ export function CreateCollectionDialog({
             <Textarea
               id="description"
               value={newCollection.description}
-              onChange={(e) =>
-                setNewCollection((prev) => ({
+              onChange={e =>
+                setNewCollection(prev => ({
                   ...prev,
                   description: e.target.value,
                 }))
@@ -101,7 +101,7 @@ export function CreateCollectionDialog({
               <Label className="text-xs py-1">Selected Mods</Label>
               <div className="max-h-32 overflow-y-auto border rounded-md p-2 bg-muted/50">
                 <div className="flex flex-wrap gap-1">
-                  {selectedMods.map((mod) => (
+                  {selectedMods.map(mod => (
                     <Badge key={mod.id} variant="secondary" className="text-xs">
                       {mod.name}
                     </Badge>
@@ -122,5 +122,5 @@ export function CreateCollectionDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

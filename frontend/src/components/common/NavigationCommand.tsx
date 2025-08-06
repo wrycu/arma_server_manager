@@ -5,9 +5,9 @@ import {
   IconPackage,
   IconLogout,
   IconCalendarTime,
-} from '@tabler/icons-react';
+} from "@tabler/icons-react"
 
-import { useNavigation } from '@/hooks/use-navigation';
+import { useNavigation } from "@/hooks/use-navigation"
 import {
   Command,
   CommandEmpty,
@@ -17,71 +17,71 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from '@/components/ui/command';
+} from "@/components/ui/command"
 
 const navigationData = {
   serverManagement: [
     {
-      title: 'Control Panel',
-      url: 'server-control',
+      title: "Control Panel",
+      url: "server-control",
       icon: IconServer,
-      shortcut: '⌘C',
+      shortcut: "⌘C",
     },
     {
-      title: 'Schedules',
-      url: 'schedules',
+      title: "Schedules",
+      url: "schedules",
       icon: IconCalendarTime,
-      shortcut: '⌘H',
+      shortcut: "⌘H",
     },
   ],
   contentLibrary: [
     {
-      title: 'Collections',
-      url: 'collections',
+      title: "Collections",
+      url: "collections",
       icon: IconFolder,
-      shortcut: '⌘O',
+      shortcut: "⌘O",
     },
     {
-      title: 'Installed',
-      url: 'mod-management',
+      title: "Installed",
+      url: "mod-management",
       icon: IconPackage,
-      shortcut: '⌘M',
+      shortcut: "⌘M",
     },
   ],
   other: [
     {
-      title: 'Settings',
-      url: 'settings',
+      title: "Settings",
+      url: "settings",
       icon: IconSettings,
-      shortcut: '⌘S',
+      shortcut: "⌘S",
     },
     {
-      title: 'Logout',
-      url: 'logout',
+      title: "Logout",
+      url: "logout",
       icon: IconLogout,
-      shortcut: '⌘L',
-      action: 'logout',
+      shortcut: "⌘L",
+      action: "logout",
     },
   ],
-};
+}
 
 interface NavigationCommandProps {
-  className?: string;
-  onNavigate?: () => void;
+  className?: string
+  onNavigate?: () => void
 }
 
 export function NavigationCommand({ className, onNavigate }: NavigationCommandProps) {
-  const { setCurrentPage } = useNavigation();
+  const { setCurrentPage } = useNavigation()
 
   const handleItemSelect = (item: { action?: string; url: string }) => {
-    if (item.action === 'logout') {
+    if (item.action === "logout") {
       // TODO: Implement logout logic
-      console.log('Logout clicked');
+      console.log("Logout clicked")
     } else {
-      setCurrentPage(item.url);
+      setCurrentPage(item.url)
     }
-    onNavigate?.();
-  };
+    onNavigate?.()
+  }
 
   return (
     <Command className={className}>
@@ -90,8 +90,8 @@ export function NavigationCommand({ className, onNavigate }: NavigationCommandPr
         <CommandEmpty>No results found.</CommandEmpty>
 
         <CommandGroup heading="Server Management">
-          {navigationData.serverManagement.map((item) => {
-            const Icon = item.icon;
+          {navigationData.serverManagement.map(item => {
+            const Icon = item.icon
             return (
               <CommandItem
                 key={item.url}
@@ -102,15 +102,15 @@ export function NavigationCommand({ className, onNavigate }: NavigationCommandPr
                 <span>{item.title}</span>
                 {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
               </CommandItem>
-            );
+            )
           })}
         </CommandGroup>
 
         <CommandSeparator />
 
         <CommandGroup heading="Content Library">
-          {navigationData.contentLibrary.map((item) => {
-            const Icon = item.icon;
+          {navigationData.contentLibrary.map(item => {
+            const Icon = item.icon
             return (
               <CommandItem
                 key={item.url}
@@ -121,15 +121,15 @@ export function NavigationCommand({ className, onNavigate }: NavigationCommandPr
                 <span>{item.title}</span>
                 {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
               </CommandItem>
-            );
+            )
           })}
         </CommandGroup>
 
         <CommandSeparator />
 
         <CommandGroup heading="Other">
-          {navigationData.other.map((item) => {
-            const Icon = item.icon;
+          {navigationData.other.map(item => {
+            const Icon = item.icon
             return (
               <CommandItem
                 key={item.url}
@@ -140,10 +140,10 @@ export function NavigationCommand({ className, onNavigate }: NavigationCommandPr
                 <span>{item.title}</span>
                 {item.shortcut && <CommandShortcut>{item.shortcut}</CommandShortcut>}
               </CommandItem>
-            );
+            )
           })}
         </CommandGroup>
       </CommandList>
     </Command>
-  );
+  )
 }
