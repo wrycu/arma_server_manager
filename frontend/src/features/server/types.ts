@@ -1,6 +1,6 @@
 export interface ServerStatus {
   name: string
-  status: 'online' | 'offline' | 'starting' | 'stopping'
+  status: "online" | "offline" | "starting" | "stopping"
   uptime?: number
   players: number
   maxPlayers: number
@@ -23,7 +23,7 @@ export interface ServerMetrics {
   memory: number
 }
 
-export type ServerAction = 'start' | 'stop' | 'restart'
+export type ServerAction = "start" | "stop" | "restart"
 
 export interface ServerActionWithCollection {
   action: ServerAction
@@ -32,13 +32,13 @@ export interface ServerActionWithCollection {
 
 // Schedule-related types
 export type ScheduleOperationType =
-  | 'restart'
-  | 'backup'
-  | 'mod_update'
-  | 'stop'
-  | 'start'
+  | "restart"
+  | "backup"
+  | "mod_update"
+  | "stop"
+  | "start"
 
-export type ScheduleStatus = 'active' | 'inactive' | 'paused'
+export type ScheduleStatus = "active" | "inactive" | "paused"
 
 export interface Schedule {
   id: number

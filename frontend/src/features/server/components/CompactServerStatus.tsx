@@ -3,20 +3,20 @@ import {
   IconPlayerPlay,
   IconPlayerStop,
   IconRefresh,
-} from '@tabler/icons-react'
+} from "@tabler/icons-react"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
-import { CollectionSelector } from './CollectionSelector'
-import type { ServerStatus, ServerAction } from '../types'
-import type { Collection } from '@/features/collections/types'
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { CollectionSelector } from "./CollectionSelector"
+import type { ServerStatus, ServerAction } from "../types"
+import type { Collection } from "@/features/collections/types"
 
 interface CompactServerStatusProps {
   server: ServerStatus
@@ -44,28 +44,28 @@ export function CompactServerStatus({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online':
-        return 'bg-green-500'
-      case 'offline':
-        return 'bg-red-500'
-      case 'starting':
-        return 'bg-yellow-500'
-      case 'stopping':
-        return 'bg-orange-500'
+      case "online":
+        return "bg-green-500"
+      case "offline":
+        return "bg-red-500"
+      case "starting":
+        return "bg-yellow-500"
+      case "stopping":
+        return "bg-orange-500"
       default:
-        return 'bg-gray-500'
+        return "bg-gray-500"
     }
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'online':
+      case "online":
         return <Badge className="bg-green-500 hover:bg-green-600">Online</Badge>
-      case 'offline':
+      case "offline":
         return <Badge variant="destructive">Offline</Badge>
-      case 'starting':
+      case "starting":
         return <Badge className="bg-yellow-500 hover:bg-yellow-600">Starting</Badge>
-      case 'stopping':
+      case "stopping":
         return <Badge className="bg-orange-500 hover:bg-orange-600">Stopping</Badge>
       default:
         return <Badge variant="secondary">Unknown</Badge>
@@ -129,7 +129,7 @@ export function CompactServerStatus({
               <div className="text-sm">
                 <span className="text-muted-foreground">Uptime: </span>
                 <span className="font-medium">
-                  {server.uptime ? formatUptime(server.uptime) : 'Offline'}
+                  {server.uptime ? formatUptime(server.uptime) : "Offline"}
                 </span>
               </div>
               <div className="text-sm">
@@ -143,7 +143,7 @@ export function CompactServerStatus({
               <div className="text-sm col-span-2">
                 <span className="text-muted-foreground">Mission: </span>
                 <span className="font-medium">
-                  {server.mission || 'No mission loaded'}
+                  {server.mission || "No mission loaded"}
                 </span>
               </div>
               {server.activeCollection && (
@@ -177,16 +177,16 @@ export function CompactServerStatus({
         {/* Server Controls - Enhanced Button Layout */}
         <div className="pt-6 mt-auto">
           <div className="flex gap-3">
-            {server.status === 'online' ? (
+            {server.status === "online" ? (
               <>
                 <Button
                   variant="destructive"
                   className="flex-1"
-                  onClick={() => onServerAction('stop')}
-                  disabled={isLoading === 'stop'}
+                  onClick={() => onServerAction("stop")}
+                  disabled={isLoading === "stop"}
                 >
                   <IconPlayerStop className="size-4 mr-2" />
-                  {isLoading === 'stop' ? 'Stopping...' : 'Stop Server'}
+                  {isLoading === "stop" ? "Stopping..." : "Stop Server"}
                 </Button>
 
                 {selectedStartupCollection &&
@@ -195,31 +195,31 @@ export function CompactServerStatus({
                     variant="default"
                     className="flex-1"
                     onClick={() =>
-                      onServerAction('restart', selectedStartupCollection.id)
+                      onServerAction("restart", selectedStartupCollection.id)
                     }
-                    disabled={isLoading === 'restart'}
+                    disabled={isLoading === "restart"}
                   >
                     <IconRefresh className="size-4 mr-2" />
-                    {isLoading === 'restart' ? 'Applying...' : 'Apply & Restart'}
+                    {isLoading === "restart" ? "Applying..." : "Apply & Restart"}
                   </Button>
                 ) : (
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={() => onServerAction('restart')}
-                    disabled={isLoading === 'restart'}
+                    onClick={() => onServerAction("restart")}
+                    disabled={isLoading === "restart"}
                   >
                     <IconRefresh className="size-4 mr-2" />
-                    {isLoading === 'restart' ? 'Restarting...' : 'Restart'}
+                    {isLoading === "restart" ? "Restarting..." : "Restart"}
                   </Button>
                 )}
               </>
-            ) : server.status === 'starting' ? (
+            ) : server.status === "starting" ? (
               <Button variant="outline" className="w-full" disabled={true}>
                 <IconPlayerPlay className="size-4 mr-2" />
                 Starting Server...
               </Button>
-            ) : server.status === 'stopping' ? (
+            ) : server.status === "stopping" ? (
               <Button variant="outline" className="w-full" disabled={true}>
                 <IconPlayerStop className="size-4 mr-2" />
                 Stopping Server...
@@ -228,11 +228,11 @@ export function CompactServerStatus({
               <Button
                 variant="default"
                 className="w-full bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => onServerAction('start', selectedStartupCollection?.id)}
-                disabled={isLoading === 'start'}
+                onClick={() => onServerAction("start", selectedStartupCollection?.id)}
+                disabled={isLoading === "start"}
               >
                 <IconPlayerPlay className="size-4 mr-2" />
-                {isLoading === 'start' ? 'Starting...' : 'Start Server'}
+                {isLoading === "start" ? "Starting..." : "Start Server"}
               </Button>
             )}
           </div>

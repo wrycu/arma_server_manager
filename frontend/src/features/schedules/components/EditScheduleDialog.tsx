@@ -1,16 +1,16 @@
-import * as React from 'react'
-import { Clock } from 'lucide-react'
+import * as React from "react"
+import { Clock } from "lucide-react"
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -18,21 +18,21 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import type { Schedule, ScheduleOperationType } from '../../server/types'
+} from "@/components/ui/dialog"
+import type { Schedule, ScheduleOperationType } from "../../server/types"
 
 const operationTypeOptions = [
-  { value: 'restart', label: 'Restart Server' },
-  { value: 'backup', label: 'Create Backup' },
-  { value: 'mod_update', label: 'Update Mods' },
-  { value: 'stop', label: 'Stop Server' },
-  { value: 'start', label: 'Start Server' },
+  { value: "restart", label: "Restart Server" },
+  { value: "backup", label: "Create Backup" },
+  { value: "mod_update", label: "Update Mods" },
+  { value: "stop", label: "Stop Server" },
+  { value: "start", label: "Start Server" },
 ] as const
 
 const statusOptions = [
-  { value: 'active', label: 'Active' },
-  { value: 'paused', label: 'Paused' },
-  { value: 'inactive', label: 'Inactive' },
+  { value: "active", label: "Active" },
+  { value: "paused", label: "Paused" },
+  { value: "inactive", label: "Inactive" },
 ] as const
 
 interface EditScheduleDialogProps {
@@ -59,10 +59,10 @@ export function EditScheduleDialog({
   isUpdating,
 }: EditScheduleDialogProps) {
   const [formData, setFormData] = React.useState({
-    name: '',
-    operationType: 'restart' as ScheduleOperationType,
-    frequency: '',
-    status: 'active',
+    name: "",
+    operationType: "restart" as ScheduleOperationType,
+    frequency: "",
+    status: "active",
   })
 
   const [errors, setErrors] = React.useState<Record<string, string>>({})
@@ -88,10 +88,10 @@ export function EditScheduleDialog({
     // Basic validation
     const newErrors: Record<string, string> = {}
     if (!formData.name.trim()) {
-      newErrors.name = 'Schedule name is required'
+      newErrors.name = "Schedule name is required"
     }
     if (!formData.frequency.trim()) {
-      newErrors.frequency = 'Frequency is required'
+      newErrors.frequency = "Frequency is required"
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -109,7 +109,7 @@ export function EditScheduleDialog({
 
       onOpenChange(false)
     } catch (error) {
-      console.error('Failed to update schedule:', error)
+      console.error("Failed to update schedule:", error)
     }
   }
 
@@ -117,7 +117,7 @@ export function EditScheduleDialog({
     setFormData(prev => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }))
+      setErrors(prev => ({ ...prev, [field]: "" }))
     }
   }
 
@@ -144,8 +144,8 @@ export function EditScheduleDialog({
                 id="name"
                 placeholder="e.g., Nightly Server Restart"
                 value={formData.name}
-                onChange={e => updateFormData('name', e.target.value)}
-                className={errors.name ? 'border-destructive' : ''}
+                onChange={e => updateFormData("name", e.target.value)}
+                className={errors.name ? "border-destructive" : ""}
               />
               {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
             </div>
@@ -156,7 +156,7 @@ export function EditScheduleDialog({
                 <Select
                   value={formData.operationType}
                   onValueChange={(value: ScheduleOperationType) =>
-                    updateFormData('operationType', value)
+                    updateFormData("operationType", value)
                   }
                 >
                   <SelectTrigger>
@@ -176,7 +176,7 @@ export function EditScheduleDialog({
                 <Label htmlFor="status">Status</Label>
                 <Select
                   value={formData.status}
-                  onValueChange={value => updateFormData('status', value)}
+                  onValueChange={value => updateFormData("status", value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -198,8 +198,8 @@ export function EditScheduleDialog({
                 id="frequency"
                 placeholder="e.g., every 2 hours, daily at 3am"
                 value={formData.frequency}
-                onChange={e => updateFormData('frequency', e.target.value)}
-                className={errors.frequency ? 'border-destructive' : ''}
+                onChange={e => updateFormData("frequency", e.target.value)}
+                className={errors.frequency ? "border-destructive" : ""}
               />
               {errors.frequency && (
                 <p className="text-sm text-destructive">{errors.frequency}</p>
@@ -222,7 +222,7 @@ export function EditScheduleDialog({
                 isUpdating || !formData.name.trim() || !formData.frequency.trim()
               }
             >
-              {isUpdating ? 'Updating...' : 'Update Schedule'}
+              {isUpdating ? "Updating..." : "Update Schedule"}
             </Button>
           </DialogFooter>
         </form>

@@ -1,17 +1,17 @@
-import { type Row } from '@tanstack/react-table'
-import { MoreHorizontal, Trash } from 'lucide-react'
-import { IconRefresh, IconDownload } from '@tabler/icons-react'
+import { type Row } from "@tanstack/react-table"
+import { MoreHorizontal, Trash } from "lucide-react"
+import { IconRefresh, IconDownload } from "@tabler/icons-react"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu"
 
-import type { ExtendedModSubscription } from '../types'
+import type { ExtendedModSubscription } from "../types"
 
 interface DataTableRowActionsProps {
   row: Row<ExtendedModSubscription>
@@ -42,10 +42,10 @@ export function DataTableRowActions({
         {mod.hasUpdate ? (
           <DropdownMenuItem
             onClick={() => onUpdate(mod.steam_id)}
-            disabled={isLoading === 'updating'}
+            disabled={isLoading === "updating"}
           >
             <IconRefresh className="mr-2 h-4 w-4" />
-            {isLoading === 'updating' ? 'Updating...' : 'Update'}
+            {isLoading === "updating" ? "Updating..." : "Update"}
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem
@@ -59,7 +59,7 @@ export function DataTableRowActions({
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => onDelete(mod.steam_id)}
-          disabled={isLoading === 'removing'}
+          disabled={isLoading === "removing"}
           className="text-red-600"
         >
           <Trash className="mr-2 h-4 w-4" />

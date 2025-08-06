@@ -1,9 +1,9 @@
-import { IconArrowLeft, IconFolder, IconPlus } from '@tabler/icons-react'
+import { IconArrowLeft, IconFolder, IconPlus } from "@tabler/icons-react"
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import type { Collection } from '../types'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import type { Collection } from "../types"
 
 interface CollectionHeaderProps {
   collection: Collection

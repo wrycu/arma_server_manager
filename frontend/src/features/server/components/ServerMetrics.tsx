@@ -1,13 +1,13 @@
-import { IconUsers, IconActivity, IconClock, IconPuzzle } from '@tabler/icons-react'
+import { IconUsers, IconActivity, IconClock, IconPuzzle } from "@tabler/icons-react"
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import type { ServerStatus } from '../types'
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import type { ServerStatus } from "../types"
 
 interface ServerMetricsProps {
   server: ServerStatus
@@ -23,28 +23,28 @@ export function ServerMetrics({ server }: ServerMetricsProps) {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'online':
-        return 'bg-green-500'
-      case 'offline':
-        return 'bg-red-500'
-      case 'starting':
-        return 'bg-yellow-500'
-      case 'stopping':
-        return 'bg-orange-500'
+      case "online":
+        return "bg-green-500"
+      case "offline":
+        return "bg-red-500"
+      case "starting":
+        return "bg-yellow-500"
+      case "stopping":
+        return "bg-orange-500"
       default:
-        return 'bg-gray-500'
+        return "bg-gray-500"
     }
   }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'online':
+      case "online":
         return <Badge className="bg-green-500 hover:bg-green-600">Online</Badge>
-      case 'offline':
+      case "offline":
         return <Badge variant="destructive">Offline</Badge>
-      case 'starting':
+      case "starting":
         return <Badge className="bg-yellow-500 hover:bg-yellow-600">Starting</Badge>
-      case 'stopping':
+      case "stopping":
         return <Badge className="bg-orange-500 hover:bg-orange-600">Stopping</Badge>
       default:
         return <Badge variant="secondary">Unknown</Badge>
@@ -81,7 +81,7 @@ export function ServerMetrics({ server }: ServerMetricsProps) {
               <IconClock className="size-5 text-muted-foreground" />
             </div>
             <div className="text-lg font-bold">
-              {server.uptime ? formatUptime(server.uptime) : 'Offline'}
+              {server.uptime ? formatUptime(server.uptime) : "Offline"}
             </div>
             <div className="text-sm text-muted-foreground">uptime</div>
           </div>
@@ -104,7 +104,7 @@ export function ServerMetrics({ server }: ServerMetricsProps) {
           <div className="flex justify-between">
             <span>Mission:</span>
             <span className="font-medium text-foreground">
-              {server.mission || 'No mission loaded'}
+              {server.mission || "No mission loaded"}
             </span>
           </div>
           <div className="flex justify-between">

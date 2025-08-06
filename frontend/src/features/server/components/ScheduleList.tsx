@@ -1,15 +1,15 @@
-import { Play, Trash2, Edit3, MoreVertical, Calendar } from 'lucide-react'
+import { Play, Trash2, Edit3, MoreVertical, Calendar } from "lucide-react"
 
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Checkbox } from '@/components/ui/checkbox'
-import type { Schedule } from '../types'
+} from "@/components/ui/dropdown-menu"
+import { Checkbox } from "@/components/ui/checkbox"
+import type { Schedule } from "../types"
 
 interface ScheduleListProps {
   schedules: Schedule[]
@@ -25,7 +25,7 @@ function formatNextRun(nextRun: string): string {
   const now = new Date()
   const diffMs = date.getTime() - now.getTime()
 
-  if (diffMs < 0) return 'Overdue'
+  if (diffMs < 0) return "Overdue"
 
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
   const diffDays = Math.floor(diffHours / 24)
@@ -36,20 +36,20 @@ function formatNextRun(nextRun: string): string {
 }
 
 function formatDateTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(dateStr).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   })
 }
 
 const operationTypes = {
-  restart: 'Restart',
-  backup: 'Backup',
-  mod_update: 'Update',
-  stop: 'Stop',
-  start: 'Start',
+  restart: "Restart",
+  backup: "Backup",
+  mod_update: "Update",
+  stop: "Stop",
+  start: "Start",
 } as const
 
 export function ScheduleList({
@@ -82,14 +82,14 @@ export function ScheduleList({
   return (
     <div className="space-y-1">
       {schedules.map(schedule => {
-        const isActive = schedule.status === 'active'
-        const isPaused = schedule.status === 'paused'
+        const isActive = schedule.status === "active"
+        const isPaused = schedule.status === "paused"
         const isOverdue = schedule.nextRun && new Date(schedule.nextRun) < new Date()
 
         return (
           <div
             key={schedule.id}
-            className={`group flex items-center gap-3 p-3 rounded-sm border border-transparent hover:border-border hover:bg-muted/30 transition-colors ${!isActive ? 'opacity-60' : ''}`}
+            className={`group flex items-center gap-3 p-3 rounded-sm border border-transparent hover:border-border hover:bg-muted/30 transition-colors ${!isActive ? "opacity-60" : ""}`}
           >
             <Checkbox
               checked={isActive}
@@ -118,7 +118,7 @@ export function ScheduleList({
                 {schedule.nextRun && (
                   <span>
                     Next: {formatDateTime(schedule.nextRun)}
-                    <span className={`ml-1 ${isOverdue ? 'text-destructive' : ''}`}>
+                    <span className={`ml-1 ${isOverdue ? "text-destructive" : ""}`}>
                       ({formatNextRun(schedule.nextRun)})
                     </span>
                   </span>

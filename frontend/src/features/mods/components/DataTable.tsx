@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from "react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -10,11 +10,11 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table'
-import { ChevronDown, Settings2, Plus } from 'lucide-react'
+} from "@tanstack/react-table"
+import { ChevronDown, Settings2, Plus } from "lucide-react"
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -22,14 +22,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -37,11 +37,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table"
 
-import { CreateCollectionDialog } from '@/features/collections/components/CreateCollectionDialog'
-import type { ModItem, NewCollection } from '@/features/collections/types'
-import type { ExtendedModSubscription } from '../types'
+import { CreateCollectionDialog } from "@/features/collections/components/CreateCollectionDialog"
+import type { ModItem, NewCollection } from "@/features/collections/types"
+import type { ExtendedModSubscription } from "../types"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -86,8 +86,8 @@ export function DataTable<TData, TValue>({
     id: mod.steam_id,
     name: mod.name || `Mod ${mod.steam_id}`,
     version: undefined, // Not available in ExtendedModSubscription
-    size: mod.sizeOnDisk || 'Unknown',
-    type: mod.type || 'mod',
+    size: mod.sizeOnDisk || "Unknown",
+    type: mod.type || "mod",
     isServerMod: false, // Not available in ExtendedModSubscription
     hasUpdate: mod.hasUpdate || false,
     disabled: false, // Not available in ExtendedModSubscription
@@ -114,16 +114,16 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center space-x-2">
           <Input
             placeholder="Filter mods..."
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
             onChange={event =>
-              table.getColumn('name')?.setFilterValue(event.target.value)
+              table.getColumn("name")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
           <Select
-            value={(table.getColumn('type')?.getFilterValue() as string) ?? 'all'}
+            value={(table.getColumn("type")?.getFilterValue() as string) ?? "all"}
             onValueChange={value =>
-              table.getColumn('type')?.setFilterValue(value === 'all' ? '' : [value])
+              table.getColumn("type")?.setFilterValue(value === "all" ? "" : [value])
             }
           >
             <SelectTrigger className="w-[180px]">
@@ -137,8 +137,8 @@ export function DataTable<TData, TValue>({
             </SelectContent>
           </Select>
           <Select
-            value={(table.getColumn('hasUpdate')?.getFilterValue() as string) ?? 'all'}
-            onValueChange={value => table.getColumn('hasUpdate')?.setFilterValue(value)}
+            value={(table.getColumn("hasUpdate")?.getFilterValue() as string) ?? "all"}
+            onValueChange={value => table.getColumn("hasUpdate")?.setFilterValue(value)}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
@@ -177,7 +177,7 @@ export function DataTable<TData, TValue>({
                 .getAllColumns()
                 .filter(
                   column =>
-                    typeof column.accessorFn !== 'undefined' && column.getCanHide(),
+                    typeof column.accessorFn !== "undefined" && column.getCanHide(),
                 )
                 .map(column => {
                   return (
@@ -219,7 +219,7 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map(row => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map(cell => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -240,7 +240,7 @@ export function DataTable<TData, TValue>({
 
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{' '}
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
           {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <div className="flex items-center space-x-2">

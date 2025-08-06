@@ -4,9 +4,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import type { ServerStatus } from '../types'
-import type { Collection } from '@/features/collections/types'
+} from "@/components/ui/select"
+import type { ServerStatus } from "../types"
+import type { Collection } from "@/features/collections/types"
 
 interface CollectionSelectorProps {
   server: ServerStatus
@@ -21,7 +21,7 @@ export function CollectionSelector({
   selectedStartupCollection,
   onStartupCollectionChange,
 }: CollectionSelectorProps) {
-  const isServerOnline = server.status === 'online'
+  const isServerOnline = server.status === "online"
   const hasActiveCollection = isServerOnline && server.activeCollection
   const isDifferentCollectionSelected =
     selectedStartupCollection &&
@@ -36,9 +36,9 @@ export function CollectionSelector({
             {/* Active Collection Display/Selector */}
             <div className="space-y-2">
               <Select
-                value={selectedStartupCollection?.id?.toString() || 'none'}
+                value={selectedStartupCollection?.id?.toString() || "none"}
                 onValueChange={value => {
-                  if (value === 'none') {
+                  if (value === "none") {
                     onStartupCollectionChange(null)
                   } else {
                     const collection = collections.find(c => c.id.toString() === value)
@@ -58,7 +58,7 @@ export function CollectionSelector({
                     ) : (
                       <div className="flex items-center justify-between w-full">
                         <span>
-                          {server.activeCollection?.name || 'Select collection'}
+                          {server.activeCollection?.name || "Select collection"}
                         </span>
                         {server.activeCollection && (
                           <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
@@ -119,9 +119,9 @@ export function CollectionSelector({
         ) : (
           <>
             <Select
-              value={selectedStartupCollection?.id?.toString() || 'none'}
+              value={selectedStartupCollection?.id?.toString() || "none"}
               onValueChange={value => {
-                if (value === 'none') {
+                if (value === "none") {
                   onStartupCollectionChange(null)
                 } else {
                   const collection = collections.find(c => c.id.toString() === value)
@@ -166,9 +166,9 @@ export function CollectionSelector({
                   {selectedStartupCollection.mods.length} mods will be loaded on startup
                 </p>
                 <p className="text-xs">
-                  {selectedStartupCollection.mods.filter(m => !m.disabled).length}{' '}
+                  {selectedStartupCollection.mods.filter(m => !m.disabled).length}{" "}
                   enabled,
-                  {selectedStartupCollection.mods.filter(m => m.disabled).length}{' '}
+                  {selectedStartupCollection.mods.filter(m => m.disabled).length}{" "}
                   disabled
                 </p>
               </div>

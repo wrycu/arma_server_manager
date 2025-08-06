@@ -5,9 +5,9 @@ import {
   IconPackage,
   IconLogout,
   IconCalendarTime,
-} from '@tabler/icons-react'
+} from "@tabler/icons-react"
 
-import { useNavigation } from '@/hooks/use-navigation'
+import { useNavigation } from "@/hooks/use-navigation"
 import {
   Command,
   CommandEmpty,
@@ -17,50 +17,50 @@ import {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-} from '@/components/ui/command'
+} from "@/components/ui/command"
 
 const navigationData = {
   serverManagement: [
     {
-      title: 'Control Panel',
-      url: 'server-control',
+      title: "Control Panel",
+      url: "server-control",
       icon: IconServer,
-      shortcut: '⌘C',
+      shortcut: "⌘C",
     },
     {
-      title: 'Schedules',
-      url: 'schedules',
+      title: "Schedules",
+      url: "schedules",
       icon: IconCalendarTime,
-      shortcut: '⌘H',
+      shortcut: "⌘H",
     },
   ],
   contentLibrary: [
     {
-      title: 'Collections',
-      url: 'collections',
+      title: "Collections",
+      url: "collections",
       icon: IconFolder,
-      shortcut: '⌘O',
+      shortcut: "⌘O",
     },
     {
-      title: 'Installed',
-      url: 'mod-management',
+      title: "Installed",
+      url: "mod-management",
       icon: IconPackage,
-      shortcut: '⌘M',
+      shortcut: "⌘M",
     },
   ],
   other: [
     {
-      title: 'Settings',
-      url: 'settings',
+      title: "Settings",
+      url: "settings",
       icon: IconSettings,
-      shortcut: '⌘S',
+      shortcut: "⌘S",
     },
     {
-      title: 'Logout',
-      url: 'logout',
+      title: "Logout",
+      url: "logout",
       icon: IconLogout,
-      shortcut: '⌘L',
-      action: 'logout',
+      shortcut: "⌘L",
+      action: "logout",
     },
   ],
 }
@@ -74,9 +74,9 @@ export function NavigationCommand({ className, onNavigate }: NavigationCommandPr
   const { setCurrentPage } = useNavigation()
 
   const handleItemSelect = (item: { action?: string; url: string }) => {
-    if (item.action === 'logout') {
+    if (item.action === "logout") {
       // TODO: Implement logout logic
-      console.log('Logout clicked')
+      console.log("Logout clicked")
     } else {
       setCurrentPage(item.url)
     }

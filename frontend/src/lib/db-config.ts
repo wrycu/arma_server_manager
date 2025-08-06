@@ -1,14 +1,14 @@
-import { createCollection } from '@tanstack/react-db'
-import { queryCollectionOptions } from '@tanstack/query-db-collection'
-import { queryClient } from './query-client'
-import { collections, server, mods } from '@/services'
-import type { Collection } from '@/features/collections/types'
-import type { CollectionResponse } from '@/types/api'
+import { createCollection } from "@tanstack/react-db"
+import { queryCollectionOptions } from "@tanstack/query-db-collection"
+import { queryClient } from "./query-client"
+import { collections, server, mods } from "@/services"
+import type { Collection } from "@/features/collections/types"
+import type { CollectionResponse } from "@/types/api"
 import type {
   ServerStatusResponse,
   ServerConfigResponse,
   ModSubscription,
-} from '@/types/api'
+} from "@/types/api"
 
 // Transform API response to local types
 const transformApiCollections = (
@@ -36,10 +36,10 @@ const transformApiCollections = (
 // Create the collections collection
 export const collectionsCollection = createCollection(
   queryCollectionOptions<Collection>({
-    queryKey: ['collections'],
+    queryKey: ["collections"],
     queryClient,
     queryFn: async () => {
-      console.log('🔄 Fetching collections from API...')
+      console.log("🔄 Fetching collections from API...")
       const apiCollections = await collections.getCollections()
       return transformApiCollections(apiCollections)
     },
@@ -76,10 +76,10 @@ export const collectionsCollection = createCollection(
 // Create the server collection
 export const serverCollection = createCollection(
   queryCollectionOptions<ServerStatusResponse>({
-    queryKey: ['server'],
+    queryKey: ["server"],
     queryClient,
     queryFn: async () => {
-      console.log('🔄 Fetching server status from API...')
+      console.log("🔄 Fetching server status from API...")
       const serverStatus = await server.getServerStatus()
       return [serverStatus] // Return as array since collection expects array
     },
@@ -89,7 +89,7 @@ export const serverCollection = createCollection(
       for (const mutation of transaction.mutations) {
         // For server actions, we don't update the status directly
         // The status is updated by the server action API calls
-        console.log('Server status updated:', mutation.modified)
+        console.log("Server status updated:", mutation.modified)
       }
     },
   }),
@@ -98,10 +98,10 @@ export const serverCollection = createCollection(
 // Create the server config collection
 export const serverConfigCollection = createCollection(
   queryCollectionOptions<ServerConfigResponse>({
-    queryKey: ['server-config'],
+    queryKey: ["server-config"],
     queryClient,
     queryFn: async () => {
-      console.log('🔄 Fetching server config from API...')
+      console.log("🔄 Fetching server config from API...")
       const serverConfig = await server.getServerConfig()
       return [serverConfig] // Return as array since collection expects array
     },
@@ -132,10 +132,10 @@ export const serverConfigCollection = createCollection(
 // Create the mods collection
 export const modsCollection = createCollection(
   queryCollectionOptions<ModSubscription>({
-    queryKey: ['mods'],
+    queryKey: ["mods"],
     queryClient,
     queryFn: async () => {
-      console.log('🔄 Fetching mod subscriptions from API...')
+      console.log("🔄 Fetching mod subscriptions from API...")
       const modSubscriptions = await mods.getModSubscriptions()
       return modSubscriptions
     },

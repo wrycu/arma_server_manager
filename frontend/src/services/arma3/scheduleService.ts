@@ -1,4 +1,4 @@
-import { api } from '../api'
+import { api } from "../api"
 import type {
   ScheduleResponse,
   SchedulesListResponse,
@@ -6,13 +6,13 @@ import type {
   CreateScheduleResponse,
   UpdateScheduleRequest,
   UpdateScheduleResponse,
-} from '@/types/api'
+} from "@/types/api"
 
 // Schedule API endpoints
 export const scheduleService = {
   // Get all schedules
   getSchedules: async (): Promise<ScheduleResponse[]> => {
-    const response = await api.get<SchedulesListResponse>('/server/schedules')
+    const response = await api.get<SchedulesListResponse>("/server/schedules")
     return response.data.results
   },
 
@@ -27,7 +27,7 @@ export const scheduleService = {
     scheduleData: CreateScheduleRequest,
   ): Promise<ScheduleResponse> => {
     const response = await api.post<CreateScheduleResponse>(
-      '/server/schedules',
+      "/server/schedules",
       scheduleData,
     )
     return response.data.results
@@ -54,7 +54,7 @@ export const scheduleService = {
   toggleSchedule: async (id: number, enabled: boolean): Promise<ScheduleResponse> => {
     const response = await api.patch<UpdateScheduleResponse>(
       `/server/schedules/${id}`,
-      { status: enabled ? 'active' : 'inactive' },
+      { status: enabled ? "active" : "inactive" },
     )
     return response.data.results
   },

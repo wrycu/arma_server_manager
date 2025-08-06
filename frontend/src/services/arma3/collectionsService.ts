@@ -1,4 +1,4 @@
-import { api } from '../api'
+import { api } from "../api"
 import type {
   CollectionResponse,
   CollectionsListResponse,
@@ -9,13 +9,13 @@ import type {
   UpdateCollectionResponse,
   AddModToCollectionRequest,
   RemoveModFromCollectionRequest,
-} from '@/types/api'
+} from "@/types/api"
 
 // Collections API endpoints
 export const collectionsService = {
   // Get all collections
   getCollections: async (): Promise<CollectionResponse[]> => {
-    const response = await api.get<CollectionsListResponse>('/collections')
+    const response = await api.get<CollectionsListResponse>("/collections")
     return response.data.results
   },
 
@@ -32,7 +32,7 @@ export const collectionsService = {
     collectionData: CreateCollectionRequest,
   ): Promise<CollectionResponse> => {
     const response = await api.post<CreateCollectionResponse>(
-      '/collections',
+      "/collections",
       collectionData,
     )
     return response.data.results

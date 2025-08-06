@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from "react"
 import {
   IconServer,
   IconSettings,
@@ -8,10 +8,10 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
   IconCalendarTime,
-} from '@tabler/icons-react'
+} from "@tabler/icons-react"
 
-import { NavSection } from '@/components/common/NavSection'
-import { useNavigation } from '@/hooks/use-navigation'
+import { NavSection } from "@/components/common/NavSection"
+import { useNavigation } from "@/hooks/use-navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -21,30 +21,30 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@/components/ui/sidebar'
+} from "@/components/ui/sidebar"
 
 const data = {
   navControl: [
     {
-      title: 'Control Panel',
-      url: 'server-control',
+      title: "Control Panel",
+      url: "server-control",
       icon: IconServer,
     },
     {
-      title: 'Schedules',
-      url: 'schedules',
+      title: "Schedules",
+      url: "schedules",
       icon: IconCalendarTime,
     },
   ],
   navContent: [
     {
-      title: 'Collections',
-      url: 'collections',
+      title: "Collections",
+      url: "collections",
       icon: IconFolder,
     },
     {
-      title: 'Installed',
-      url: 'mod-management',
+      title: "Installed",
+      url: "mod-management",
       icon: IconPackage,
     },
   ],
@@ -53,7 +53,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { setCurrentPage } = useNavigation()
   const { state, toggleSidebar } = useSidebar()
-  const isCollapsed = state === 'collapsed'
+  const isCollapsed = state === "collapsed"
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -81,15 +81,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={toggleSidebar}
-              tooltip={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              tooltip={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
             >
               {isCollapsed ? <IconChevronsRight /> : <IconChevronsLeft />}
-              <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
+              <span>{isCollapsed ? "Expand" : "Collapse"}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={() => setCurrentPage('settings')}
+              onClick={() => setCurrentPage("settings")}
               tooltip="Settings"
             >
               <IconSettings />
@@ -100,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               onClick={() => {
                 // TODO: Implement logout logic
-                console.log('Logout clicked')
+                console.log("Logout clicked")
               }}
               tooltip="Logout"
             >

@@ -5,7 +5,7 @@ export interface InstalledMod {
   name: string
   author: string
   lastUpdated: string
-  type: 'mod' | 'mission' | 'map'
+  type: "mod" | "mission" | "map"
   hasUpdate: boolean
   sizeOnDisk?: string
 }
@@ -17,7 +17,7 @@ export interface ExtendedModSubscription {
   status?: string
   last_updated?: string
   author?: string
-  type?: 'mod' | 'mission' | 'map'
+  type?: "mod" | "mission" | "map"
   hasUpdate?: boolean
   sizeOnDisk?: string
 }
@@ -27,6 +27,6 @@ export interface UpdatingMod {
   name: string
   version?: string
   progress: number
-  status: 'downloading' | 'installing' | 'verifying' | 'completed' | 'error'
+  status: "downloading" | "installing" | "verifying" | "completed" | "error"
   error?: string
 }

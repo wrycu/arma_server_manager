@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { createContext, useContext } from "react"
 
 export type NavigationContextType = {
   currentPage: string
@@ -10,7 +10,7 @@ export const NavigationContext = createContext<NavigationContextType | null>(nul
 export function useNavigation() {
   const context = useContext(NavigationContext)
   if (!context) {
-    throw new Error('useNavigation must be used within NavigationProvider')
+    throw new Error("useNavigation must be used within NavigationProvider")
   }
   return context
 }

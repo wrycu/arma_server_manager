@@ -1,15 +1,15 @@
-import { useState } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { MainContent, AppSidebar } from '@/components/layout'
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
-import { LoginPage } from '@/features/auth'
-import { NavigationContext } from '@/hooks/use-navigation'
-import { NavigationCommandDialog } from '@/components/common'
+import { useState } from "react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { MainContent, AppSidebar } from "@/components/layout"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { LoginPage } from "@/features/auth"
+import { NavigationContext } from "@/hooks/use-navigation"
+import { NavigationCommandDialog } from "@/components/common"
 
 const queryClient = new QueryClient()
 
 function App() {
-  const [currentPage, setCurrentPage] = useState('server-control')
+  const [currentPage, setCurrentPage] = useState("server-control")
   const [isLoggedIn, setIsLoggedIn] = useState(true) // Temporarily set to true for development
 
   const handleLogin = () => {

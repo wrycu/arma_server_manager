@@ -1,4 +1,4 @@
-import * as React from 'react'
+import * as React from "react"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -10,11 +10,11 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table'
-import { ChevronDown, Settings2 } from 'lucide-react'
+} from "@tanstack/react-table"
+import { ChevronDown, Settings2 } from "lucide-react"
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -22,14 +22,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/select"
 import {
   Table,
   TableBody,
@@ -37,9 +37,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
+} from "@/components/ui/table"
 
-import type { Schedule } from '../../server/types'
+import type { Schedule } from "../../server/types"
 
 export interface SchedulesDataTableProps {
   columns: ColumnDef<Schedule>[]
@@ -96,17 +96,17 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
         <div className="flex flex-1 items-center space-x-2">
           <Input
             placeholder="Filter schedules..."
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
             onChange={event =>
-              table.getColumn('name')?.setFilterValue(event.target.value)
+              table.getColumn("name")?.setFilterValue(event.target.value)
             }
             className="h-8 w-[150px] lg:w-[250px]"
           />
-          {table.getColumn('status') && (
+          {table.getColumn("status") && (
             <Select
-              value={(table.getColumn('status')?.getFilterValue() as string) ?? ''}
+              value={(table.getColumn("status")?.getFilterValue() as string) ?? ""}
               onValueChange={value =>
-                table.getColumn('status')?.setFilterValue(value === 'all' ? '' : value)
+                table.getColumn("status")?.setFilterValue(value === "all" ? "" : value)
               }
             >
               <SelectTrigger className="h-8 w-[120px]">
@@ -141,7 +141,7 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
                 .getAllColumns()
                 .filter(
                   column =>
-                    typeof column.accessorFn !== 'undefined' && column.getCanHide(),
+                    typeof column.accessorFn !== "undefined" && column.getCanHide(),
                 )
                 .map(column => {
                   return (

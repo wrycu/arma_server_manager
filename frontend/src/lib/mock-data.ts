@@ -18,647 +18,647 @@ import type {
   ScheduleResponse,
   CreateScheduleRequest,
   UpdateScheduleRequest,
-} from '@/types/api'
+} from "@/types/api"
 
 // Environment flag to enable/disable mock data
 export const USE_MOCK_DATA =
-  import.meta.env.VITE_USE_MOCK_DATA === 'true' ||
-  import.meta.env.MODE === 'development'
+  import.meta.env.VITE_USE_MOCK_DATA === "true" ||
+  import.meta.env.MODE === "development"
 
 // Mock data - Comprehensive ARMA 3 mod collections
 const mockCollections: CollectionResponse[] = [
   {
     id: 1,
-    name: 'Essential Framework',
-    description: 'Core mods required for most ARMA 3 modded gameplay',
+    name: "Essential Framework",
+    description: "Core mods required for most ARMA 3 modded gameplay",
     mods: [
       {
         id: 1,
-        name: 'CBA_A3',
-        version: '3.17.0.231121',
-        size: '48.7 MB',
-        type: 'mod',
+        name: "CBA_A3",
+        version: "3.17.0.231121",
+        size: "48.7 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 2,
-        name: '@ACE3',
-        version: '3.16.1.231215',
-        size: '1.31 GB',
-        type: 'mod',
+        name: "@ACE3",
+        version: "3.16.1.231215",
+        size: "1.31 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: true,
         disabled: false,
       },
       {
         id: 3,
-        name: '@ALiVE',
-        version: '2.1.9.2501091',
-        size: '484.3 MB',
-        type: 'mod',
+        name: "@ALiVE",
+        version: "2.1.9.2501091",
+        size: "484.3 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2024-01-15',
+    createdAt: "2024-01-15",
     isActive: true,
   },
   {
     id: 2,
-    name: 'RHS Complete',
-    description: 'Red Hammer Studios - High quality modern military equipment',
+    name: "RHS Complete",
+    description: "Red Hammer Studios - High quality modern military equipment",
     mods: [
       {
         id: 4,
-        name: 'RHS AFRF',
-        version: '0.5.6.231205',
-        size: '3.2 GB',
-        type: 'mod',
+        name: "RHS AFRF",
+        version: "0.5.6.231205",
+        size: "3.2 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 5,
-        name: 'RHS USAF',
-        version: '0.5.6.231205',
-        size: '3.4 GB',
-        type: 'mod',
+        name: "RHS USAF",
+        version: "0.5.6.231205",
+        size: "3.4 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 6,
-        name: 'RHS GREF',
-        version: '0.5.6.231205',
-        size: '1.8 GB',
-        type: 'mod',
+        name: "RHS GREF",
+        version: "0.5.6.231205",
+        size: "1.8 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 7,
-        name: 'RHS SAF',
-        version: '0.5.6.231205',
-        size: '892.4 MB',
-        type: 'mod',
+        name: "RHS SAF",
+        version: "0.5.6.231205",
+        size: "892.4 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2024-01-12',
+    createdAt: "2024-01-12",
     isActive: false,
   },
   {
     id: 3,
-    name: 'CUP Complete',
-    description: 'Community Upgrade Project - Legacy ARMA 2 content ported to ARMA 3',
+    name: "CUP Complete",
+    description: "Community Upgrade Project - Legacy ARMA 2 content ported to ARMA 3",
     mods: [
       {
         id: 8,
-        name: 'CUP Terrains - Core',
-        version: '1.17.0.231120',
-        size: '2.1 GB',
-        type: 'map',
+        name: "CUP Terrains - Core",
+        version: "1.17.0.231120",
+        size: "2.1 GB",
+        type: "map",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 9,
-        name: 'CUP Terrains - Maps 2.0',
-        version: '1.17.0.231120',
-        size: '1.3 GB',
-        type: 'map',
+        name: "CUP Terrains - Maps 2.0",
+        version: "1.17.0.231120",
+        size: "1.3 GB",
+        type: "map",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 10,
-        name: 'CUP Weapons',
-        version: '1.17.0.231120',
-        size: '967.8 MB',
-        type: 'mod',
+        name: "CUP Weapons",
+        version: "1.17.0.231120",
+        size: "967.8 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: true,
         disabled: false,
       },
       {
         id: 11,
-        name: 'CUP Vehicles',
-        version: '1.17.0.231120',
-        size: '1.4 GB',
-        type: 'mod',
+        name: "CUP Vehicles",
+        version: "1.17.0.231120",
+        size: "1.4 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 12,
-        name: 'CUP Units',
-        version: '1.17.0.231120',
-        size: '743.2 MB',
-        type: 'mod',
+        name: "CUP Units",
+        version: "1.17.0.231120",
+        size: "743.2 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2024-01-10',
+    createdAt: "2024-01-10",
     isActive: false,
   },
   {
     id: 4,
-    name: 'Special Operations',
-    description: 'Elite units and tactical equipment for special forces gameplay',
+    name: "Special Operations",
+    description: "Elite units and tactical equipment for special forces gameplay",
     mods: [
       {
         id: 13,
-        name: 'Tier One Weapons',
-        version: '1.2.6.07',
-        size: '3.12 GB',
-        type: 'mod',
+        name: "Tier One Weapons",
+        version: "1.2.6.07",
+        size: "3.12 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 14,
-        name: '3CB BAF Weapons',
-        version: '5.1.3.231201',
-        size: '456.7 MB',
-        type: 'mod',
+        name: "3CB BAF Weapons",
+        version: "5.1.3.231201",
+        size: "456.7 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 15,
-        name: '3CB BAF Equipment',
-        version: '5.1.3.231201',
-        size: '234.1 MB',
-        type: 'mod',
+        name: "3CB BAF Equipment",
+        version: "5.1.3.231201",
+        size: "234.1 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 16,
-        name: '3CB BAF Units',
-        version: '5.1.3.231201',
-        size: '298.3 MB',
-        type: 'mod',
+        name: "3CB BAF Units",
+        version: "5.1.3.231201",
+        size: "298.3 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 17,
-        name: '3CB BAF Vehicles',
-        version: '5.1.3.231201',
-        size: '567.9 MB',
-        type: 'mod',
+        name: "3CB BAF Vehicles",
+        version: "5.1.3.231201",
+        size: "567.9 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: true,
         disabled: false,
       },
     ],
-    createdAt: '2024-01-08',
+    createdAt: "2024-01-08",
     isActive: false,
   },
   {
     id: 5,
-    name: 'Immersion & Audio',
-    description: 'Enhanced sounds, visuals, and immersive gameplay features',
+    name: "Immersion & Audio",
+    description: "Enhanced sounds, visuals, and immersive gameplay features",
     mods: [
       {
         id: 18,
-        name: 'JSRS SOUNDMOD 2025 Beta',
-        version: 'RC3.240711',
-        size: '947.7 MB',
-        type: 'mod',
+        name: "JSRS SOUNDMOD 2025 Beta",
+        version: "RC3.240711",
+        size: "947.7 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 19,
-        name: 'Enhanced Movement',
-        version: '1.1.1.230915',
-        size: '12.4 MB',
-        type: 'mod',
+        name: "Enhanced Movement",
+        version: "1.1.1.230915",
+        size: "12.4 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 20,
-        name: 'Advanced Vault System',
-        version: '1.5.240322',
-        size: '8.2 MB',
-        type: 'mod',
+        name: "Advanced Vault System",
+        version: "1.5.240322",
+        size: "8.2 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 21,
-        name: 'Immerse',
-        version: '1.47.231018',
-        size: '89.3 MB',
-        type: 'mod',
+        name: "Immerse",
+        version: "1.47.231018",
+        size: "89.3 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 22,
-        name: 'D.I.R.T. - Dynamic Textures',
-        version: '1.2.240724',
-        size: '24.2 MB',
-        type: 'mod',
+        name: "D.I.R.T. - Dynamic Textures",
+        version: "1.2.240724",
+        size: "24.2 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: true,
         disabled: false,
       },
     ],
-    createdAt: '2024-01-05',
+    createdAt: "2024-01-05",
     isActive: false,
   },
   {
     id: 6,
-    name: 'Custom Terrains',
-    description: 'High quality custom maps and terrains',
+    name: "Custom Terrains",
+    description: "High quality custom maps and terrains",
     mods: [
       {
         id: 23,
-        name: 'Lythium',
-        version: '1.1.231025',
-        size: '2.8 GB',
-        type: 'map',
+        name: "Lythium",
+        version: "1.1.231025",
+        size: "2.8 GB",
+        type: "map",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 24,
-        name: 'Sa\'hatra',
-        version: '1.3.240215',
-        size: '1.9 GB',
-        type: 'map',
+        name: "Sa'hatra",
+        version: "1.3.240215",
+        size: "1.9 GB",
+        type: "map",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 25,
-        name: 'Korsac',
-        version: '2.1.231127',
-        size: '3.4 GB',
-        type: 'map',
+        name: "Korsac",
+        version: "2.1.231127",
+        size: "3.4 GB",
+        type: "map",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 26,
-        name: 'Šumava',
-        version: '1.0.240612',
-        size: '2.7 GB',
-        type: 'map',
+        name: "Šumava",
+        version: "1.0.240612",
+        size: "2.7 GB",
+        type: "map",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2024-01-03',
+    createdAt: "2024-01-03",
     isActive: false,
   },
   {
     id: 7,
-    name: 'Modern Factions',
-    description: 'Contemporary military forces and modern warfare units',
+    name: "Modern Factions",
+    description: "Contemporary military forces and modern warfare units",
     mods: [
       {
         id: 27,
-        name: 'Project OPFOR',
-        version: '5.2.231210',
-        size: '1.1 GB',
-        type: 'mod',
+        name: "Project OPFOR",
+        version: "5.2.231210",
+        size: "1.1 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 28,
-        name: 'Community Factions Project',
-        version: '0.5.1.231119',
-        size: '2.3 GB',
-        type: 'mod',
+        name: "Community Factions Project",
+        version: "0.5.1.231119",
+        size: "2.3 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: true,
         disabled: false,
       },
       {
         id: 29,
-        name: '2035: Russian Armed Forces',
-        version: '2.1.240318',
-        size: '789.5 MB',
-        type: 'mod',
+        name: "2035: Russian Armed Forces",
+        version: "2.1.240318",
+        size: "789.5 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 30,
-        name: 'USAF Mod - Main',
-        version: '8.6.231201',
-        size: '1.8 GB',
-        type: 'mod',
+        name: "USAF Mod - Main",
+        version: "8.6.231201",
+        size: "1.8 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2023-12-28',
+    createdAt: "2023-12-28",
     isActive: false,
   },
   {
     id: 8,
-    name: 'AI Enhancement',
-    description: 'Improved AI behavior and tactical gameplay',
+    name: "AI Enhancement",
+    description: "Improved AI behavior and tactical gameplay",
     mods: [
       {
         id: 31,
-        name: 'LAMBS_Danger.fsm',
-        version: '2.5.4.231015',
-        size: '67.8 MB',
-        type: 'mod',
+        name: "LAMBS_Danger.fsm",
+        version: "2.5.4.231015",
+        size: "67.8 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 32,
-        name: 'LAMBS_RPG',
-        version: '1.3.2.230918',
-        size: '12.1 MB',
-        type: 'mod',
+        name: "LAMBS_RPG",
+        version: "1.3.2.230918",
+        size: "12.1 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 33,
-        name: 'LAMBS_Suppression',
-        version: '1.2.1.230812',
-        size: '8.4 MB',
-        type: 'mod',
+        name: "LAMBS_Suppression",
+        version: "1.2.1.230812",
+        size: "8.4 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 34,
-        name: 'LAMBS_Turrets',
-        version: '1.1.0.230715',
-        size: '6.2 MB',
-        type: 'mod',
+        name: "LAMBS_Turrets",
+        version: "1.1.0.230715",
+        size: "6.2 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2023-12-20',
+    createdAt: "2023-12-20",
     isActive: false,
   },
   {
     id: 9,
-    name: 'Weapon Systems',
-    description: 'Additional weapons and weapon systems',
+    name: "Weapon Systems",
+    description: "Additional weapons and weapon systems",
     mods: [
       {
         id: 35,
-        name: 'NIArms All In One',
-        version: '14.2.231105',
-        size: '2.1 GB',
-        type: 'mod',
+        name: "NIArms All In One",
+        version: "14.2.231105",
+        size: "2.1 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 36,
-        name: 'RKSL Studios - Attachments',
-        version: '3.02c.231028',
-        size: '89.7 MB',
-        type: 'mod',
+        name: "RKSL Studios - Attachments",
+        version: "3.02c.231028",
+        size: "89.7 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 37,
-        name: 'Advanced Weapon Mounting',
-        version: '1.1.5.231009',
-        size: '34.6 MB',
-        type: 'mod',
+        name: "Advanced Weapon Mounting",
+        version: "1.1.5.231009",
+        size: "34.6 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2023-12-15',
+    createdAt: "2023-12-15",
     isActive: false,
   },
   {
     id: 10,
-    name: 'Quality of Life',
-    description: 'Gameplay improvements and quality of life enhancements',
+    name: "Quality of Life",
+    description: "Gameplay improvements and quality of life enhancements",
     mods: [
       {
         id: 38,
-        name: 'Task Force Arrowhead Radio',
-        version: '1.0.383.240215',
-        size: '156.3 MB',
-        type: 'mod',
+        name: "Task Force Arrowhead Radio",
+        version: "1.0.383.240215",
+        size: "156.3 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: true,
       },
       {
         id: 39,
-        name: 'Zeus Enhanced',
-        version: '1.13.2.231201',
-        size: '78.9 MB',
-        type: 'mod',
+        name: "Zeus Enhanced",
+        version: "1.13.2.231201",
+        size: "78.9 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 40,
-        name: 'Zeus Enhanced - ACE3 Compat',
-        version: '1.5.1.231015',
-        size: '23.4 MB',
-        type: 'mod',
+        name: "Zeus Enhanced - ACE3 Compat",
+        version: "1.5.1.231015",
+        size: "23.4 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 41,
-        name: 'Better Inventory',
-        version: '1.4.2.230820',
-        size: '15.7 MB',
-        type: 'mod',
+        name: "Better Inventory",
+        version: "1.4.2.230820",
+        size: "15.7 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 42,
-        name: 'Tactical Position Ready',
-        version: '2.1.231118',
-        size: '19.8 MB',
-        type: 'mod',
+        name: "Tactical Position Ready",
+        version: "2.1.231118",
+        size: "19.8 MB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2023-12-10',
+    createdAt: "2023-12-10",
     isActive: false,
   },
   {
     id: 11,
-    name: 'WW2 Collection',
-    description: 'World War 2 units, weapons, and vehicles',
+    name: "WW2 Collection",
+    description: "World War 2 units, weapons, and vehicles",
     mods: [
       {
         id: 43,
-        name: 'Faces of War',
-        version: '2.2.4.231127',
-        size: '4.8 GB',
-        type: 'mod',
+        name: "Faces of War",
+        version: "2.2.4.231127",
+        size: "4.8 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 44,
-        name: 'Iron Front Liberation 1944',
-        version: '1.7.2.231015',
-        size: '6.2 GB',
-        type: 'mod',
+        name: "Iron Front Liberation 1944",
+        version: "1.7.2.231015",
+        size: "6.2 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 45,
-        name: 'CSA38 - Czechoslovak Army',
-        version: '3.1.231201',
-        size: '1.9 GB',
-        type: 'mod',
+        name: "CSA38 - Czechoslovak Army",
+        version: "3.1.231201",
+        size: "1.9 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2023-12-05',
+    createdAt: "2023-12-05",
     isActive: false,
   },
   {
     id: 12,
-    name: 'Cold War',
-    description: 'Cold War era equipment and factions',
+    name: "Cold War",
+    description: "Cold War era equipment and factions",
     mods: [
       {
         id: 46,
-        name: 'Cold War Rearmed III',
-        version: '0.9.8.231110',
-        size: '3.7 GB',
-        type: 'mod',
+        name: "Cold War Rearmed III",
+        version: "0.9.8.231110",
+        size: "3.7 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
       {
         id: 47,
-        name: 'Cold War Factions',
-        version: '1.4.2.231025',
-        size: '2.1 GB',
-        type: 'mod',
+        name: "Cold War Factions",
+        version: "1.4.2.231025",
+        size: "2.1 GB",
+        type: "mod",
         isServerMod: false,
         hasUpdate: false,
         disabled: false,
       },
     ],
-    createdAt: '2023-11-28',
+    createdAt: "2023-11-28",
     isActive: false,
   },
 ]
 
 const mockServerStatus: ServerStatusResponse = {
   id: 1,
-  name: 'My ARMA 3 Server',
-  status: 'online',
+  name: "My ARMA 3 Server",
+  status: "online",
   uptime: 234567,
   players: 12,
   maxPlayers: 64,
-  mission: 'Lythium Patrol Ops',
-  lastRestart: '2 days ago',
+  mission: "Lythium Patrol Ops",
+  lastRestart: "2 days ago",
   cpu: 26,
   memory: 30,
   mods: 47,
-  version: '2.18.151618',
+  version: "2.18.151618",
   activeCollection: {
     id: 1,
-    name: 'Essential Framework',
+    name: "Essential Framework",
   },
 }
 
 const mockServerConfig: ServerConfigResponse = {
   id: 1,
-  name: 'My ARMA 3 Server',
+  name: "My ARMA 3 Server",
   port: 2302,
   maxPlayers: 64,
-  password: '',
-  adminPassword: 'admin123',
-  serverPassword: '',
-  mission: 'Lythium Patrol Ops',
-  difficulty: 'Veteran',
+  password: "",
+  adminPassword: "admin123",
+  serverPassword: "",
+  mission: "Lythium Patrol Ops",
+  difficulty: "Veteran",
   timeLimit: 0,
   autoRestart: true,
   autoRestartTime: 6,
   mods: [
-    'CBA_A3',
-    '@ACE3',
-    '@ALiVE',
-    'RHS AFRF',
-    'RHS USAF',
-    'RHS GREF',
-    'Task Force Arrowhead Radio',
-    'LAMBS_Danger.fsm',
-    'Enhanced Movement',
-    'Lythium',
+    "CBA_A3",
+    "@ACE3",
+    "@ALiVE",
+    "RHS AFRF",
+    "RHS USAF",
+    "RHS GREF",
+    "Task Force Arrowhead Radio",
+    "LAMBS_Danger.fsm",
+    "Enhanced Movement",
+    "Lythium",
   ],
   customParams: [
-    '-profiles=./profiles',
-    '-config=./config.cfg',
-    '-world=Lythium',
-    '-mod=@CBA_A3;@ace;@alive;@rhs_afrf;@rhs_usaf;@rhs_gref;@task_force_radio;@lambs_danger;@enhanced_movement;@lythium',
+    "-profiles=./profiles",
+    "-config=./config.cfg",
+    "-world=Lythium",
+    "-mod=@CBA_A3;@ace;@alive;@rhs_afrf;@rhs_usaf;@rhs_gref;@task_force_radio;@lambs_danger;@enhanced_movement;@lythium",
   ],
-  createdAt: '2024-01-01T00:00:00Z',
-  updatedAt: '2024-01-15T12:00:00Z',
+  createdAt: "2024-01-01T00:00:00Z",
+  updatedAt: "2024-01-15T12:00:00Z",
 }
 
 // Generate mock metrics history
@@ -688,391 +688,391 @@ const mockModSubscriptions: ModSubscription[] = [
   // Essential Framework mods
   {
     steam_id: 450814997,
-    name: 'CBA_A3',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-15T10:30:00Z',
+    name: "CBA_A3",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-15T10:30:00Z",
   },
   {
     steam_id: 463939057,
-    name: '@ACE3',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-15T11:45:00Z',
+    name: "@ACE3",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-15T11:45:00Z",
   },
   {
     steam_id: 620260972,
-    name: '@ALiVE',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-15T09:15:00Z',
+    name: "@ALiVE",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-15T09:15:00Z",
   },
 
   // RHS mods
   {
     steam_id: 843425103,
-    name: 'RHS AFRF',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-12T14:20:00Z',
+    name: "RHS AFRF",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-12T14:20:00Z",
   },
   {
     steam_id: 843577117,
-    name: 'RHS USAF',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-12T14:25:00Z',
+    name: "RHS USAF",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-12T14:25:00Z",
   },
   {
     steam_id: 843593391,
-    name: 'RHS GREF',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-12T14:30:00Z',
+    name: "RHS GREF",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-12T14:30:00Z",
   },
   {
     steam_id: 843632231,
-    name: 'RHS SAF',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-12T14:35:00Z',
+    name: "RHS SAF",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-12T14:35:00Z",
   },
 
   // CUP mods
   {
     steam_id: 583496184,
-    name: 'CUP Terrains - Core',
-    type: 'map',
-    status: 'active',
-    last_updated: '2024-01-10T16:00:00Z',
+    name: "CUP Terrains - Core",
+    type: "map",
+    status: "active",
+    last_updated: "2024-01-10T16:00:00Z",
   },
   {
     steam_id: 1981964169,
-    name: 'CUP Terrains - Maps 2.0',
-    type: 'map',
-    status: 'active',
-    last_updated: '2024-01-10T16:05:00Z',
+    name: "CUP Terrains - Maps 2.0",
+    type: "map",
+    status: "active",
+    last_updated: "2024-01-10T16:05:00Z",
   },
   {
     steam_id: 497660133,
-    name: 'CUP Weapons',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-10T16:10:00Z',
+    name: "CUP Weapons",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-10T16:10:00Z",
   },
   {
     steam_id: 541888371,
-    name: 'CUP Vehicles',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-10T16:15:00Z',
+    name: "CUP Vehicles",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-10T16:15:00Z",
   },
   {
     steam_id: 497661914,
-    name: 'CUP Units',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-10T16:20:00Z',
+    name: "CUP Units",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-10T16:20:00Z",
   },
 
   // Special Operations mods
   {
     steam_id: 2268169306,
-    name: 'Tier One Weapons',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-08T12:00:00Z',
+    name: "Tier One Weapons",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-08T12:00:00Z",
   },
   {
     steam_id: 893339590,
-    name: '3CB BAF Weapons',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-08T12:10:00Z',
+    name: "3CB BAF Weapons",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-08T12:10:00Z",
   },
   {
     steam_id: 893349825,
-    name: '3CB BAF Equipment',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-08T12:15:00Z',
+    name: "3CB BAF Equipment",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-08T12:15:00Z",
   },
   {
     steam_id: 893328083,
-    name: '3CB BAF Units',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-08T12:20:00Z',
+    name: "3CB BAF Units",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-08T12:20:00Z",
   },
   {
     steam_id: 893346105,
-    name: '3CB BAF Vehicles',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-08T12:25:00Z',
+    name: "3CB BAF Vehicles",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-08T12:25:00Z",
   },
 
   // Immersion & Audio mods
   {
     steam_id: 2260572637,
-    name: 'JSRS SOUNDMOD 2025 Beta',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-05T18:00:00Z',
+    name: "JSRS SOUNDMOD 2025 Beta",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-05T18:00:00Z",
   },
   {
     steam_id: 333310405,
-    name: 'Enhanced Movement',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-05T18:10:00Z',
+    name: "Enhanced Movement",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-05T18:10:00Z",
   },
   {
     steam_id: 1661066023,
-    name: 'Advanced Vault System',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-05T18:15:00Z',
+    name: "Advanced Vault System",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-05T18:15:00Z",
   },
   {
     steam_id: 825172265,
-    name: 'Immerse',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-05T18:20:00Z',
+    name: "Immerse",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-05T18:20:00Z",
   },
   {
     steam_id: 2938962102,
-    name: 'D.I.R.T. - Dynamic Textures',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2024-01-05T18:25:00Z',
+    name: "D.I.R.T. - Dynamic Textures",
+    type: "mod",
+    status: "active",
+    last_updated: "2024-01-05T18:25:00Z",
   },
 
   // Custom Terrains (Maps)
   {
     steam_id: 909547724,
-    name: 'Lythium',
-    type: 'map',
-    status: 'active',
-    last_updated: '2024-01-03T20:00:00Z',
+    name: "Lythium",
+    type: "map",
+    status: "active",
+    last_updated: "2024-01-03T20:00:00Z",
   },
   {
     steam_id: 1643266453,
-    name: 'Sa\'hatra',
-    type: 'map',
-    status: 'active',
-    last_updated: '2024-01-03T20:10:00Z',
+    name: "Sa'hatra",
+    type: "map",
+    status: "active",
+    last_updated: "2024-01-03T20:10:00Z",
   },
   {
     steam_id: 1379630828,
-    name: 'Korsac',
-    type: 'map',
-    status: 'active',
-    last_updated: '2024-01-03T20:20:00Z',
+    name: "Korsac",
+    type: "map",
+    status: "active",
+    last_updated: "2024-01-03T20:20:00Z",
   },
   {
     steam_id: 2902174634,
-    name: 'Šumava',
-    type: 'map',
-    status: 'active',
-    last_updated: '2024-01-03T20:30:00Z',
+    name: "Šumava",
+    type: "map",
+    status: "active",
+    last_updated: "2024-01-03T20:30:00Z",
   },
 
   // Modern Factions
   {
     steam_id: 735566597,
-    name: 'Project OPFOR',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-28T15:00:00Z',
+    name: "Project OPFOR",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-28T15:00:00Z",
   },
   {
     steam_id: 1369691841,
-    name: 'Community Factions Project',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-28T15:10:00Z',
+    name: "Community Factions Project",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-28T15:10:00Z",
   },
   {
     steam_id: 2037691208,
-    name: '2035: Russian Armed Forces',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-28T15:20:00Z',
+    name: "2035: Russian Armed Forces",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-28T15:20:00Z",
   },
   {
     steam_id: 531769986,
-    name: 'USAF Mod - Main',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-28T15:30:00Z',
+    name: "USAF Mod - Main",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-28T15:30:00Z",
   },
 
   // AI Enhancement
   {
     steam_id: 1858075458,
-    name: 'LAMBS_Danger.fsm',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-20T13:00:00Z',
+    name: "LAMBS_Danger.fsm",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-20T13:00:00Z",
   },
   {
     steam_id: 1858070328,
-    name: 'LAMBS_RPG',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-20T13:10:00Z',
+    name: "LAMBS_RPG",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-20T13:10:00Z",
   },
   {
     steam_id: 1808238502,
-    name: 'LAMBS_Suppression',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-20T13:15:00Z',
+    name: "LAMBS_Suppression",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-20T13:15:00Z",
   },
   {
     steam_id: 1862208264,
-    name: 'LAMBS_Turrets',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-20T13:20:00Z',
+    name: "LAMBS_Turrets",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-20T13:20:00Z",
   },
 
   // Weapon Systems
   {
     steam_id: 2595680138,
-    name: 'NIArms All In One',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-15T11:00:00Z',
+    name: "NIArms All In One",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-15T11:00:00Z",
   },
   {
     steam_id: 1661337345,
-    name: 'RKSL Studios - Attachments',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-15T11:10:00Z',
+    name: "RKSL Studios - Attachments",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-15T11:10:00Z",
   },
   {
     steam_id: 2671637090,
-    name: 'Advanced Weapon Mounting',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-15T11:20:00Z',
+    name: "Advanced Weapon Mounting",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-15T11:20:00Z",
   },
 
   // Quality of Life
   {
     steam_id: 894678801,
-    name: 'Task Force Arrowhead Radio',
-    type: 'mod',
-    status: 'disabled',
-    last_updated: '2023-12-10T17:00:00Z',
+    name: "Task Force Arrowhead Radio",
+    type: "mod",
+    status: "disabled",
+    last_updated: "2023-12-10T17:00:00Z",
   },
   {
     steam_id: 1779063631,
-    name: 'Zeus Enhanced',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-10T17:10:00Z',
+    name: "Zeus Enhanced",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-10T17:10:00Z",
   },
   {
     steam_id: 2018593688,
-    name: 'Zeus Enhanced - ACE3 Compat',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-10T17:15:00Z',
+    name: "Zeus Enhanced - ACE3 Compat",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-10T17:15:00Z",
   },
   {
     steam_id: 1673456286,
-    name: 'Better Inventory',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-10T17:20:00Z',
+    name: "Better Inventory",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-10T17:20:00Z",
   },
   {
     steam_id: 1889104848,
-    name: 'Tactical Position Ready',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-10T17:25:00Z',
+    name: "Tactical Position Ready",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-10T17:25:00Z",
   },
 
   // WW2 Collection
   {
     steam_id: 2423653994,
-    name: 'Faces of War',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-05T19:00:00Z',
+    name: "Faces of War",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-05T19:00:00Z",
   },
   {
     steam_id: 660460283,
-    name: 'Iron Front Liberation 1944',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-05T19:10:00Z',
+    name: "Iron Front Liberation 1944",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-05T19:10:00Z",
   },
   {
     steam_id: 1294225529,
-    name: 'CSA38 - Czechoslovak Army',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-12-05T19:20:00Z',
+    name: "CSA38 - Czechoslovak Army",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-12-05T19:20:00Z",
   },
 
   // Cold War
   {
     steam_id: 1978754337,
-    name: 'Cold War Rearmed III',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-11-28T21:00:00Z',
+    name: "Cold War Rearmed III",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-11-28T21:00:00Z",
   },
   {
     steam_id: 1879737195,
-    name: 'Cold War Factions',
-    type: 'mod',
-    status: 'active',
-    last_updated: '2023-11-28T21:10:00Z',
+    name: "Cold War Factions",
+    type: "mod",
+    status: "active",
+    last_updated: "2023-11-28T21:10:00Z",
   },
 
   // Missions
   {
     steam_id: 3001234567,
-    name: 'Antistasi - Altis',
-    type: 'mission',
-    status: 'active',
-    last_updated: '2024-01-20T14:00:00Z',
+    name: "Antistasi - Altis",
+    type: "mission",
+    status: "active",
+    last_updated: "2024-01-20T14:00:00Z",
   },
   {
     steam_id: 3001234568,
-    name: 'Liberation - Tanoa',
-    type: 'mission',
-    status: 'active',
-    last_updated: '2024-01-18T16:30:00Z',
+    name: "Liberation - Tanoa",
+    type: "mission",
+    status: "active",
+    last_updated: "2024-01-18T16:30:00Z",
   },
   {
     steam_id: 3001234569,
-    name: 'DUWS - Dynamic Universal War System',
-    type: 'mission',
-    status: 'active',
-    last_updated: '2024-01-16T11:15:00Z',
+    name: "DUWS - Dynamic Universal War System",
+    type: "mission",
+    status: "active",
+    last_updated: "2024-01-16T11:15:00Z",
   },
   {
     steam_id: 3001234570,
-    name: 'Warlords - Official',
-    type: 'mission',
-    status: 'active',
-    last_updated: '2024-01-14T09:45:00Z',
+    name: "Warlords - Official",
+    type: "mission",
+    status: "active",
+    last_updated: "2024-01-14T09:45:00Z",
   },
   {
     steam_id: 3001234571,
-    name: 'King of the Hill',
-    type: 'mission',
-    status: 'disabled',
-    last_updated: '2024-01-12T13:20:00Z',
+    name: "King of the Hill",
+    type: "mission",
+    status: "disabled",
+    last_updated: "2024-01-12T13:20:00Z",
   },
 ]
 
@@ -1080,88 +1080,88 @@ const mockModSubscriptions: ModSubscription[] = [
 const mockSchedules: ScheduleResponse[] = [
   {
     id: 1,
-    name: 'Daily Server Restart',
-    description: 'Restart server daily at 3 AM to maintain performance',
-    operationType: 'restart',
-    frequency: 'daily at 3am',
-    cronExpression: '0 3 * * *',
+    name: "Daily Server Restart",
+    description: "Restart server daily at 3 AM to maintain performance",
+    operationType: "restart",
+    frequency: "daily at 3am",
+    cronExpression: "0 3 * * *",
     nextRun: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours from now
     lastRun: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(), // 20 hours ago
-    status: 'active',
+    status: "active",
     operationData: {
       collectionId: 1, // Essential Framework
     },
-    createdAt: '2024-01-15T08:00:00Z',
-    updatedAt: '2024-01-15T08:00:00Z',
+    createdAt: "2024-01-15T08:00:00Z",
+    updatedAt: "2024-01-15T08:00:00Z",
   },
   {
     id: 2,
-    name: 'Weekly Mod Updates',
-    description: 'Check and update all mods every Sunday morning',
-    operationType: 'mod_update',
-    frequency: 'every Sunday at 6am',
-    cronExpression: '0 6 * * 0',
+    name: "Weekly Mod Updates",
+    description: "Check and update all mods every Sunday morning",
+    operationType: "mod_update",
+    frequency: "every Sunday at 6am",
+    cronExpression: "0 6 * * 0",
     nextRun: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days from now
     lastRun: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-    status: 'active',
+    status: "active",
     operationData: {},
-    createdAt: '2024-01-10T10:30:00Z',
-    updatedAt: '2024-01-10T10:30:00Z',
+    createdAt: "2024-01-10T10:30:00Z",
+    updatedAt: "2024-01-10T10:30:00Z",
   },
   {
     id: 3,
-    name: 'Hourly Server Backup',
-    description: 'Create backup of server data every 2 hours',
-    operationType: 'backup',
-    frequency: 'every 2 hours',
-    cronExpression: '0 */2 * * *',
+    name: "Hourly Server Backup",
+    description: "Create backup of server data every 2 hours",
+    operationType: "backup",
+    frequency: "every 2 hours",
+    cronExpression: "0 */2 * * *",
     nextRun: new Date(Date.now() + 45 * 60 * 1000).toISOString(), // 45 minutes from now
     lastRun: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), // 1 hour ago
-    status: 'active',
+    status: "active",
     operationData: {},
-    createdAt: '2024-01-12T14:00:00Z',
-    updatedAt: '2024-01-12T14:00:00Z',
+    createdAt: "2024-01-12T14:00:00Z",
+    updatedAt: "2024-01-12T14:00:00Z",
   },
   {
     id: 4,
-    name: 'Weekly Server Stop',
-    description: 'Stop server every Friday evening for maintenance',
-    operationType: 'stop',
-    frequency: 'every Friday at 8pm',
-    cronExpression: '0 20 * * 5',
+    name: "Weekly Server Stop",
+    description: "Stop server every Friday evening for maintenance",
+    operationType: "stop",
+    frequency: "every Friday at 8pm",
+    cronExpression: "0 20 * * 5",
     nextRun: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days from now
     lastRun: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
-    status: 'paused',
+    status: "paused",
     operationData: {},
-    createdAt: '2024-01-08T16:45:00Z',
-    updatedAt: '2024-01-14T09:20:00Z',
+    createdAt: "2024-01-08T16:45:00Z",
+    updatedAt: "2024-01-14T09:20:00Z",
   },
   {
     id: 5,
-    name: 'Hourly Server Start',
-    description: 'Start server if it goes down',
-    operationType: 'start',
-    frequency: 'every hour',
-    cronExpression: '0 * * * *',
+    name: "Hourly Server Start",
+    description: "Start server if it goes down",
+    operationType: "start",
+    frequency: "every hour",
+    cronExpression: "0 * * * *",
     nextRun: new Date(Date.now() + 15 * 60 * 1000).toISOString(), // 15 minutes from now
     lastRun: new Date(Date.now() - 15 * 60 * 1000).toISOString(), // 15 minutes ago
-    status: 'active',
+    status: "active",
     operationData: {},
-    createdAt: '2024-01-14T11:00:00Z',
-    updatedAt: '2024-01-14T11:00:00Z',
+    createdAt: "2024-01-14T11:00:00Z",
+    updatedAt: "2024-01-14T11:00:00Z",
   },
   {
     id: 6,
-    name: 'Server Maintenance',
-    description: 'Monthly server restart with full maintenance',
-    operationType: 'restart',
-    frequency: 'monthly on the 1st at 2am',
-    cronExpression: '0 2 1 * *',
+    name: "Server Maintenance",
+    description: "Monthly server restart with full maintenance",
+    operationType: "restart",
+    frequency: "monthly on the 1st at 2am",
+    cronExpression: "0 2 1 * *",
     nextRun: new Date(Date.now() + 16 * 24 * 60 * 60 * 1000).toISOString(), // 16 days from now
-    status: 'inactive',
+    status: "inactive",
     operationData: {},
-    createdAt: '2024-01-05T12:30:00Z',
-    updatedAt: '2024-01-05T12:30:00Z',
+    createdAt: "2024-01-05T12:30:00Z",
+    updatedAt: "2024-01-05T12:30:00Z",
   },
 ]
 
@@ -1175,7 +1175,7 @@ const simulateNetworkDelay = (min: number = 50, max: number = 100): Promise<void
 export const mockCollectionsService = {
   getCollections: async (): Promise<CollectionResponse[]> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Fetching collections')
+    console.log("🎭 Mock API: Fetching collections")
     return [...mockCollections]
   },
 
@@ -1193,14 +1193,14 @@ export const mockCollectionsService = {
     collectionData: CreateCollectionRequest,
   ): Promise<CollectionResponse> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Creating collection', collectionData)
+    console.log("🎭 Mock API: Creating collection", collectionData)
 
     const newCollection: CollectionResponse = {
       id: Math.max(...mockCollections.map(c => c.id)) + 1,
       name: collectionData.name,
       description: collectionData.description,
       mods: [],
-      createdAt: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString().split("T")[0],
       isActive: false,
     }
 
@@ -1245,7 +1245,7 @@ export const mockCollectionsService = {
     }
 
     mockCollections.splice(collectionIndex, 1)
-    return { message: 'Collection deleted successfully' }
+    return { message: "Collection deleted successfully" }
   },
 
   addModsToCollection: async (
@@ -1311,13 +1311,13 @@ export const mockCollectionsService = {
 export const mockServerService = {
   getServerStatus: async (): Promise<ServerStatusResponse> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Fetching server status')
+    console.log("🎭 Mock API: Fetching server status")
     return { ...mockServerStatus }
   },
 
   getServerMetrics: async (): Promise<ServerMetricsResponse[]> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Fetching server metrics')
+    console.log("🎭 Mock API: Fetching server metrics")
     return [...mockServerMetrics]
   },
 
@@ -1325,11 +1325,11 @@ export const mockServerService = {
     actionData: ServerActionRequest,
   ): Promise<{ message: string; status: string }> => {
     await simulateNetworkDelay(1000, 3000) // Longer delay for server actions
-    console.log('🎭 Mock API: Performing server action', actionData)
+    console.log("🎭 Mock API: Performing server action", actionData)
 
     // Simulate server state changes
-    if (actionData.action === 'start') {
-      mockServerStatus.status = 'starting'
+    if (actionData.action === "start") {
+      mockServerStatus.status = "starting"
       if (actionData.collectionId) {
         const collection = mockCollections.find(c => c.id === actionData.collectionId)
         mockServerStatus.activeCollection = collection
@@ -1341,31 +1341,31 @@ export const mockServerService = {
       }
       // Simulate server coming online after a delay
       setTimeout(() => {
-        mockServerStatus.status = 'online'
+        mockServerStatus.status = "online"
         mockServerStatus.players = 0
         mockServerStatus.cpu = 15
         mockServerStatus.memory = 25
       }, 5000)
-    } else if (actionData.action === 'stop') {
-      mockServerStatus.status = 'stopping'
+    } else if (actionData.action === "stop") {
+      mockServerStatus.status = "stopping"
       // Simulate server going offline after a delay
       setTimeout(() => {
-        mockServerStatus.status = 'offline'
+        mockServerStatus.status = "offline"
         mockServerStatus.players = 0
         mockServerStatus.cpu = 0
         mockServerStatus.memory = 0
         mockServerStatus.activeCollection = undefined
       }, 3000)
-    } else if (actionData.action === 'restart') {
-      mockServerStatus.status = 'stopping'
+    } else if (actionData.action === "restart") {
+      mockServerStatus.status = "stopping"
       // Simulate restart sequence
       setTimeout(() => {
-        mockServerStatus.status = 'starting'
+        mockServerStatus.status = "starting"
         mockServerStatus.players = 0
         mockServerStatus.cpu = 0
         mockServerStatus.memory = 0
         setTimeout(() => {
-          mockServerStatus.status = 'online'
+          mockServerStatus.status = "online"
           mockServerStatus.players = 0
           mockServerStatus.cpu = 15
           mockServerStatus.memory = 25
@@ -1375,13 +1375,13 @@ export const mockServerService = {
 
     return {
       message: `Server ${actionData.action} initiated successfully`,
-      status: 'success',
+      status: "success",
     }
   },
 
   getServerConfig: async (): Promise<ServerConfigResponse> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Fetching server config')
+    console.log("🎭 Mock API: Fetching server config")
     return { ...mockServerConfig }
   },
 
@@ -1389,7 +1389,7 @@ export const mockServerService = {
     configData: UpdateServerConfigRequest,
   ): Promise<ServerConfigResponse> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Updating server config', configData)
+    console.log("🎭 Mock API: Updating server config", configData)
 
     Object.assign(mockServerConfig, configData, {
       updatedAt: new Date().toISOString(),
@@ -1405,10 +1405,10 @@ export const mockModService = {
     await simulateNetworkDelay()
     console.log(`🎭 Mock API: Fetching mod helper ${modId}`)
     return {
-      description: 'This is a mock mod for testing purposes',
-      file_size: '500 MB',
-      preview_url: 'https://example.com/mock-preview.jpg',
-      tags: ['mock', 'test', 'arma3'],
+      description: "This is a mock mod for testing purposes",
+      file_size: "500 MB",
+      preview_url: "https://example.com/mock-preview.jpg",
+      tags: ["mock", "test", "arma3"],
       time_updated: new Date().toISOString(),
       title: `Mock Mod ${modId}`,
     }
@@ -1416,7 +1416,7 @@ export const mockModService = {
 
   getModSubscriptions: async (): Promise<ModSubscription[]> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Fetching mod subscriptions')
+    console.log("🎭 Mock API: Fetching mod subscriptions")
     return mockModSubscriptions
   },
 
@@ -1424,8 +1424,8 @@ export const mockModService = {
     mods: Array<{ steam_id: number }>,
   ): Promise<{ message: string }> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Adding mod subscriptions', mods)
-    return { message: 'Mod subscriptions added successfully' }
+    console.log("🎭 Mock API: Adding mod subscriptions", mods)
+    return { message: "Mod subscriptions added successfully" }
   },
 
   getModSubscriptionDetails: async (modId: number): Promise<ModSubscription> => {
@@ -1434,7 +1434,7 @@ export const mockModService = {
     return {
       steam_id: modId,
       name: `Mock Mod ${modId}`,
-      status: 'active',
+      status: "active",
       last_updated: new Date().toISOString(),
     }
   },
@@ -1445,20 +1445,20 @@ export const mockModService = {
   ): Promise<{ message: string }> => {
     await simulateNetworkDelay()
     console.log(`🎭 Mock API: Updating mod subscription ${modId}`, updateData)
-    return { message: 'Mod subscription updated successfully' }
+    return { message: "Mod subscription updated successfully" }
   },
 
   removeModSubscription: async (modId: number): Promise<{ message: string }> => {
     await simulateNetworkDelay()
     console.log(`🎭 Mock API: Removing mod subscription ${modId}`)
-    return { message: 'Mod subscription removed successfully' }
+    return { message: "Mod subscription removed successfully" }
   },
 
   getModSubscriptionImage: async (modId: number): Promise<Blob> => {
     await simulateNetworkDelay()
     console.log(`🎭 Mock API: Fetching mod subscription image ${modId}`)
     // Return a mock image blob
-    return new Blob(['mock image data'], { type: 'image/png' })
+    return new Blob(["mock image data"], { type: "image/png" })
   },
 
   downloadMod: async (modId: number): Promise<ModDownloadResponse> => {
@@ -1466,7 +1466,7 @@ export const mockModService = {
     console.log(`🎭 Mock API: Downloading mod ${modId}`)
     return {
       status: `mock-job-${modId}-${Date.now()}`,
-      message: 'Download job created successfully',
+      message: "Download job created successfully",
     }
   },
 
@@ -1475,7 +1475,7 @@ export const mockModService = {
     console.log(`🎭 Mock API: Deleting mod ${modId}`)
     return {
       status: `mock-delete-job-${modId}-${Date.now()}`,
-      message: 'Delete job created successfully',
+      message: "Delete job created successfully",
     }
   },
 
@@ -1485,8 +1485,8 @@ export const mockModService = {
     await simulateNetworkDelay()
     console.log(`🎭 Mock API: Checking job status ${jobId}`)
     return {
-      status: 'completed',
-      message: 'Job completed successfully',
+      status: "completed",
+      message: "Job completed successfully",
     }
   },
 }
@@ -1495,7 +1495,7 @@ export const mockModService = {
 export const mockScheduleService = {
   getSchedules: async (): Promise<ScheduleResponse[]> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Fetching schedules')
+    console.log("🎭 Mock API: Fetching schedules")
     return [...mockSchedules]
   },
 
@@ -1513,27 +1513,27 @@ export const mockScheduleService = {
     scheduleData: CreateScheduleRequest,
   ): Promise<ScheduleResponse> => {
     await simulateNetworkDelay()
-    console.log('🎭 Mock API: Creating schedule', scheduleData)
+    console.log("🎭 Mock API: Creating schedule", scheduleData)
 
     // Generate a mock cron expression based on frequency
     const generateMockCron = (frequency: string): string => {
-      if (frequency.includes('hour')) return '0 */2 * * *'
-      if (frequency.includes('daily')) return '0 3 * * *'
-      if (frequency.includes('week')) return '0 6 * * 0'
-      if (frequency.includes('month')) return '0 2 1 * *'
-      return '*/30 * * * *' // Default to every 30 minutes
+      if (frequency.includes("hour")) return "0 */2 * * *"
+      if (frequency.includes("daily")) return "0 3 * * *"
+      if (frequency.includes("week")) return "0 6 * * 0"
+      if (frequency.includes("month")) return "0 2 1 * *"
+      return "*/30 * * * *" // Default to every 30 minutes
     }
 
     // Calculate next run time (mock - just add some time)
     const getNextRun = (frequency: string): string => {
       const now = Date.now()
-      if (frequency.includes('hour'))
+      if (frequency.includes("hour"))
         return new Date(now + 2 * 60 * 60 * 1000).toISOString()
-      if (frequency.includes('daily'))
+      if (frequency.includes("daily"))
         return new Date(now + 4 * 60 * 60 * 1000).toISOString()
-      if (frequency.includes('week'))
+      if (frequency.includes("week"))
         return new Date(now + 2 * 24 * 60 * 60 * 1000).toISOString()
-      if (frequency.includes('month'))
+      if (frequency.includes("month"))
         return new Date(now + 16 * 24 * 60 * 60 * 1000).toISOString()
       return new Date(now + 30 * 60 * 1000).toISOString() // Default
     }
@@ -1546,7 +1546,7 @@ export const mockScheduleService = {
       frequency: scheduleData.frequency,
       cronExpression: generateMockCron(scheduleData.frequency),
       nextRun: getNextRun(scheduleData.frequency),
-      status: 'active',
+      status: "active",
       operationData: scheduleData.operationData || {},
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -1598,7 +1598,7 @@ export const mockScheduleService = {
       throw new Error(`Schedule with id ${id} not found`)
     }
 
-    mockSchedules[scheduleIndex].status = enabled ? 'active' : 'inactive'
+    mockSchedules[scheduleIndex].status = enabled ? "active" : "inactive"
     mockSchedules[scheduleIndex].updatedAt = new Date().toISOString()
 
     return { ...mockSchedules[scheduleIndex] }
