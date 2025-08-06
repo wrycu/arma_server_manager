@@ -7,6 +7,7 @@ import { PageTitle } from '@/components/common/PageTitle'
 
 import { CompactServerStatus } from './components/CompactServerStatus'
 import { ServerCharts } from './components/ServerCharts'
+import { TerminalConsole } from './components/TerminalConsole'
 import { useCollections } from '@/features/collections/hooks/useCollections'
 import { useServer } from './hooks'
 import type { Collection } from '@/features/collections/types'
@@ -19,6 +20,7 @@ export function ServerControlPanel() {
   const [selectedStartupCollection, setSelectedStartupCollection] = useState<Collection | null>(
     null
   )
+  const [consoleOpen, setConsoleOpen] = useState(false)
 
   // Set the selected collection when collections are loaded and server has an active collection
   useEffect(() => {
@@ -88,7 +90,7 @@ export function ServerControlPanel() {
               <IconSettings className="size-4 mr-2" />
               Configure
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setConsoleOpen(true)}>
               <IconTerminal className="size-4 mr-2" />
               Console
             </Button>
@@ -115,6 +117,9 @@ export function ServerControlPanel() {
           <ServerCharts playerHistory={metricsHistory} resourceHistory={metricsHistory} />
         </div>
       </div>
+
+      {/* Terminal Console Drawer */}
+      <TerminalConsole open={consoleOpen} onOpenChange={setConsoleOpen} />
     </div>
   )
 }
