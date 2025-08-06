@@ -1,30 +1,19 @@
-import {
-  IconServer,
-  IconPlayerPlay,
-  IconPlayerStop,
-  IconRefresh,
-} from '@tabler/icons-react';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { CollectionSelector } from './CollectionSelector';
-import type { ServerStatus, ServerAction } from '../types';
-import type { Collection } from '@/features/collections/types';
+import { IconServer, IconPlayerPlay, IconPlayerStop, IconRefresh } from '@tabler/icons-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
+import { CollectionSelector } from './CollectionSelector'
+import type { ServerStatus, ServerAction } from '../types'
+import type { Collection } from '@/features/collections/types'
 
 interface CompactServerStatusProps {
-  server: ServerStatus;
-  isLoading: string | null;
-  collections: Collection[];
-  selectedStartupCollection: Collection | null;
-  onServerAction: (action: ServerAction, collectionId?: number) => void;
-  onStartupCollectionChange: (collection: Collection | null) => void;
+  server: ServerStatus
+  isLoading: string | null
+  collections: Collection[]
+  selectedStartupCollection: Collection | null
+  onServerAction: (action: ServerAction, collectionId?: number) => void
+  onStartupCollectionChange: (collection: Collection | null) => void
 }
 
 export function CompactServerStatus({
@@ -36,41 +25,41 @@ export function CompactServerStatus({
   onStartupCollectionChange,
 }: CompactServerStatusProps) {
   const formatUptime = (seconds: number) => {
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${days}d ${hours}h ${minutes}m`;
-  };
+    const days = Math.floor(seconds / 86400)
+    const hours = Math.floor((seconds % 86400) / 3600)
+    const minutes = Math.floor((seconds % 3600) / 60)
+    return `${days}d ${hours}h ${minutes}m`
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'online':
-        return 'bg-green-500';
+        return 'bg-green-500'
       case 'offline':
-        return 'bg-red-500';
+        return 'bg-red-500'
       case 'starting':
-        return 'bg-yellow-500';
+        return 'bg-yellow-500'
       case 'stopping':
-        return 'bg-orange-500';
+        return 'bg-orange-500'
       default:
-        return 'bg-gray-500';
+        return 'bg-gray-500'
     }
-  };
+  }
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'online':
-        return <Badge className="bg-green-500 hover:bg-green-600">Online</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">Online</Badge>
       case 'offline':
-        return <Badge variant="destructive">Offline</Badge>;
+        return <Badge variant="destructive">Offline</Badge>
       case 'starting':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Starting</Badge>;
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Starting</Badge>
       case 'stopping':
-        return <Badge className="bg-orange-500 hover:bg-orange-600">Stopping</Badge>;
+        return <Badge className="bg-orange-500 hover:bg-orange-600">Stopping</Badge>
       default:
-        return <Badge variant="secondary">Unknown</Badge>;
+        return <Badge variant="secondary">Unknown</Badge>
     }
-  };
+  }
 
   return (
     <Card className="overflow-hidden h-full flex flex-col">
@@ -89,9 +78,7 @@ export function CompactServerStatus({
             </CardDescription>
           </div>
           <div className="flex items-center gap-3">
-            <div
-              className={`size-3 rounded-full ${getStatusColor(server.status)} shadow-sm`}
-            />
+            <div className={`size-3 rounded-full ${getStatusColor(server.status)} shadow-sm`} />
             {getStatusBadge(server.status)}
           </div>
         </div>
@@ -142,9 +129,7 @@ export function CompactServerStatus({
               </div>
               <div className="text-sm col-span-2">
                 <span className="text-muted-foreground">Mission: </span>
-                <span className="font-medium">
-                  {server.mission || 'No mission loaded'}
-                </span>
+                <span className="font-medium">{server.mission || 'No mission loaded'}</span>
               </div>
               {server.activeCollection && (
                 <div className="text-sm col-span-2">
@@ -194,9 +179,7 @@ export function CompactServerStatus({
                   <Button
                     variant="default"
                     className="flex-1"
-                    onClick={() =>
-                      onServerAction('restart', selectedStartupCollection.id)
-                    }
+                    onClick={() => onServerAction('restart', selectedStartupCollection.id)}
                     disabled={isLoading === 'restart'}
                   >
                     <IconRefresh className="size-4 mr-2" />
@@ -239,5 +222,5 @@ export function CompactServerStatus({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }

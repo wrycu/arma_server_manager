@@ -1,16 +1,16 @@
-import * as React from 'react';
-import { Clock } from 'lucide-react';
+import * as React from 'react'
+import { Clock } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from '@/components/ui/select'
 import {
   Dialog,
   DialogContent,
@@ -18,8 +18,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import type { Schedule, ScheduleOperationType } from '../../server/types';
+} from '@/components/ui/dialog'
+import type { Schedule, ScheduleOperationType } from '../../server/types'
 
 const operationTypeOptions = [
   { value: 'restart', label: 'Restart Server' },
@@ -27,28 +27,28 @@ const operationTypeOptions = [
   { value: 'mod_update', label: 'Update Mods' },
   { value: 'stop', label: 'Stop Server' },
   { value: 'start', label: 'Start Server' },
-] as const;
+] as const
 
 const statusOptions = [
   { value: 'active', label: 'Active' },
   { value: 'paused', label: 'Paused' },
   { value: 'inactive', label: 'Inactive' },
-] as const;
+] as const
 
 interface EditScheduleDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  schedule: Schedule | null;
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  schedule: Schedule | null
   onUpdateSchedule: (
     id: number,
     data: {
-      name: string;
-      operationType: ScheduleOperationType;
-      frequency: string;
-      status: string;
+      name: string
+      operationType: ScheduleOperationType
+      frequency: string
+      status: string
     }
-  ) => Promise<void>;
-  isUpdating: boolean;
+  ) => Promise<void>
+  isUpdating: boolean
 }
 
 export function EditScheduleDialog({
@@ -63,9 +63,9 @@ export function EditScheduleDialog({
     operationType: 'restart' as ScheduleOperationType,
     frequency: '',
     status: 'active',
-  });
+  })
 
-  const [errors, setErrors] = React.useState<Record<string, string>>({});
+  const [errors, setErrors] = React.useState<Record<string, string>>({})
 
   // Update form data when schedule changes
   React.useEffect(() => {
@@ -75,28 +75,28 @@ export function EditScheduleDialog({
         operationType: schedule.operationType,
         frequency: schedule.frequency,
         status: schedule.status,
-      });
-      setErrors({});
+      })
+      setErrors({})
     }
-  }, [schedule]);
+  }, [schedule])
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    if (!schedule) return;
+    if (!schedule) return
 
     // Basic validation
-    const newErrors: Record<string, string> = {};
+    const newErrors: Record<string, string> = {}
     if (!formData.name.trim()) {
-      newErrors.name = 'Schedule name is required';
+      newErrors.name = 'Schedule name is required'
     }
     if (!formData.frequency.trim()) {
-      newErrors.frequency = 'Frequency is required';
+      newErrors.frequency = 'Frequency is required'
     }
 
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
+      setErrors(newErrors)
+      return
     }
 
     try {
@@ -105,23 +105,23 @@ export function EditScheduleDialog({
         operationType: formData.operationType,
         frequency: formData.frequency,
         status: formData.status,
-      });
+      })
 
-      onOpenChange(false);
+      onOpenChange(false)
     } catch (error) {
-      console.error('Failed to update schedule:', error);
+      console.error('Failed to update schedule:', error)
     }
-  };
+  }
 
   const updateFormData = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: '' }));
+      setErrors((prev) => ({ ...prev, [field]: '' }))
     }
-  };
+  }
 
-  if (!schedule) return null;
+  if (!schedule) return null
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -201,9 +201,7 @@ export function EditScheduleDialog({
                 onChange={(e) => updateFormData('frequency', e.target.value)}
                 className={errors.frequency ? 'border-destructive' : ''}
               />
-              {errors.frequency && (
-                <p className="text-sm text-destructive">{errors.frequency}</p>
-              )}
+              {errors.frequency && <p className="text-sm text-destructive">{errors.frequency}</p>}
             </div>
           </div>
 
@@ -218,9 +216,7 @@ export function EditScheduleDialog({
             </Button>
             <Button
               type="submit"
-              disabled={
-                isUpdating || !formData.name.trim() || !formData.frequency.trim()
-              }
+              disabled={isUpdating || !formData.name.trim() || !formData.frequency.trim()}
             >
               {isUpdating ? 'Updating...' : 'Update Schedule'}
             </Button>
@@ -228,5 +224,5 @@ export function EditScheduleDialog({
         </form>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

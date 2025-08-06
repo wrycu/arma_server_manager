@@ -1,38 +1,38 @@
-import { Play, Trash2, Edit3, MoreVertical, Calendar } from 'lucide-react';
+import { Play, Trash2, Edit3, MoreVertical, Calendar } from 'lucide-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
-import type { Schedule } from '../types';
+} from '@/components/ui/dropdown-menu'
+import { Checkbox } from '@/components/ui/checkbox'
+import type { Schedule } from '../types'
 
 interface ScheduleListProps {
-  schedules: Schedule[];
-  isLoading?: boolean;
-  onToggleSchedule?: (id: number, enabled: boolean) => void;
-  onExecuteSchedule?: (id: number) => void;
-  onEditSchedule?: (schedule: Schedule) => void;
-  onDeleteSchedule?: (id: number) => void;
+  schedules: Schedule[]
+  isLoading?: boolean
+  onToggleSchedule?: (id: number, enabled: boolean) => void
+  onExecuteSchedule?: (id: number) => void
+  onEditSchedule?: (schedule: Schedule) => void
+  onDeleteSchedule?: (id: number) => void
 }
 
 function formatNextRun(nextRun: string): string {
-  const date = new Date(nextRun);
-  const now = new Date();
-  const diffMs = date.getTime() - now.getTime();
+  const date = new Date(nextRun)
+  const now = new Date()
+  const diffMs = date.getTime() - now.getTime()
 
-  if (diffMs < 0) return 'Overdue';
+  if (diffMs < 0) return 'Overdue'
 
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffHours / 24)
 
-  if (diffDays > 0) return `${diffDays}d`;
-  if (diffHours > 0) return `${diffHours}h`;
-  return `${Math.floor(diffMs / (1000 * 60))}m`;
+  if (diffDays > 0) return `${diffDays}d`
+  if (diffHours > 0) return `${diffHours}h`
+  return `${Math.floor(diffMs / (1000 * 60))}m`
 }
 
 function formatDateTime(dateStr: string): string {
@@ -41,7 +41,7 @@ function formatDateTime(dateStr: string): string {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  });
+  })
 }
 
 const operationTypes = {
@@ -50,7 +50,7 @@ const operationTypes = {
   mod_update: 'Update',
   stop: 'Stop',
   start: 'Start',
-} as const;
+} as const
 
 export function ScheduleList({
   schedules,
@@ -67,7 +67,7 @@ export function ScheduleList({
           <div key={i} className="h-12 bg-muted/30 rounded-sm animate-pulse" />
         ))}
       </div>
-    );
+    )
   }
 
   if (schedules.length === 0) {
@@ -76,15 +76,15 @@ export function ScheduleList({
         <Calendar className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
         <p className="text-sm text-muted-foreground">No schedules configured</p>
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-1">
       {schedules.map((schedule) => {
-        const isActive = schedule.status === 'active';
-        const isPaused = schedule.status === 'paused';
-        const isOverdue = schedule.nextRun && new Date(schedule.nextRun) < new Date();
+        const isActive = schedule.status === 'active'
+        const isPaused = schedule.status === 'paused'
+        const isOverdue = schedule.nextRun && new Date(schedule.nextRun) < new Date()
 
         return (
           <div
@@ -104,9 +104,7 @@ export function ScheduleList({
                 <span className="text-xs text-muted-foreground shrink-0">
                   {operationTypes[schedule.operationType]}
                 </span>
-                {isPaused && (
-                  <span className="text-xs text-muted-foreground">• Paused</span>
-                )}
+                {isPaused && <span className="text-xs text-muted-foreground">• Paused</span>}
                 {isOverdue && isActive && (
                   <span className="text-xs text-destructive">• Overdue</span>
                 )}
@@ -160,8 +158,8 @@ export function ScheduleList({
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        );
+        )
       })}
     </div>
-  );
+  )
 }

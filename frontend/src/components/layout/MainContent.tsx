@@ -1,32 +1,32 @@
-import { ServerControlPanel } from '@/features/server';
-import { ServerConfigEditor } from '@/features/server/components/ServerConfigEditor';
-import { InstalledModsManager } from '@/features/mods';
-import { CollectionManager } from '@/features/collections';
-import { SchedulesManager } from '@/features/schedules';
-import { Settings } from '@/features/settings';
-import { useNavigation } from '@/hooks/use-navigation';
+import { ServerControlPanel } from '@/features/server'
+import { ServerConfigEditor } from '@/features/server/components/ServerConfigEditor'
+import { InstalledModsManager } from '@/features/mods'
+import { CollectionManager } from '@/features/collections'
+import { SchedulesManager } from '@/features/schedules'
+import { Settings } from '@/features/settings'
+import { useNavigation } from '@/hooks/use-navigation'
 
 export function MainContent() {
-  const { currentPage } = useNavigation();
+  const { currentPage } = useNavigation()
 
   const renderCurrentPage = () => {
     switch (currentPage) {
       case 'server-control':
-        return <ServerControlPanel />;
+        return <ServerControlPanel />
       case 'mod-management':
-        return <InstalledModsManager />;
+        return <InstalledModsManager />
       case 'collections':
-        return <CollectionManager />;
+        return <CollectionManager />
       case 'schedules':
-        return <SchedulesManager />;
+        return <SchedulesManager />
       case 'server-configs':
-        return <ServerConfigEditor />;
+        return <ServerConfigEditor />
       case 'settings':
-        return <Settings />;
+        return <Settings />
       default:
-        return <ServerControlPanel />;
+        return <ServerControlPanel />
     }
-  };
+  }
 
   return (
     <div className="@container/main flex flex-1 flex-col gap-4">
@@ -34,5 +34,5 @@ export function MainContent() {
         <div className="px-6 lg:px-8">{renderCurrentPage()}</div>
       </div>
     </div>
-  );
+  )
 }

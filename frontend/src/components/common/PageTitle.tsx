@@ -1,23 +1,18 @@
-import { type ReactNode } from 'react';
+import { type ReactNode } from 'react'
 
 interface BreadcrumbItem {
-  label: string;
-  onClick?: () => void;
+  label: string
+  onClick?: () => void
 }
 
 interface PageTitleProps {
-  title: string;
-  description?: string;
-  actions?: ReactNode;
-  breadcrumbs?: BreadcrumbItem[];
+  title: string
+  description?: string
+  actions?: ReactNode
+  breadcrumbs?: BreadcrumbItem[]
 }
 
-export function PageTitle({
-  title,
-  description,
-  actions,
-  breadcrumbs,
-}: PageTitleProps) {
+export function PageTitle({ title, description, actions, breadcrumbs }: PageTitleProps) {
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -47,11 +42,9 @@ export function PageTitle({
           )}
           {title}
         </h1>
-        {description && (
-          <p className="text-muted-foreground text-sm mt-1">{description}</p>
-        )}
+        {description && <p className="text-muted-foreground text-sm mt-1">{description}</p>}
       </div>
       {actions && <div className="flex gap-2">{actions}</div>}
     </div>
-  );
+  )
 }

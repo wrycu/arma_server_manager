@@ -1,4 +1,4 @@
-import type { Collection } from './types';
+import type { Collection } from './types'
 
 export const initialCollections: Collection[] = [
   {
@@ -69,4 +69,4 @@ export const initialCollections: Collection[] = [
     createdAt: '2024-01-10',
     isActive: false,
   },
-];
+]

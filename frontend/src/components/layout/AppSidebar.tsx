@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from 'react'
 import {
   IconServer,
   IconSettings,
@@ -8,10 +8,10 @@ import {
   IconChevronsLeft,
   IconChevronsRight,
   IconCalendarTime,
-} from '@tabler/icons-react';
+} from '@tabler/icons-react'
 
-import { NavSection } from '@/components/common/NavSection';
-import { useNavigation } from '@/hooks/use-navigation';
+import { NavSection } from '@/components/common/NavSection'
+import { useNavigation } from '@/hooks/use-navigation'
 import {
   Sidebar,
   SidebarContent,
@@ -21,7 +21,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from '@/components/ui/sidebar';
+} from '@/components/ui/sidebar'
 
 const data = {
   navControl: [
@@ -48,22 +48,19 @@ const data = {
       icon: IconPackage,
     },
   ],
-};
+}
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { setCurrentPage } = useNavigation();
-  const { state, toggleSidebar } = useSidebar();
-  const isCollapsed = state === 'collapsed';
+  const { setCurrentPage } = useNavigation()
+  const { state, toggleSidebar } = useSidebar()
+  const isCollapsed = state === 'collapsed'
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
+            <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
               <a href="#">
                 <img src="/tuna.png" alt="ARMA 3 Server Manager" className="size-4" />
                 <span className="text-base font-semibold">ARMA Server Manager</span>
@@ -88,10 +85,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => setCurrentPage('settings')}
-              tooltip="Settings"
-            >
+            <SidebarMenuButton onClick={() => setCurrentPage('settings')} tooltip="Settings">
               <IconSettings />
               <span>Settings</span>
             </SidebarMenuButton>
@@ -100,7 +94,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               onClick={() => {
                 // TODO: Implement logout logic
-                console.log('Logout clicked');
+                console.log('Logout clicked')
               }}
               tooltip="Logout"
             >
@@ -111,5 +105,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  );
+  )
 }

@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { type Icon } from '@tabler/icons-react';
+import * as React from 'react'
+import { type Icon } from '@tabler/icons-react'
 
 import {
   SidebarGroup,
@@ -8,8 +8,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
-import { useNavigation } from '@/hooks/use-navigation';
+} from '@/components/ui/sidebar'
+import { useNavigation } from '@/hooks/use-navigation'
 
 export function NavSection({
   title,
@@ -17,15 +17,15 @@ export function NavSection({
   enableNavigation = true,
   ...props
 }: {
-  title: string;
+  title: string
   items: {
-    title: string;
-    url: string;
-    icon?: Icon;
-  }[];
-  enableNavigation?: boolean;
+    title: string
+    url: string
+    icon?: Icon
+  }[]
+  enableNavigation?: boolean
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-  const { currentPage, setCurrentPage } = useNavigation();
+  const { currentPage, setCurrentPage } = useNavigation()
 
   return (
     <SidebarGroup {...props}>
@@ -47,5 +47,5 @@ export function NavSection({
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  );
+  )
 }

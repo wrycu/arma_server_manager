@@ -1,24 +1,24 @@
-import { type Row } from '@tanstack/react-table';
-import { MoreHorizontal, Trash } from 'lucide-react';
-import { IconRefresh, IconDownload } from '@tabler/icons-react';
+import { type Row } from '@tanstack/react-table'
+import { MoreHorizontal, Trash } from 'lucide-react'
+import { IconRefresh, IconDownload } from '@tabler/icons-react'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'
 
-import type { ExtendedModSubscription } from '../types';
+import type { ExtendedModSubscription } from '../types'
 
 interface DataTableRowActionsProps {
-  row: Row<ExtendedModSubscription>;
-  onUpdate: (steamId: number) => Promise<void>;
-  onDelete: (steamId: number) => Promise<void>;
-  onDownload: (steamId: number) => Promise<void>;
-  isLoading?: string | null;
+  row: Row<ExtendedModSubscription>
+  onUpdate: (steamId: number) => Promise<void>
+  onDelete: (steamId: number) => Promise<void>
+  onDownload: (steamId: number) => Promise<void>
+  isLoading?: string | null
 }
 
 export function DataTableRowActions({
@@ -28,7 +28,7 @@ export function DataTableRowActions({
   onDownload,
   isLoading,
 }: DataTableRowActionsProps) {
-  const mod = row.original;
+  const mod = row.original
 
   return (
     <DropdownMenu>
@@ -48,10 +48,7 @@ export function DataTableRowActions({
             {isLoading === 'updating' ? 'Updating...' : 'Update'}
           </DropdownMenuItem>
         ) : (
-          <DropdownMenuItem
-            onClick={() => onDownload(mod.steam_id)}
-            disabled={!!isLoading}
-          >
+          <DropdownMenuItem onClick={() => onDownload(mod.steam_id)} disabled={!!isLoading}>
             <IconDownload className="mr-2 h-4 w-4" />
             Download
           </DropdownMenuItem>
@@ -67,5 +64,5 @@ export function DataTableRowActions({
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

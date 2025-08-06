@@ -1,22 +1,22 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import { NavigationCommand } from './NavigationCommand';
-import { CommandDialog } from '@/components/ui/command';
+import { NavigationCommand } from './NavigationCommand'
+import { CommandDialog } from '@/components/ui/command'
 
 export function NavigationCommandDialog() {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false)
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpen((open) => !open);
+        e.preventDefault()
+        setOpen((open) => !open)
       }
-    };
+    }
 
-    document.addEventListener('keydown', down);
-    return () => document.removeEventListener('keydown', down);
-  }, []);
+    document.addEventListener('keydown', down)
+    return () => document.removeEventListener('keydown', down)
+  }, [])
 
   return (
     <CommandDialog
@@ -27,5 +27,5 @@ export function NavigationCommandDialog() {
     >
       <NavigationCommand onNavigate={() => setOpen(false)} />
     </CommandDialog>
-  );
+  )
 }

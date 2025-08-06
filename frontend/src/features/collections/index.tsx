@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { IconPlus } from '@tabler/icons-react';
+import { useState } from 'react'
+import { IconPlus } from '@tabler/icons-react'
 
-import { Button } from '@/components/ui/button';
-import { PageTitle } from '@/components/common/PageTitle';
-import { UpdatingModCard } from '@/features/mods/components/UpdatingModCard';
+import { Button } from '@/components/ui/button'
+import { PageTitle } from '@/components/common/PageTitle'
+import { UpdatingModCard } from '@/features/mods/components/UpdatingModCard'
 
-import { useCollections } from './hooks/useCollections';
-import { CreateCollectionDialog } from './components/CreateCollectionDialog';
-import { RemoveModDialog } from './components/RemoveModDialog';
-import { ModsList } from './components/ModsList';
-import { CollectionsList } from './components/CollectionsList';
-import type { ModToRemove } from './types';
-import type { Collection } from './types';
+import { useCollections } from './hooks/useCollections'
+import { CreateCollectionDialog } from './components/CreateCollectionDialog'
+import { RemoveModDialog } from './components/RemoveModDialog'
+import { ModsList } from './components/ModsList'
+import { CollectionsList } from './components/CollectionsList'
+import type { ModToRemove } from './types'
+import type { Collection } from './types'
 
 export function CollectionManager() {
   const {
@@ -28,39 +28,32 @@ export function CollectionManager() {
     setActive,
     cancelUpdate,
     dismissUpdate,
-  } = useCollections();
+  } = useCollections()
 
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false);
-  const [modToRemove, setModToRemove] = useState<ModToRemove | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
+  const [modToRemove, setModToRemove] = useState<ModToRemove | null>(null)
 
-  const handleCreateCollection = (newCollection: {
-    name: string;
-    description: string;
-  }) => {
-    createCollection(newCollection);
-  };
+  const handleCreateCollection = (newCollection: { name: string; description: string }) => {
+    createCollection(newCollection)
+  }
 
   const handleSelectCollection = (collection: Collection) => {
-    setSelectedCollectionId(collection.id);
-  };
+    setSelectedCollectionId(collection.id)
+  }
 
-  const handleRemoveModFromCollection = (
-    collectionId: number,
-    modId: number,
-    modName: string
-  ) => {
-    setModToRemove({ collectionId, modId, modName });
-    setIsRemoveDialogOpen(true);
-  };
+  const handleRemoveModFromCollection = (collectionId: number, modId: number, modName: string) => {
+    setModToRemove({ collectionId, modId, modName })
+    setIsRemoveDialogOpen(true)
+  }
 
   const confirmRemoveMod = () => {
-    if (!modToRemove) return;
+    if (!modToRemove) return
 
-    removeModFromCollection(modToRemove.collectionId, modToRemove.modId);
-    setModToRemove(null);
-    setIsRemoveDialogOpen(false);
-  };
+    removeModFromCollection(modToRemove.collectionId, modToRemove.modId)
+    setModToRemove(null)
+    setIsRemoveDialogOpen(false)
+  }
 
   if (selectedCollection) {
     return (
@@ -78,11 +71,7 @@ export function CollectionManager() {
             actions={
               <>
                 {selectedCollection.mods.some((mod) => mod.hasUpdate) && (
-                  <Button
-                    size="sm"
-                    onClick={updateAllMods}
-                    className="h-7 px-3 text-xs"
-                  >
+                  <Button size="sm" onClick={updateAllMods} className="h-7 px-3 text-xs">
                     Update All
                   </Button>
                 )}
@@ -135,7 +124,7 @@ export function CollectionManager() {
           onConfirm={confirmRemoveMod}
         />
       </div>
-    );
+    )
   }
 
   return (
@@ -174,5 +163,5 @@ export function CollectionManager() {
         onCreate={handleCreateCollection}
       />
     </div>
-  );
+  )
 }

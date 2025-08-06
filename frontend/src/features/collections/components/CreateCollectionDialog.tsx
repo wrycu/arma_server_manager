@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState } from 'react'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -13,15 +13,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import type { NewCollection, ModItem } from '../types';
+} from '@/components/ui/dialog'
+import type { NewCollection, ModItem } from '../types'
 
 interface CreateCollectionDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCreate: (collection: NewCollection) => void;
-  trigger?: React.ReactNode;
-  selectedMods?: ModItem[];
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onCreate: (collection: NewCollection) => void
+  trigger?: React.ReactNode
+  selectedMods?: ModItem[]
 }
 
 export function CreateCollectionDialog({
@@ -34,23 +34,23 @@ export function CreateCollectionDialog({
   const [newCollection, setNewCollection] = useState<NewCollection>({
     name: '',
     description: '',
-  });
+  })
 
   const handleCreate = () => {
     onCreate({
       ...newCollection,
       mods: selectedMods.length > 0 ? selectedMods : undefined,
-    });
-    setNewCollection({ name: '', description: '' });
-    onOpenChange(false);
-  };
+    })
+    setNewCollection({ name: '', description: '' })
+    onOpenChange(false)
+  }
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      setNewCollection({ name: '', description: '' });
+      setNewCollection({ name: '', description: '' })
     }
-    onOpenChange(newOpen);
-  };
+    onOpenChange(newOpen)
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -72,9 +72,7 @@ export function CreateCollectionDialog({
             <Input
               id="name"
               value={newCollection.name}
-              onChange={(e) =>
-                setNewCollection((prev) => ({ ...prev, name: e.target.value }))
-              }
+              onChange={(e) => setNewCollection((prev) => ({ ...prev, name: e.target.value }))}
               placeholder="Collection name"
               className="h-8 text-sm"
             />
@@ -112,15 +110,11 @@ export function CreateCollectionDialog({
           )}
         </div>
         <DialogFooter className="gap-2">
-          <Button
-            size="sm"
-            onClick={handleCreate}
-            disabled={!newCollection.name.trim()}
-          >
+          <Button size="sm" onClick={handleCreate} disabled={!newCollection.name.trim()}>
             Create
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
+  )
 }

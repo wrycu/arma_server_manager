@@ -1,12 +1,12 @@
-import { IconFolder } from '@tabler/icons-react';
+import { IconFolder } from '@tabler/icons-react'
 
-import { CollectionItem } from './CollectionItem';
-import type { Collection } from '../types';
+import { CollectionItem } from './CollectionItem'
+import type { Collection } from '../types'
 
 interface CollectionsListProps {
-  collections: Collection[];
-  onSelectCollection: (collection: Collection) => void;
-  onDeleteCollection: (collectionId: number) => void;
+  collections: Collection[]
+  onSelectCollection: (collection: Collection) => void
+  onDeleteCollection: (collectionId: number) => void
 }
 
 export function CollectionsList({
@@ -20,7 +20,7 @@ export function CollectionsList({
         <IconFolder className="h-12 w-12 text-muted-foreground/30 mb-3" />
         <p className="text-sm text-muted-foreground mb-3">No collections yet</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -34,5 +34,5 @@ export function CollectionsList({
         />
       ))}
     </div>
-  );
+  )
 }

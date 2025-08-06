@@ -1,10 +1,10 @@
-import { PageTitle } from '@/components/common/PageTitle';
-import { useMods } from './hooks';
-import { UpdatingModCard } from './components/UpdatingModCard';
-import { DataTable } from './components/DataTable';
-import { getColumns } from './components/columns';
-import type { ExtendedModSubscription } from './types';
-import type { NewCollection } from '@/features/collections/types';
+import { PageTitle } from '@/components/common/PageTitle'
+import { useMods } from './hooks'
+import { UpdatingModCard } from './components/UpdatingModCard'
+import { DataTable } from './components/DataTable'
+import { getColumns } from './components/columns'
+import type { ExtendedModSubscription } from './types'
+import type { NewCollection } from '@/features/collections/types'
 
 export function InstalledModsManager() {
   const {
@@ -15,7 +15,7 @@ export function InstalledModsManager() {
     removeModSubscription,
     cancelUpdate,
     dismissUpdate,
-  } = useMods();
+  } = useMods()
 
   // Transform mod subscriptions to match UI expectations
   const mods: ExtendedModSubscription[] = modSubscriptions.map((mod) => ({
@@ -24,29 +24,29 @@ export function InstalledModsManager() {
     type: mod.type || 'mod', // Use type from API or default to 'mod'
     hasUpdate: Math.random() > 0.7, // Mock update status
     sizeOnDisk: `${Math.floor(Math.random() * 500 + 50)} MB`, // Mock size
-  }));
+  }))
 
   const handleUpdate = async (steamId: number) => {
-    await downloadMod(steamId);
-  };
+    await downloadMod(steamId)
+  }
 
   const handleDelete = async (steamId: number) => {
-    await removeModSubscription(steamId);
-  };
+    await removeModSubscription(steamId)
+  }
 
   const handleCreateCollection = (collection: NewCollection) => {
     // TODO: Integrate with collections API
-    console.log('Creating collection:', collection);
+    console.log('Creating collection:', collection)
     // For now, just log the collection data
     // This will be implemented when the collections API is available
-  };
+  }
 
   const columns = getColumns({
     onUpdate: handleUpdate,
     onDelete: handleDelete,
     onDownload: downloadMod,
     isLoading,
-  });
+  })
 
   return (
     <div className="space-y-4">
@@ -69,11 +69,7 @@ export function InstalledModsManager() {
         </div>
       )}
 
-      <DataTable
-        columns={columns}
-        data={mods}
-        onCreateCollection={handleCreateCollection}
-      />
+      <DataTable columns={columns} data={mods} onCreateCollection={handleCreateCollection} />
     </div>
-  );
+  )
 }

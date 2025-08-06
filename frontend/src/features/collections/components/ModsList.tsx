@@ -1,16 +1,16 @@
-import { IconFolder, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconFolder, IconPlus, IconTrash } from '@tabler/icons-react'
 
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import type { ModItem } from '../types';
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import type { ModItem } from '../types'
 
 interface ModsListProps {
-  mods: ModItem[];
-  collectionId: number;
-  onToggleMod: (collectionId: number, modId: number) => void;
-  onUpdateMod: (mod: ModItem) => void;
-  onRemoveMod: (collectionId: number, modId: number, modName: string) => void;
+  mods: ModItem[]
+  collectionId: number
+  onToggleMod: (collectionId: number, modId: number) => void
+  onUpdateMod: (mod: ModItem) => void
+  onRemoveMod: (collectionId: number, modId: number, modName: string) => void
 }
 
 export function ModsList({
@@ -30,7 +30,7 @@ export function ModsList({
           Add Mods
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -58,9 +58,7 @@ export function ModsList({
                 {mod.name}
               </span>
               <div className="flex items-center gap-1">
-                {mod.hasUpdate && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />
-                )}
+                {mod.hasUpdate && <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />}
                 {mod.isServerMod && (
                   <Badge variant="outline" className="h-4 px-1 text-xs">
                     S
@@ -77,11 +75,7 @@ export function ModsList({
 
           <div className="flex items-center gap-1">
             {mod.hasUpdate && (
-              <Button
-                size="sm"
-                onClick={() => onUpdateMod(mod)}
-                className="h-6 px-2 text-xs"
-              >
+              <Button size="sm" onClick={() => onUpdateMod(mod)} className="h-6 px-2 text-xs">
                 Update
               </Button>
             )}
@@ -97,5 +91,5 @@ export function ModsList({
         </div>
       ))}
     </div>
-  );
+  )
 }

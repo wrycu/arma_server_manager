@@ -1,16 +1,12 @@
-import { IconLogout } from '@tabler/icons-react';
+import { IconLogout } from '@tabler/icons-react'
 
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from '@/components/ui/sidebar';
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar'
 
 export function LogoutButton() {
   const handleLogout = () => {
     // TODO: Implement logout logic
-    console.log('Logout clicked');
-  };
+    console.log('Logout clicked')
+  }
 
   return (
     <SidebarMenu>
@@ -25,5 +21,5 @@ export function LogoutButton() {
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>
-  );
+  )
 }
