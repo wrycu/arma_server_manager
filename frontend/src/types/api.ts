@@ -206,3 +206,62 @@ export interface UpdateServerConfigRequest {
   mods?: string[];
   customParams?: string[];
 }
+
+// Schedule API types
+export interface ScheduleResponse {
+  id: number;
+  name: string;
+  description?: string;
+  operationType: 'restart' | 'backup' | 'mod_update' | 'stop' | 'start';
+  frequency: string;
+  cronExpression: string;
+  nextRun: string;
+  lastRun?: string;
+  status: 'active' | 'inactive' | 'paused';
+  operationData?: {
+    collectionId?: number;
+    customCommand?: string;
+    parameters?: Record<string, unknown>;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SchedulesListResponse {
+  results: ScheduleResponse[];
+  message: string;
+}
+
+export interface CreateScheduleRequest {
+  name: string;
+  description?: string;
+  operationType: 'restart' | 'backup' | 'mod_update' | 'stop' | 'start';
+  frequency: string;
+  operationData?: {
+    collectionId?: number;
+    customCommand?: string;
+    parameters?: Record<string, unknown>;
+  };
+}
+
+export interface CreateScheduleResponse {
+  results: ScheduleResponse;
+  message: string;
+}
+
+export interface UpdateScheduleRequest {
+  name?: string;
+  description?: string;
+  frequency?: string;
+  status?: 'active' | 'inactive' | 'paused';
+  operationData?: {
+    collectionId?: number;
+    customCommand?: string;
+    parameters?: Record<string, unknown>;
+  };
+}
+
+export interface UpdateScheduleResponse {
+  results: ScheduleResponse;
+  message: string;
+}

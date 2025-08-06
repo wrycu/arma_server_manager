@@ -7,6 +7,7 @@ import {
   IconLogout,
   IconChevronsLeft,
   IconChevronsRight,
+  IconCalendarTime,
 } from '@tabler/icons-react';
 
 import { NavSection } from '@/components/common/NavSection';
@@ -28,6 +29,11 @@ const data = {
       title: 'Control Panel',
       url: 'server-control',
       icon: IconServer,
+    },
+    {
+      title: 'Schedules',
+      url: 'schedules',
+      icon: IconCalendarTime,
     },
   ],
   navContent: [
