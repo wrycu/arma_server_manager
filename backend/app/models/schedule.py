@@ -13,13 +13,16 @@ from .. import db
 
 class ScheduleAction(enum.Enum):
     """Enumeration for actions which the schedule can take."""
+
     server_start = "server_start"
     server_stop = "server_stop"
     server_restart = "server_restart"
     mod_update = "mod_update"
 
+
 class ScheduleName(enum.Enum):
     """Enumeration for available Celery schedules."""
+
     every_10_seconds = "every_10_seconds"  # for testing
     every_hour = "every_hour"
     every_day = "every_day"
@@ -54,12 +57,8 @@ class Schedule(db.Model):  # type: ignore[name-defined]
     )
     enabled: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     last_outcome: Mapped[str] = mapped_column(String(255), nullable=True)
-    last_run: Mapped[datetime] = mapped_column(
-        DateTime, nullable=True
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=func.now()
-    )
+    last_run: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now()
     )

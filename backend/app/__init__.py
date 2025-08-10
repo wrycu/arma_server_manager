@@ -109,10 +109,12 @@ def create_app(config_name: str | None = None) -> Flask:
         def __call__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
             with app.app_context():
                 return self.run(*args, **kwargs)
+
     celery.Task = ContextTask
     celery.autodiscover_tasks(["app.tasks.background"])
 
     return app
+
 
 if __name__ == "app":
     create_app()

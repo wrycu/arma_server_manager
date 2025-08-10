@@ -55,6 +55,7 @@ def add_ace_to_db():
     )
     db.session.commit()
 
+
 @pytest.fixture
 def add_schedule_to_db():
     db.session.add(
@@ -235,7 +236,9 @@ class TestArma3API:
         assert reply.json["results"][0]["enabled"]
         assert reply.json["results"][0]["name"] == "wonderful schedule"
 
-    def test_schedule_update(self, client: FlaskClient, add_schedule_to_db: None) -> None:
+    def test_schedule_update(
+        self, client: FlaskClient, add_schedule_to_db: None
+    ) -> None:
         add_schedule_to_db  # noqa: B018
         assert len(Schedule.query.all()) == 1
         reply = client.patch(
@@ -255,7 +258,9 @@ class TestArma3API:
         assert reply.json["results"][0]["enabled"]
         assert reply.json["results"][0]["name"] == "wonderful schedule, now updated"
 
-    def test_schedule_delete(self, client: FlaskClient, add_schedule_to_db: None) -> None:
+    def test_schedule_delete(
+        self, client: FlaskClient, add_schedule_to_db: None
+    ) -> None:
         add_schedule_to_db  # noqa: B018
         assert len(Schedule.query.all()) == 1
         reply = client.delete(

@@ -244,6 +244,7 @@ def get_schedules() -> tuple[dict[str, str], int]:
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
 
+
 @a3_bp.route("/schedule", methods=["GET"])
 def get_schedule_404() -> tuple[dict[str, str], int]:
     """
@@ -253,6 +254,7 @@ def get_schedule_404() -> tuple[dict[str, str], int]:
     return {
         "message": "You must include a schedule ID to get schedule status"
     }, HTTPStatus.BAD_REQUEST
+
 
 @a3_bp.route("/schedule", methods=["POST"])
 def create_schedule() -> tuple[dict[str, str], int]:
@@ -279,6 +281,7 @@ def create_schedule() -> tuple[dict[str, str], int]:
 
     return {"message": "Successfully created", "result": created}, HTTPStatus.OK
 
+
 @a3_bp.route("/schedule/<int:schedule_id>", methods=["GET"])
 def get_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
     """
@@ -296,6 +299,7 @@ def get_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully retrieved", "results": created}, HTTPStatus.OK
+
 
 @a3_bp.route("/schedule/<int:schedule_id>", methods=["PATCH"])
 def update_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
@@ -316,6 +320,7 @@ def update_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
 
     return {"message": "Successfully updated"}, HTTPStatus.OK
 
+
 @a3_bp.route("/schedule/<int:schedule_id>", methods=["DELETE"])
 def delete_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
     """
@@ -334,6 +339,7 @@ def delete_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
 
     return {"message": "Successfully deleted"}, HTTPStatus.OK
 
+
 @a3_bp.route("/schedule/<int:schedule_id>/trigger", methods=["POST"])
 def trigger_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
     """
@@ -350,6 +356,8 @@ def trigger_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully triggered (but not really)"}, HTTPStatus.OK
+
+
 """
 -----------------------------------------------------------------------------------------------------------------------
 TODO: this entire section (skeletoned out)

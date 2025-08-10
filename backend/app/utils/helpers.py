@@ -305,6 +305,7 @@ class SteamAPI:
             details["mod_type"] = "mod"
         return details
 
+
 class ScheduleHelper:
     @staticmethod
     def get_schedules() -> list[dict[str, str]]:
