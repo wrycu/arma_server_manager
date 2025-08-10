@@ -10,6 +10,7 @@ from flask.testing import FlaskClient
 from app import db
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
+from app.models.schedule import Schedule
 
 
 @pytest.fixture
@@ -50,6 +51,18 @@ def add_ace_to_db():
             server_mod=True,
             size_bytes="4648405",
             steam_last_updated=datetime.utcfromtimestamp(1754197938),
+        )
+    )
+    db.session.commit()
+
+@pytest.fixture
+def add_schedule_to_db():
+    db.session.add(
+        Schedule(
+            name="wonderful schedule",
+            action="server_restart",
+            celery_name="every_month",
+            enabled=True,
         )
     )
     db.session.commit()
@@ -195,3 +208,58 @@ class TestArma3API:
         :return:
         """
         pass
+
+    def test_schedule_create(self, client: FlaskClient) -> None:
+        assert len(Schedule.query.all()) == 0
+        reply = client.post(
+            "/api/arma3/schedule",
+            json={
+                "name": "wonderful schedule",
+                "action": "server_restart",
+                "celery_name": "every_month",
+                "enabled": True,
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["result"] == 1
+        assert len(Schedule.query.all()) == 1
+
+    def test_schedule_list(self, client: FlaskClient, add_schedule_to_db: None) -> None:
+        add_schedule_to_db  # noqa: B018
+        reply = client.get(
+            "/api/arma3/schedules",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"][0]["action"] == "server_restart"
+        assert reply.json["results"][0]["celery_name"] == "every_month"
+        assert reply.json["results"][0]["enabled"]
+        assert reply.json["results"][0]["name"] == "wonderful schedule"
+
+    def test_schedule_update(self, client: FlaskClient, add_schedule_to_db: None) -> None:
+        add_schedule_to_db  # noqa: B018
+        assert len(Schedule.query.all()) == 1
+        reply = client.patch(
+            "/api/arma3/schedule/1",
+            json={
+                "name": "wonderful schedule, now updated",
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert len(Schedule.query.all()) == 1
+        reply = client.get(
+            "/api/arma3/schedules",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"][0]["action"] == "server_restart"
+        assert reply.json["results"][0]["celery_name"] == "every_month"
+        assert reply.json["results"][0]["enabled"]
+        assert reply.json["results"][0]["name"] == "wonderful schedule, now updated"
+
+    def test_schedule_delete(self, client: FlaskClient, add_schedule_to_db: None) -> None:
+        add_schedule_to_db  # noqa: B018
+        assert len(Schedule.query.all()) == 1
+        reply = client.delete(
+            "/api/arma3/schedule/1",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert len(Schedule.query.all()) == 0
