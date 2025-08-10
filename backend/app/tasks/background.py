@@ -101,22 +101,18 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
 @shared_task()
 def server_restart() -> None:
     print("'restarting' server")
-    return "Done!"
 
 @shared_task()
 def server_start() -> None:
     print("'starting' server")
-    return "Done!"
 
 @shared_task()
 def server_stop() -> None:
     print("'stopping' server")
-    return "Done!"
 
 @shared_task()
 def mod_update() -> None:
     print("'updating' mods")
-    return "Done!"
 
 @shared_task()
 def task_kickoff(celery_name) -> None:
