@@ -210,7 +210,7 @@ def trigger_mod_delete(
     }, HTTPStatus.OK
 
 
-@a3_bp.route("/async/<job_id>", methods=["GET"])
+@a3_bp.route("/async/<int:job_id>", methods=["GET"])
 def async_status(job_id) -> tuple[dict[str, str], int]:
     """Look up the current state of a running async job, including the result (if finished)
 
@@ -222,6 +222,140 @@ def async_status(job_id) -> tuple[dict[str, str], int]:
         return result.result, HTTPStatus.OK
     else:
         return {"status": result.status, "message": result.result}, HTTPStatus.OK
+
+
+@a3_bp.route("/schedules", methods=["GET"])
+def get_schedules() -> tuple[dict[str, str], int]:
+    """
+    Retrieves all user-defined schedules
+    :return:
+        JSON representation of all schedules
+    """
+    try:
+        return (
+            {
+                "results": current_app.config["SCHEDULE_HELPER"].get_schedules(),
+                "message": "Retrieved successfully",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/schedule", methods=["GET"])
+def get_schedule_404() -> tuple[dict[str, str], int]:
+    """
+    Helper endpoint to explain why this was a bad request
+    :return:
+    """
+    return {
+        "message": "You must include a schedule ID to get schedule status"
+    }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/schedule", methods=["POST"])
+def create_schedule() -> tuple[dict[str, str], int]:
+    """
+    Creates a user-defined schedule (which relies on a celery schedule)
+    Must contain a JSON blob looking like this:
+    {
+        "name": "<USER_DEFINED_NAME>",
+        "celery_name": "<NAME_OF_CELERY_SCHEDULE>",
+        "action": "<ACTION_TO_TAKE_WHEN_SCHEDULE_IS_RUN>",
+        "enabled": "<IF_THIS_SCHEDULE_IS_ENABLED>",
+    }
+    Returns:
+        JSON response with health status and HTTP 200
+    """
+    try:
+        created = current_app.config["SCHEDULE_HELPER"].create_schedule(
+            request.json,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully created", "result": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/schedule/<int:schedule_id>", methods=["GET"])
+def get_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
+    """
+    Retrieves information about a specific schedule
+    :return:
+        JSON response with details of a single schedule
+    """
+    try:
+        created = current_app.config["SCHEDULE_HELPER"].get_schedule(
+            schedule_id,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully retrieved", "results": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/schedule/<int:schedule_id>", methods=["PATCH"])
+def update_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
+    """
+    Update a single user-defined schedule
+    :return:
+        Status code indicating success or failure
+    """
+    try:
+        current_app.config["SCHEDULE_HELPER"].update_schedule(
+            schedule_id,
+            request.json,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully updated"}, HTTPStatus.OK
+
+
+@a3_bp.route("/schedule/<int:schedule_id>", methods=["DELETE"])
+def delete_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
+    """
+    Delete a single user-defined schedule
+    :return:
+        Status code indicating success or failure
+    """
+    try:
+        current_app.config["SCHEDULE_HELPER"].delete_schedule(
+            schedule_id,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully deleted"}, HTTPStatus.OK
+
+
+@a3_bp.route("/schedule/<int:schedule_id>/trigger", methods=["POST"])
+def trigger_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
+    """
+    Manually triggers a schedule, rather than waiting for the normal activation
+
+    Returns:
+        job ID
+    """
+    try:
+        print("hi, scheduled")
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully triggered (but not really)"}, HTTPStatus.OK
 
 
 """

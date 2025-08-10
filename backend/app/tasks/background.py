@@ -7,9 +7,11 @@ from typing import Any
 
 from celery import shared_task
 from flask import current_app
+from sqlalchemy.sql import and_
 
 from app import db
 from app.models.mod import Mod
+from app.models.schedule import Schedule
 
 
 @shared_task
@@ -95,3 +97,48 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
     }
     current_app.logger.info("Background task completed successfully")
     return result
+
+
+@shared_task()
+def server_restart() -> None:
+    print("'restarting' server")
+
+
+@shared_task()
+def server_start() -> None:
+    print("'starting' server")
+
+
+@shared_task()
+def server_stop() -> None:
+    print("'stopping' server")
+
+
+@shared_task()
+def mod_update() -> None:
+    print("'updating' mods")
+
+
+@shared_task()
+def task_kickoff(celery_name) -> None:
+    """
+    This job is scheduled to run at various frequencies.
+        It queries the DB to find user-defined actions and launches them.
+        Used because dynamic, custom schedules did not work here
+    :param celery_name:
+        Name of the celery schedule, e.g. every_hour
+    :return:
+        N/A
+    """
+    task_map = {
+        "server_restart": server_restart,
+        "server_start": server_start,
+        "server_stop": server_stop,
+        "mod_update": mod_update,
+    }
+    tasks = Schedule.query.filter(
+        and_(Schedule.celery_name == celery_name, Schedule.enabled)
+    ).all()
+    print(f"found {len(tasks)} tasks...")
+    for task in tasks:
+        task_map[task.to_dict()["action"]].delay()

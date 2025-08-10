@@ -11,6 +11,7 @@ import sqlalchemy
 from app import db
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
+from app.models.schedule import Schedule
 
 
 # Helper functions will be added here as needed
@@ -303,3 +304,67 @@ class SteamAPI:
         else:
             details["mod_type"] = "mod"
         return details
+
+
+class ScheduleHelper:
+    @staticmethod
+    def get_schedules() -> list[dict[str, str]]:
+        """
+        Retrieve all currently-defined user schedules
+        :return:
+        """
+        return [x.to_dict() for x in Schedule.query.all()]
+
+    @staticmethod
+    def create_schedule(schedule_data: dict[str, str]) -> int:
+        """
+        Create a new schedule
+        :param schedule_data: JSON payload to create a schedule from
+            must contain the user-defined name, the celery schedule, the action to take, and if it is enabled or not
+        :return: ID of the newly-created schedule
+        """
+        schedule = Schedule(
+            name=schedule_data["name"],
+            celery_name=schedule_data["celery_name"],
+            action=schedule_data["action"],
+            enabled=schedule_data["enabled"],
+        )
+        db.session.add(schedule)
+        db.session.commit()
+        return schedule.id
+
+    @staticmethod
+    def get_schedule(schedule_id: int) -> Schedule:
+        """
+        Retrieve a specific schedule
+        :param schedule_id: the ID of the schedule to retrieve
+        :return: JSON representation of the schedule
+        """
+        return Schedule.query.get(schedule_id).to_dict()
+
+    @staticmethod
+    def update_schedule(schedule_id: int, schedule_data: dict[str, str]) -> None:
+        try:
+            result = Schedule.query.filter(Schedule.id == schedule_id).first()
+            if result:
+                disallowed_attrs = [
+                    "id",
+                    "updated_at",
+                    "created_at",
+                    "last_run",
+                    "last_outcome",
+                ]  # do not allow certain fields to be modified
+                for key, value in schedule_data.items():
+                    if key not in disallowed_attrs:
+                        setattr(result, key, value)
+                db.session.commit()
+        except Exception as e:
+            raise Exception("Failed to update schedule (schedule not found?)") from e
+
+    @staticmethod
+    def delete_schedule(schedule_id: int) -> None:
+        try:
+            db.session.delete(Schedule.query.filter(Schedule.id == schedule_id).first())
+            db.session.commit()
+        except sqlalchemy.orm.exc.UnmappedInstanceError as e:
+            raise Exception("Cannot find schedule") from e
