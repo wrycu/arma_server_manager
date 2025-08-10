@@ -98,21 +98,26 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
     current_app.logger.info("Background task completed successfully")
     return result
 
+
 @shared_task()
 def server_restart() -> None:
     print("'restarting' server")
+
 
 @shared_task()
 def server_start() -> None:
     print("'starting' server")
 
+
 @shared_task()
 def server_stop() -> None:
     print("'stopping' server")
 
+
 @shared_task()
 def mod_update() -> None:
     print("'updating' mods")
+
 
 @shared_task()
 def task_kickoff(celery_name) -> None:
@@ -131,7 +136,9 @@ def task_kickoff(celery_name) -> None:
         "server_stop": server_stop,
         "mod_update": mod_update,
     }
-    tasks = Schedule.query.filter(and_(Schedule.celery_name == celery_name, Schedule.enabled)).all()
+    tasks = Schedule.query.filter(
+        and_(Schedule.celery_name == celery_name, Schedule.enabled)
+    ).all()
     print(f"found {len(tasks)} tasks...")
     for task in tasks:
-        task_map[task.to_dict()['action']].delay()
+        task_map[task.to_dict()["action"]].delay()
