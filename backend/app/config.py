@@ -2,7 +2,7 @@
 
 import os
 
-from app.utils.helpers import Arma3ModManager
+from app.utils.helpers import Arma3ModManager, ScheduleHelper
 
 
 class Config:
@@ -22,10 +22,6 @@ class Config:
         "result_backend": os.environ.get("CELERY_RESULT_BACKEND")
         or "db+sqlite:///celery_results.db",
     }
-
-    # Legacy config keys for backward compatibility
-    CELERY_BROKER_URL = CELERY["broker_url"]
-    CELERY_RESULT_BACKEND = CELERY["result_backend"]
 
     # CORS settings
     CORS_ORIGINS = ["http://localhost:3000", "http://localhost:5173"]
@@ -51,6 +47,7 @@ class Config:
             STEAMCMD["MOD_INSTALL_DIR"],
         ),
     }
+    SCHEDULE_HELPER = ScheduleHelper()
 
 
 class DevelopmentConfig(Config):
@@ -60,12 +57,10 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get("DEV_DATABASE_URI") or "sqlite:///dev.db"
 
     # Development-specific Celery settings
-    CELERY_BROKER_URL = (
-        os.environ.get("CELERY_BROKER_URL") or "sqlalchemy+sqlite:///dev_celery.db"
-    )
-    CELERY_RESULT_BACKEND = (
-        os.environ.get("CELERY_RESULT_BACKEND") or "db+sqlite:///dev_celery_results.db"
-    )
+    CELERY = {
+        "broker_url": "sqlalchemy+sqlite:///dev_celery.db",
+        "result_backend": "db+sqlite:///dev_celery_results.db",
+    }
 
 
 class ProductionConfig(Config):
@@ -83,5 +78,7 @@ class TestingConfig(Config):
     WTF_CSRF_ENABLED = False
 
     # Testing-specific Celery settings (use memory for speed)
-    CELERY_BROKER_URL = "sqlalchemy+sqlite:///:memory:"
-    CELERY_RESULT_BACKEND = "db+sqlite:///:memory:"
+    CELERY = {
+        "broker_url": "sqlalchemy+sqlite:///:memory:",
+        "result_backend": "db+sqlite:///:memory:",
+    }

@@ -3,6 +3,8 @@
 import os
 
 from celery import Celery, Task
+from celery.schedules import crontab
+from dotenv import load_dotenv
 from flask import Flask, Response
 from flask_cors import CORS  # type: ignore[import-untyped]
 from flask_migrate import Migrate
@@ -24,6 +26,8 @@ def create_app(config_name: str | None = None) -> Flask:
         Configured Flask application instance
     """
     app = Flask(__name__)
+    # load .env file
+    load_dotenv()
 
     # Load configuration
     if config_name is None:
@@ -49,6 +53,34 @@ def create_app(config_name: str | None = None) -> Flask:
 
     # Configure Celery
     celery.conf.update(app.config)
+    # set up a kick-off job to launch other scheduled activities
+    celery.conf.beat_schedule = {
+        "every_10_seconds": {
+            "task": "app.tasks.background.task_kickoff",
+            "schedule": 10,
+            "args": ["every_10_seconds"],
+        },
+        "every_hour": {
+            "task": "app.tasks.background.task_kickoff",
+            "schedule": crontab(minute=0, hour="*"),
+            "args": ["every_hour"],
+        },
+        "every_day": {
+            "task": "app.tasks.background.task_kickoff",
+            "schedule": crontab(minute=0, hour=6, day_of_week="*"),
+            "args": ["every_day"],
+        },
+        "every_sunday": {
+            "task": "app.tasks.background.task_kickoff",
+            "schedule": crontab(minute=0, hour=6, day_of_week=0),
+            "args": ["every_sunday"],
+        },
+        "every_month": {
+            "task": "app.tasks.background.task_kickoff",
+            "schedule": crontab(minute=0, hour=6, day_of_month=1),
+            "args": ["every_month"],
+        },
+    }
 
     # Register blueprints
     from .routes.api import api_bp
@@ -71,26 +103,16 @@ def create_app(config_name: str | None = None) -> Flask:
             else:
                 return send_from_directory(static_dir, "index.html")
 
-    return app
-
-
-def make_celery(app: Flask) -> Celery:
-    """Create Celery instance with Flask app context.
-
-    Args:
-        app: Flask application instance
-
-    Returns:
-        Configured Celery instance
-    """
-    celery.conf.update(app.config)
-
     class ContextTask(Task):
         """Make celery tasks work with Flask app context."""
 
         def __call__(self, *args, **kwargs):  # type: ignore[no-untyped-def]
             with app.app_context():
                 return self.run(*args, **kwargs)
-
     celery.Task = ContextTask
-    return celery
+    celery.autodiscover_tasks(["app.tasks.background"])
+
+    return app
+
+if __name__ == "app":
+    create_app()
