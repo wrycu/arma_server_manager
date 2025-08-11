@@ -135,6 +135,7 @@ class Arma3ModManager:
             server_mod=False,
             size_bytes=mod_details["file_size"],
             steam_last_updated=datetime.utcfromtimestamp(mod_details["time_updated"]),
+            should_update=True,
         )
         db.session.add(prepared_mod)
         try:

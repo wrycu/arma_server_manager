@@ -210,7 +210,7 @@ def trigger_mod_delete(
     }, HTTPStatus.OK
 
 
-@a3_bp.route("/async/<int:job_id>", methods=["GET"])
+@a3_bp.route("/async/<str:job_id>", methods=["GET"])
 def async_status(job_id) -> tuple[dict[str, str], int]:
     """Look up the current state of a running async job, including the result (if finished)
 

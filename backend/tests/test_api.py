@@ -25,6 +25,7 @@ def add_cba_to_db():
             server_mod=False,
             size_bytes="4648405",
             steam_last_updated=datetime.utcfromtimestamp(1754197938),
+            should_update=True,
         )
     )
     db.session.commit()
@@ -51,6 +52,7 @@ def add_ace_to_db():
             server_mod=True,
             size_bytes="4648405",
             steam_last_updated=datetime.utcfromtimestamp(1754197938),
+            should_update=True,
         )
     )
     db.session.commit()
