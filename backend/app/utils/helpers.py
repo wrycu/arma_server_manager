@@ -12,6 +12,7 @@ from app import db
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
 from app.models.schedule import Schedule
+from app.models.server_config import ServerConfig
 
 
 # Helper functions will be added here as needed
@@ -135,6 +136,7 @@ class Arma3ModManager:
             server_mod=False,
             size_bytes=mod_details["file_size"],
             steam_last_updated=datetime.utcfromtimestamp(mod_details["time_updated"]),
+            should_update=True,
         )
         db.session.add(prepared_mod)
         try:
@@ -368,3 +370,112 @@ class ScheduleHelper:
             db.session.commit()
         except sqlalchemy.orm.exc.UnmappedInstanceError as e:
             raise Exception("Cannot find schedule") from e
+
+
+class Arma3ServerHelper:
+    @staticmethod
+    def get_servers() -> list[dict[str, str]]:
+        """
+        Retrieve all currently-defined user schedules
+        :return:
+        """
+        return [x.to_dict() for x in ServerConfig.query.all()]
+
+    @staticmethod
+    def create_server(server_data: dict[str, str]) -> int:
+        """
+        Create a new schedule
+        :param server_data: JSON payload to create a schedule from
+            must contain the user-defined name, the celery schedule, the action to take, and if it is enabled or not
+        :return: ID of the newly-created schedule
+                id: Primary key identifier
+        """
+        schedule = ServerConfig(
+            name=server_data["name"],
+            description=server_data["description"],
+            server_name=server_data["server_name"],
+            password=server_data["password"],
+            admin_password=server_data["admin_password"],
+            max_players=server_data["max_players"],
+            mission_file=server_data["mission_file"],
+            server_config_file=server_data["server_config_file"],
+            basic_config_file=server_data["basic_config_file"],
+            server_mods=server_data["server_mods"],
+            client_mods=server_data["client_mods"],
+            additional_params=server_data["additional_params"],
+            server_binary=server_data["server_binary"],
+            is_active=False,
+        )
+        db.session.add(schedule)
+        db.session.commit()
+        return schedule.id
+
+    @staticmethod
+    def get_server(server_id: int, include_sensitive: bool) -> ServerConfig:
+        """
+        Retrieve a specific schedule
+        :param server_id: the ID of the schedule to retrieve
+        :param include_sensitive: whether to include sensitive information, such as the password
+        :return: JSON representation of the schedule
+        """
+        return ServerConfig.query.get(server_id).to_dict(include_sensitive)
+
+    @staticmethod
+    def update_server(server_id: int, server_data: dict[str, str]) -> None:
+        """
+        Update a specific server
+        Note that is_active must be set via "activate_server"
+        :param server_id:
+        :param server_data:
+        :return:
+        """
+        try:
+            result = ServerConfig.query.filter(ServerConfig.id == server_id).first()
+            if result:
+                disallowed_attrs = [
+                    "id",
+                    "updated_at",
+                    "created_at",
+                    "is_active",
+                ]  # do not allow certain fields to be modified
+                for key, value in server_data.items():
+                    if key not in disallowed_attrs:
+                        setattr(result, key, value)
+                db.session.commit()
+        except Exception as e:
+            raise Exception("Failed to update server (server not found?)") from e
+
+    @staticmethod
+    def delete_server(server_id: int) -> None:
+        try:
+            db.session.delete(
+                ServerConfig.query.filter(ServerConfig.id == server_id).first()
+            )
+            db.session.commit()
+        except sqlalchemy.orm.exc.UnmappedInstanceError as e:
+            raise Exception("Cannot find schedule") from e
+
+    @staticmethod
+    def get_active_server_details():
+        active_server = ServerConfig.query.filter(ServerConfig.is_active).first()
+        return active_server.to_dict(include_sensitive=True)
+
+    @staticmethod
+    def activate_server(server_id: int) -> None:
+        active_servers = ServerConfig.query.filter(ServerConfig.is_active).all()
+        for active_server in active_servers:
+            active_server.is_active = False
+        new_active_server = ServerConfig.query.filter(
+            ServerConfig.id == server_id
+        ).first()
+        new_active_server.is_active = True
+        db.session.commit()
+
+
+class TaskHelper:
+    @staticmethod
+    def update_task_outcome(schedule_id: int, task_outcome: str):
+        schedule = Schedule.query.filter(Schedule.id == schedule_id).first()
+        schedule.last_outcome = task_outcome
+        schedule.last_run = datetime.utcnow()
+        db.session.commit()

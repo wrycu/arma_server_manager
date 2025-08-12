@@ -42,6 +42,7 @@ class Mod(db.Model):  # type: ignore[name-defined]
         size_bytes: Size of mod in bytes
         last_updated: When mod was last updated locally
         steam_last_updated: When mod was last updated on Steam
+        :should_update: If this mod should be kept up-to-date when update operations are run
     """
 
     __tablename__ = "mods"
@@ -59,6 +60,7 @@ class Mod(db.Model):  # type: ignore[name-defined]
     size_bytes: Mapped[int | None] = mapped_column(Integer)
     last_updated: Mapped[datetime | None] = mapped_column(DateTime)
     steam_last_updated: Mapped[datetime | None] = mapped_column(DateTime)
+    should_update: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     # Relationships
     images: Mapped[list["ModImage"]] = relationship(
@@ -90,6 +92,7 @@ class Mod(db.Model):  # type: ignore[name-defined]
             "steam_last_updated": (
                 self.steam_last_updated.isoformat() if self.steam_last_updated else None
             ),
+            "should_update": self.should_update,
         }
 
     def __repr__(self) -> str:

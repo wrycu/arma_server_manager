@@ -2,7 +2,7 @@
 
 import os
 
-from app.utils.helpers import Arma3ModManager, ScheduleHelper
+from app.utils.helpers import Arma3ModManager, Arma3ServerHelper, ScheduleHelper
 
 
 class Config:
@@ -48,6 +48,7 @@ class Config:
         ),
     }
     SCHEDULE_HELPER = ScheduleHelper()
+    A3_SERVER_HELPER = Arma3ServerHelper()
 
 
 class DevelopmentConfig(Config):

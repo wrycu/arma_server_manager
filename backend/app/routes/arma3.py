@@ -210,7 +210,7 @@ def trigger_mod_delete(
     }, HTTPStatus.OK
 
 
-@a3_bp.route("/async/<int:job_id>", methods=["GET"])
+@a3_bp.route("/async/<string:job_id>", methods=["GET"])
 def async_status(job_id) -> tuple[dict[str, str], int]:
     """Look up the current state of a running async job, including the result (if finished)
 
@@ -356,6 +356,124 @@ def trigger_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully triggered (but not really)"}, HTTPStatus.OK
+
+
+@a3_bp.route("/servers", methods=["GET"])
+def get_servers() -> tuple[dict[str, str], int]:
+    """
+    Retrieves all user-defined servers
+    :return:
+        JSON representation of all servers
+    """
+    try:
+        return (
+            {
+                "results": current_app.config["A3_SERVER_HELPER"].get_servers(),
+                "message": "Retrieved successfully",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/server", methods=["GET"])
+def get_server_404() -> tuple[dict[str, str], int]:
+    """
+    Helper endpoint to explain why this was a bad request
+    :return:
+    """
+    return {
+        "message": "You must include a server ID to get server status"
+    }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/server", methods=["POST"])
+def create_server() -> tuple[dict[str, str], int]:
+    """
+    Creates a user-defined server (which relies on a celery server)
+    Must contain a JSON blob with the fields (you can find them in the model)
+    Returns:
+        JSON response with health status and HTTP 200
+    """
+    try:
+        created = current_app.config["A3_SERVER_HELPER"].create_server(
+            request.json,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully created", "result": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/server/<int:server_id>", methods=["GET"])
+def get_server(server_id: int) -> tuple[dict[str, str], int]:
+    """
+    Retrieves information about a specific server
+    Use the URL parameter "include_sensitive" to retrieve sensitive information (defaults to false if missing)
+    :return:
+        JSON response with details of a single server
+    """
+    try:
+        str_to_bool = {
+            "true": True,
+            "false": False,
+            True: True,
+            False: False,
+        }
+        created = current_app.config["A3_SERVER_HELPER"].get_server(
+            server_id,
+            str_to_bool[request.args.get("include_sensitive", False)],
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully retrieved", "results": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/server/<int:server_id>", methods=["PATCH"])
+def update_server(server_id: int) -> tuple[dict[str, str], int]:
+    """
+    Update a single user-defined server
+    :return:
+        Status code indicating success or failure
+    """
+    try:
+        current_app.config["A3_SERVER_HELPER"].update_server(
+            server_id,
+            request.json,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully updated"}, HTTPStatus.OK
+
+
+@a3_bp.route("/server/<int:server_id>", methods=["DELETE"])
+def delete_server(server_id: int) -> tuple[dict[str, str], int]:
+    """
+    Delete a single user-defined server
+    :return:
+        Status code indicating success or failure
+    """
+    try:
+        current_app.config["A3_SERVER_HELPER"].delete_server(
+            server_id,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully deleted"}, HTTPStatus.OK
 
 
 """
