@@ -2,7 +2,7 @@ import { createCollection } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { queryClient } from './query-client'
 import { collections, server, mods } from '@/services'
-import type { Collection } from '@/features/collections/types'
+import type { Collection } from '../types/collections.ts'
 import type { CollectionResponse } from '@/types/api'
 import type { ServerStatusResponse, ServerConfigResponse, ModSubscription } from '@/types/api'
 
