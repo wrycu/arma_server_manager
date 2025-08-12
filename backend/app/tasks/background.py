@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import subprocess
 from datetime import datetime
 from typing import Any
 
@@ -12,12 +13,14 @@ from sqlalchemy.sql import and_
 from app import db
 from app.models.mod import Mod
 from app.models.schedule import Schedule
+from app.models.server_config import ServerConfig
+from app.utils.helpers import TaskHelper
 
 
 @shared_task
 def download_arma3_mod(mod_id: int) -> dict[str, Any]:
     # TODO: this is vulnerable to path traversal, and will even write it wherever the attacker chooses!
-    current_app.logger.info("Starting background task with duration")
+    current_app.logger.info(f"Starting arma 3 mod download ({mod_id})")
     mod_data = Mod.query.get(mod_id)
     if not mod_data:
         return {
@@ -55,20 +58,22 @@ def download_arma3_mod(mod_id: int) -> dict[str, Any]:
             "mod_id": mod_id,
         },
     }
-    current_app.logger.info("Background task completed successfully")
+    current_app.logger.info(f"Done downloading {mod_id}")
     return result
 
 
 @shared_task()
 def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
-    current_app.logger.info("Starting background task")
+    current_app.logger.info(f"Starting arma 3 mod removal ({mod_id})")
     mod_data = Mod.query.get(mod_id)
     if not mod_data:
+        current_app.logger.warning(f"Mod {mod_id} not found")
         return {
             "status": "aborted",
             "message": f"Mod {mod_id} not found",
         }
     if not mod_data.local_path:
+        current_app.logger.warning(f"Mod {mod_id} not downloaded")
         return {
             "status": "aborted",
             "message": f"Mod {mod_id} not downloaded, why are you even deleting it?!",
@@ -95,28 +100,85 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
             "mod_id": mod_id,
         },
     }
-    current_app.logger.info("Background task completed successfully")
+    current_app.logger.info("Done removing")
     return result
 
 
 @shared_task()
-def server_restart() -> None:
+def server_restart(schedule_id: int = 0) -> None:
     print("'restarting' server")
+    current_app.logger.info("Started restarting server")
+    helper = TaskHelper()
+    server_stop(schedule_id)
+    server_start(schedule_id)
+    current_app.logger.info("Server restarted successfully!")
+    helper.update_task_outcome(schedule_id, "Server restarted successfully!")
 
 
 @shared_task()
-def server_start() -> None:
+def server_start(schedule_id: int = 0) -> None:
     print("'starting' server")
+    current_app.logger.info("Started starting server")
+    helper = TaskHelper()
+    entry = ServerConfig.query.filter(ServerConfig.is_active).first()
+    if not entry:
+        current_app.logger.warning(
+            "Unable to start server: no server is set to active!"
+        )
+        helper.update_task_outcome(schedule_id, "Aborted: no server is set to active")
+        return
+    server_details = entry.to_dict()
+    command = [
+        server_details.server_binary,
+        server_details.additional_params,  # this should probably be split or something first
+        f"-name={server_details.server_name}",
+        f"-config={server_details.server_config_file}",
+        f"-mission={server_details.mission_file}",
+    ]
+    command.extend([f"-serverMod={x}" for x in server_details.server_mods])
+    command.extend([f"-mod={x}" for x in server_details.client_mods])
+    subprocess.check_call(command)
+    current_app.logger.info("Server started successfully!")
+    helper.update_task_outcome(schedule_id, "Server started successfully!")
 
 
 @shared_task()
-def server_stop() -> None:
+def server_stop(schedule_id: int = 0) -> None:
     print("'stopping' server")
+    current_app.logger.info("Started stopping server")
+    helper = TaskHelper()
+    entry = ServerConfig.query.filter(ServerConfig.is_active).first()
+    if not entry:
+        current_app.logger.warning(
+            "Unable to start server: no server is set to active!"
+        )
+        helper.update_task_outcome(schedule_id, "Aborted: no server is set to active")
+        return
+    server_details = entry.to_dict()
+    subprocess.check_call(
+        [
+            "pkill",
+            server_details.server_binary,
+        ]
+    )
+    current_app.logger.info("Server stopped successfully!")
+    helper.update_task_outcome(schedule_id, "Server stopped successfully!")
 
 
 @shared_task()
-def mod_update() -> None:
+def mod_update(schedule_id: int = 0) -> None:
     print("'updating' mods")
+    current_app.logger.info("Updating mods!")
+    helper = TaskHelper()
+    mods = Mod.query.filter(Mod.should_update).all()
+    if not mods:
+        pass
+    for mod in mods:
+        mod_status = download_arma3_mod(mod.id)
+        current_app.logger.info(
+            f"Mod update for {mod.name} returned the following result: {mod_status['status']}"
+        )
+        helper.update_task_outcome(schedule_id, mod_status["status"])
 
 
 @shared_task()
@@ -130,6 +192,7 @@ def task_kickoff(celery_name) -> None:
     :return:
         N/A
     """
+    current_app.logger.info(f"Kicking off scheduled tasks for {celery_name}")
     task_map = {
         "server_restart": server_restart,
         "server_start": server_start,
@@ -139,6 +202,6 @@ def task_kickoff(celery_name) -> None:
     tasks = Schedule.query.filter(
         and_(Schedule.celery_name == celery_name, Schedule.enabled)
     ).all()
-    print(f"found {len(tasks)} tasks...")
     for task in tasks:
-        task_map[task.to_dict()["action"]].delay()
+        task_obj = task.to_dict()
+        task_map[task_obj["action"]].delay(task_obj["id"])

@@ -11,6 +11,7 @@ from app import db
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
 from app.models.schedule import Schedule
+from app.models.server_config import ServerConfig
 
 
 @pytest.fixture
@@ -66,6 +67,29 @@ def add_schedule_to_db():
             action="server_restart",
             celery_name="every_month",
             enabled=True,
+        )
+    )
+    db.session.commit()
+
+
+@pytest.fixture
+def add_server_to_db():
+    db.session.add(
+        ServerConfig(
+            name="Test server!",
+            description="this is the description",
+            server_name="name of the server",
+            password="password for the server",
+            admin_password="admin password for the server",
+            max_players=64,
+            mission_file="/home/tests/something.miz",
+            server_config_file="/home/tests/server.cfg",
+            basic_config_file="/home/tests/basic.cfg",
+            server_mods="@sling,@beep,@boop",
+            client_mods="@cba,@ace",
+            additional_params="--bleh",
+            server_binary="/home/tests/a3.sh",
+            is_active=False,
         )
     )
     db.session.commit()
@@ -270,3 +294,71 @@ class TestArma3API:
         )
         assert reply.status_code == HTTPStatus.OK
         assert len(Schedule.query.all()) == 0
+
+    def test_server_create(self, client: FlaskClient) -> None:
+        assert len(ServerConfig.query.all()) == 0
+        reply = client.post(
+            "/api/arma3/server",
+            json={
+                "name": "Test server!",
+                "description": "this is the description",
+                "server_name": "name of the server",
+                "password": "password for the server",
+                "admin_password": "admin password for the server",
+                "max_players": 64,
+                "mission_file": "/home/tests/something.miz",
+                "server_config_file": "/home/tests/server.cfg",
+                "basic_config_file": "/home/tests/basic.cfg",
+                "server_mods": "@sling,@beep,@boop",
+                "client_mods": "@cba,@ace",
+                "additional_params": "--bleh",
+                "server_binary": "/home/tests/a3.sh",
+                "is_active": False,
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["result"] == 1
+        assert len(ServerConfig.query.all()) == 1
+
+    def test_server_list(self, client: FlaskClient, add_server_to_db: None) -> None:
+        add_server_to_db  # noqa: B018
+        reply = client.get(
+            "/api/arma3/servers",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"][0]["additional_params"] == "--bleh"
+        assert reply.json["results"][0]["basic_config_file"] == "/home/tests/basic.cfg"
+        assert reply.json["results"][0]["server_mods"] == "@sling,@beep,@boop"
+        assert not reply.json["results"][0]["is_active"]
+        assert "admin_password" not in reply.json["results"][0].keys()
+        reply = client.get(
+            "/api/arma3/server/1?include_sensitive=true",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert "admin_password" in reply.json["results"].keys()
+
+    def test_server_update(self, client: FlaskClient, add_server_to_db: None) -> None:
+        add_server_to_db  # noqa: B018
+        assert len(ServerConfig.query.all()) == 1
+        reply = client.patch(
+            "/api/arma3/server/1",
+            json={
+                "name": "wonderful server, now updated",
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert len(ServerConfig.query.all()) == 1
+        reply = client.get(
+            "/api/arma3/servers",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"][0]["name"] == "wonderful server, now updated"
+
+    def test_server_delete(self, client: FlaskClient, add_server_to_db: None) -> None:
+        add_server_to_db  # noqa: B018
+        assert len(ServerConfig.query.all()) == 1
+        reply = client.delete(
+            "/api/arma3/server/1",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert len(ServerConfig.query.all()) == 0

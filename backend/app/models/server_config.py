@@ -30,8 +30,8 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
         server_mods: Comma-separated list of server mod IDs
         client_mods: Comma-separated list of client mod IDs
         additional_params: Additional command line parameters
-        auto_restart: Whether server should auto-restart
-        restart_interval_hours: Hours between automatic restarts
+        # TODO: this can have bad effects if anyone can change it...
+        server_binary: Path to server binary
         is_active: Whether this configuration is currently active
         created_at: When configuration was created
         updated_at: When configuration was last modified
@@ -52,8 +52,7 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
     server_mods: Mapped[str | None] = mapped_column(Text)
     client_mods: Mapped[str | None] = mapped_column(Text)
     additional_params: Mapped[str | None] = mapped_column(Text)
-    auto_restart: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    restart_interval_hours: Mapped[int | None] = mapped_column(Integer)
+    server_binary: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), nullable=False
@@ -83,8 +82,7 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
             "server_mods": self.server_mods,
             "client_mods": self.client_mods,
             "additional_params": self.additional_params,
-            "auto_restart": self.auto_restart,
-            "restart_interval_hours": self.restart_interval_hours,
+            "server_binary": self.server_binary,
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
