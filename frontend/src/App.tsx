@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { MainContent, AppSidebar } from '@/components/layout'
+import { MainContent } from '@/components/MainContent'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
-import { LoginPage } from '@/features/auth'
-import { NavigationContext } from '@/hooks/use-navigation'
-import { NavigationCommandDialog } from '@/components/common'
+import { LoginPage } from '@/pages/AuthPage'
+import { NavigationContext } from '@/hooks/useNavigation'
+import { NavigationCommandDialog } from '@/components/NavigationCommandDialog'
+import { AppSidebar } from '@/components/AppSidebar'
 
 const queryClient = new QueryClient()
 

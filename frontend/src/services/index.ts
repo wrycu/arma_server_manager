@@ -5,10 +5,10 @@ import {
   mockModService,
   mockScheduleService,
 } from '@/lib/mock-data'
-import { collectionsService } from './arma3/collectionsService'
-import { serverService } from './arma3/serverService'
-import { modService } from './arma3/modService'
-import { scheduleService } from './arma3/scheduleService'
+import { collectionsService } from './collections.service.ts'
+import { serverService } from './server.service.ts'
+import { modService } from './mods.service.ts'
+import { scheduleService } from './schedules.service.ts'
 
 // Simple service factory - exports real or mock services based on environment
 export const collections = USE_MOCK_DATA ? mockCollectionsService : collectionsService
