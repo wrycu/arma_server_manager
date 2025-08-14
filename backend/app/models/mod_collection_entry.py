@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Text
+from sqlalchemy import DateTime, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -24,7 +24,6 @@ class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
         id: Primary key identifier
         collection_id: Foreign key to collection
         mod_id: Foreign key to mod
-        arguments: Collection-specific arguments for this mod
         added_at: When mod was added to collection
     """
 
@@ -40,7 +39,6 @@ class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
     mod_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("mods.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    arguments: Mapped[str] = mapped_column(Text)
     added_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), nullable=False
     )
@@ -64,7 +62,6 @@ class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
             "id": self.id,
             "collection_id": self.collection_id,
             "mod_id": self.mod_id,
-            "arguments": self.arguments,
             "added_at": self.added_at.isoformat(),
         }
 

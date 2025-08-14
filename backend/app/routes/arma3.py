@@ -210,6 +210,188 @@ def trigger_mod_delete(
     }, HTTPStatus.OK
 
 
+@a3_bp.route("/mod/collections", methods=["GET"])
+def get_mod_collections() -> tuple[dict[str, str], int]:
+    """
+    Returns all currently defined collections
+
+    Returns:
+        JSON response with health status and HTTP 200
+    """
+    try:
+        return (
+            {
+                "results": current_app.config["MOD_MANAGERS"][
+                    "ARMA3"
+                ].get_all_collections(),
+                "message": "Retrieved successfully",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/mod/collection", methods=["GET"])
+def get_mod_collection_400() -> tuple[dict[str, str], int]:
+    """
+    Helper endpoint to explain why this was a bad request
+    :return:
+    """
+    return {
+        "message": "You must include a collection ID to get details"
+    }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/mod/collection", methods=["POST"])
+def create_mod_collection() -> tuple[dict[str, str], int]:
+    """
+    Creates a new collection
+
+    Returns:
+        JSON object describing outcome and ID of created collection
+    """
+    try:
+        return (
+            {
+                "result": current_app.config["MOD_MANAGERS"]["ARMA3"].create_collection(
+                    request.json
+                ),
+                "message": "Created successfully",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/mod/collection/<int:collection_id>", methods=["GET"])
+def get_mod_collection(collection_id: int) -> tuple[dict[str, str], int]:
+    """
+    Returns all currently defined collections
+
+    Returns:
+        JSON description of collections
+    """
+    try:
+        return (
+            {
+                "results": current_app.config["MOD_MANAGERS"][
+                    "ARMA3"
+                ].get_collection_details(collection_id),
+                "message": "Retrieved successfully",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/mod/collection/<int:collection_id>", methods=["PATCH"])
+def update_mod_collection(collection_id: int) -> tuple[dict[str, str], int]:
+    """
+    Updates a mod collection (most commonly, adding or removing mods from it)
+
+    Returns:
+        JSON description of outcome
+    """
+    try:
+        current_app.config["MOD_MANAGERS"]["ARMA3"].update_collection(
+            collection_id,
+            request.json,
+        )
+        return (
+            {
+                "message": "Successfully updated collection",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/mod/collection/<int:collection_id>", methods=["DELETE"])
+def delete_moc_collection(collection_id: int) -> tuple[dict[str, str], int]:
+    """
+    Delete a collection
+
+    Returns:
+        JSON representation of outcome
+    """
+    try:
+        current_app.config["MOD_MANAGERS"]["ARMA3"].delete_collection(
+            collection_id,
+        )
+        return (
+            {
+                "message": "Successfully deleted collection",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/mod/collection/<int:collection_id>/mods", methods=["PATCH"])
+def add_mod_to_collection(collection_id: int) -> tuple[dict[str, str], int]:
+    """
+    Add mods to a collection
+
+    Returns:
+        JSON description of outcome
+    """
+    try:
+        current_app.config["MOD_MANAGERS"]["ARMA3"].update_collection(
+            collection_id,
+            request.json,
+        )
+        return (
+            {
+                "message": "Successfully updated collection",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/mod/collection/<int:collection_id>/mods", methods=["DELETE"])
+def delete_mod_from_collection(collection_id: int) -> tuple[dict[str, str], int]:
+    """
+    Remove mods from a collection
+
+    Returns:
+        JSON description of outcome
+    """
+    try:
+        current_app.config["MOD_MANAGERS"]["ARMA3"].remove_mod_from_collection(
+            collection_id,
+            request.json["mods"],
+        )
+        return (
+            {
+                "message": "Successfully deleted collection",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
 @a3_bp.route("/async/<string:job_id>", methods=["GET"])
 def async_status(job_id) -> tuple[dict[str, str], int]:
     """Look up the current state of a running async job, including the result (if finished)
@@ -474,30 +656,3 @@ def delete_server(server_id: int) -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully deleted"}, HTTPStatus.OK
-
-
-"""
------------------------------------------------------------------------------------------------------------------------
-TODO: this entire section (skeletoned out)
------------------------------------------------------------------------------------------------------------------------
-"""
-
-
-@a3_bp.route("/mod/collection", methods=["POST", "DELETE", "GET"])
-def mod_collection() -> tuple[dict[str, str], int]:
-    """Health check endpoint for monitoring.
-
-    Returns:
-        JSON response with health status and HTTP 200
-    """
-    return {"status": "healthy", "message": "API is running"}, HTTPStatus.OK
-
-
-@a3_bp.route("/collection", methods=["POST", "DELETE", "GET"])
-def collection_manage() -> tuple[dict[str, str], int]:
-    """Health check endpoint for monitoring.
-
-    Returns:
-        JSON response with health status and HTTP 200
-    """
-    return {"status": "healthy", "message": "API is running"}, HTTPStatus.OK

@@ -58,6 +58,7 @@ class Collection(db.Model):  # type: ignore[name-defined]
             "name": self.name,
             "description": self.description,
             "mod_count": len(self.mod_entries),
+            "mods": [x.to_dict() for x in self.mod_entries],
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
