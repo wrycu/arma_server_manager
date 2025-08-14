@@ -209,6 +209,7 @@ def trigger_mod_delete(
         "message": "Remove queued",
     }, HTTPStatus.OK
 
+
 @a3_bp.route("/mod/collections", methods=["GET"])
 def get_mod_collections() -> tuple[dict[str, str], int]:
     """
@@ -232,6 +233,7 @@ def get_mod_collections() -> tuple[dict[str, str], int]:
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
 
+
 @a3_bp.route("/mod/collection", methods=["GET"])
 def get_mod_collection_400() -> tuple[dict[str, str], int]:
     """
@@ -241,6 +243,7 @@ def get_mod_collection_400() -> tuple[dict[str, str], int]:
     return {
         "message": "You must include a collection ID to get details"
     }, HTTPStatus.BAD_REQUEST
+
 
 @a3_bp.route("/mod/collection", methods=["POST"])
 def create_mod_collection() -> tuple[dict[str, str], int]:
@@ -253,9 +256,9 @@ def create_mod_collection() -> tuple[dict[str, str], int]:
     try:
         return (
             {
-                "result": current_app.config["MOD_MANAGERS"][
-                    "ARMA3"
-                ].create_collection(request.json),
+                "result": current_app.config["MOD_MANAGERS"]["ARMA3"].create_collection(
+                    request.json
+                ),
                 "message": "Created successfully",
             },
             HTTPStatus.OK,
@@ -264,6 +267,7 @@ def create_mod_collection() -> tuple[dict[str, str], int]:
         return {
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
+
 
 @a3_bp.route("/mod/collection/<int:collection_id>", methods=["GET"])
 def get_mod_collection(collection_id: int) -> tuple[dict[str, str], int]:
@@ -287,6 +291,7 @@ def get_mod_collection(collection_id: int) -> tuple[dict[str, str], int]:
         return {
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
+
 
 @a3_bp.route("/mod/collection/<int:collection_id>", methods=["PATCH"])
 def update_mod_collection(collection_id: int) -> tuple[dict[str, str], int]:
@@ -312,6 +317,7 @@ def update_mod_collection(collection_id: int) -> tuple[dict[str, str], int]:
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
 
+
 @a3_bp.route("/mod/collection/<int:collection_id>", methods=["DELETE"])
 def delete_moc_collection(collection_id: int) -> tuple[dict[str, str], int]:
     """
@@ -334,6 +340,7 @@ def delete_moc_collection(collection_id: int) -> tuple[dict[str, str], int]:
         return {
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
+
 
 @a3_bp.route("/mod/collection/<int:collection_id>/mods", methods=["PATCH"])
 def add_mod_to_collection(collection_id: int) -> tuple[dict[str, str], int]:
@@ -358,6 +365,7 @@ def add_mod_to_collection(collection_id: int) -> tuple[dict[str, str], int]:
         return {
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
+
 
 @a3_bp.route("/mod/collection/<int:collection_id>/mods", methods=["DELETE"])
 def delete_mod_from_collection(collection_id: int) -> tuple[dict[str, str], int]:

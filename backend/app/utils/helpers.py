@@ -328,7 +328,9 @@ class Arma3ModManager:
     @staticmethod
     def delete_collection(collection_id: int) -> None:
         try:
-            db.session.delete(Collection.query.filter(Collection.id == collection_id).first())
+            db.session.delete(
+                Collection.query.filter(Collection.id == collection_id).first()
+            )
             db.session.commit()
         except sqlalchemy.orm.exc.UnmappedInstanceError as e:
             raise Exception("Cannot find collection") from e
@@ -345,7 +347,9 @@ class Arma3ModManager:
                 )
             db.session.commit()
         except Exception as e:
-            raise Exception("Failed to add mod to collection (mod not found? collection not found?)") from e
+            raise Exception(
+                "Failed to add mod to collection (mod not found? collection not found?)"
+            ) from e
 
     @staticmethod
     def remove_mod_from_collection(collection_id: int, mods: list[int]) -> None:
@@ -359,7 +363,9 @@ class Arma3ModManager:
                 )
                 db.session.commit()
         except Exception as e:
-            raise Exception("Failed to remove mod from collection (mod not found?)") from e
+            raise Exception(
+                "Failed to remove mod from collection (mod not found?)"
+            ) from e
 
 
 class SteamAPI:

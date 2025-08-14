@@ -95,6 +95,7 @@ def add_server_to_db():
     )
     db.session.commit()
 
+
 @pytest.fixture
 def add_collection_to_db():
     db.session.add(
@@ -387,7 +388,9 @@ class TestArma3API:
         assert reply.json["result"] == 1
         assert len(Collection.query.all()) == 1
 
-    def test_collection_list(self, client: FlaskClient, add_collection_to_db: None) -> None:
+    def test_collection_list(
+        self, client: FlaskClient, add_collection_to_db: None
+    ) -> None:
         add_collection_to_db  # noqa: B018
         reply = client.get(
             "/api/arma3/mod/collections",
@@ -396,7 +399,9 @@ class TestArma3API:
         assert reply.json["results"][0]["description"] == "this is the description"
         assert reply.json["results"][0]["mod_count"] == 0
 
-    def test_collection_update(self, client: FlaskClient, add_collection_to_db: None, add_cba_to_db: None) -> None:
+    def test_collection_update(
+        self, client: FlaskClient, add_collection_to_db: None, add_cba_to_db: None
+    ) -> None:
         add_collection_to_db  # noqa: B018
         add_cba_to_db  # noqa: B018
         assert len(Collection.query.all()) == 1
@@ -415,7 +420,9 @@ class TestArma3API:
         assert reply.json["results"][0]["mod_count"] == 1
         assert reply.json["results"][0]["mods"][0]["mod"]["name"] == "CBA_A3"
 
-    def test_collection_delete(self, client: FlaskClient, add_collection_to_db: None, add_cba_to_db: None) -> None:
+    def test_collection_delete(
+        self, client: FlaskClient, add_collection_to_db: None, add_cba_to_db: None
+    ) -> None:
         add_collection_to_db  # noqa: B018
         add_cba_to_db  # noqa: B018
         assert len(Collection.query.all()) == 1
@@ -430,7 +437,7 @@ class TestArma3API:
             "/api/arma3/mod/collection/1/mods",
             json={
                 "mods": [1],
-            }
+            },
         )
         assert reply.status_code == HTTPStatus.OK
         reply = client.get(
