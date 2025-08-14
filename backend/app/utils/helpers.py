@@ -9,7 +9,9 @@ import httpx
 import sqlalchemy
 
 from app import db
+from app.models.collection import Collection
 from app.models.mod import Mod
+from app.models.mod_collection_entry import ModCollectionEntry
 from app.models.mod_image import ModImage
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
@@ -101,6 +103,7 @@ class Arma3ModManager:
         :return:
         """
         # TODO: delete the local files
+        # TODO: check for presence in mod collections and refuse to remove if present
         try:
             db.session.delete(ModImage.query.filter(ModImage.mod_id == mod_id).first())
             db.session.commit()
@@ -254,11 +257,109 @@ class Arma3ModManager:
                         f"Failed to create directory {directory}: {e}"
                     ) from e
 
-    def add_mod_entry(self, mod_data: dict[str, str]):
-        pass
+    @staticmethod
+    def get_all_collections():
+        """
+        Retrieves details about mod collections
+        """
+        results = []
+        for result in Collection.query.all():
+            details = result.to_dict()
+            results.append(details)
+        return results
 
-    def remove_mod_entry(self, mod_data):
-        pass
+    @staticmethod
+    def get_collection_details(collection_id: int) -> dict[str, str]:
+        return Collection.query.filter(Collection.id == collection_id).first()
+
+    @staticmethod
+    def create_collection(collection_data: dict[str, str]) -> int:
+        collection = Collection(
+            name=collection_data["name"],
+            description=collection_data["description"],
+        )
+        db.session.add(collection)
+        db.session.commit()
+
+        try:
+            for mod in collection_data["mods"]:
+                db.session.add(
+                    ModCollectionEntry(
+                        collection_id=collection.id,
+                        mod_id=mod,
+                    )
+                )
+            db.session.commit()
+        except KeyError:
+            # mods are not a required field for creating a collection
+            pass
+
+        return collection.id
+
+    @staticmethod
+    def update_collection(collection_id: int, collection_data: dict[str, str]) -> None:
+        try:
+            result = Collection.query.filter(Collection.id == collection_id).first()
+            if result:
+                disallowed_attrs = [
+                    "id",
+                    "updated_at",
+                ]  # do not allow certain fields to be modified
+                for key, value in collection_data.items():
+                    if key not in disallowed_attrs:
+                        setattr(result, key, value)
+                try:
+                    for mod in collection_data["mods"]:
+                        db.session.add(
+                            ModCollectionEntry(
+                                collection_id=collection_id,
+                                mod_id=mod,
+                            )
+                        )
+                except KeyError:
+                    # "mods" is not a required field for updates
+                    pass
+                db.session.commit()
+            else:
+                raise Exception("Collection not found")
+        except Exception as e:
+            raise Exception("Failed to update collection (mod not found?)") from e
+
+    @staticmethod
+    def delete_collection(collection_id: int) -> None:
+        try:
+            db.session.delete(Collection.query.filter(Collection.id == collection_id).first())
+            db.session.commit()
+        except sqlalchemy.orm.exc.UnmappedInstanceError as e:
+            raise Exception("Cannot find collection") from e
+
+    @staticmethod
+    def add_mod_to_collection(collection_id: int, mods: list[int]) -> None:
+        try:
+            for mod in mods:
+                db.session.add(
+                    ModCollectionEntry(
+                        collection_id=collection_id,
+                        mod_id=mod,
+                    )
+                )
+            db.session.commit()
+        except Exception as e:
+            raise Exception("Failed to add mod to collection (mod not found? collection not found?)") from e
+
+    @staticmethod
+    def remove_mod_from_collection(collection_id: int, mods: list[int]) -> None:
+        try:
+            for mod in mods:
+                db.session.delete(
+                    ModCollectionEntry.query.filter(
+                        Collection.id == collection_id,
+                        ModCollectionEntry.mod_id == mod,
+                    ).first()
+                )
+                db.session.commit()
+        except Exception as e:
+            raise Exception("Failed to remove mod from collection (mod not found?)") from e
 
 
 class SteamAPI:

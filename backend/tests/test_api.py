@@ -8,6 +8,7 @@ import pytest
 from flask.testing import FlaskClient
 
 from app import db
+from app.models.collection import Collection
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
 from app.models.schedule import Schedule
@@ -90,6 +91,16 @@ def add_server_to_db():
             additional_params="--bleh",
             server_binary="/home/tests/a3.sh",
             is_active=False,
+        )
+    )
+    db.session.commit()
+
+@pytest.fixture
+def add_collection_to_db():
+    db.session.add(
+        Collection(
+            name="Test collection!",
+            description="this is the description",
         )
     )
     db.session.commit()
@@ -362,3 +373,73 @@ class TestArma3API:
         )
         assert reply.status_code == HTTPStatus.OK
         assert len(ServerConfig.query.all()) == 0
+
+    def test_collection_create(self, client: FlaskClient) -> None:
+        assert len(Collection.query.all()) == 0
+        reply = client.post(
+            "/api/arma3/mod/collection",
+            json={
+                "name": "Test collection!",
+                "description": "this is the description",
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["result"] == 1
+        assert len(Collection.query.all()) == 1
+
+    def test_collection_list(self, client: FlaskClient, add_collection_to_db: None) -> None:
+        add_collection_to_db  # noqa: B018
+        reply = client.get(
+            "/api/arma3/mod/collections",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"][0]["description"] == "this is the description"
+        assert reply.json["results"][0]["mod_count"] == 0
+
+    def test_collection_update(self, client: FlaskClient, add_collection_to_db: None, add_cba_to_db: None) -> None:
+        add_collection_to_db  # noqa: B018
+        add_cba_to_db  # noqa: B018
+        assert len(Collection.query.all()) == 1
+        reply = client.patch(
+            "/api/arma3/mod/collection/1/mods",
+            json={
+                "mods": [1],
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert len(Collection.query.all()) == 1
+        reply = client.get(
+            "/api/arma3/mod/collections",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"][0]["mod_count"] == 1
+        assert reply.json["results"][0]["mods"][0]["mod"]["name"] == "CBA_A3"
+
+    def test_collection_delete(self, client: FlaskClient, add_collection_to_db: None, add_cba_to_db: None) -> None:
+        add_collection_to_db  # noqa: B018
+        add_cba_to_db  # noqa: B018
+        assert len(Collection.query.all()) == 1
+        reply = client.patch(
+            "/api/arma3/mod/collection/1/mods",
+            json={
+                "mods": [1],
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        reply = client.delete(
+            "/api/arma3/mod/collection/1/mods",
+            json={
+                "mods": [1],
+            }
+        )
+        assert reply.status_code == HTTPStatus.OK
+        reply = client.get(
+            "/api/arma3/mod/collections",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"][0]["mod_count"] == 0
+        reply = client.delete(
+            "/api/arma3/mod/collection/1",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert len(Collection.query.all()) == 0
