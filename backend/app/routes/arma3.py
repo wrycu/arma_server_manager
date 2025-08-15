@@ -611,6 +611,10 @@ def get_server(server_id: int) -> tuple[dict[str, str], int]:
             server_id,
             str_to_bool[request.args.get("include_sensitive", False)],
         )
+    except AttributeError:
+        return {
+            "message": "Server not found",
+        }, HTTPStatus.NOT_FOUND
     except Exception as e:
         return {
             "message": str(e),
@@ -649,6 +653,119 @@ def delete_server(server_id: int) -> tuple[dict[str, str], int]:
     try:
         current_app.config["A3_SERVER_HELPER"].delete_server(
             server_id,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully deleted"}, HTTPStatus.OK
+
+
+@a3_bp.route("/notifications", methods=["GET"])
+def get_notifications() -> tuple[dict[str, str], int]:
+    """
+    Retrieves all user-defined notifications
+    :return:
+        JSON representation of all notifications
+    """
+    try:
+        return (
+            {
+                "results": current_app.config["MOD_MANAGERS"][
+                    "ARMA3"
+                ].get_all_notifications(),
+                "message": "Retrieved successfully",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/notification", methods=["GET"])
+def get_notification_404() -> tuple[dict[str, str], int]:
+    """
+    Helper endpoint to explain why this was a bad request
+    :return:
+    """
+    return {
+        "message": "You must include a notification ID to get notification status"
+    }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/notification", methods=["POST"])
+def create_notification() -> tuple[dict[str, str], int]:
+    """
+    Creates a user-defined notification (which relies on a celery notification)
+    Must contain a JSON blob with the fields (you can find them in the model)
+    Returns:
+        JSON response with health status and HTTP 200
+    """
+    try:
+        created = current_app.config["MOD_MANAGERS"]["ARMA3"].create_notification(
+            request.json,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully created", "result": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/notification/<int:notification_id>", methods=["GET"])
+def get_notification(notification_id: int) -> tuple[dict[str, str], int]:
+    """
+    Retrieves information about a specific notification
+    Use the URL parameter "include_sensitive" to retrieve sensitive information (defaults to false if missing)
+    :return:
+        JSON response with details of a single notification
+    """
+    try:
+        created = current_app.config["MOD_MANAGERS"]["ARMA3"].get_notification_details(
+            notification_id,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully retrieved", "results": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/notification/<int:notification_id>", methods=["PATCH"])
+def update_notification(notification_id: int) -> tuple[dict[str, str], int]:
+    """
+    Update a single user-defined notification
+    :return:
+        Status code indicating success or failure
+    """
+    try:
+        current_app.config["MOD_MANAGERS"]["ARMA3"].update_notification(
+            notification_id,
+            request.json,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully updated"}, HTTPStatus.OK
+
+
+@a3_bp.route("/notification/<int:notification_id>", methods=["DELETE"])
+def delete_notification(notification_id: int) -> tuple[dict[str, str], int]:
+    """
+    Delete a single user-defined notification
+    :return:
+        Status code indicating success or failure
+    """
+    try:
+        current_app.config["MOD_MANAGERS"]["ARMA3"].delete_notification(
+            notification_id,
         )
     except Exception as e:
         return {

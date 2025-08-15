@@ -13,6 +13,7 @@ from app.models.collection import Collection
 from app.models.mod import Mod
 from app.models.mod_collection_entry import ModCollectionEntry
 from app.models.mod_image import ModImage
+from app.models.notification import Notification
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
 
@@ -367,6 +368,67 @@ class Arma3ModManager:
                 "Failed to remove mod from collection (mod not found?)"
             ) from e
 
+    @staticmethod
+    def get_all_notifications():
+        """
+        Retrieves details about mod notifications
+        """
+        results = []
+        for result in Notification.query.all():
+            details = result.to_dict()
+            results.append(details)
+        return results
+
+    @staticmethod
+    def get_notification_details(notification_id: int) -> dict[str, str]:
+        return Notification.query.filter(Notification.id == notification_id).first()
+
+    @staticmethod
+    def create_notification(notification_data: dict[str, str]) -> int:
+        notification = Notification(
+            URL=notification_data["URL"],
+            enabled=notification_data["enabled"],
+            send_server=notification_data.get("send_server", False),
+            send_mod_update=notification_data.get("send_mod_update", False),
+        )
+        db.session.add(notification)
+        db.session.commit()
+
+        return notification.id
+
+    @staticmethod
+    def update_notification(
+        notification_id: int, notification_data: dict[str, str]
+    ) -> None:
+        try:
+            result = Notification.query.filter(
+                Notification.id == notification_id
+            ).first()
+            if result:
+                disallowed_attrs = [
+                    "id",
+                    "updated_at",
+                    "created_at",
+                ]  # do not allow certain fields to be modified
+                for key, value in notification_data.items():
+                    if key not in disallowed_attrs:
+                        setattr(result, key, value)
+                db.session.commit()
+            else:
+                raise Exception("Notification not found")
+        except Exception as e:
+            raise Exception("Failed to update notification") from e
+
+    @staticmethod
+    def delete_notification(notification_id: int) -> None:
+        try:
+            db.session.delete(
+                Notification.query.filter(Notification.id == notification_id).first()
+            )
+            db.session.commit()
+        except sqlalchemy.orm.exc.UnmappedInstanceError as e:
+            raise Exception("Cannot find notification") from e
+
 
 class SteamAPI:
     """
@@ -586,3 +648,25 @@ class TaskHelper:
         schedule.last_outcome = task_outcome
         schedule.last_run = datetime.utcnow()
         db.session.commit()
+
+    @staticmethod
+    def send_webhooks(task_type, task_outcome) -> None:
+        notifications = []
+        if task_type in ["server_restart", "server_start", "server_stop"]:
+            notifications = Notification.query.filter(
+                Notification.send_server, Notification.enabled
+            ).all()
+        elif task_type in ["mod_update"]:
+            notifications = Notification.query.filter(
+                Notification.send_mod_update, Notification.enabled
+            ).all()
+        for notification in notifications:
+            httpx.post(
+                notification.URL,
+                json={
+                    "task_type": task_type,
+                    "outcome": task_outcome,
+                },
+            )
+            notification.last_run = datetime.now()
+            db.session.commit()
