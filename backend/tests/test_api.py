@@ -11,6 +11,7 @@ from app import db
 from app.models.collection import Collection
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
+from app.models.notification import Notification
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
 
@@ -67,6 +68,17 @@ def add_schedule_to_db():
             name="wonderful schedule",
             action="server_restart",
             celery_name="every_month",
+            enabled=True,
+        )
+    )
+    db.session.commit()
+
+
+@pytest.fixture
+def add_notification_to_db():
+    db.session.add(
+        Notification(
+            URL="http://127.0.0.1:1337/test",
             enabled=True,
         )
     )
@@ -450,3 +462,54 @@ class TestArma3API:
         )
         assert reply.status_code == HTTPStatus.OK
         assert len(Collection.query.all()) == 0
+
+    def test_notification_create(self, client: FlaskClient) -> None:
+        assert len(Notification.query.all()) == 0
+        reply = client.post(
+            "/api/arma3/notification",
+            json={
+                "name": "Test notification!",
+                "URL": "http://127.0.0.1:1337/test",
+                "enabled": False,
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["result"] == 1
+        assert len(Notification.query.all()) == 1
+
+    def test_notification_list(
+        self, client: FlaskClient, add_notification_to_db: None
+    ) -> None:
+        add_notification_to_db  # noqa: B018
+        reply = client.get(
+            "/api/arma3/notifications",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"][0]["enabled"]
+
+    def test_notification_update(
+        self, client: FlaskClient, add_notification_to_db: None, add_cba_to_db: None
+    ) -> None:
+        add_notification_to_db  # noqa: B018
+        assert len(Notification.query.all()) == 1
+        reply = client.patch(
+            "/api/arma3/notification/1",
+            json={
+                "URL": "notification 2",
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+
+    def test_notification_delete(
+        self, client: FlaskClient, add_notification_to_db: None, add_cba_to_db: None
+    ) -> None:
+        add_notification_to_db  # noqa: B018
+        assert len(Notification.query.all()) == 1
+        reply = client.delete(
+            "/api/arma3/notification/1",
+            json={
+                "mods": [1],
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert len(Notification.query.all()) == 0

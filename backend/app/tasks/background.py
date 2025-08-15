@@ -140,6 +140,7 @@ def server_start(schedule_id: int = 0) -> None:
     subprocess.check_call(command)
     current_app.logger.info("Server started successfully!")
     helper.update_task_outcome(schedule_id, "Server started successfully!")
+    helper.send_webhooks("server_start", "successfully started server")
 
 
 @shared_task()
@@ -163,6 +164,7 @@ def server_stop(schedule_id: int = 0) -> None:
     )
     current_app.logger.info("Server stopped successfully!")
     helper.update_task_outcome(schedule_id, "Server stopped successfully!")
+    helper.send_webhooks("server_stop", "successfully stopped server")
 
 
 @shared_task()
@@ -179,6 +181,7 @@ def mod_update(schedule_id: int = 0) -> None:
             f"Mod update for {mod.name} returned the following result: {mod_status['status']}"
         )
         helper.update_task_outcome(schedule_id, mod_status["status"])
+    helper.send_webhooks("mod_update", "successfully updated mods")
 
 
 @shared_task()
