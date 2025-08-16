@@ -6,8 +6,8 @@ import {
   IconLogout,
   IconCalendarTime,
 } from '@tabler/icons-react'
+import { useRouter } from '@tanstack/react-router'
 
-import { useNavigation } from '@/hooks/useNavigation'
 import {
   Command,
   CommandEmpty,
@@ -71,14 +71,14 @@ interface NavigationCommandProps {
 }
 
 export function NavigationCommand({ className, onNavigate }: NavigationCommandProps) {
-  const { setCurrentPage } = useNavigation()
+  const router = useRouter()
 
   const handleItemSelect = (item: { action?: string; url: string }) => {
     if (item.action === 'logout') {
       // TODO: Implement logout logic
       console.log('Logout clicked')
     } else {
-      setCurrentPage(item.url)
+      router.navigate({ to: `/${item.url}` })
     }
     onNavigate?.()
   }

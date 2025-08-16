@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigation } from '@/hooks/useNavigation'
+import { useRouter } from '@tanstack/react-router'
 import { IconTerminal, IconSettings } from '@tabler/icons-react'
 
 import { Button } from '@/components/ui/button'
@@ -13,7 +13,7 @@ import { useServer } from '@/hooks/useServer'
 import type { Collection } from '@/types/collections'
 
 export function ServerControlPanel() {
-  const { setCurrentPage } = useNavigation()
+  const router = useRouter()
   const { collections } = useCollections()
   const { server, metricsHistory, isLoading, performServerAction } = useServer()
 
@@ -58,7 +58,7 @@ export function ServerControlPanel() {
           breadcrumbs={[
             {
               label: 'Server',
-              onClick: () => setCurrentPage('server'),
+              onClick: () => router.navigate({ to: '/server-control' }),
             },
           ]}
         />
@@ -81,12 +81,12 @@ export function ServerControlPanel() {
         breadcrumbs={[
           {
             label: 'Server',
-            onClick: () => setCurrentPage('server'),
+            onClick: () => router.navigate({ to: '/server-control' }),
           },
         ]}
         actions={
           <>
-            <Button variant="outline" onClick={() => setCurrentPage('server-configs')}>
+            <Button variant="outline" onClick={() => router.navigate({ to: '/server-configs' })}>
               <IconSettings className="size-4 mr-2" />
               Configure
             </Button>

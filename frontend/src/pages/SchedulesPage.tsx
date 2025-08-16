@@ -3,7 +3,7 @@ import { Clock, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { PageTitle } from '@/components/PageTitle'
-import { useNavigation } from '@/hooks/useNavigation'
+import { useRouter } from '@tanstack/react-router'
 
 import { SchedulesDataTable } from '@/components/SchedulesDataTable'
 import { CreateScheduleDialog } from '@/components/SchedulesCreateDialog'
@@ -13,7 +13,7 @@ import { useSchedules } from '@/hooks/useSchedules'
 import type { Schedule, ScheduleOperationType } from '@/types/server'
 
 export function SchedulesManager() {
-  const { setCurrentPage } = useNavigation()
+  const router = useRouter()
   const { schedules, isLoading, createSchedule, executeSchedule, deleteSchedule, isCreating } =
     useSchedules()
 
@@ -92,7 +92,7 @@ export function SchedulesManager() {
         breadcrumbs={[
           {
             label: 'Server',
-            onClick: () => setCurrentPage('server-control'),
+            onClick: () => router.navigate({ to: '/server-control' }),
           },
         ]}
         actions={
