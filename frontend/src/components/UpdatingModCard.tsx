@@ -16,22 +16,20 @@ export function UpdatingModCard({ mod, onCancel, onDismiss }: UpdatingModCardPro
     return 'Updating...'
   }
 
-  const isCompleted = mod.status === 'completed' || mod.status === 'error'
+  const isCompleted = mod.progress === 100
 
   return (
     <div className="flex items-center gap-4 p-4 border rounded-lg bg-background shadow-lg min-w-80">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="font-medium truncate">{mod.name}</span>
-          <Badge variant={mod.status === 'error' ? 'destructive' : 'secondary'} className="text-xs">
+          <Badge variant={isCompleted ? 'secondary' : 'secondary'} className="text-xs">
             {getStatusText()}
           </Badge>
         </div>
         <div className="text-sm text-muted-foreground mb-2">{mod.version && `v${mod.version}`}</div>
 
         {!isCompleted && <Progress value={mod.progress} className="h-2" />}
-
-        {mod.error && <div className="text-sm text-destructive mt-1">{mod.error}</div>}
       </div>
 
       <div className="flex items-center gap-1">

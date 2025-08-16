@@ -74,13 +74,13 @@ export function CollectionHeader({
           <Badge variant="outline" className="h-6 px-2 text-xs">
             {collection.mods.length} mods
           </Badge>
-          {collection.mods.some((m) => m.hasUpdate) && (
+          {collection.mods.some((m) => m.shouldUpdate) && (
             <Badge className="h-6 px-2 text-xs bg-orange-500/10 text-orange-600 border-orange-500/20">
-              {collection.mods.filter((m) => m.hasUpdate).length} updates
+              {collection.mods.filter((m) => m.shouldUpdate).length} updates
             </Badge>
           )}
         </div>
-        {collection.mods.some((mod) => mod.hasUpdate) && (
+        {collection.mods.some((mod) => mod.shouldUpdate) && (
           <Button size="sm" onClick={onUpdateAll} className="h-7 px-3 text-xs">
             Update All
           </Button>

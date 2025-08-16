@@ -14,14 +14,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import type { NewCollection, ModItem } from '@/types/collections'
+import type { CreateCollectionRequest } from '@/types/api'
 
 interface CreateCollectionDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onCreate: (collection: NewCollection) => void
+  onCreate: (collection: CreateCollectionRequest) => void
   trigger?: React.ReactNode
-  selectedMods?: ModItem[]
+  selectedMods?: number[]
 }
 
 export function CreateCollectionDialog({
@@ -31,7 +31,7 @@ export function CreateCollectionDialog({
   trigger,
   selectedMods = [],
 }: CreateCollectionDialogProps) {
-  const [newCollection, setNewCollection] = useState<NewCollection>({
+  const [newCollection, setNewCollection] = useState<CreateCollectionRequest>({
     name: '',
     description: '',
   })
@@ -100,8 +100,8 @@ export function CreateCollectionDialog({
               <div className="max-h-32 overflow-y-auto border rounded-md p-2 bg-muted/50">
                 <div className="flex flex-wrap gap-1">
                   {selectedMods.map((mod) => (
-                    <Badge key={mod.id} variant="secondary" className="text-xs">
-                      {mod.name}
+                    <Badge key={mod} variant="secondary" className="text-xs">
+                      {mod}
                     </Badge>
                   ))}
                 </div>

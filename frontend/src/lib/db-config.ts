@@ -1,34 +1,42 @@
-import { createCollection } from '@tanstack/react-db'
+import { createCollection, type Collection as TanStackCollection } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { queryClient } from './query-client'
 import { collections, server, mods } from '@/services'
-import type { Collection } from '../types/collections.ts'
-import type { CollectionResponse } from '@/types/api'
-import type { ServerStatusResponse, ServerConfigResponse, ModSubscription } from '@/types/api'
+import { handleApiError } from './error-handler'
+import type { Collection } from '@/types/collections'
+import type {
+  ServerStatusResponse,
+  ServerConfigResponse,
+  ModSubscription,
+  CollectionResponse,
+} from '@/types/api'
 
 // Transform API response to local types
-const transformApiCollections = (apiCollections: CollectionResponse[]): Collection[] => {
-  return apiCollections.map((apiCollection) => ({
-    id: apiCollection.id,
-    name: apiCollection.name,
-    description: apiCollection.description,
-    mods: apiCollection.mods.map((mod) => ({
-      id: mod.id,
-      name: mod.name,
-      version: mod.version,
-      size: mod.size,
-      type: mod.type,
-      isServerMod: mod.isServerMod,
-      hasUpdate: mod.hasUpdate,
-      disabled: mod.disabled,
+const transformApiCollections = (collections: CollectionResponse[]): Collection[] => {
+  return collections.map((collection) => ({
+    id: collection.id,
+    name: collection.name,
+    description: collection.description || '',
+    mods: collection.mods.map((modEntry) => ({
+      id: modEntry.mod?.id || modEntry.id,
+      name: modEntry.mod?.name || `Mod ${modEntry.mod_id}`,
+      version: modEntry.mod?.last_updated || 'Unknown',
+      size: `${Math.round((modEntry.mod?.size_bytes || 0) / 1024 / 1024)} MB`,
+      type: (modEntry.mod?.mod_type as 'mod' | 'mission' | 'map') || 'mod',
+      isServerMod: modEntry.mod?.server_mod || false,
+      shouldUpdate: modEntry.mod?.should_update || false,
+      disabled: false, // TODO: Remove when API supports mod disabling - always false for now
+      lastUpdated: modEntry.mod?.last_updated || '',
+      sizeBytes: modEntry.mod?.size_bytes || 0,
+      serverMod: modEntry.mod?.server_mod || false,
     })),
-    createdAt: apiCollection.createdAt,
-    isActive: apiCollection.isActive,
+    createdAt: collection.created_at,
+    isActive: false, // TODO: Add isActive support when API provides it
   }))
 }
 
 // Create the collections collection
-export const collectionsCollection = createCollection(
+export const collectionsCollection: TanStackCollection<Collection> = createCollection(
   queryCollectionOptions<Collection>({
     queryKey: ['collections'],
     queryClient,
@@ -40,35 +48,49 @@ export const collectionsCollection = createCollection(
     getKey: (item) => item.id,
     onInsert: async ({ transaction }) => {
       // Handle optimistic inserts by calling the API
-      for (const mutation of transaction.mutations) {
-        await collections.createCollection({
-          name: mutation.modified.name,
-          description: mutation.modified.description,
-        })
+      try {
+        for (const mutation of transaction.mutations) {
+          await collections.createCollection({
+            name: mutation.modified.name,
+            description: mutation.modified.description,
+          })
+        }
+      } catch (error) {
+        handleApiError(error, 'Failed to create collection')
+        throw error // Re-throw to let TanStack DB handle rollback
       }
     },
     onUpdate: async ({ transaction }) => {
       // Handle optimistic updates by calling the API
-      for (const mutation of transaction.mutations) {
-        await collections.updateCollection(mutation.modified.id, {
-          name: mutation.modified.name,
-          description: mutation.modified.description,
-          isActive: mutation.modified.isActive,
-          mods: mutation.modified.mods, // Include mods array to persist mod changes
-        })
+      try {
+        for (const mutation of transaction.mutations) {
+          await collections.updateCollection(mutation.modified.id, {
+            name: mutation.modified.name,
+            description: mutation.modified.description,
+            mods: mutation.modified.mods.map((mod) => mod.id),
+          })
+        }
+      } catch (error) {
+        handleApiError(error, 'Failed to update collection')
+        throw error // Re-throw to let TanStack DB handle rollback
       }
     },
     onDelete: async ({ transaction }) => {
       // Handle optimistic deletes by calling the API
-      for (const mutation of transaction.mutations) {
-        await collections.deleteCollection(mutation.original.id)
+      try {
+        for (const mutation of transaction.mutations) {
+          await collections.deleteCollection(mutation.original.id)
+        }
+      } catch (error) {
+        handleApiError(error, 'Failed to delete collection')
+        throw error // Re-throw to let TanStack DB handle rollback
       }
     },
   })
 )
 
 // Create the server collection
-export const serverCollection = createCollection(
+export const serverCollection: TanStackCollection<ServerStatusResponse> = createCollection(
   queryCollectionOptions<ServerStatusResponse>({
     queryKey: ['server'],
     queryClient,
@@ -90,7 +112,7 @@ export const serverCollection = createCollection(
 )
 
 // Create the server config collection
-export const serverConfigCollection = createCollection(
+export const serverConfigCollection: TanStackCollection<ServerConfigResponse> = createCollection(
   queryCollectionOptions<ServerConfigResponse>({
     queryKey: ['server-config'],
     queryClient,
@@ -124,7 +146,7 @@ export const serverConfigCollection = createCollection(
 )
 
 // Create the mods collection
-export const modsCollection = createCollection(
+export const modsCollection: TanStackCollection<ModSubscription> = createCollection(
   queryCollectionOptions<ModSubscription>({
     queryKey: ['mods'],
     queryClient,

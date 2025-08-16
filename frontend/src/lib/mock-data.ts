@@ -1278,30 +1278,31 @@ export const mockCollectionsService = {
     return { ...mockCollections[collectionIndex] }
   },
 
-  toggleModInCollection: async (
-    collectionId: number,
-    modId: number,
-    disabled: boolean
-  ): Promise<CollectionResponse> => {
-    await simulateNetworkDelay()
-    console.log(`🎭 Mock API: Toggling mod ${modId} in collection ${collectionId}`, {
-      disabled,
-    })
+  // TODO: Remove when API supports mod disabling
+  // toggleModInCollection: async (
+  //   collectionId: number,
+  //   modId: number,
+  //   disabled: boolean
+  // ): Promise<CollectionResponse> => {
+  //   await simulateNetworkDelay()
+  //   console.log(`🎭 Mock API: Toggling mod ${modId} in collection ${collectionId}`, {
+  //     disabled,
+  //   })
 
-    const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId)
-    if (collectionIndex === -1) {
-      throw new Error(`Collection with id ${collectionId} not found`)
-    }
+  //   const collectionIndex = mockCollections.findIndex((c) => c.id === collectionId)
+  //   if (collectionIndex === -1) {
+  //     throw new Error(`Collection with id ${collectionId} not found`)
+  //   }
 
-    const modIndex = mockCollections[collectionIndex].mods.findIndex((m) => m.id === modId)
-    if (modIndex === -1) {
-      throw new Error(`Mod with id ${modId} not found in collection`)
-    }
+  //   const modIndex = mockCollections[collectionIndex].mods.findIndex((m) => m.id === modId)
+  //   if (modIndex === -1) {
+  //     throw new Error(`Mod with id ${modId} not found in collection`)
+  //   }
 
-    mockCollections[collectionIndex].mods[modIndex].disabled = disabled
+  //   mockCollections[collectionIndex].mods[modIndex].disabled = disabled
 
-    return { ...mockCollections[collectionIndex] }
-  },
+  //   return { ...mockCollections[collectionIndex] }
+  // },
 }
 
 // Mock Server Service
