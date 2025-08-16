@@ -17,17 +17,25 @@ export interface ModHelperResponse {
   message: string
 }
 
-export interface ModSubscription {
-  steam_id: number
-  // Add other subscription properties based on actual backend model
-  name?: string
-  status?: string
-  last_updated?: string
-  type?: 'mod' | 'mission' | 'map'
+// Mod subscription API types - matches backend Mod model
+export interface ModSubscriptionResponse {
+  readonly id: number
+  readonly steam_id: number
+  readonly filename: string
+  readonly name: string
+  readonly mod_type: string | null
+  readonly local_path: string | null
+  readonly arguments: string | null
+  readonly server_mod: boolean
+  readonly size_bytes: number | null
+  readonly last_updated: string | null
+  readonly steam_last_updated: string | null
+  readonly should_update: boolean
+  readonly image_available?: boolean
 }
 
 export interface ModSubscriptionsResponse {
-  results: ModSubscription[]
+  results: ModSubscriptionResponse[]
   message: string
 }
 
@@ -43,15 +51,18 @@ export interface AddModSubscriptionResponse {
 }
 
 export interface ModSubscriptionDetailsResponse {
-  results: ModSubscription
+  results: ModSubscriptionResponse
   message: string
 }
 
 export interface UpdateModSubscriptionRequest {
-  // Define based on what fields can be updated
-  name?: string
-  status?: string
-  [key: string]: string | number | boolean | undefined
+  readonly filename?: string
+  readonly name?: string
+  readonly mod_type?: 'mod' | 'mission' | 'map'
+  readonly local_path?: string
+  readonly arguments?: string
+  readonly server_mod?: boolean
+  readonly should_update?: boolean
 }
 
 export interface ModDownloadResponse {
@@ -70,27 +81,15 @@ export interface AsyncJobSuccessResponse {
 }
 
 // Collections API types
-export interface ModResponse {
-  readonly id: number
-  readonly steam_id: number
-  readonly filename: string
-  readonly name: string
-  readonly mod_type: string | null
-  readonly local_path: string
-  readonly arguments: string
-  readonly server_mod: boolean
-  readonly size_bytes: number
-  readonly last_updated: string | null
-  readonly steam_last_updated: string | null
-  readonly should_update: boolean
-}
+// Note: ModResponse is the same as ModSubscriptionResponse - they represent the same backend Mod model
+export type ModResponse = ModSubscriptionResponse
 
 export interface ModCollectionEntryResponse {
   readonly id: number
   readonly collection_id: number
   readonly mod_id: number
   readonly added_at: string
-  readonly mod?: ModResponse
+  readonly mod?: ModSubscriptionResponse
 }
 
 export interface CollectionResponse {

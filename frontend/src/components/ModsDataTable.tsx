@@ -40,13 +40,13 @@ import {
 } from '@/components/ui/table'
 
 import { CreateCollectionDialog } from '@/components/CollectionsCreateDialog'
-import type { ModItem, NewCollection } from '@/types/collections'
-import type { ExtendedModSubscription } from '@/types/mods'
+import type { CreateCollectionRequest } from '@/types/api'
+import { ModSubscription } from '@/types/mods'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  onCreateCollection?: (collection: NewCollection) => void
+  onCreateCollection?: (collection: CreateCollectionRequest) => void
 }
 
 export function DataTable<TData, TValue>({
@@ -80,26 +80,12 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
   })
 
-  // Convert ExtendedModSubscription to ModItem for collection dialog
-  const convertToModItem = (mod: ExtendedModSubscription): ModItem => ({
-    id: mod.steam_id,
-    name: mod.name || `Mod ${mod.steam_id}`,
-    version: undefined, // Not available in ExtendedModSubscription
-    size: mod.sizeOnDisk || 'Unknown',
-    type: mod.type || 'mod',
-    isServerMod: false, // Not available in ExtendedModSubscription
-    hasUpdate: mod.hasUpdate || false,
-    disabled: false, // Not available in ExtendedModSubscription
-  })
-
   // Get selected mods for collection creation
   const selectedRows = table.getFilteredSelectedRowModel().rows
-  const selectedMods: ModItem[] = selectedRows.map((row) =>
-    convertToModItem(row.original as ExtendedModSubscription)
-  )
+  const selectedMods: ModSubscription[] = selectedRows.map((row) => row.original as ModSubscription)
   const hasSelectedMods = selectedRows.length > 0
 
-  const handleCreateCollection = (collection: NewCollection) => {
+  const handleCreateCollection = (collection: CreateCollectionRequest) => {
     if (onCreateCollection) {
       onCreateCollection(collection)
     }
@@ -134,8 +120,8 @@ export function DataTable<TData, TValue>({
             </SelectContent>
           </Select>
           <Select
-            value={(table.getColumn('hasUpdate')?.getFilterValue() as string) ?? 'all'}
-            onValueChange={(value) => table.getColumn('hasUpdate')?.setFilterValue(value)}
+            value={(table.getColumn('shouldUpdate')?.getFilterValue() as string) ?? 'all'}
+            onValueChange={(value) => table.getColumn('shouldUpdate')?.setFilterValue(value)}
           >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
@@ -278,7 +264,7 @@ export function DataTable<TData, TValue>({
         open={createCollectionDialogOpen}
         onOpenChange={setCreateCollectionDialogOpen}
         onCreate={handleCreateCollection}
-        selectedMods={selectedMods}
+        selectedMods={selectedMods.map((mod) => mod.id)}
       />
     </div>
   )

@@ -8,7 +8,7 @@ import {
 import type { Collection } from '@/types/collections'
 import type { Collection as TanStackCollection } from '@tanstack/react-db'
 import type { ServerConfigResponse, ServerStatusResponse } from '@/types/api'
-import type { ModSubscription } from '@/types/api'
+import type { ModSubscription } from '@/types/mods'
 
 // Create DB context with all collections
 const DBContext = createContext({

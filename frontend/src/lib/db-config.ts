@@ -4,10 +4,11 @@ import { queryClient } from './query-client'
 import { collections, server, mods } from '@/services'
 import { handleApiError } from './error-handler'
 import type { Collection } from '@/types/collections'
+import type { ModSubscription } from '@/types/mods'
 import type {
   ServerStatusResponse,
   ServerConfigResponse,
-  ModSubscription,
+  ModSubscriptionResponse,
   CollectionResponse,
 } from '@/types/api'
 
@@ -17,19 +18,7 @@ const transformApiCollections = (collections: CollectionResponse[]): Collection[
     id: collection.id,
     name: collection.name,
     description: collection.description || '',
-    mods: collection.mods.map((modEntry) => ({
-      id: modEntry.mod?.id || modEntry.id,
-      name: modEntry.mod?.name || `Mod ${modEntry.mod_id}`,
-      version: modEntry.mod?.last_updated || 'Unknown',
-      size: `${Math.round((modEntry.mod?.size_bytes || 0) / 1024 / 1024)} MB`,
-      type: (modEntry.mod?.mod_type as 'mod' | 'mission' | 'map') || 'mod',
-      isServerMod: modEntry.mod?.server_mod || false,
-      shouldUpdate: modEntry.mod?.should_update || false,
-      disabled: false, // TODO: Remove when API supports mod disabling - always false for now
-      lastUpdated: modEntry.mod?.last_updated || '',
-      sizeBytes: modEntry.mod?.size_bytes || 0,
-      serverMod: modEntry.mod?.server_mod || false,
-    })),
+    mods: transformApiMods(collection.mods.filter((entry) => entry.mod).map((entry) => entry.mod!)),
     createdAt: collection.created_at,
     isActive: false, // TODO: Add isActive support when API provides it
   }))
@@ -145,6 +134,26 @@ export const serverConfigCollection: TanStackCollection<ServerConfigResponse> = 
   })
 )
 
+// Transform API response to local mod types
+const transformApiMods = (response: ModSubscriptionResponse[]): ModSubscription[] => {
+  return response.map((mod) => ({
+    id: mod.id,
+    steamId: mod.steam_id,
+    filename: mod.filename,
+    name: mod.name || `Mod ${mod.steam_id}`,
+    modType: (mod.mod_type as 'mod' | 'mission' | 'map') || null,
+    localPath: mod.local_path,
+    arguments: mod.arguments,
+    isServerMod: mod.server_mod,
+    sizeBytes: mod.size_bytes,
+    size: mod.size_bytes ? `${Math.round(mod.size_bytes / 1024 / 1024)} MB` : 'Unknown',
+    lastUpdated: mod.last_updated,
+    steamLastUpdated: mod.steam_last_updated,
+    shouldUpdate: mod.should_update,
+    imageAvailable: mod.image_available || false,
+  }))
+}
+
 // Create the mods collection
 export const modsCollection: TanStackCollection<ModSubscription> = createCollection(
   queryCollectionOptions<ModSubscription>({
@@ -152,29 +161,49 @@ export const modsCollection: TanStackCollection<ModSubscription> = createCollect
     queryClient,
     queryFn: async () => {
       console.log('🔄 Fetching mod subscriptions from API...')
-      const modSubscriptions = await mods.getModSubscriptions()
-      return modSubscriptions
+      const apiModSubscriptions = await mods.getModSubscriptions()
+      return transformApiMods(apiModSubscriptions)
     },
-    getKey: (item) => item.steam_id,
+    getKey: (item) => item.steamId,
     onInsert: async ({ transaction }) => {
       // Handle optimistic inserts by calling the API
-      for (const mutation of transaction.mutations) {
-        await mods.addModSubscriptions([{ steam_id: mutation.modified.steam_id }])
+      try {
+        for (const mutation of transaction.mutations) {
+          await mods.addModSubscriptions([{ steam_id: mutation.modified.steamId }])
+        }
+      } catch (error) {
+        handleApiError(error, 'Failed to add mod subscription')
+        throw error
       }
     },
     onUpdate: async ({ transaction }) => {
       // Handle optimistic updates by calling the API
-      for (const mutation of transaction.mutations) {
-        await mods.updateModSubscription(mutation.modified.steam_id, {
-          name: mutation.modified.name,
-          status: mutation.modified.status,
-        })
+      try {
+        for (const mutation of transaction.mutations) {
+          await mods.updateModSubscription(mutation.modified.steamId, {
+            name: mutation.modified.name,
+            filename: mutation.modified.filename,
+            mod_type: mutation.modified.modType || undefined,
+            local_path: mutation.modified.localPath || undefined,
+            arguments: mutation.modified.arguments || undefined,
+            server_mod: mutation.modified.isServerMod,
+            should_update: mutation.modified.shouldUpdate,
+          })
+        }
+      } catch (error) {
+        handleApiError(error, 'Failed to update mod subscription')
+        throw error
       }
     },
     onDelete: async ({ transaction }) => {
       // Handle optimistic deletes by calling the API
-      for (const mutation of transaction.mutations) {
-        await mods.removeModSubscription(mutation.original.steam_id)
+      try {
+        for (const mutation of transaction.mutations) {
+          await mods.removeModSubscription(mutation.original.steamId)
+        }
+      } catch (error) {
+        handleApiError(error, 'Failed to delete mod subscription')
+        throw error
       }
     },
   })
