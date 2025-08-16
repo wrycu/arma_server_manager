@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark" style="background-color: oklch(0.15 0.01 255.5424); color: oklch(0.92 0.005 264.5349);">
 
 <head>
   <meta charset="UTF-8" />
@@ -9,6 +9,27 @@
   <meta name="description" content="ARMA Server Manager">
   <meta name="author" content="wrycu">
   <meta name="keywords" content="ARMA, Server, Manager, Mods, Collections, Steam Workshop">
+  <style>
+    /* Prevent white flash with immediate dark background */
+    body {
+      background-color: oklch(0.15 0.01 255.5424) !important;
+      color: oklch(0.92 0.005 264.5349) !important;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <script>
+    // Prevent flash by immediately applying theme with darkest background
+    (function() {
+      const theme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.className = theme;
+      document.documentElement.style.colorScheme = theme;
+      if (theme === 'dark') {
+        document.documentElement.style.backgroundColor = 'oklch(0.15 0.01 255.5424)';
+        document.documentElement.style.color = 'oklch(0.92 0.005 264.5349)';
+      }
+    })();
+  </script>
 </head>
 
 <body>

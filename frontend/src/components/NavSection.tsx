@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { type Icon } from '@tabler/icons-react'
+import { Link, useRouterState } from '@tanstack/react-router'
 
 import {
   SidebarGroup,
@@ -9,7 +10,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { useNavigation } from '@/hooks/useNavigation'
 
 export function NavSection({
   title,
@@ -25,25 +25,28 @@ export function NavSection({
   }[]
   enableNavigation?: boolean
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
-  const { currentPage, setCurrentPage } = useNavigation()
+  const routerState = useRouterState()
+  const currentPath = routerState.location.pathname
 
   return (
     <SidebarGroup {...props}>
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                tooltip={item.title}
-                isActive={enableNavigation ? currentPage === item.url : false}
-                onClick={enableNavigation ? () => setCurrentPage(item.url) : undefined}
-              >
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const isActive = enableNavigation && currentPath === `/${item.url}`
+
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
+                  <Link to={enableNavigation ? `/${item.url}` : '#'}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

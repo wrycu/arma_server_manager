@@ -9,9 +9,9 @@ import {
   IconChevronsRight,
   IconCalendarTime,
 } from '@tabler/icons-react'
+import { Link } from '@tanstack/react-router'
 
 import { NavSection } from '@/components/NavSection'
-import { useNavigation } from '@/hooks/useNavigation'
 import {
   Sidebar,
   SidebarContent,
@@ -51,7 +51,6 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { setCurrentPage } = useNavigation()
   const { state, toggleSidebar } = useSidebar()
   const isCollapsed = state === 'collapsed'
 
@@ -61,10 +60,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild className="data-[slot=sidebar-menu-button]:!p-1.5">
-              <a href="#">
+              <Link to="/">
                 <img src="/tuna.png" alt="ARMA 3 Server Manager" className="size-4" />
                 <span className="text-base font-semibold">ARMA Server Manager</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -85,9 +84,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => setCurrentPage('settings')} tooltip="Settings">
-              <IconSettings />
-              <span>Settings</span>
+            <SidebarMenuButton asChild tooltip="Settings">
+              <Link to="/settings">
+                <IconSettings />
+                <span>Settings</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>

@@ -51,6 +51,8 @@
   }
 
   body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     letter-spacing: var(--tracking-normal);
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     text-rendering: optimizeLegibility;
@@ -59,6 +61,7 @@
   }
 
   html {
+    background-color: hsl(var(--background));
     color-scheme: dark;
   }
 }
