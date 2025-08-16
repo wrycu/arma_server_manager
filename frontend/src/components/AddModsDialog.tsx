@@ -14,7 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { mods } from '@/services'
-import type { ModSubscription } from '@/types/api'
+import type { ModSubscription } from '@/types/mods'
 import { handleApiError } from '@/lib/error-handler'
 
 interface AddModsDialogProps {
@@ -58,7 +58,7 @@ export function AddModsDialog({
 
   // Filter mods that aren't already in the collection
   const filteredMods = availableMods
-    .filter((mod) => !existingModIds.includes(mod.steam_id))
+    .filter((mod) => !existingModIds.includes(mod.steamId))
     .filter((mod) => (mod.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
 
   const handleToggleMod = (modId: number) => {
@@ -121,40 +121,38 @@ export function AddModsDialog({
                 <div className="p-2 space-y-1">
                   {filteredMods.map((mod) => (
                     <div
-                      key={mod.steam_id}
+                      key={mod.steamId}
                       className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors"
                     >
                       <Checkbox
-                        checked={selectedModIds.includes(mod.steam_id)}
-                        onCheckedChange={() => handleToggleMod(mod.steam_id)}
+                        checked={selectedModIds.includes(mod.steamId)}
+                        onCheckedChange={() => handleToggleMod(mod.steamId)}
                         className="h-4 w-4"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium truncate">
-                            {mod.name || `Mod ${mod.steam_id}`}
+                            {mod.name || `Mod ${mod.steamId}`}
                           </span>
                           <div className="flex items-center gap-1">
-                            {mod.type === 'mod' && (
+                            {mod.modType === 'mod' && (
                               <Badge variant="outline" className="h-4 px-1 text-xs">
                                 Mod
                               </Badge>
                             )}
-                            {mod.type === 'mission' && (
+                            {mod.modType === 'mission' && (
                               <Badge variant="outline" className="h-4 px-1 text-xs">
                                 Mission
                               </Badge>
                             )}
-                            {mod.type === 'map' && (
+                            {mod.modType === 'map' && (
                               <Badge variant="outline" className="h-4 px-1 text-xs">
                                 Map
                               </Badge>
                             )}
                           </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          Steam ID: {mod.steam_id}
-                        </div>
+                        <div className="text-xs text-muted-foreground">Steam ID: {mod.steamId}</div>
                       </div>
                     </div>
                   ))}

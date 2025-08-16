@@ -1,23 +1,12 @@
 // Frontend-specific types (local UI state)
-export interface ModItem {
-  readonly id: number
-  readonly name: string
-  readonly version?: string
-  readonly size: string // Formatted size string (e.g. "150 MB")
-  readonly type: 'mod' | 'mission' | 'map'
-  readonly isServerMod: boolean
-  readonly shouldUpdate: boolean
-  readonly lastUpdated: string
-  readonly disabled: boolean
-  readonly sizeBytes: number // Raw bytes from API
-}
+import { ModSubscription } from './mods'
 
 export interface Collection {
   readonly id: number
   readonly createdAt: string
   name: string
   description: string
-  mods: ModItem[]
+  mods: ModSubscription[]
   isActive: boolean
 }
 
@@ -31,7 +20,7 @@ export interface UpdatingMod {
 export interface NewCollection {
   readonly name: string
   readonly description: string
-  readonly mods?: ModItem[]
+  readonly mods?: ModSubscription[]
 }
 
 export interface ModToRemove {

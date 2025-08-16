@@ -3,13 +3,13 @@ import { IconFolder, IconPlus, IconTrash } from '@tabler/icons-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import type { ModItem } from '@/types/collections'
+import type { ModSubscription } from '@/types/mods'
 
 interface ModsListProps {
-  mods: ModItem[]
+  mods: ModSubscription[]
   collectionId: number
   onToggleMod: (collectionId: number, modId: number) => void // TODO: Remove when API supports mod disabling
-  onUpdateMod: (mod: ModItem) => void
+  onUpdateMod: (mod: ModSubscription) => void
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
   onAddMods: (collectionId: number) => void
 }
@@ -43,14 +43,12 @@ export function ModsList({
       {mods.map((mod) => (
         <div
           key={mod.id}
-          className={`group flex items-center gap-3 px-3 py-2 rounded-md border bg-card hover:bg-muted/30 transition-colors ${
-            MOD_DISABLING_ENABLED && mod.disabled ? 'opacity-50' : ''
-          }`}
+          className="group flex items-center gap-3 px-3 py-2 rounded-md border bg-card hover:bg-muted/30 transition-colors"
         >
           {/* TODO: Remove conditional when API supports mod disabling */}
           {MOD_DISABLING_ENABLED && (
             <Checkbox
-              checked={!mod.disabled}
+              checked={true} // Always checked since mod disabling not supported yet
               onCheckedChange={() => onToggleMod(collectionId, mod.id)}
               className="h-4 w-4"
             />
@@ -58,13 +56,7 @@ export function ModsList({
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span
-                className={`text-sm font-medium truncate ${
-                  MOD_DISABLING_ENABLED && mod.disabled ? 'line-through text-muted-foreground' : ''
-                }`}
-              >
-                {mod.name}
-              </span>
+              <span className="text-sm font-medium truncate">{mod.name}</span>
               <div className="flex items-center gap-1">
                 {mod.shouldUpdate && <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />}
                 {mod.isServerMod && (
@@ -75,7 +67,7 @@ export function ModsList({
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>v{mod.lastUpdated}</span>
+              <span>v{mod.lastUpdated || 'Unknown'}</span>
               <span>•</span>
               <span>{mod.size}</span>
             </div>

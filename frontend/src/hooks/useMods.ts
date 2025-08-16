@@ -3,13 +3,12 @@ import { useLiveQuery } from '@tanstack/react-db'
 import { useModsDB } from '@/providers/db-provider'
 import { mods } from '@/services'
 import type {
-  ModSubscription,
   ModHelper,
   ModDownloadResponse,
   AsyncJobStatusResponse,
   AsyncJobSuccessResponse,
 } from '@/types/api'
-import type { UpdatingMod } from '../../../types/mods.ts'
+import type { ModSubscription, UpdatingMod } from '@/types/mods'
 
 export function useMods() {
   const modsCollection = useModsDB()
@@ -25,15 +24,25 @@ export function useMods() {
 
   // Helper functions for optimistic updates
   const findModSubscription = (steamId: number) =>
-    modSubscriptions.find((mod: ModSubscription) => mod.steam_id === steamId)
+    modSubscriptions.find((mod: ModSubscription) => mod.steamId === steamId)
 
   // Direct mod mutations (no need for useMutation with TanStack DB)
   const addModSubscriptionOptimistic = async (steamId: number, name?: string) => {
     const optimisticMod: ModSubscription = {
-      steam_id: steamId,
+      id: steamId,
+      steamId: steamId,
+      filename: `mod_${steamId}`,
       name: name || `Mod ${steamId}`,
-      status: 'pending',
-      last_updated: new Date().toISOString(),
+      modType: null,
+      localPath: null,
+      arguments: null,
+      isServerMod: false,
+      sizeBytes: null,
+      size: 'Unknown',
+      lastUpdated: new Date().toISOString(),
+      steamLastUpdated: null,
+      shouldUpdate: false,
+      imageAvailable: false,
     }
 
     // Optimistic insert using TanStack DB
@@ -50,7 +59,7 @@ export function useMods() {
     // Optimistic update using TanStack DB
     await modsCollection.update(steamId, (draft) => {
       Object.assign(draft, updates, {
-        last_updated: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
       })
     })
   }
@@ -122,7 +131,6 @@ export function useMods() {
       id: steamId,
       name: mod.name || `Mod ${steamId}`,
       progress: 0,
-      status: 'downloading',
     }
 
     setUpdatingMods((prev) => [...prev, updatingMod])
@@ -136,9 +144,7 @@ export function useMods() {
       await pollJobStatus(jobId, steamId)
     } catch (error) {
       console.error('Download mod failed:', error)
-      setUpdatingMods((prev) =>
-        prev.map((m) => (m.id === steamId ? { ...m, status: 'error', error: String(error) } : m))
-      )
+      setUpdatingMods((prev) => prev.map((m) => (m.id === steamId ? { ...m, progress: -1 } : m)))
     }
   }
 
@@ -164,9 +170,7 @@ export function useMods() {
 
     const poll = async (): Promise<void> => {
       if (pollCount >= maxPolls) {
-        setUpdatingMods((prev) =>
-          prev.map((m) => (m.id === modId ? { ...m, status: 'error', error: 'Timeout' } : m))
-        )
+        setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress: -1 } : m)))
         return
       }
 
@@ -175,9 +179,7 @@ export function useMods() {
           await mods.getAsyncJobStatus(jobId)
 
         if (jobStatus.status === 'completed') {
-          setUpdatingMods((prev) =>
-            prev.map((m) => (m.id === modId ? { ...m, status: 'completed', progress: 100 } : m))
-          )
+          setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress: 100 } : m)))
 
           // Auto-dismiss after 3 seconds
           setTimeout(() => {
@@ -188,26 +190,18 @@ export function useMods() {
         }
 
         if (jobStatus.status === 'failed' || jobStatus.status === 'error') {
-          setUpdatingMods((prev) =>
-            prev.map((m) =>
-              m.id === modId ? { ...m, status: 'error', error: String(jobStatus.message) } : m
-            )
-          )
+          setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress: -1 } : m)))
           return
         }
 
         // Update progress if still in progress
         const progress = Math.min(pollCount * 2, 95) // Simulate progress
-        setUpdatingMods((prev) =>
-          prev.map((m) => (m.id === modId ? { ...m, progress, status: 'downloading' } : m))
-        )
+        setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress } : m)))
 
         pollCount++
         setTimeout(poll, pollInterval)
-      } catch (error) {
-        setUpdatingMods((prev) =>
-          prev.map((m) => (m.id === modId ? { ...m, status: 'error', error: String(error) } : m))
-        )
+      } catch {
+        setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress: -1 } : m)))
       }
     }
 

@@ -11,13 +11,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import type { ExtendedModSubscription } from '@/types/mods'
+import type { ModSubscription } from '@/types/mods'
 
 interface DataTableRowActionsProps {
-  row: Row<ExtendedModSubscription>
-  onUpdate: (steamId: number) => Promise<void>
-  onDelete: (steamId: number) => Promise<void>
-  onDownload: (steamId: number) => Promise<void>
+  row: Row<ModSubscription>
+  onUpdate: (id: number) => Promise<void>
+  onDelete: (id: number) => Promise<void>
+  onDownload: (id: number) => Promise<void>
   isLoading?: string | null
 }
 
@@ -39,23 +39,20 @@ export function DataTableRowActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        {mod.hasUpdate ? (
-          <DropdownMenuItem
-            onClick={() => onUpdate(mod.steam_id)}
-            disabled={isLoading === 'updating'}
-          >
+        {mod.shouldUpdate ? (
+          <DropdownMenuItem onClick={() => onUpdate(mod.id)} disabled={isLoading === 'updating'}>
             <IconRefresh className="mr-2 h-4 w-4" />
             {isLoading === 'updating' ? 'Updating...' : 'Update'}
           </DropdownMenuItem>
         ) : (
-          <DropdownMenuItem onClick={() => onDownload(mod.steam_id)} disabled={!!isLoading}>
+          <DropdownMenuItem onClick={() => onDownload(mod.id)} disabled={!!isLoading}>
             <IconDownload className="mr-2 h-4 w-4" />
             Download
           </DropdownMenuItem>
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => onDelete(mod.steam_id)}
+          onClick={() => onDelete(mod.id)}
           disabled={isLoading === 'removing'}
           className="text-red-600"
         >

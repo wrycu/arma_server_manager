@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useCollectionsDB } from '@/providers/db-provider'
-import type { Collection, ModItem, UpdatingMod, NewCollection } from '@/types/collections'
+import type { Collection, UpdatingMod, NewCollection } from '@/types/collections'
+import type { ModSubscription } from '@/types/mods'
 
 export function useCollections() {
   const collectionsCollection = useCollectionsDB()
@@ -66,11 +67,11 @@ export function useCollections() {
   // TODO: Remove when API supports mod disabling
   // const toggleModOptimistic = async (collectionId: number, modId: number) => {
   //   const collection = findCollection(collectionId)
-  //   const mod = collection?.mods.find((m: ModItem) => m.id === modId)
+  //   const mod = collection?.mods.find((m: ModSubscription) => m.id === modId)
 
   //   if (!collection || !mod) return
 
-  //   const updatedMods = collection.mods.map((m: ModItem) =>
+  //   const updatedMods = collection.mods.map((m: ModSubscription) =>
   //     m.id === modId ? { ...m, disabled: !m.disabled } : m
   //   )
 
@@ -90,7 +91,7 @@ export function useCollections() {
     const collection = findCollection(collectionId)
     if (!collection) return
 
-    const updatedMods = collection.mods.filter((m: ModItem) => m.id !== modId)
+    const updatedMods = collection.mods.filter((m: ModSubscription) => m.id !== modId)
 
     await collectionsCollection.update(collectionId, (draft) => {
       draft.mods = updatedMods
@@ -102,20 +103,24 @@ export function useCollections() {
     const collection = findCollection(collectionId)
     if (!collection) return
 
-    // For now, create placeholder ModItems since we need actual mod data from the backend
+    // For now, create placeholder ModSubscriptions since we need actual mod data from the backend
     // The actual implementation will be handled by TanStack DB's onUpdate callback
     // which will call the real API and update with proper mod data
-    const placeholderMods: ModItem[] = modIds.map((id) => ({
+    const placeholderMods: ModSubscription[] = modIds.map((id) => ({
       id,
+      steamId: id,
+      filename: `mod_${id}`,
       name: `Mod ${id}`, // Placeholder name
-      version: '1.0.0',
-      size: 'Unknown',
-      type: 'mod' as const,
+      modType: 'mod' as const,
+      localPath: null,
+      arguments: null,
       isServerMod: false,
+      sizeBytes: null,
+      size: 'Unknown',
+      lastUpdated: null,
+      steamLastUpdated: null,
       shouldUpdate: false,
-      lastUpdated: new Date().toISOString().split('T')[0],
-      disabled: false,
-      sizeBytes: 0,
+      imageAvailable: false,
     }))
 
     const updatedMods = [...collection.mods, ...placeholderMods]
@@ -180,12 +185,12 @@ export function useCollections() {
     }
   }
 
-  const updateMod = async (mod: ModItem) => {
+  const updateMod = async (mod: ModSubscription) => {
     // Add mod to updating list
     const updatingMod: UpdatingMod = {
       id: mod.id,
       name: mod.name,
-      version: mod.version,
+      version: mod.lastUpdated,
       progress: 0,
     }
 

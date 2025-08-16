@@ -5,17 +5,17 @@ import { IconUser, IconPuzzle, IconFlag, IconMap } from '@tabler/icons-react'
 
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
 import { DataTableRowActions } from '@/components/ModsDataRowActions'
-import type { ExtendedModSubscription } from '@/types/mods.ts'
-import type { ModItemResponse } from '@/types'
+import type { ModSubscription } from '@/types/mods.ts'
+import type { ModResponse } from '@/types/api'
 
 interface GetColumnsProps {
-  onUpdate: (steamId: number) => Promise<void>
-  onDelete: (steamId: number) => Promise<void>
-  onDownload: (steamId: number) => Promise<void>
+  onUpdate: (id: number) => Promise<void>
+  onDelete: (id: number) => Promise<void>
+  onDownload: (id: number) => Promise<void>
   isLoading?: string | null
 }
 
-const getTypeIcon = (type: ModItemResponse['type']) => {
+const getTypeIcon = (type: ModResponse['mod_type']) => {
   switch (type) {
     case 'mod':
       return <IconPuzzle className="h-3 w-3 text-muted-foreground" />
@@ -28,7 +28,7 @@ const getTypeIcon = (type: ModItemResponse['type']) => {
   }
 }
 
-const getTypeBadgeVariant = (type: ModItemResponse['type']) => {
+const getTypeBadgeVariant = (type: ModResponse['mod_type']) => {
   switch (type) {
     case 'mod':
       return 'default'
@@ -46,7 +46,7 @@ export const getColumns = ({
   onDelete,
   onDownload,
   isLoading,
-}: GetColumnsProps): ColumnDef<ExtendedModSubscription>[] => [
+}: GetColumnsProps): ColumnDef<ModSubscription>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -73,7 +73,7 @@ export const getColumns = ({
     header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
     cell: ({ row }) => {
       const name = row.getValue('name') as string
-      const steamId = row.original.steam_id
+      const steamId = row.original.steamId
       return (
         <div className="max-w-[200px]">
           <div className="font-medium">{name || `Mod ${steamId}`}</div>
@@ -99,7 +99,7 @@ export const getColumns = ({
     accessorKey: 'type',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Type" />,
     cell: ({ row }) => {
-      const type = row.getValue('type') as ModItemResponse['type']
+      const type = row.getValue('type') as ModResponse['mod_type']
       return (
         <div className="flex items-center gap-2">
           {getTypeIcon(type || 'mod')}
@@ -114,18 +114,18 @@ export const getColumns = ({
     },
   },
   {
-    accessorKey: 'sizeOnDisk',
+    accessorKey: 'size',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Size" />,
     cell: ({ row }) => {
-      const size = row.getValue('sizeOnDisk') as string
+      const size = row.getValue('size') as string
       return <div className="text-sm">{size || 'Unknown'}</div>
     },
   },
   {
-    accessorKey: 'last_updated',
+    accessorKey: 'lastUpdated',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Last Updated" />,
     cell: ({ row }) => {
-      const lastUpdated = row.getValue('last_updated') as string
+      const lastUpdated = row.getValue('lastUpdated') as string
       if (!lastUpdated) return <div className="text-sm text-muted-foreground">—</div>
 
       const date = new Date(lastUpdated)
@@ -133,10 +133,10 @@ export const getColumns = ({
     },
   },
   {
-    accessorKey: 'hasUpdate',
+    accessorKey: 'shouldUpdate',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
-      const hasUpdate = row.getValue('hasUpdate') as boolean
+      const hasUpdate = row.getValue('shouldUpdate') as boolean
       return (
         <Badge variant={hasUpdate ? 'destructive' : 'secondary'} className="text-xs">
           {hasUpdate ? 'Update Available' : 'Up to Date'}

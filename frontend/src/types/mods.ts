@@ -1,30 +1,24 @@
-// Mods feature types
-export interface InstalledMod {
-  id: number
-  steamId: number
-  name: string
-  author: string
-  lastUpdated: string
-  type: 'mod' | 'mission' | 'map'
-  hasUpdate: boolean
-  sizeOnDisk?: string
-}
-
-// Extended mod subscription with UI-specific data
-export interface ExtendedModSubscription {
-  steam_id: number
-  name?: string
-  status?: string
-  last_updated?: string
-  author?: string
-  type?: 'mod' | 'mission' | 'map'
-  hasUpdate?: boolean
-  sizeOnDisk?: string
+// Frontend-specific types (local UI state) - camelCase for consistency
+export interface ModSubscription {
+  readonly id: number
+  readonly steamId: number
+  readonly filename: string
+  readonly name: string
+  readonly modType: 'mod' | 'mission' | 'map' | null
+  readonly localPath: string | null
+  readonly arguments: string | null
+  readonly isServerMod: boolean
+  readonly sizeBytes: number | null
+  readonly size: string // Formatted size string (e.g. "150 MB")
+  readonly lastUpdated: string | null
+  readonly steamLastUpdated: string | null
+  readonly shouldUpdate: boolean
+  readonly imageAvailable: boolean
 }
 
 export interface UpdatingMod {
-  id: number
-  name: string
-  version?: string
-  progress: number
+  readonly id: number
+  readonly name: string
+  readonly version?: string
+  readonly progress: number
 }
