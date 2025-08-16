@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useCollectionsDB } from '@/providers/db-provider'
-import type { Collection, ModItem, UpdatingMod, NewCollection } from '../../../types/collections.ts'
+import type { Collection, ModItem, UpdatingMod, NewCollection } from '@/types/collections'
 
 export function useCollections() {
   const collectionsCollection = useCollectionsDB()
@@ -63,20 +63,27 @@ export function useCollections() {
     await collectionsCollection.delete(id)
   }
 
-  const toggleModOptimistic = async (collectionId: number, modId: number) => {
-    const collection = findCollection(collectionId)
-    const mod = collection?.mods.find((m: ModItem) => m.id === modId)
+  // TODO: Remove when API supports mod disabling
+  // const toggleModOptimistic = async (collectionId: number, modId: number) => {
+  //   const collection = findCollection(collectionId)
+  //   const mod = collection?.mods.find((m: ModItem) => m.id === modId)
 
-    if (!collection || !mod) return
+  //   if (!collection || !mod) return
 
-    const updatedMods = collection.mods.map((m: ModItem) =>
-      m.id === modId ? { ...m, disabled: !m.disabled } : m
-    )
+  //   const updatedMods = collection.mods.map((m: ModItem) =>
+  //     m.id === modId ? { ...m, disabled: !m.disabled } : m
+  //   )
 
-    await collectionsCollection.update(collectionId, (draft) => {
-      draft.mods = updatedMods
-    })
-    // TanStack DB will handle the API call automatically via onUpdate
+  //   await collectionsCollection.update(collectionId, (draft) => {
+  //     draft.mods = updatedMods
+  //   })
+  //   // TanStack DB will handle the API call automatically via onUpdate
+  // }
+
+  // Temporarily disabled mod toggling until API supports it
+  const toggleModOptimistic = async (_collectionId: number, _modId: number) => {
+    console.warn('Mod disabling is temporarily disabled until API supports it')
+    // No-op for now
   }
 
   const removeModOptimistic = async (collectionId: number, modId: number) => {
@@ -84,6 +91,34 @@ export function useCollections() {
     if (!collection) return
 
     const updatedMods = collection.mods.filter((m: ModItem) => m.id !== modId)
+
+    await collectionsCollection.update(collectionId, (draft) => {
+      draft.mods = updatedMods
+    })
+    // TanStack DB will handle the API call automatically via onUpdate
+  }
+
+  const addModsToCollectionOptimistic = async (collectionId: number, modIds: number[]) => {
+    const collection = findCollection(collectionId)
+    if (!collection) return
+
+    // For now, create placeholder ModItems since we need actual mod data from the backend
+    // The actual implementation will be handled by TanStack DB's onUpdate callback
+    // which will call the real API and update with proper mod data
+    const placeholderMods: ModItem[] = modIds.map((id) => ({
+      id,
+      name: `Mod ${id}`, // Placeholder name
+      version: '1.0.0',
+      size: 'Unknown',
+      type: 'mod' as const,
+      isServerMod: false,
+      shouldUpdate: false,
+      lastUpdated: new Date().toISOString().split('T')[0],
+      disabled: false,
+      sizeBytes: 0,
+    }))
+
+    const updatedMods = [...collection.mods, ...placeholderMods]
 
     await collectionsCollection.update(collectionId, (draft) => {
       draft.mods = updatedMods
@@ -136,6 +171,15 @@ export function useCollections() {
     }
   }
 
+  const addModsToCollection = async (collectionId: number, modIds: number[]) => {
+    try {
+      await addModsToCollectionOptimistic(collectionId, modIds)
+      // TanStack DB will handle state updates automatically
+    } catch (error) {
+      console.error('Add mods to collection failed:', error)
+    }
+  }
+
   const updateMod = async (mod: ModItem) => {
     // Add mod to updating list
     const updatingMod: UpdatingMod = {
@@ -143,7 +187,6 @@ export function useCollections() {
       name: mod.name,
       version: mod.version,
       progress: 0,
-      status: 'downloading',
     }
 
     setUpdatingMods((prev) => [...prev, updatingMod])
@@ -178,7 +221,7 @@ export function useCollections() {
   const updateAllMods = async () => {
     if (!selectedCollection) return
 
-    const modsWithUpdates = selectedCollection.mods.filter((mod) => mod.hasUpdate)
+    const modsWithUpdates = selectedCollection.mods.filter((mod) => mod.shouldUpdate)
 
     for (const mod of modsWithUpdates) {
       await updateMod(mod)
@@ -223,6 +266,7 @@ export function useCollections() {
     deleteCollection,
     toggleMod,
     removeModFromCollection,
+    addModsToCollection,
     updateMod,
     updateAllMods,
     setActive,

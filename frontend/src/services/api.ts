@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { handleApiError } from '@/lib/error-handler'
 
 // API base configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
@@ -31,11 +32,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Handle authentication errors
     if (error.response?.status === 401) {
-      // Handle unauthorized errors
       localStorage.removeItem('auth_token')
       window.location.href = '/login'
+      return Promise.reject(error)
     }
+
+    // Show error toast for other errors
+    handleApiError(error)
+
     return Promise.reject(error)
   }
 )

@@ -6,6 +6,7 @@ import { LoginPage } from '@/pages/AuthPage'
 import { NavigationContext } from '@/hooks/useNavigation'
 import { NavigationCommandDialog } from '@/components/NavigationCommandDialog'
 import { AppSidebar } from '@/components/AppSidebar'
+import { Toaster } from '@/components/ui/sonner'
 
 const queryClient = new QueryClient()
 
@@ -31,6 +32,7 @@ function App() {
           </SidebarInset>
         </SidebarProvider>
         <NavigationCommandDialog />
+        <Toaster />
       </NavigationContext.Provider>
     </QueryClientProvider>
   )

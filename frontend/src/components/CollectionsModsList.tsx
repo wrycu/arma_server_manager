@@ -8,9 +8,10 @@ import type { ModItem } from '@/types/collections'
 interface ModsListProps {
   mods: ModItem[]
   collectionId: number
-  onToggleMod: (collectionId: number, modId: number) => void
+  onToggleMod: (collectionId: number, modId: number) => void // TODO: Remove when API supports mod disabling
   onUpdateMod: (mod: ModItem) => void
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
+  onAddMods: (collectionId: number) => void
 }
 
 export function ModsList({
@@ -19,13 +20,17 @@ export function ModsList({
   onToggleMod,
   onUpdateMod,
   onRemoveMod,
+  onAddMods,
 }: ModsListProps) {
+  // Feature flag for mod disabling - set to true when API supports it
+  const MOD_DISABLING_ENABLED = false // TODO: Enable when API supports mod disabling
+
   if (mods.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <IconFolder className="h-12 w-12 text-muted-foreground/30 mb-3" />
         <p className="text-sm text-muted-foreground mb-3">No mods in this collection</p>
-        <Button size="sm">
+        <Button size="sm" onClick={() => onAddMods(collectionId)}>
           <IconPlus className="h-3 w-3 mr-1" />
           Add Mods
         </Button>
@@ -39,26 +44,29 @@ export function ModsList({
         <div
           key={mod.id}
           className={`group flex items-center gap-3 px-3 py-2 rounded-md border bg-card hover:bg-muted/30 transition-colors ${
-            mod.disabled ? 'opacity-50' : ''
+            MOD_DISABLING_ENABLED && mod.disabled ? 'opacity-50' : ''
           }`}
         >
-          <Checkbox
-            checked={!mod.disabled}
-            onCheckedChange={() => onToggleMod(collectionId, mod.id)}
-            className="h-4 w-4"
-          />
+          {/* TODO: Remove conditional when API supports mod disabling */}
+          {MOD_DISABLING_ENABLED && (
+            <Checkbox
+              checked={!mod.disabled}
+              onCheckedChange={() => onToggleMod(collectionId, mod.id)}
+              className="h-4 w-4"
+            />
+          )}
 
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span
                 className={`text-sm font-medium truncate ${
-                  mod.disabled ? 'line-through text-muted-foreground' : ''
+                  MOD_DISABLING_ENABLED && mod.disabled ? 'line-through text-muted-foreground' : ''
                 }`}
               >
                 {mod.name}
               </span>
               <div className="flex items-center gap-1">
-                {mod.hasUpdate && <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />}
+                {mod.shouldUpdate && <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />}
                 {mod.isServerMod && (
                   <Badge variant="outline" className="h-4 px-1 text-xs">
                     S
@@ -67,14 +75,14 @@ export function ModsList({
               </div>
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>v{mod.version}</span>
+              <span>v{mod.lastUpdated}</span>
               <span>•</span>
               <span>{mod.size}</span>
             </div>
           </div>
 
           <div className="flex items-center gap-1">
-            {mod.hasUpdate && (
+            {mod.shouldUpdate && (
               <Button size="sm" onClick={() => onUpdateMod(mod)} className="h-6 px-2 text-xs">
                 Update
               </Button>

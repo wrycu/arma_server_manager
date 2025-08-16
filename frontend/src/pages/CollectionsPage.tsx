@@ -8,6 +8,7 @@ import { UpdatingModCard } from '@/components/UpdatingModCard'
 import { useCollections } from '@/hooks/useCollections'
 import { CreateCollectionDialog } from '@/components/CollectionsCreateDialog'
 import { RemoveModDialog } from '@/components/CollectionsRemoveModDialog'
+import { AddModsDialog } from '@/components/AddModsDialog'
 import { ModsList } from '@/components/CollectionsModsList'
 import { CollectionsList } from '@/components/CollectionsList'
 import type { ModToRemove } from '@/types/collections'
@@ -23,6 +24,7 @@ export function CollectionManager() {
     deleteCollection,
     toggleMod,
     removeModFromCollection,
+    addModsToCollection,
     updateMod,
     updateAllMods,
     setActive,
@@ -32,6 +34,7 @@ export function CollectionManager() {
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
+  const [isAddModsDialogOpen, setIsAddModsDialogOpen] = useState(false)
   const [modToRemove, setModToRemove] = useState<ModToRemove | null>(null)
 
   const handleCreateCollection = (newCollection: { name: string; description: string }) => {
@@ -55,6 +58,15 @@ export function CollectionManager() {
     setIsRemoveDialogOpen(false)
   }
 
+  const handleAddMods = (_collectionId: number) => {
+    setIsAddModsDialogOpen(true)
+  }
+
+  const handleAddModsToCollection = (modIds: number[]) => {
+    if (!selectedCollection) return
+    addModsToCollection(selectedCollection.id, modIds)
+  }
+
   if (selectedCollection) {
     return (
       <div className="h-screen flex flex-col bg-background">
@@ -70,7 +82,7 @@ export function CollectionManager() {
             ]}
             actions={
               <>
-                {selectedCollection.mods.some((mod) => mod.hasUpdate) && (
+                {selectedCollection.mods.some((mod) => mod.shouldUpdate) && (
                   <Button size="sm" onClick={updateAllMods} className="h-7 px-3 text-xs">
                     Update All
                   </Button>
@@ -85,10 +97,17 @@ export function CollectionManager() {
                     Set Active
                   </Button>
                 )}
-                <Button variant="outline" size="sm" className="h-7 px-3 text-xs">
-                  <IconPlus className="h-3 w-3 mr-1" />
-                  Add
-                </Button>
+                {selectedCollection.mods.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-3 text-xs"
+                    onClick={() => handleAddMods(selectedCollection.id)}
+                  >
+                    <IconPlus className="h-3 w-3 mr-1" />
+                    Add
+                  </Button>
+                )}
               </>
             }
           />
@@ -101,6 +120,7 @@ export function CollectionManager() {
             onToggleMod={toggleMod}
             onUpdateMod={updateMod}
             onRemoveMod={handleRemoveModFromCollection}
+            onAddMods={handleAddMods}
           />
         </div>
 
@@ -122,6 +142,14 @@ export function CollectionManager() {
           onOpenChange={setIsRemoveDialogOpen}
           modToRemove={modToRemove}
           onConfirm={confirmRemoveMod}
+        />
+
+        <AddModsDialog
+          open={isAddModsDialogOpen}
+          onOpenChange={setIsAddModsDialogOpen}
+          onAddMods={handleAddModsToCollection}
+          existingModIds={selectedCollection.mods.map((mod) => mod.id)}
+          collectionName={selectedCollection.name}
         />
       </div>
     )

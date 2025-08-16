@@ -27,6 +27,4 @@ export interface UpdatingMod {
   name: string
   version?: string
   progress: number
-  status: 'downloading' | 'installing' | 'verifying' | 'completed' | 'error'
-  error?: string
 }

@@ -70,64 +70,88 @@ export interface AsyncJobSuccessResponse {
 }
 
 // Collections API types
-export interface CollectionResponse {
-  id: number
-  name: string
-  description: string
-  mods: ModItemResponse[]
-  createdAt: string
-  isActive: boolean
+export interface ModResponse {
+  readonly id: number
+  readonly steam_id: number
+  readonly filename: string
+  readonly name: string
+  readonly mod_type: string | null
+  readonly local_path: string
+  readonly arguments: string
+  readonly server_mod: boolean
+  readonly size_bytes: number
+  readonly last_updated: string | null
+  readonly steam_last_updated: string | null
+  readonly should_update: boolean
 }
 
-export interface ModItemResponse {
-  id: number
-  name: string
-  version?: string
-  size: string
-  type: 'mod' | 'mission' | 'map'
-  isServerMod: boolean
-  hasUpdate: boolean
-  disabled: boolean
+export interface ModCollectionEntryResponse {
+  readonly id: number
+  readonly collection_id: number
+  readonly mod_id: number
+  readonly added_at: string
+  readonly mod?: ModResponse
+}
+
+export interface CollectionResponse {
+  readonly id: number
+  readonly name: string
+  readonly description: string | null
+  readonly mod_count: number
+  readonly mods: ModCollectionEntryResponse[]
+  readonly created_at: string
+  readonly updated_at: string
 }
 
 export interface CollectionsListResponse {
-  results: CollectionResponse[]
-  message: string
+  readonly results: CollectionResponse[]
+  readonly message: string
 }
 
 export interface CollectionDetailsResponse {
-  results: CollectionResponse
-  message: string
+  readonly results: CollectionResponse
+  readonly message: string
 }
 
 export interface CreateCollectionRequest {
-  name: string
-  description: string
+  readonly name: string
+  readonly description: string
+  readonly mods?: number[] // Optional array of mod IDs
 }
 
 export interface CreateCollectionResponse {
-  results: CollectionResponse
-  message: string
+  readonly result: number // Returns the ID of created collection
+  readonly message: string
 }
 
 export interface UpdateCollectionRequest {
-  name?: string
-  description?: string
-  isActive?: boolean
-  mods?: ModItemResponse[]
+  readonly name?: string
+  readonly description?: string
+  readonly mods?: number[]
 }
 
 export interface UpdateCollectionResponse {
-  results: CollectionResponse
-  message: string
+  readonly message: string
 }
 
 export interface AddModToCollectionRequest {
-  modIds: number[]
+  readonly mods: number[]
+}
+
+export interface AddModToCollectionResponse {
+  readonly message: string
 }
 
 export interface RemoveModFromCollectionRequest {
-  modId: number
+  readonly mods: number[]
+}
+
+export interface RemoveModFromCollectionResponse {
+  readonly message: string
+}
+
+export interface DeleteCollectionResponse {
+  readonly message: string
 }
 
 // Server API types

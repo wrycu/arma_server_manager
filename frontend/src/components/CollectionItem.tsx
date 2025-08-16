@@ -15,7 +15,7 @@ export function CollectionItem({
   onSelectCollection,
   onDeleteCollection,
 }: CollectionItemProps) {
-  const updateCount = collection.mods.filter((m) => m.hasUpdate).length
+  const updateCount = collection.mods.filter((m) => m.shouldUpdate).length
 
   return (
     <div className="group flex items-center gap-3 px-3 py-3 rounded-md border bg-card hover:bg-muted/30 transition-colors">
