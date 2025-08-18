@@ -36,7 +36,8 @@ class Mod(db.Model):  # type: ignore[name-defined]
             e.g., "CBA_A3" becomes "@CBA_A3"
         name: Display name of the mod
         mod_type: Type of mod (mod, mission, map)
-        local_path: Local file system path, e.g. /home/user/server/arma3/addons/@CBA_A3
+        local_path: Local file system path, e.g. /home/user/server/arma3/addons/@CBA_A3.
+            Used to determine if the mod is downloaded or not. DO NOT MANUALLY EDIT.
         arguments: Command line arguments for server
         server_mod: Whether this is a server-side only mod
         size_bytes: Size of mod in bytes

@@ -80,6 +80,11 @@ def create_app(config_name: str | None = None) -> Flask:
             "schedule": crontab(minute=0, hour=6, day_of_month=1),
             "args": ["every_month"],
         },
+        "update_mod_metadata": {
+            "task": "app.tasks.background.update_mod_steam_updated_time",
+            "schedule": crontab(minute=0, hour="*"),  # hourly
+            "args": [],
+        },
     }
 
     # Register blueprints

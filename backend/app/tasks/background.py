@@ -14,7 +14,7 @@ from app import db
 from app.models.mod import Mod
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
-from app.utils.helpers import TaskHelper
+from app.utils.helpers import SteamAPI, TaskHelper
 
 
 @shared_task
@@ -172,16 +172,40 @@ def mod_update(schedule_id: int = 0) -> None:
     print("'updating' mods")
     current_app.logger.info("Updating mods!")
     helper = TaskHelper()
-    mods = Mod.query.filter(Mod.should_update).all()
+    mods = Mod.query.filter(
+        Mod.should_update,
+        Mod.steam_last_updated > Mod.last_updated,
+    ).all()
     if not mods:
         pass
+    last_updated = datetime.now()
     for mod in mods:
         mod_status = download_arma3_mod(mod.id)
+        mod.last_updated = last_updated
+        db.session.commit()
         current_app.logger.info(
             f"Mod update for {mod.name} returned the following result: {mod_status['status']}"
         )
         helper.update_task_outcome(schedule_id, mod_status["status"])
     helper.send_webhooks("mod_update", "successfully updated mods")
+
+
+@shared_task()
+def update_mod_steam_updated_time() -> None:
+    """
+    Checks every mod we have a subscription for and updates their steam last updated time
+        This information is used to determine if a newer version of the mod is available
+    :return:
+        N/A
+    """
+    current_app.logger.debug("Updating mod steam updated time for all subscribed mods")
+    steam_helper = SteamAPI()
+    mods = Mod.query.filter(Mod.should_update).all()
+    for mod in mods:
+        mod_details = steam_helper.get_mod_details(mod.steam_id)
+        mod.steam_last_updated = datetime.utcfromtimestamp(mod_details["time_updated"])
+    db.session.commit()
+    current_app.logger.debug("Done Updating mod steam updated time")
 
 
 @shared_task()
