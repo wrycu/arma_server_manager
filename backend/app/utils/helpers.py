@@ -89,13 +89,14 @@ class Arma3ModManager:
                 disallowed_attrs = [
                     "id",
                     "updated_at",
+                    "steam_last_updated",
                 ]  # do not allow certain fields to be modified
                 for key, value in updated_data.items():
                     if key not in disallowed_attrs:
                         setattr(result, key, value)
                 db.session.commit()
         except Exception as e:
-            raise Exception("Failed to update mod (mod not found?)") from e
+            raise Exception(f"Failed to update mod (mod not found?): {str(e)}") from e
 
     def remove_subscribed_mod(self, mod_id: int) -> None:
         """
