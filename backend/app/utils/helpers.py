@@ -6,6 +6,7 @@ from datetime import datetime
 from xmlrpc.client import Binary
 
 import httpx
+import psutil
 import sqlalchemy
 
 from app import db
@@ -640,6 +641,15 @@ class Arma3ServerHelper:
         ).first()
         new_active_server.is_active = True
         db.session.commit()
+
+    @staticmethod
+    def is_server_running() -> bool:
+        """
+        Checks running processes for the default arma 3 server binary name
+        :return:
+        """
+        procs = [x.info for x in psutil.process_iter(["name"])]
+        return {"name": "arma3server_x64"} in procs or {"name": "arma3server"} in procs
 
 
 class TaskHelper:

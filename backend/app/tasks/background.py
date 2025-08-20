@@ -14,7 +14,7 @@ from app import db
 from app.models.mod import Mod
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
-from app.utils.helpers import SteamAPI, TaskHelper
+from app.utils.helpers import Arma3ServerHelper, SteamAPI, TaskHelper
 
 
 @shared_task
@@ -172,6 +172,13 @@ def mod_update(schedule_id: int = 0) -> None:
     print("'updating' mods")
     current_app.logger.info("Updating mods!")
     helper = TaskHelper()
+    server_helper = Arma3ServerHelper()
+
+    if server_helper.is_server_running():
+        current_app.logger.info("aborted due to server running")
+        helper.update_task_outcome(schedule_id, "aborted due to server running")
+        return
+
     mods = Mod.query.filter(
         Mod.should_update,
         Mod.steam_last_updated > Mod.last_updated,
