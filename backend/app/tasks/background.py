@@ -148,23 +148,22 @@ def server_stop(schedule_id: int = 0) -> None:
     print("'stopping' server")
     current_app.logger.info("Started stopping server")
     helper = TaskHelper()
-    entry = ServerConfig.query.filter(ServerConfig.is_active).first()
-    if not entry:
-        current_app.logger.warning(
-            "Unable to start server: no server is set to active!"
+    server_helper = Arma3ServerHelper()
+    stopped = server_helper.stop_server()
+    if stopped:
+        current_app.logger.info("Server stopped successfully!")
+        helper.update_task_outcome(schedule_id, "Server stopped successfully!")
+        helper.send_webhooks("server_stop", "successfully stopped server")
+    else:
+        current_app.logger.info(
+            "Server failed to stop! (permissions issue? not running?)"
         )
-        helper.update_task_outcome(schedule_id, "Aborted: no server is set to active")
-        return
-    server_details = entry.to_dict()
-    subprocess.check_call(
-        [
-            "pkill",
-            server_details.server_binary,
-        ]
-    )
-    current_app.logger.info("Server stopped successfully!")
-    helper.update_task_outcome(schedule_id, "Server stopped successfully!")
-    helper.send_webhooks("server_stop", "successfully stopped server")
+        helper.update_task_outcome(
+            schedule_id, "Server failed to stop! (permissions issue? not running?)"
+        )
+        helper.send_webhooks(
+            "server_stop", "Server failed to stop! (permissions issue? not running?)"
+        )
 
 
 @shared_task()
