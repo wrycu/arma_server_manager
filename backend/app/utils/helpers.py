@@ -128,10 +128,12 @@ class Arma3ModManager:
         """
         mod_details = self.steam_api.get_mod_details(mod_steam_id)
 
-        # TODO: this should probably be a bit more complex, to handle maps and missions
         filename = f"@{mod_details['title']}"
         if mod_details["filename"]:
             filename = mod_details["filename"]
+        if filename and os.path.pardir in filename:
+            # get the absolute path if it looks like there's an attempt to use a relative path in the name
+            filename = os.path.abspath(filename)
 
         prepared_mod = Mod(
             steam_id=mod_steam_id,

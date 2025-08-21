@@ -19,7 +19,6 @@ from app.utils.helpers import Arma3ServerHelper, SteamAPI, TaskHelper
 
 @shared_task
 def download_arma3_mod(mod_id: int) -> dict[str, Any]:
-    # TODO: this is vulnerable to path traversal, and will even write it wherever the attacker chooses!
     current_app.logger.info(f"Starting arma 3 mod download ({mod_id})")
     mod_data = Mod.query.get(mod_id)
     if not mod_data:
