@@ -651,6 +651,14 @@ class Arma3ServerHelper:
         procs = [x.info for x in psutil.process_iter(["name"])]
         return {"name": "arma3server_x64"} in procs or {"name": "arma3server"} in procs
 
+    @staticmethod
+    def stop_server() -> bool:
+        for server_proc in psutil.process_iter():
+            if server_proc.name() in ["arma3server_x64", "arma3server"]:
+                server_proc.kill()
+                return True
+        return False
+
 
 class TaskHelper:
     @staticmethod
