@@ -1,6 +1,42 @@
 version: '3.8'
 
 services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: arma_server_manager_backend
+    environment:
+      - FLASK_ENV=development
+      - DEV_DATABASE_URI=sqlite:///dev.db
+      - SECRET_KEY=dev-secret
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - ./backend/temp:/app/temp
+    networks:
+      - arma_server_manager
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: arma_server_manager_frontend
+    environment:
+      - VITE_API_PROXY_TARGET=http://backend:5000
+    ports:
+      - "5173:5173"
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - arma_server_manager
   redis:
     image: redis:7-alpine
     container_name: arma_server_manager_redis
@@ -12,22 +48,6 @@ services:
     restart: unless-stopped
     networks:
       - arma_server_manager
-
-  # Optional: Redis Commander for Redis GUI management
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    container_name: arma_server_manager_redis_commander
-    environment:
-      - REDIS_HOSTS=local:redis:6379
-    ports:
-      - "8081:8081"
-    depends_on:
-      - redis
-    restart: unless-stopped
-    networks:
-      - arma_server_manager
-    profiles:
-      - tools
 
 volumes:
   redis_data:

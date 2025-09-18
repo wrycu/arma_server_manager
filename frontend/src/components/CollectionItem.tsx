@@ -15,7 +15,6 @@ export function CollectionItem({
   onSelectCollection,
   onDeleteCollection,
 }: CollectionItemProps) {
-
   return (
     <div className="group flex items-center gap-3 px-3 py-3 rounded-md border bg-card hover:bg-muted/30 transition-colors">
       <div className="flex items-center gap-2 flex-shrink-0">

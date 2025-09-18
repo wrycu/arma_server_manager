@@ -10,12 +10,7 @@ import type { ExtendedModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
 export function SubscribedModsManager() {
-  const {
-    modSubscriptions,
-    isLoading,
-    addModSubscription,
-    removeModSubscription,
-  } = useMods()
+  const { modSubscriptions, isLoading, addModSubscription, removeModSubscription } = useMods()
 
   // Transform mod subscriptions to match UI expectations
   const mods: ExtendedModSubscription[] = modSubscriptions.map((mod) => ({
@@ -58,7 +53,6 @@ export function SubscribedModsManager() {
           New
         </Button>
       </div>
-
 
       <DataTable columns={columns} data={mods} onCreateCollection={handleCreateCollection} />
 
