@@ -184,7 +184,6 @@ export function useCollections() {
     }
   }
 
-
   const setActive = async (collectionId: number) => {
     try {
       await updateCollectionOptimistic(collectionId, { isActive: true })
@@ -205,7 +204,6 @@ export function useCollections() {
       console.error('Update collection name failed:', error)
     }
   }
-
 
   return {
     collections,

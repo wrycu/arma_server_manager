@@ -16,7 +16,6 @@ export interface ModSubscription {
   readonly imageAvailable: boolean
 }
 
-
 // Extended shape used by UI tables (optional fields for display/filtering)
 export interface ExtendedModSubscription extends ModSubscription {
   readonly author?: string

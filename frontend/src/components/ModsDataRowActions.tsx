@@ -17,11 +17,7 @@ interface DataTableRowActionsProps {
   isLoading?: string | null
 }
 
-export function DataTableRowActions({
-  row,
-  onDelete,
-  isLoading,
-}: DataTableRowActionsProps) {
+export function DataTableRowActions({ row, onDelete, isLoading }: DataTableRowActionsProps) {
   const mod = row.original
 
   return (

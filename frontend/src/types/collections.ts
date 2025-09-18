@@ -10,7 +10,6 @@ export interface Collection {
   isActive: boolean
 }
 
-
 export interface NewCollection {
   readonly name: string
   readonly description: string
