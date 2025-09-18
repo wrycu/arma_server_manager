@@ -22,10 +22,8 @@ export function CollectionManager() {
     setSelectedCollectionId,
     createCollection,
     deleteCollection,
-    toggleMod,
     removeModFromCollection,
     addModsToCollection,
-    updateMod,
     updateAllMods,
     setActive,
     cancelUpdate,
@@ -117,8 +115,6 @@ export function CollectionManager() {
           <ModsList
             mods={selectedCollection.mods}
             collectionId={selectedCollection.id}
-            onToggleMod={toggleMod}
-            onUpdateMod={updateMod}
             onRemoveMod={handleRemoveModFromCollection}
             onAddMods={handleAddMods}
           />
