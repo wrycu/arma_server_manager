@@ -136,8 +136,8 @@ export function useMods() {
     setUpdatingMods((prev) => [...prev, updatingMod])
 
     try {
-      // Start download job
-      const downloadResponse: ModDownloadResponse = await mods.downloadMod(steamId)
+      // Start download job (backend expects internal id)
+      const downloadResponse: ModDownloadResponse = await mods.downloadMod(mod.id)
       const jobId = downloadResponse.status
 
       // Poll job status
@@ -153,7 +153,8 @@ export function useMods() {
     if (!mod) return
 
     try {
-      const deleteResponse: ModDownloadResponse = await mods.deleteMod(steamId)
+      // Backend expects internal id for delete
+      const deleteResponse: ModDownloadResponse = await mods.deleteMod(mod.id)
       const jobId = deleteResponse.status
 
       // Poll job status

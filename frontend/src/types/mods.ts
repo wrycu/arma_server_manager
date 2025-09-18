@@ -22,3 +22,11 @@ export interface UpdatingMod {
   readonly version?: string
   readonly progress: number
 }
+
+// Extended shape used by UI tables (optional fields for display/filtering)
+export interface ExtendedModSubscription extends ModSubscription {
+  readonly author?: string
+  readonly type?: 'mod' | 'mission' | 'map'
+  readonly hasUpdate?: boolean
+  readonly sizeOnDisk?: string
+}

@@ -53,11 +53,39 @@ export const collectionsCollection: TanStackCollection<Collection> = createColle
       // Handle optimistic updates by calling the API
       try {
         for (const mutation of transaction.mutations) {
-          await collections.updateCollection(mutation.modified.id, {
-            name: mutation.modified.name,
-            description: mutation.modified.description,
-            mods: mutation.modified.mods.map((mod) => mod.id),
-          })
+          // Check if mods were added/removed
+          const originalModIds = mutation.original.mods.map((mod) => mod.id)
+          const modifiedModIds = mutation.modified.mods.map((mod) => mod.id)
+
+          // Find added mods
+          const addedModIds = modifiedModIds.filter((id) => !originalModIds.includes(id))
+          // Find removed mods
+          const removedModIds = originalModIds.filter((id) => !modifiedModIds.includes(id))
+
+          // Update collection metadata if changed
+          if (
+            mutation.modified.name !== mutation.original.name ||
+            mutation.modified.description !== mutation.original.description
+          ) {
+            await collections.updateCollection(mutation.modified.id, {
+              name: mutation.modified.name,
+              description: mutation.modified.description,
+            })
+          }
+
+          // Add new mods
+          if (addedModIds.length > 0) {
+            await collections.addModsToCollection(mutation.modified.id, {
+              mods: addedModIds,
+            })
+          }
+
+          // Remove mods
+          if (removedModIds.length > 0) {
+            await collections.removeModFromCollection(mutation.modified.id, {
+              mods: removedModIds,
+            })
+          }
         }
       } catch (error) {
         handleApiError(error, 'Failed to update collection')
@@ -180,7 +208,7 @@ export const modsCollection: TanStackCollection<ModSubscription> = createCollect
       // Handle optimistic updates by calling the API
       try {
         for (const mutation of transaction.mutations) {
-          await mods.updateModSubscription(mutation.modified.steamId, {
+          await mods.updateModSubscription(mutation.modified.id, {
             name: mutation.modified.name,
             filename: mutation.modified.filename,
             mod_type: mutation.modified.modType || undefined,
@@ -199,7 +227,7 @@ export const modsCollection: TanStackCollection<ModSubscription> = createCollect
       // Handle optimistic deletes by calling the API
       try {
         for (const mutation of transaction.mutations) {
-          await mods.removeModSubscription(mutation.original.steamId)
+          await mods.removeModSubscription(mutation.original.id)
         }
       } catch (error) {
         handleApiError(error, 'Failed to delete mod subscription')

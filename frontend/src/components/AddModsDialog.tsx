@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { IconSearch, IconPlus } from '@tabler/icons-react'
 
 import { Button } from '@/components/ui/button'
@@ -13,9 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { mods } from '@/services'
-import type { ModSubscription } from '@/types/mods'
-import { handleApiError } from '@/lib/error-handler'
+import { useMods } from '@/hooks/useMods'
 
 interface AddModsDialogProps {
   open: boolean
@@ -32,33 +30,13 @@ export function AddModsDialog({
   existingModIds,
   collectionName,
 }: AddModsDialogProps) {
-  const [availableMods, setAvailableMods] = useState<ModSubscription[]>([])
+  const { modSubscriptions } = useMods()
   const [selectedModIds, setSelectedModIds] = useState<number[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  // Load available mods when dialog opens
-  useEffect(() => {
-    if (open) {
-      loadAvailableMods()
-    }
-  }, [open])
-
-  const loadAvailableMods = async () => {
-    setLoading(true)
-    try {
-      const modSubscriptions = await mods.getModSubscriptions()
-      setAvailableMods(modSubscriptions)
-    } catch (error) {
-      handleApiError(error, 'Failed to load available mods')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   // Filter mods that aren't already in the collection
-  const filteredMods = availableMods
-    .filter((mod) => !existingModIds.includes(mod.steamId))
+  const filteredMods = modSubscriptions
+    .filter((mod) => !existingModIds.includes(mod.id))
     .filter((mod) => (mod.name || '').toLowerCase().includes(searchQuery.toLowerCase()))
 
   const handleToggleMod = (modId: number) => {
@@ -107,11 +85,7 @@ export function AddModsDialog({
           {/* Mods list */}
           <div className="border rounded-md">
             <div className="h-80 overflow-y-auto">
-              {loading ? (
-                <div className="flex items-center justify-center h-32">
-                  <p className="text-sm text-muted-foreground">Loading mods...</p>
-                </div>
-              ) : filteredMods.length === 0 ? (
+              {filteredMods.length === 0 ? (
                 <div className="flex items-center justify-center h-32">
                   <p className="text-sm text-muted-foreground">
                     {searchQuery ? 'No mods match your search' : 'No available mods to add'}
@@ -121,12 +95,12 @@ export function AddModsDialog({
                 <div className="p-2 space-y-1">
                   {filteredMods.map((mod) => (
                     <div
-                      key={mod.steamId}
+                      key={mod.id}
                       className="flex items-center gap-3 p-3 rounded-md hover:bg-muted/50 transition-colors"
                     >
                       <Checkbox
-                        checked={selectedModIds.includes(mod.steamId)}
-                        onCheckedChange={() => handleToggleMod(mod.steamId)}
+                        checked={selectedModIds.includes(mod.id)}
+                        onCheckedChange={() => handleToggleMod(mod.id)}
                         className="h-4 w-4"
                       />
                       <div className="flex-1 min-w-0">
