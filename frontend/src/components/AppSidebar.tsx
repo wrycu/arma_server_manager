@@ -43,8 +43,8 @@ const data = {
       icon: IconFolder,
     },
     {
-      title: 'Installed',
-      url: 'mod-management',
+      title: 'Subscriptions',
+      url: 'mod-subscriptions',
       icon: IconPackage,
     },
   ],

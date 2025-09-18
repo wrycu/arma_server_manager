@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useCollectionsDB } from '@/providers/db-provider'
-import type { Collection, UpdatingMod, NewCollection } from '@/types/collections'
+import type { Collection, NewCollection } from '@/types/collections'
 import type { ModSubscription } from '@/types/mods'
 
 export function useCollections() {
@@ -14,7 +14,6 @@ export function useCollections() {
 
   // Local state for UI-specific concerns
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(null)
-  const [updatingMods, setUpdatingMods] = useState<UpdatingMod[]>([])
 
   // Derive selectedCollection from collections array to keep it in sync
   const selectedCollection = selectedCollectionId
@@ -185,53 +184,6 @@ export function useCollections() {
     }
   }
 
-  const updateMod = async (mod: ModSubscription) => {
-    // Add mod to updating list
-    const updatingMod: UpdatingMod = {
-      id: mod.id,
-      name: mod.name,
-      version: mod.lastUpdated,
-      progress: 0,
-    }
-
-    setUpdatingMods((prev) => [...prev, updatingMod])
-
-    // Simulate update process (this would be replaced with real API calls)
-    const updateSteps = [
-      { status: 'downloading' as const, duration: 2000, progress: 50 },
-      { status: 'installing' as const, duration: 1500, progress: 80 },
-      { status: 'verifying' as const, duration: 1000, progress: 95 },
-      { status: 'completed' as const, duration: 500, progress: 100 },
-    ]
-
-    for (const step of updateSteps) {
-      await new Promise((resolve) => setTimeout(resolve, step.duration))
-
-      setUpdatingMods((prev) =>
-        prev.map((m) =>
-          m.id === mod.id ? { ...m, status: step.status, progress: step.progress } : m
-        )
-      )
-    }
-
-    // Invalidate collections to reflect the update
-    // queryClient.invalidateQueries({ queryKey: ['collections'] }); // This line was removed as per the edit hint
-
-    // Auto-dismiss after 3 seconds
-    setTimeout(() => {
-      setUpdatingMods((prev) => prev.filter((m) => m.id !== mod.id))
-    }, 3000)
-  }
-
-  const updateAllMods = async () => {
-    if (!selectedCollection) return
-
-    const modsWithUpdates = selectedCollection.mods.filter((mod) => mod.shouldUpdate)
-
-    for (const mod of modsWithUpdates) {
-      await updateMod(mod)
-    }
-  }
 
   const setActive = async (collectionId: number) => {
     try {
@@ -254,29 +206,17 @@ export function useCollections() {
     }
   }
 
-  const cancelUpdate = (modId: number) => {
-    setUpdatingMods((prev) => prev.filter((m) => m.id !== modId))
-  }
-
-  const dismissUpdate = (modId: number) => {
-    setUpdatingMods((prev) => prev.filter((m) => m.id !== modId))
-  }
 
   return {
     collections,
     selectedCollection,
-    updatingMods,
     setSelectedCollectionId,
     createCollection,
     deleteCollection,
     toggleMod,
     removeModFromCollection,
     addModsToCollection,
-    updateMod,
-    updateAllMods,
     setActive,
     updateCollectionName,
-    cancelUpdate,
-    dismissUpdate,
   }
 }

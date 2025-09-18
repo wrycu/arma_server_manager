@@ -2,13 +2,8 @@ import { useState, useCallback } from 'react'
 import { useLiveQuery } from '@tanstack/react-db'
 import { useModsDB } from '@/providers/db-provider'
 import { mods } from '@/services'
-import type {
-  ModHelper,
-  ModDownloadResponse,
-  AsyncJobStatusResponse,
-  AsyncJobSuccessResponse,
-} from '@/types/api'
-import type { ModSubscription, UpdatingMod } from '@/types/mods'
+import type { ModHelper } from '@/types/api'
+import type { ModSubscription } from '@/types/mods'
 
 export function useMods() {
   const modsCollection = useModsDB()
@@ -20,7 +15,6 @@ export function useMods() {
 
   // Local state for UI-specific concerns
   const [isLoading, setIsLoading] = useState<string | null>(null)
-  const [updatingMods, setUpdatingMods] = useState<UpdatingMod[]>([])
 
   // Helper functions for optimistic updates
   const findModSubscription = (steamId: number) =>
@@ -121,106 +115,10 @@ export function useMods() {
     }
   }, [])
 
-  // Download/update mod functionality
-  const downloadMod = async (steamId: number): Promise<void> => {
-    const mod = findModSubscription(steamId)
-    if (!mod) return
-
-    // Add mod to updating list
-    const updatingMod: UpdatingMod = {
-      id: steamId,
-      name: mod.name || `Mod ${steamId}`,
-      progress: 0,
-    }
-
-    setUpdatingMods((prev) => [...prev, updatingMod])
-
-    try {
-      // Start download job (backend expects internal id)
-      const downloadResponse: ModDownloadResponse = await mods.downloadMod(mod.id)
-      const jobId = downloadResponse.status
-
-      // Poll job status
-      await pollJobStatus(jobId, steamId)
-    } catch (error) {
-      console.error('Download mod failed:', error)
-      setUpdatingMods((prev) => prev.map((m) => (m.id === steamId ? { ...m, progress: -1 } : m)))
-    }
-  }
-
-  const deleteMod = async (steamId: number): Promise<void> => {
-    const mod = findModSubscription(steamId)
-    if (!mod) return
-
-    try {
-      // Backend expects internal id for delete
-      const deleteResponse: ModDownloadResponse = await mods.deleteMod(mod.id)
-      const jobId = deleteResponse.status
-
-      // Poll job status
-      await pollJobStatus(jobId, steamId)
-    } catch (error) {
-      console.error('Delete mod failed:', error)
-    }
-  }
-
-  const pollJobStatus = async (jobId: string, modId: number): Promise<void> => {
-    const pollInterval = 1000 // 1 second
-    const maxPolls = 300 // 5 minutes timeout
-    let pollCount = 0
-
-    const poll = async (): Promise<void> => {
-      if (pollCount >= maxPolls) {
-        setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress: -1 } : m)))
-        return
-      }
-
-      try {
-        const jobStatus: AsyncJobStatusResponse | AsyncJobSuccessResponse =
-          await mods.getAsyncJobStatus(jobId)
-
-        if (jobStatus.status === 'completed') {
-          setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress: 100 } : m)))
-
-          // Auto-dismiss after 3 seconds
-          setTimeout(() => {
-            setUpdatingMods((prev) => prev.filter((m) => m.id !== modId))
-          }, 3000)
-
-          return
-        }
-
-        if (jobStatus.status === 'failed' || jobStatus.status === 'error') {
-          setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress: -1 } : m)))
-          return
-        }
-
-        // Update progress if still in progress
-        const progress = Math.min(pollCount * 2, 95) // Simulate progress
-        setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress } : m)))
-
-        pollCount++
-        setTimeout(poll, pollInterval)
-      } catch {
-        setUpdatingMods((prev) => prev.map((m) => (m.id === modId ? { ...m, progress: -1 } : m)))
-      }
-    }
-
-    await poll()
-  }
-
-  const cancelUpdate = (modId: number) => {
-    setUpdatingMods((prev) => prev.filter((m) => m.id !== modId))
-  }
-
-  const dismissUpdate = (modId: number) => {
-    setUpdatingMods((prev) => prev.filter((m) => m.id !== modId))
-  }
 
   return {
     // Data
     modSubscriptions,
-    updatingMods,
 
     // Loading states
     isLoading,
@@ -229,11 +127,7 @@ export function useMods() {
     addModSubscription,
     removeModSubscription,
     updateModSubscription,
-    downloadMod,
-    deleteMod,
     getModHelper,
-    cancelUpdate,
-    dismissUpdate,
 
     // Helper functions
     findModSubscription,

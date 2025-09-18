@@ -13,7 +13,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ServerControlRouteImport } from './routes/server-control'
 import { Route as ServerConfigsRouteImport } from './routes/server-configs'
 import { Route as SchedulesRouteImport } from './routes/schedules'
-import { Route as ModManagementRouteImport } from './routes/mod-management'
+import { Route as ModSubscriptionsRouteImport } from './routes/mod-subscriptions'
 import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
@@ -38,9 +38,9 @@ const SchedulesRoute = SchedulesRouteImport.update({
   path: '/schedules',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ModManagementRoute = ModManagementRouteImport.update({
-  id: '/mod-management',
-  path: '/mod-management',
+const ModSubscriptionsRoute = ModSubscriptionsRouteImport.update({
+  id: '/mod-subscriptions',
+  path: '/mod-subscriptions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CollectionsRoute = CollectionsRouteImport.update({
@@ -63,7 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRoute
-  '/mod-management': typeof ModManagementRoute
+  '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/server-control': typeof ServerControlRoute
@@ -73,7 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRoute
-  '/mod-management': typeof ModManagementRoute
+  '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/server-control': typeof ServerControlRoute
@@ -84,7 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRoute
-  '/mod-management': typeof ModManagementRoute
+  '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/server-control': typeof ServerControlRoute
@@ -96,7 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/collections'
-    | '/mod-management'
+    | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
     | '/server-control'
@@ -106,7 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/collections'
-    | '/mod-management'
+    | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
     | '/server-control'
@@ -116,7 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/collections'
-    | '/mod-management'
+    | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
     | '/server-control'
@@ -127,7 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   CollectionsRoute: typeof CollectionsRoute
-  ModManagementRoute: typeof ModManagementRoute
+  ModSubscriptionsRoute: typeof ModSubscriptionsRoute
   SchedulesRoute: typeof SchedulesRoute
   ServerConfigsRoute: typeof ServerConfigsRoute
   ServerControlRoute: typeof ServerControlRoute
@@ -164,11 +164,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SchedulesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mod-management': {
-      id: '/mod-management'
-      path: '/mod-management'
-      fullPath: '/mod-management'
-      preLoaderRoute: typeof ModManagementRouteImport
+    '/mod-subscriptions': {
+      id: '/mod-subscriptions'
+      path: '/mod-subscriptions'
+      fullPath: '/mod-subscriptions'
+      preLoaderRoute: typeof ModSubscriptionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/collections': {
@@ -199,7 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   CollectionsRoute: CollectionsRoute,
-  ModManagementRoute: ModManagementRoute,
+  ModSubscriptionsRoute: ModSubscriptionsRoute,
   SchedulesRoute: SchedulesRoute,
   ServerConfigsRoute: ServerConfigsRoute,
   ServerControlRoute: ServerControlRoute,

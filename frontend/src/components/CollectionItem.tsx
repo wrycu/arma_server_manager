@@ -15,7 +15,6 @@ export function CollectionItem({
   onSelectCollection,
   onDeleteCollection,
 }: CollectionItemProps) {
-  const updateCount = collection.mods.filter((m) => m.shouldUpdate).length
 
   return (
     <div className="group flex items-center gap-3 px-3 py-3 rounded-md border bg-card hover:bg-muted/30 transition-colors">
@@ -30,11 +29,6 @@ export function CollectionItem({
             <Badge variant="outline" className="h-4 px-1 text-xs">
               {collection.mods.length} mods
             </Badge>
-            {updateCount > 0 && (
-              <Badge className="h-4 px-1 text-xs bg-orange-500/10 text-orange-600 border-orange-500/20">
-                {updateCount} updates
-              </Badge>
-            )}
           </div>
         </div>
         <p className="text-xs text-muted-foreground truncate">{collection.description}</p>
