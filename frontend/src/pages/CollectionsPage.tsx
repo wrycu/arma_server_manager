@@ -3,7 +3,6 @@ import { IconPlus } from '@tabler/icons-react'
 
 import { Button } from '@/components/ui/button'
 import { PageTitle } from '@/components/PageTitle'
-import { UpdatingModCard } from '@/components/UpdatingModCard'
 
 import { useCollections } from '@/hooks/useCollections'
 import { CreateCollectionDialog } from '@/components/CollectionsCreateDialog'
@@ -18,16 +17,12 @@ export function CollectionManager() {
   const {
     collections,
     selectedCollection,
-    updatingMods,
     setSelectedCollectionId,
     createCollection,
     deleteCollection,
     removeModFromCollection,
     addModsToCollection,
-    updateAllMods,
     setActive,
-    cancelUpdate,
-    dismissUpdate,
   } = useCollections()
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
@@ -80,11 +75,6 @@ export function CollectionManager() {
             ]}
             actions={
               <>
-                {selectedCollection.mods.some((mod) => mod.shouldUpdate) && (
-                  <Button size="sm" onClick={updateAllMods} className="h-7 px-3 text-xs">
-                    Update All
-                  </Button>
-                )}
                 {!selectedCollection.isActive && (
                   <Button
                     variant="outline"
@@ -103,7 +93,7 @@ export function CollectionManager() {
                     onClick={() => handleAddMods(selectedCollection.id)}
                   >
                     <IconPlus className="h-3 w-3 mr-1" />
-                    Add
+                    New
                   </Button>
                 )}
               </>
@@ -119,19 +109,6 @@ export function CollectionManager() {
             onAddMods={handleAddMods}
           />
         </div>
-
-        {updatingMods.length > 0 && (
-          <div className="fixed bottom-4 right-4 space-y-2 z-50">
-            {updatingMods.map((mod) => (
-              <UpdatingModCard
-                key={mod.id}
-                mod={mod}
-                onCancel={cancelUpdate}
-                onDismiss={dismissUpdate}
-              />
-            ))}
-          </div>
-        )}
 
         <RemoveModDialog
           open={isRemoveDialogOpen}

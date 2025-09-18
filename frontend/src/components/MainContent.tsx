@@ -1,6 +1,6 @@
 import { ServerControlPanel } from '@/pages/ServerPage'
 import { ServerConfigEditor } from '@/components/ServerConfigEditor'
-import { InstalledModsManager } from '@/pages/ModsPage'
+import { SubscribedModsManager } from '@/pages/ModsPage'
 import { CollectionManager } from '@/pages/CollectionsPage'
 import { SchedulesManager } from '@/pages/SchedulesPage'
 import { Settings } from '@/pages/SettingsPage'
@@ -13,8 +13,8 @@ export function MainContent() {
     switch (currentPage) {
       case 'server-control':
         return <ServerControlPanel />
-      case 'mod-management':
-        return <InstalledModsManager />
+      case 'mod-subscriptions':
+        return <SubscribedModsManager />
       case 'collections':
         return <CollectionManager />
       case 'schedules':

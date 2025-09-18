@@ -1,6 +1,5 @@
 import { PageTitle } from '@/components/PageTitle'
 import { useMods } from '@/hooks/useMods'
-import { UpdatingModCard } from '@/components/UpdatingModCard'
 import { DataTable } from '@/components/ModsDataTable'
 import { getColumns } from '@/components/ModsColumns'
 import { useState } from 'react'
@@ -10,30 +9,21 @@ import { ModsSubscribeDialog } from '@/components/ModsSubscribeDialog'
 import type { ExtendedModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
-export function InstalledModsManager() {
+export function SubscribedModsManager() {
   const {
     modSubscriptions,
-    updatingMods,
     isLoading,
     addModSubscription,
-    downloadMod,
     removeModSubscription,
-    cancelUpdate,
-    dismissUpdate,
   } = useMods()
 
   // Transform mod subscriptions to match UI expectations
   const mods: ExtendedModSubscription[] = modSubscriptions.map((mod) => ({
     ...mod,
     author: 'Community', // Default fallback
-    type: mod.modType || 'mod', // Use type from API or default to 'mod'
-    hasUpdate: Math.random() > 0.7, // Mock update status
-    sizeOnDisk: `${Math.floor(Math.random() * 500 + 50)} MB`, // Mock size
+    type: mod.modType || 'mod', // Default fallback
+    sizeOnDisk: `Unknown`,
   }))
-
-  const handleUpdate = async (steamId: number) => {
-    await downloadMod(steamId)
-  }
 
   const handleDelete = async (steamId: number) => {
     await removeModSubscription(steamId)
@@ -47,9 +37,7 @@ export function InstalledModsManager() {
   }
 
   const columns = getColumns({
-    onUpdate: handleUpdate,
     onDelete: handleDelete,
-    onDownload: downloadMod,
     isLoading,
   })
 
@@ -64,29 +52,13 @@ export function InstalledModsManager() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <PageTitle title="Installed Mods" description="Manage your installed content" />
-        <Button size="sm" onClick={() => setSubscribeOpen(true)}>
+        <PageTitle title="Mod Subscriptions" description="Manage your installed content" />
+        <Button size="sm" className="h-7 px-3 text-xs" onClick={() => setSubscribeOpen(true)}>
           <IconPlus className="h-4 w-4 mr-1" />
-          Subscribe to Mods
+          New
         </Button>
       </div>
 
-      {/* Show updating mods */}
-      {updatingMods.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium">Updating Mods</h3>
-          <div className="space-y-2">
-            {updatingMods.map((mod) => (
-              <UpdatingModCard
-                key={mod.id}
-                mod={mod}
-                onCancel={cancelUpdate}
-                onDismiss={dismissUpdate}
-              />
-            ))}
-          </div>
-        </div>
-      )}
 
       <DataTable columns={columns} data={mods} onCreateCollection={handleCreateCollection} />
 

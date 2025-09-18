@@ -42,8 +42,8 @@ const navigationData = {
       shortcut: '⌘O',
     },
     {
-      title: 'Installed',
-      url: 'mod-management',
+      title: 'Subscriptions',
+      url: 'mod-subscriptions',
       icon: IconPackage,
       shortcut: '⌘M',
     },

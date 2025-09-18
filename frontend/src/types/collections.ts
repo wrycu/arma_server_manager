@@ -10,12 +10,6 @@ export interface Collection {
   isActive: boolean
 }
 
-export interface UpdatingMod {
-  readonly id: number
-  readonly name: string
-  readonly version?: string
-  readonly progress: number
-}
 
 export interface NewCollection {
   readonly name: string

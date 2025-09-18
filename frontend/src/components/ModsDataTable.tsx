@@ -119,19 +119,6 @@ export function DataTable<TData, TValue>({
               <SelectItem value="map">Maps</SelectItem>
             </SelectContent>
           </Select>
-          <Select
-            value={(table.getColumn('shouldUpdate')?.getFilterValue() as string) ?? 'all'}
-            onValueChange={(value) => table.getColumn('shouldUpdate')?.setFilterValue(value)}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="updates">Updates Available</SelectItem>
-              <SelectItem value="current">Up to Date</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
         <div className="flex items-center space-x-2">
           {hasSelectedMods && (

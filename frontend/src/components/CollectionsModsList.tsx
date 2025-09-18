@@ -36,7 +36,6 @@ export function ModsList({ mods, collectionId, onRemoveMod, onAddMods }: ModsLis
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium truncate">{mod.name}</span>
               <div className="flex items-center gap-1">
-                {mod.shouldUpdate && <div className="h-1.5 w-1.5 rounded-full bg-orange-500" />}
                 {mod.isServerMod && (
                   <Badge variant="outline" className="h-4 px-1 text-xs">
                     S
