@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useLiveQuery } from '@tanstack/react-db'
-import { useServerDB, useServerConfigDB } from '@/providers/db-provider'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { server } from '@/services'
+import { handleApiError } from '@/lib/error-handler'
 import type {
   ServerStatus,
   ServerMetrics,
@@ -10,26 +10,37 @@ import type {
 import type { ServerStatusResponse, ServerMetricsResponse, ServerConfigResponse } from '@/types/api'
 
 export function useServer() {
-  const serverCollection = useServerDB()
-  const serverConfigCollection = useServerConfigDB()
-
-  // Get server status from TanStack DB using live query (automatically reactive)
-  const { data: serverStatusArray = [] } = useLiveQuery((query) =>
-    query.from({ server: serverCollection })
-  )
-
-  // Get server config from TanStack DB
-  const { data: serverConfigArray = [] } = useLiveQuery((query) =>
-    query.from({ serverConfig: serverConfigCollection })
-  )
+  const queryClient = useQueryClient()
 
   // Local state for UI-specific concerns
-  const [isLoading, setIsLoading] = useState<string | null>(null)
   const [metricsHistory, setMetricsHistory] = useState<ServerMetrics[]>([])
 
-  // Get the first (and only) server status and config
-  const serverStatus = serverStatusArray[0] as ServerStatusResponse | undefined
-  const serverConfig = serverConfigArray[0] as ServerConfigResponse | undefined
+  // Fetch server status using React Query
+  const {
+    data: serverStatus,
+    isLoading: isServerStatusLoading,
+    error: serverStatusError,
+  } = useQuery({
+    queryKey: ['server-status'],
+    queryFn: async () => {
+      console.log('🔄 Fetching server status from API...')
+      return await server.getServerStatus()
+    },
+    refetchInterval: 5000, // Refresh every 5 seconds
+  })
+
+  // Fetch server config using React Query
+  const {
+    data: serverConfig,
+    isLoading: isServerConfigLoading,
+    error: serverConfigError,
+  } = useQuery({
+    queryKey: ['server-config'],
+    queryFn: async () => {
+      console.log('🔄 Fetching server config from API...')
+      return await server.getServerConfig()
+    },
+  })
 
   // Transform API response to local types
   const transformServerStatus = (apiStatus: ServerStatusResponse): ServerStatus => ({
@@ -56,63 +67,48 @@ export function useServer() {
     }))
   }
 
-  // Helper functions for optimistic updates
-  const updateServerStatusOptimistic = async (updates: Partial<ServerStatusResponse>) => {
-    if (!serverStatus) return
-
-    await serverCollection.update(serverStatus.id, (draft: ServerStatusResponse) => {
-      Object.assign(draft, updates)
-    })
-  }
-
-  // Action functions
-  const performServerAction = async (actionData: ServerActionWithCollection) => {
-    setIsLoading(actionData.action)
-
-    try {
-      // Optimistic update based on action
-      if (actionData.action === 'start' || actionData.action === 'restart') {
-        await updateServerStatusOptimistic({ status: 'starting' })
-        if (actionData.collectionId && serverStatus) {
-          await updateServerStatusOptimistic({
-            activeCollection: {
-              id: actionData.collectionId,
-              name: 'Loading...', // Will be updated by API response
-            },
-          })
-        }
-      } else if (actionData.action === 'stop') {
-        await updateServerStatusOptimistic({ status: 'stopping' })
-      }
-
-      // Call the API
-      const response = await server.performServerAction({
+  // Mutations
+  const serverActionMutation = useMutation({
+    mutationFn: async (actionData: ServerActionWithCollection) => {
+      return await server.performServerAction({
         action: actionData.action,
         collectionId: actionData.collectionId,
       })
-
+    },
+    onSuccess: (response, actionData) => {
       console.log(`Server ${actionData.action} response:`, response)
+      // Invalidate server status to get fresh data
+      queryClient.invalidateQueries({ queryKey: ['server-status'] })
+    },
+    onError: (error, actionData) => {
+      handleApiError(error, `Failed to ${actionData.action} server`)
+    },
+  })
 
-      // TanStack DB will handle the API call automatically via onUpdate
-      // The server status will be updated by the API response
+  const updateServerConfigMutation = useMutation({
+    mutationFn: async (configData: Partial<ServerConfigResponse>) => {
+      return await server.updateServerConfig(configData)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['server-config'] })
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to update server config')
+    },
+  })
+
+  // Action functions
+  const performServerAction = async (actionData: ServerActionWithCollection) => {
+    try {
+      await serverActionMutation.mutateAsync(actionData)
     } catch (error) {
       console.error(`Server ${actionData.action} failed:`, error)
-      // Revert optimistic update on error
-      if (serverStatus) {
-        await serverCollection.update(serverStatus.id, (_draft: ServerStatusResponse) => {
-          // Revert to previous state - this would need more sophisticated error handling
-          // For now, just log the error
-        })
-      }
-    } finally {
-      setIsLoading(null)
     }
   }
 
   const refreshServerStatus = async () => {
     try {
-      // Trigger a refetch by invalidating the query
-      // This will cause TanStack DB to refetch the data
+      await queryClient.invalidateQueries({ queryKey: ['server-status'] })
       console.log('Refreshing server status...')
     } catch (error) {
       console.error('Failed to refresh server status:', error)
@@ -130,15 +126,8 @@ export function useServer() {
   }, [])
 
   const updateServerConfig = async (configData: Partial<ServerConfigResponse>) => {
-    if (!serverConfig) return
-
     try {
-      await serverConfigCollection.update(serverConfig.id, (draft: ServerConfigResponse) => {
-        Object.assign(draft, configData, {
-          updatedAt: new Date().toISOString(),
-        })
-      })
-      // TanStack DB will handle the API call automatically via onUpdate
+      await updateServerConfigMutation.mutateAsync(configData)
     } catch (error) {
       console.error('Failed to update server config:', error)
     }
@@ -156,7 +145,13 @@ export function useServer() {
     metricsHistory,
 
     // Loading states
-    isLoading,
+    isLoading: serverActionMutation.isPending,
+    isServerStatusLoading,
+    isServerConfigLoading,
+
+    // Error states
+    serverStatusError,
+    serverConfigError,
 
     // Actions
     performServerAction,
