@@ -1,142 +1,148 @@
 import { useState } from 'react'
-import { useLiveQuery } from '@tanstack/react-db'
-import { useCollectionsDB } from '@/providers/db-provider'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { collections as collectionsService } from '@/services'
+import { handleApiError } from '@/lib/error-handler'
 import type { Collection, NewCollection } from '@/types/collections'
-import type { ModSubscription } from '@/types/mods'
+import type { CollectionResponse } from '@/types/api'
+
+// Transform API response to local types
+const transformApiCollections = (collections: CollectionResponse[]): Collection[] => {
+  return collections.map((collection) => ({
+    id: collection.id,
+    name: collection.name,
+    description: collection.description || '',
+    mods: collection.mods
+      .filter((entry) => entry.mod)
+      .map((entry) => ({
+        id: entry.mod!.id,
+        steamId: entry.mod!.steam_id,
+        filename: entry.mod!.filename,
+        name: entry.mod!.name || `Mod ${entry.mod!.steam_id}`,
+        modType: (entry.mod!.mod_type as 'mod' | 'mission' | 'map') || null,
+        localPath: entry.mod!.local_path,
+        arguments: entry.mod!.arguments,
+        isServerMod: entry.mod!.server_mod,
+        sizeBytes: entry.mod!.size_bytes,
+        size: entry.mod!.size_bytes
+          ? `${Math.round(entry.mod!.size_bytes / 1024 / 1024)} MB`
+          : 'Unknown',
+        lastUpdated: entry.mod!.last_updated,
+        steamLastUpdated: entry.mod!.steam_last_updated,
+        shouldUpdate: entry.mod!.should_update,
+        imageAvailable: entry.mod!.image_available || false,
+      })),
+    createdAt: collection.created_at,
+    isActive: false, // TODO: Add isActive support when API provides it
+  }))
+}
 
 export function useCollections() {
-  const collectionsCollection = useCollectionsDB()
-
-  // Get collections from TanStack DB using live query (automatically reactive)
-  const { data: collections = [] } = useLiveQuery((query) =>
-    query.from({ collections: collectionsCollection })
-  )
+  const queryClient = useQueryClient()
 
   // Local state for UI-specific concerns
   const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(null)
+
+  // Fetch collections using React Query
+  const {
+    data: collections = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['collections'],
+    queryFn: async () => {
+      console.log('🔄 Fetching collections from API...')
+      const apiCollections = await collectionsService.getCollections()
+      return transformApiCollections(apiCollections)
+    },
+  })
 
   // Derive selectedCollection from collections array to keep it in sync
   const selectedCollection = selectedCollectionId
     ? collections.find((c: Collection) => c.id === selectedCollectionId) || null
     : null
 
-  // Helper functions for optimistic updates
+  // Helper functions
   const findCollection = (id: number) => collections.find((c: Collection) => c.id === id)
 
-  // Direct collection mutations (no need for useMutation with TanStack DB)
-  const createCollectionOptimistic = async (newCollection: NewCollection) => {
-    const optimisticCollection: Collection = {
-      id: Date.now(), // Temporary ID, will be replaced by server response
-      name: newCollection.name,
-      description: newCollection.description,
-      mods: [],
-      createdAt: new Date().toISOString().split('T')[0],
-      isActive: false,
-    }
+  // Mutations
+  const createCollectionMutation = useMutation({
+    mutationFn: async (newCollection: NewCollection) => {
+      const response = await collectionsService.createCollection({
+        name: newCollection.name,
+        description: newCollection.description,
+      })
+      return response
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to create collection')
+    },
+  })
 
-    // Optimistic insert using TanStack DB
-    await collectionsCollection.insert(optimisticCollection)
-  }
+  const updateCollectionMutation = useMutation({
+    mutationFn: async ({ id, updates }: { id: number; updates: Partial<Collection> }) => {
+      const response = await collectionsService.updateCollection(id, {
+        name: updates.name,
+        description: updates.description,
+      })
+      return response
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to update collection')
+    },
+  })
 
-  const updateCollectionOptimistic = async (id: number, updates: Partial<Collection>) => {
-    const existingCollection = findCollection(id)
-    if (!existingCollection) return
-
-    // If setting active, make others inactive first
-    if (updates.isActive) {
-      const activeCollections = collections.filter((c: Collection) => c.isActive && c.id !== id)
-      for (const collection of activeCollections) {
-        await collectionsCollection.update(collection.id, (draft) => {
-          draft.isActive = false
-        })
+  const deleteCollectionMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await collectionsService.deleteCollection(id)
+      return id
+    },
+    onSuccess: (deletedId) => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
+      if (selectedCollection?.id === deletedId) {
+        setSelectedCollectionId(null)
       }
-    }
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to delete collection')
+    },
+  })
 
-    // Optimistic update using TanStack DB
-    await collectionsCollection.update(id, (draft) => {
-      Object.assign(draft, updates)
-    })
-  }
+  const addModsToCollectionMutation = useMutation({
+    mutationFn: async ({ collectionId, modIds }: { collectionId: number; modIds: number[] }) => {
+      await collectionsService.addModsToCollection(collectionId, { mods: modIds })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to add mods to collection')
+    },
+  })
 
-  const deleteCollectionOptimistic = async (id: number) => {
-    // Optimistic delete using TanStack DB
-    await collectionsCollection.delete(id)
-  }
-
-  // TODO: Remove when API supports mod disabling
-  // const toggleModOptimistic = async (collectionId: number, modId: number) => {
-  //   const collection = findCollection(collectionId)
-  //   const mod = collection?.mods.find((m: ModSubscription) => m.id === modId)
-
-  //   if (!collection || !mod) return
-
-  //   const updatedMods = collection.mods.map((m: ModSubscription) =>
-  //     m.id === modId ? { ...m, disabled: !m.disabled } : m
-  //   )
-
-  //   await collectionsCollection.update(collectionId, (draft) => {
-  //     draft.mods = updatedMods
-  //   })
-  //   // TanStack DB will handle the API call automatically via onUpdate
-  // }
-
-  // Temporarily disabled mod toggling until API supports it
-  const toggleModOptimistic = async (_collectionId: number, _modId: number) => {
-    console.warn('Mod disabling is temporarily disabled until API supports it')
-    // No-op for now
-  }
-
-  const removeModOptimistic = async (collectionId: number, modId: number) => {
-    const collection = findCollection(collectionId)
-    if (!collection) return
-
-    const updatedMods = collection.mods.filter((m: ModSubscription) => m.id !== modId)
-
-    await collectionsCollection.update(collectionId, (draft) => {
-      draft.mods = updatedMods
-    })
-    // TanStack DB will handle the API call automatically via onUpdate
-  }
-
-  const addModsToCollectionOptimistic = async (collectionId: number, modIds: number[]) => {
-    const collection = findCollection(collectionId)
-    if (!collection) return
-
-    // For now, create placeholder ModSubscriptions since we need actual mod data from the backend
-    // The actual implementation will be handled by TanStack DB's onUpdate callback
-    // which will call the real API and update with proper mod data
-    const placeholderMods: ModSubscription[] = modIds.map((id) => ({
-      id,
-      steamId: id,
-      filename: `mod_${id}`,
-      name: `Mod ${id}`, // Placeholder name
-      modType: 'mod' as const,
-      localPath: null,
-      arguments: null,
-      isServerMod: false,
-      sizeBytes: null,
-      size: 'Unknown',
-      lastUpdated: null,
-      steamLastUpdated: null,
-      shouldUpdate: false,
-      imageAvailable: false,
-    }))
-
-    const updatedMods = [...collection.mods, ...placeholderMods]
-
-    await collectionsCollection.update(collectionId, (draft) => {
-      draft.mods = updatedMods
-    })
-    // TanStack DB will handle the API call automatically via onUpdate
-  }
+  const removeModFromCollectionMutation = useMutation({
+    mutationFn: async ({ collectionId, modIds }: { collectionId: number; modIds: number[] }) => {
+      await collectionsService.removeModFromCollection(collectionId, { mods: modIds })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to remove mod from collection')
+    },
+  })
 
   // Action functions
   const createCollection = async (
     newCollection: NewCollection
   ): Promise<Collection | undefined> => {
     try {
-      await createCollectionOptimistic(newCollection)
-      // TanStack DB will handle the API call automatically via onInsert
+      await createCollectionMutation.mutateAsync(newCollection)
       return collections.find((c: Collection) => c.name === newCollection.name)
     } catch (error) {
       console.error('Create collection failed:', error)
@@ -146,30 +152,24 @@ export function useCollections() {
 
   const deleteCollection = async (id: number) => {
     try {
-      await deleteCollectionOptimistic(id)
-      // Reset selected collection if it was deleted
-      if (selectedCollection?.id === id) {
-        setSelectedCollectionId(null)
-      }
-      // TanStack DB will handle the API call automatically via onDelete
+      await deleteCollectionMutation.mutateAsync(id)
     } catch (error) {
       console.error('Delete collection failed:', error)
     }
   }
 
-  const toggleMod = async (collectionId: number, modId: number) => {
-    try {
-      await toggleModOptimistic(collectionId, modId)
-      // TanStack DB will handle state updates automatically
-    } catch (error) {
-      console.error('Toggle mod failed:', error)
-    }
+  // TODO: Implement when API supports it
+  const toggleMod = async (_collectionId: number, _modId: number) => {
+    console.warn('Mod disabling is temporarily disabled until API supports it')
+    // No-op for now
   }
 
   const removeModFromCollection = async (collectionId: number, modId: number) => {
     try {
-      await removeModOptimistic(collectionId, modId)
-      // TanStack DB will handle state updates automatically
+      await removeModFromCollectionMutation.mutateAsync({
+        collectionId,
+        modIds: [modId],
+      })
     } catch (error) {
       console.error('Remove mod failed:', error)
     }
@@ -177,8 +177,7 @@ export function useCollections() {
 
   const addModsToCollection = async (collectionId: number, modIds: number[]) => {
     try {
-      await addModsToCollectionOptimistic(collectionId, modIds)
-      // TanStack DB will handle state updates automatically
+      await addModsToCollectionMutation.mutateAsync({ collectionId, modIds })
     } catch (error) {
       console.error('Add mods to collection failed:', error)
     }
@@ -186,8 +185,9 @@ export function useCollections() {
 
   const setActive = async (collectionId: number) => {
     try {
-      await updateCollectionOptimistic(collectionId, { isActive: true })
-      // TanStack DB will handle the API call automatically via onUpdate
+      // For now, this is just a local state update since API doesn't support it yet
+      // When API supports it, we'll make an API call here
+      console.log(`Setting collection ${collectionId} as active`)
     } catch (error) {
       console.error('Set active failed:', error)
     }
@@ -197,9 +197,14 @@ export function useCollections() {
     const trimmedName = newName.trim()
     if (!trimmedName) return
 
+    const existingCollection = findCollection(collectionId)
+    if (!existingCollection) return
+
     try {
-      await updateCollectionOptimistic(collectionId, { name: trimmedName })
-      // TanStack DB will handle the API call automatically via onUpdate
+      await updateCollectionMutation.mutateAsync({
+        id: collectionId,
+        updates: { name: trimmedName },
+      })
     } catch (error) {
       console.error('Update collection name failed:', error)
     }
@@ -209,6 +214,8 @@ export function useCollections() {
     collections,
     selectedCollection,
     setSelectedCollectionId,
+    isLoading,
+    error,
     createCollection,
     deleteCollection,
     toggleMod,
