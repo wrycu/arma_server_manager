@@ -2,7 +2,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { createRouter, RouterProvider } from '@tanstack/react-router'
 import './index.css'
-import './lib/polyfills'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
