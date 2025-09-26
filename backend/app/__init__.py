@@ -49,7 +49,7 @@ def create_app(config_name: str | None = None) -> Flask:
     # Initialize extensions with app
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app)
+    CORS(app, origins=app.config.get("CORS_ORIGINS", []))
 
     # Configure Celery
     celery.conf.update(app.config)
