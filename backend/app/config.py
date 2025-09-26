@@ -24,7 +24,9 @@ class Config:
     }
 
     # CORS settings
-    CORS_ORIGINS = ["http://localhost:3000", "http://localhost:5173"]
+    CORS_ORIGINS = os.environ.get(
+        "CORS_ORIGINS", "http://localhost:3000,http://localhost:5173"
+    ).split(",")
 
     # SteamCMD settings
     STEAMCMD = {
