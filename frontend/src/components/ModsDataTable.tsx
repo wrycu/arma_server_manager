@@ -104,9 +104,9 @@ export function DataTable<TData, TValue>({
             className="max-w-sm"
           />
           <Select
-            value={(table.getColumn('type')?.getFilterValue() as string) ?? 'all'}
+            value={(table.getColumn('modType')?.getFilterValue() as string) ?? 'all'}
             onValueChange={(value) =>
-              table.getColumn('type')?.setFilterValue(value === 'all' ? '' : [value])
+              table.getColumn('modType')?.setFilterValue(value === 'all' ? '' : [value])
             }
           >
             <SelectTrigger className="w-[180px]">

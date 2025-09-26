@@ -91,7 +91,7 @@ export const getColumns = ({
     },
   },
   {
-    accessorKey: 'type',
+    accessorKey: 'modType',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Type" />,
     cell: ({ row }) => {
       const type = row.getValue('modType') as ModSubscription['modType']
