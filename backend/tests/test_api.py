@@ -184,6 +184,28 @@ class TestArma3API:
         )
         assert reply.status_code == HTTPStatus.OK
         assert len(Mod.query.all()) == 2
+        reply = client.get(
+            "/api/arma3/mod/subscription/2",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"]["mod_type"] == "mod"
+        reply = client.post(
+            "/api/arma3/mod/subscription",
+            json={
+                "mods": [
+                    {
+                        "steam_id": 648775794,  # Isla Abramia
+                    }
+                ],
+            },
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert len(Mod.query.all()) == 3
+        reply = client.get(
+            "/api/arma3/mod/subscription/3",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        assert reply.json["results"]["mod_type"] == "map"
 
     def test_unscribe_from_mod(self, client: FlaskClient, add_cba_to_db: None) -> None:
         # populate the database with an entry so we can remove it

@@ -474,7 +474,7 @@ class SteamAPI:
         details = reply.json()["response"]["publishedfiledetails"][0]
         if any(x["tag"] == "Scenario" for x in details["tags"]):
             details["mod_type"] = "mission"
-        elif any(x["tag"] == "Map" for x in details["tags"]):
+        elif any(x["tag"] == "Terrain" for x in details["tags"]):
             details["mod_type"] = "map"
         else:
             details["mod_type"] = "mod"
