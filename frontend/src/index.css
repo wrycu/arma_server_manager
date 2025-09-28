@@ -88,14 +88,14 @@
   --primary-foreground: oklch(0 0 0);
   --secondary: oklch(0.2029 0.0158 195.9739);
   --secondary-foreground: oklch(0.9189 0 0);
-  --muted: oklch(0.2500 0.0154 196.2080);
+  --muted: oklch(0.25 0.0154 196.208);
   --muted-foreground: oklch(0.6993 0 0);
   --accent: oklch(0.6452 0.0697 142.7849);
   --accent-foreground: oklch(0 0 0);
-  --destructive: oklch(0.7331 0.1510 29.4644);
+  --destructive: oklch(0.7331 0.151 29.4644);
   --destructive-foreground: oklch(0.9189 0 0);
-  --border: oklch(0.3216 0.0161 190.1330);
-  --input: oklch(0.2500 0.0154 196.2080);
+  --border: oklch(0.3216 0.0161 190.133);
+  --input: oklch(0.25 0.0154 196.208);
   --ring: oklch(0.7288 0.1079 72.3686);
   --chart-1: oklch(0.7288 0.1079 72.3686);
   --chart-2: oklch(0.6452 0.0697 142.7849);
@@ -106,13 +106,13 @@
   --sidebar-foreground: oklch(0.9189 0 0);
   --sidebar-primary: oklch(0.7288 0.1079 72.3686);
   --sidebar-primary-foreground: oklch(0 0 0);
-  --sidebar-accent: oklch(0.2500 0.0154 196.2080);
+  --sidebar-accent: oklch(0.25 0.0154 196.208);
   --sidebar-accent-foreground: oklch(0.9189 0 0);
-  --sidebar-border: oklch(0.3216 0.0161 190.1330);
+  --sidebar-border: oklch(0.3216 0.0161 190.133);
   --sidebar-ring: oklch(0.7288 0.1079 72.3686);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --radius: 0.25rem;
   --shadow-2xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
   --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
@@ -135,16 +135,16 @@
   --popover-foreground: oklch(0.9189 0 0);
   --primary: oklch(0.7288 0.1079 72.3686);
   --primary-foreground: oklch(0 0 0);
-  --secondary: oklch(0.2500 0.0154 196.2080);
+  --secondary: oklch(0.25 0.0154 196.208);
   --secondary-foreground: oklch(0.9189 0 0);
-  --muted: oklch(0.2500 0.0154 196.2080);
+  --muted: oklch(0.25 0.0154 196.208);
   --muted-foreground: oklch(0.6993 0 0);
   --accent: oklch(0.6452 0.0697 142.7849);
   --accent-foreground: oklch(0.9189 0 0);
-  --destructive: oklch(0.7331 0.1510 29.4644);
+  --destructive: oklch(0.7331 0.151 29.4644);
   --destructive-foreground: oklch(0.9189 0 0);
-  --border: oklch(0.3216 0.0161 190.1330);
-  --input: oklch(0.3216 0.0161 190.1330);
+  --border: oklch(0.3216 0.0161 190.133);
+  --input: oklch(0.3216 0.0161 190.133);
   --ring: oklch(0.7288 0.1079 72.3686);
   --chart-1: oklch(0.7288 0.1079 72.3686);
   --chart-2: oklch(0.6452 0.0697 142.7849);
@@ -155,13 +155,13 @@
   --sidebar-foreground: oklch(0.9189 0 0);
   --sidebar-primary: oklch(0.7288 0.1079 72.3686);
   --sidebar-primary-foreground: oklch(0 0 0);
-  --sidebar-accent: oklch(0.2500 0.0154 196.2080);
+  --sidebar-accent: oklch(0.25 0.0154 196.208);
   --sidebar-accent-foreground: oklch(0.9189 0 0);
-  --sidebar-border: oklch(0.3216 0.0161 190.1330);
+  --sidebar-border: oklch(0.3216 0.0161 190.133);
   --sidebar-ring: oklch(0.7288 0.1079 72.3686);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   --radius: 0.25rem;
   --shadow-2xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
   --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
@@ -280,7 +280,6 @@
   pointer-events: none;
   z-index: 999;
   background-image: url('/src/assets/topography.jpg');
-
 
   opacity: 0.003;
 }
