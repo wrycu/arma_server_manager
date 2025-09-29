@@ -1,223 +1,186 @@
-import { IconServer, IconPlayerPlay, IconPlayerStop, IconRefresh } from '@tabler/icons-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import {
+  IconServer,
+  IconPlayerPlay,
+  IconPlayerStop,
+  IconRefresh,
+  IconSettings,
+  IconTrash,
+  IconDots,
+} from '@tabler/icons-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
 import { CollectionSelector } from '@/components/ServerCollectionSelector'
-import type { ServerStatus, ServerAction } from '@/types/server'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useNavigate } from '@tanstack/react-router'
 import type { Collection } from '@/types/collections'
+import type { ServerConfig } from '@/types/server'
+import type { ServerActionRequest, ServerStatusResponse } from '@/types/api'
 
 interface CompactServerStatusProps {
-  server: ServerStatus
-  isLoading: string | null
+  server: ServerConfig | null
+  serverStatus?: ServerStatusResponse | null
+  isLoading: boolean
   collections: Collection[]
   selectedStartupCollection: Collection | null
-  onServerAction: (action: ServerAction, collectionId?: number) => void
+  onServerAction: (action: ServerActionRequest, collectionId?: number) => void
   onStartupCollectionChange: (collection: Collection | null) => void
+  onViewDetails?: () => void
+  onDeleteServer?: () => void
 }
 
 export function CompactServerStatus({
   server,
-  isLoading,
+  serverStatus,
+  isLoading: _isLoading,
   collections,
   selectedStartupCollection,
   onServerAction,
   onStartupCollectionChange,
+  onViewDetails,
+  onDeleteServer,
 }: CompactServerStatusProps) {
-  const formatUptime = (seconds: number) => {
-    const days = Math.floor(seconds / 86400)
-    const hours = Math.floor((seconds % 86400) / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    return `${days}d ${hours}h ${minutes}m`
+  const navigate = useNavigate()
+
+  if (!server) {
+    return (
+      <Card className="overflow-hidden">
+        <CardContent className="p-8">
+          <div className="text-center space-y-4">
+            <div className="space-y-2">
+              <IconServer className="size-12 text-muted-foreground mx-auto" />
+              <h3 className="text-lg font-semibold">No Server Configured</h3>
+              <p className="text-muted-foreground">
+                Get started by creating your first ARMA 3 server configuration
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <Button onClick={() => navigate({ to: '/settings' })}>Get Started</Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'online':
-        return 'bg-green-500'
-      case 'offline':
-        return 'bg-red-500'
-      case 'starting':
-        return 'bg-yellow-500'
-      case 'stopping':
-        return 'bg-orange-500'
-      default:
-        return 'bg-gray-500'
-    }
-  }
+  // Mock server status - in a real implementation this would come from props
+  const isServerRunning = serverStatus?.status === 'online' || false
+  const currentServerCollection = serverStatus?.activeCollection
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'online':
-        return <Badge className="bg-green-500 hover:bg-green-600">Online</Badge>
-      case 'offline':
-        return <Badge variant="destructive">Offline</Badge>
-      case 'starting':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Starting</Badge>
-      case 'stopping':
-        return <Badge className="bg-orange-500 hover:bg-orange-600">Stopping</Badge>
-      default:
-        return <Badge variant="secondary">Unknown</Badge>
+  // Check if selected collection is different from current server collection
+  const _isCollectionDifferent = selectedStartupCollection?.id !== currentServerCollection?.id
+
+  // Determine available actions based on server state
+  const canStart = !isServerRunning
+  const canStop = isServerRunning
+  const canRestart = true // Always allow restart
+
+  const handleServerAction = (action: 'start' | 'stop' | 'restart') => {
+    const actionRequest: ServerActionRequest = {
+      action,
+      collectionId: selectedStartupCollection?.id,
     }
+    onServerAction(actionRequest, selectedStartupCollection?.id)
   }
 
   return (
-    <Card className="overflow-hidden h-full flex flex-col">
-      {/* Enhanced Header with Better Visual Hierarchy */}
-      <CardHeader className="pb-6 flex-shrink-0">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="flex items-center gap-2.5">
-                <IconServer className="size-5 text-muted-foreground" />
-                {server.name}
-              </div>
-            </CardTitle>
-            <CardDescription className="text-sm">
-              ARMA 3 Server • Version {server.version}
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className={`size-3 rounded-full ${getStatusColor(server.status)} shadow-sm`} />
-            {getStatusBadge(server.status)}
+    <Card className="overflow-hidden">
+      {/* Clean Header with Server Icon and Name */}
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3 text-2xl">
+            <IconServer className="size-6 text-primary" />
+            {server.server_name}
+          </CardTitle>
+          <div className="flex items-center gap-2">
+            {isServerRunning && <Badge variant="default">Running</Badge>}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <IconDots className="size-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {onViewDetails && (
+                  <DropdownMenuItem onClick={onViewDetails}>
+                    <IconSettings className="size-4 mr-2" />
+                    Settings
+                  </DropdownMenuItem>
+                )}
+                {onDeleteServer && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={onDeleteServer} variant="destructive">
+                      <IconTrash className="size-4 mr-2" />
+                      Delete Server
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col">
-        <div className="space-y-6 flex-1">
-          {/* Resource Usage Progress Bars */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">CPU Usage</span>
-                <span className="font-medium">{server.cpu}%</span>
-              </div>
-              <Progress value={server.cpu} className="h-2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Memory Usage</span>
-                <span className="font-medium">{server.memory}%</span>
-              </div>
-              <Progress value={server.memory} className="h-2" />
+      <CardContent className="space-y-6">
+        {/* Server Details */}
+        <div className="space-y-1">
+          <div className="text-sm text-muted-foreground">Max Players</div>
+          <div className="font-medium">{server.max_players}</div>
+        </div>
+
+        {/* Mod Collection Section */}
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <div className="text-sm font-semibold">Mod Collection</div>
+            <div className="text-xs text-muted-foreground">
+              Collection selection not yet integrated with server actions
             </div>
           </div>
+          <CollectionSelector
+            server={server}
+            collections={collections}
+            selectedStartupCollection={selectedStartupCollection}
+            onStartupCollectionChange={onStartupCollectionChange}
+          />
+        </div>
 
-          {/* Server Information - Compact & Clean */}
-          <div className="bg-muted/20 rounded-lg p-4">
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-              <div className="text-sm">
-                <span className="text-muted-foreground">Players: </span>
-                <span className="font-medium">
-                  {server.players}/{server.maxPlayers}
-                </span>
-              </div>
-              <div className="text-sm">
-                <span className="text-muted-foreground">Uptime: </span>
-                <span className="font-medium">
-                  {server.uptime ? formatUptime(server.uptime) : 'Offline'}
-                </span>
-              </div>
-              <div className="text-sm">
-                <span className="text-muted-foreground">Mods loaded: </span>
-                <span className="font-medium">{server.mods}</span>
-              </div>
-              <div className="text-sm">
-                <span className="text-muted-foreground">Last restart: </span>
-                <span className="font-medium">{server.lastRestart}</span>
-              </div>
-              <div className="text-sm col-span-2">
-                <span className="text-muted-foreground">Mission: </span>
-                <span className="font-medium">{server.mission || 'No mission loaded'}</span>
-              </div>
-              {server.activeCollection && (
-                <div className="text-sm col-span-2">
-                  <span className="text-muted-foreground">Active collection: </span>
-                  <Badge variant="secondary" className="text-xs ml-1">
-                    {server.activeCollection.name}
-                  </Badge>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Server Content Configuration */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold">Server Configuration</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Select the mod collection to load when starting the server
-              </p>
-            </div>
-            <CollectionSelector
-              server={server}
-              collections={collections}
-              selectedStartupCollection={selectedStartupCollection}
-              onStartupCollectionChange={onStartupCollectionChange}
-            />
+        {/* Server Actions */}
+        <div className="space-y-3">
+          <div className="text-sm font-semibold">Server Actions</div>
+          <div className="flex gap-2 flex-wrap">
+            {canStart && (
+              <Button onClick={() => handleServerAction('start')} size="sm" variant="default">
+                <IconPlayerPlay className="size-4 mr-1" />
+                Start
+              </Button>
+            )}
+            {canStop && (
+              <Button onClick={() => handleServerAction('stop')} size="sm" variant="destructive">
+                <IconPlayerStop className="size-4 mr-1" />
+                Stop
+              </Button>
+            )}
+            {canRestart && (
+              <Button onClick={() => handleServerAction('restart')} size="sm" variant="outline">
+                <IconRefresh className="size-4 mr-1" />
+                Restart
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* Server Controls - Enhanced Button Layout */}
-        <div className="pt-6 mt-auto">
-          <div className="flex gap-3">
-            {server.status === 'online' ? (
-              <>
-                <Button
-                  variant="destructive"
-                  className="flex-1"
-                  onClick={() => onServerAction('stop')}
-                  disabled={isLoading === 'stop'}
-                >
-                  <IconPlayerStop className="size-4 mr-2" />
-                  {isLoading === 'stop' ? 'Stopping...' : 'Stop Server'}
-                </Button>
-
-                {selectedStartupCollection &&
-                selectedStartupCollection.id !== server.activeCollection?.id ? (
-                  <Button
-                    variant="default"
-                    className="flex-1"
-                    onClick={() => onServerAction('restart', selectedStartupCollection.id)}
-                    disabled={isLoading === 'restart'}
-                  >
-                    <IconRefresh className="size-4 mr-2" />
-                    {isLoading === 'restart' ? 'Applying...' : 'Apply & Restart'}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => onServerAction('restart')}
-                    disabled={isLoading === 'restart'}
-                  >
-                    <IconRefresh className="size-4 mr-2" />
-                    {isLoading === 'restart' ? 'Restarting...' : 'Restart'}
-                  </Button>
-                )}
-              </>
-            ) : server.status === 'starting' ? (
-              <Button variant="outline" className="w-full" disabled={true}>
-                <IconPlayerPlay className="size-4 mr-2" />
-                Starting Server...
-              </Button>
-            ) : server.status === 'stopping' ? (
-              <Button variant="outline" className="w-full" disabled={true}>
-                <IconPlayerStop className="size-4 mr-2" />
-                Stopping Server...
-              </Button>
-            ) : (
-              <Button
-                variant="default"
-                className="w-full bg-green-600 hover:bg-green-700 text-white"
-                onClick={() => onServerAction('start', selectedStartupCollection?.id)}
-                disabled={isLoading === 'start'}
-              >
-                <IconPlayerPlay className="size-4 mr-2" />
-                {isLoading === 'start' ? 'Starting...' : 'Start Server'}
-              </Button>
-            )}
+        {/* Footer with timestamps */}
+        <div className="pt-4 border-t border-border/30">
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Created {new Date(server.created_at).toLocaleDateString()}</span>
+            <span>Updated {new Date(server.updated_at).toLocaleDateString()}</span>
           </div>
         </div>
       </CardContent>

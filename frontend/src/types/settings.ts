@@ -9,11 +9,19 @@ export interface NotificationSettings {
 }
 
 export interface ServerConfiguration {
-  serverName: string
-  serverPort: number
-  serverPassword: string
-  maxPlayers: number
-  serverDescription: string
+  name: string
+  description: string
+  server_name: string
+  password: string
+  admin_password: string
+  max_players: number
+  mission_file: string
+  server_config_file: string
+  basic_config_file: string
+  server_mods: string
+  client_mods: string
+  additional_params: string
+  server_binary: string
 }
 
 export interface SecuritySettings {
@@ -24,7 +32,6 @@ export interface SecuritySettings {
 export interface SettingsData {
   notifications: NotificationSettings
   server: ServerConfiguration
-  security: SecuritySettings
 }
 
-export type SettingsTab = 'notifications' | 'server' | 'security'
+export type SettingsTab = 'server' | 'notifications'
