@@ -23,7 +23,7 @@ const navigationData = {
   serverManagement: [
     {
       title: 'Control Panel',
-      url: 'server-control',
+      url: '',
       icon: IconServer,
       shortcut: '⌘C',
     },
@@ -78,7 +78,8 @@ export function NavigationCommand({ className, onNavigate }: NavigationCommandPr
       // TODO: Implement logout logic
       console.log('Logout clicked')
     } else {
-      router.navigate({ to: `/${item.url}` })
+      const path = item.url === '' ? '/' : `/${item.url}`
+      router.navigate({ to: path })
     }
     onNavigate?.()
   }

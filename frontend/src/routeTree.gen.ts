@@ -10,10 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
-import { Route as ServerControlRouteImport } from './routes/server-control'
 import { Route as ServerConfigsRouteImport } from './routes/server-configs'
 import { Route as SchedulesRouteImport } from './routes/schedules'
 import { Route as ModSubscriptionsRouteImport } from './routes/mod-subscriptions'
+import { Route as ControlPanelRouteImport } from './routes/control-panel'
 import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
@@ -21,11 +21,6 @@ import { Route as IndexRouteImport } from './routes/index'
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ServerControlRoute = ServerControlRouteImport.update({
-  id: '/server-control',
-  path: '/server-control',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ServerConfigsRoute = ServerConfigsRouteImport.update({
@@ -41,6 +36,11 @@ const SchedulesRoute = SchedulesRouteImport.update({
 const ModSubscriptionsRoute = ModSubscriptionsRouteImport.update({
   id: '/mod-subscriptions',
   path: '/mod-subscriptions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ControlPanelRoute = ControlPanelRouteImport.update({
+  id: '/control-panel',
+  path: '/control-panel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CollectionsRoute = CollectionsRouteImport.update({
@@ -63,20 +63,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRoute
+  '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
-  '/server-control': typeof ServerControlRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRoute
+  '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
-  '/server-control': typeof ServerControlRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
@@ -84,10 +84,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRoute
+  '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
-  '/server-control': typeof ServerControlRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
@@ -96,30 +96,30 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/collections'
+    | '/control-panel'
     | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
-    | '/server-control'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/collections'
+    | '/control-panel'
     | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
-    | '/server-control'
     | '/settings'
   id:
     | '__root__'
     | '/'
     | '/auth'
     | '/collections'
+    | '/control-panel'
     | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
-    | '/server-control'
     | '/settings'
   fileRoutesById: FileRoutesById
 }
@@ -127,10 +127,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   CollectionsRoute: typeof CollectionsRoute
+  ControlPanelRoute: typeof ControlPanelRoute
   ModSubscriptionsRoute: typeof ModSubscriptionsRoute
   SchedulesRoute: typeof SchedulesRoute
   ServerConfigsRoute: typeof ServerConfigsRoute
-  ServerControlRoute: typeof ServerControlRoute
   SettingsRoute: typeof SettingsRoute
 }
 
@@ -141,13 +141,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/server-control': {
-      id: '/server-control'
-      path: '/server-control'
-      fullPath: '/server-control'
-      preLoaderRoute: typeof ServerControlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/server-configs': {
@@ -169,6 +162,13 @@ declare module '@tanstack/react-router' {
       path: '/mod-subscriptions'
       fullPath: '/mod-subscriptions'
       preLoaderRoute: typeof ModSubscriptionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/control-panel': {
+      id: '/control-panel'
+      path: '/control-panel'
+      fullPath: '/control-panel'
+      preLoaderRoute: typeof ControlPanelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/collections': {
@@ -199,10 +199,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   CollectionsRoute: CollectionsRoute,
+  ControlPanelRoute: ControlPanelRoute,
   ModSubscriptionsRoute: ModSubscriptionsRoute,
   SchedulesRoute: SchedulesRoute,
   ServerConfigsRoute: ServerConfigsRoute,
-  ServerControlRoute: ServerControlRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,55 +1,39 @@
-export interface ServerStatus {
-  name: string
-  status: 'online' | 'offline' | 'starting' | 'stopping'
-  uptime?: number
-  players: number
-  maxPlayers: number
-  mission?: string
-  lastRestart?: string
-  cpu: number
-  memory: number
-  mods: number
-  version: string
-  activeCollection?: {
-    id: number
-    name: string
-  }
-}
-
-export interface ServerMetrics {
-  timestamp: number
-  players: number
-  cpu: number
-  memory: number
-}
-
-export type ServerAction = 'start' | 'stop' | 'restart'
-
-export interface ServerActionWithCollection {
-  action: ServerAction
-  collectionId?: number
-}
-
-// Schedule-related types
-export type ScheduleOperationType = 'restart' | 'backup' | 'mod_update' | 'stop' | 'start'
-
-export type ScheduleStatus = 'active' | 'inactive' | 'paused'
-
-export interface Schedule {
+// ----- Backend-aligned server config types (arma3/server endpoints) -----
+export interface ServerConfig {
   id: number
   name: string
-  description?: string
-  operationType: ScheduleOperationType
-  frequency: string // Natural language like "every 2 hours", "daily at 3am"
-  cronExpression: string // Generated cron expression for backend
-  nextRun: string // ISO date string
-  lastRun?: string // ISO date string
-  status: ScheduleStatus
-  operationData?: {
-    collectionId?: number // For restart with collection or collection_switch
-    customCommand?: string // For custom commands
-    parameters?: Record<string, unknown> // Additional parameters
-  }
-  createdAt: string
-  updatedAt: string
+  description: string | null
+  server_name: string
+  max_players: number
+  mission_file: string | null
+  server_config_file: string | null
+  basic_config_file: string | null
+  server_mods: string | null
+  client_mods: string | null
+  additional_params: string | null
+  server_binary: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+  // Sensitive (optional, only returned when include_sensitive=true)
+  password?: string | null
+  admin_password?: string | null
 }
+
+export interface CreateServerRequest {
+  name: string
+  description: string | null
+  server_name: string
+  password?: string | null
+  admin_password: string
+  max_players: number
+  mission_file?: string | null
+  server_config_file?: string | null
+  basic_config_file?: string | null
+  server_mods?: string | null
+  client_mods?: string | null
+  additional_params?: string | null
+  server_binary: string
+}
+
+export type UpdateServerRequest = Partial<CreateServerRequest>

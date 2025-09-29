@@ -91,8 +91,8 @@ export function SchedulesManager() {
         description="Manage automated server operations and schedules"
         breadcrumbs={[
           {
-            label: 'Server',
-            onClick: () => router.navigate({ to: '/server-control' }),
+            label: 'Control Panel',
+            onClick: () => router.navigate({ to: '/' }),
           },
         ]}
         actions={

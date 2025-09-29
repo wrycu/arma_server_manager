@@ -9,7 +9,7 @@ import {
   IconChevronsRight,
   IconCalendarTime,
 } from '@tabler/icons-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 
 import { NavSection } from '@/components/NavSection'
 import {
@@ -27,7 +27,7 @@ const data = {
   navControl: [
     {
       title: 'Control Panel',
-      url: 'server-control',
+      url: 'control-panel',
       icon: IconServer,
     },
     {
@@ -53,6 +53,8 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { state, toggleSidebar } = useSidebar()
   const isCollapsed = state === 'collapsed'
+  const routerState = useRouterState()
+  const currentPath = routerState.location.pathname
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -84,7 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Settings">
+            <SidebarMenuButton asChild tooltip="Settings" isActive={currentPath === '/settings'}>
               <Link to="/settings">
                 <IconSettings />
                 <span>Settings</span>

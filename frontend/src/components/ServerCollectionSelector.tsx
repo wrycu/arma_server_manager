@@ -5,11 +5,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import type { ServerStatus } from '@/types/server'
 import type { Collection } from '@/types/collections'
+import { ServerConfig } from '@/types/server'
 
 interface CollectionSelectorProps {
-  server: ServerStatus
+  server: ServerConfig
   collections: Collection[]
   selectedStartupCollection: Collection | null
   onStartupCollectionChange: (collection: Collection | null) => void
@@ -21,8 +21,7 @@ export function CollectionSelector({
   selectedStartupCollection,
   onStartupCollectionChange,
 }: CollectionSelectorProps) {
-  const isServerOnline = server.status === 'online'
-  const hasActiveCollection = isServerOnline && server.activeCollection
+  const hasActiveCollection = server.is_active && server.activeCollection
   const isDifferentCollectionSelected =
     selectedStartupCollection &&
     server.activeCollection &&
@@ -99,13 +98,10 @@ export function CollectionSelector({
                           <span className="font-medium">
                             {collection.name}
                             {collection.isActive && (
-                              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
+                              <span className="ml-2 text-xs bg-blue-100 px-1.5 py-0.5 rounded">
                                 Available
                               </span>
                             )}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {collection.mods.length} mods • {collection.description}
                           </span>
                         </div>
                       </SelectItem>
@@ -134,9 +130,6 @@ export function CollectionSelector({
                 <SelectItem value="none">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">No collection</span>
-                    <span className="text-xs text-muted-foreground">
-                      Start server without any mods
-                    </span>
                   </div>
                 </SelectItem>
                 {collections.map((collection) => (
@@ -150,23 +143,11 @@ export function CollectionSelector({
                           </span>
                         )}
                       </span>
-                      <span className="text-xs text-muted-foreground">
-                        {collection.mods.length} mods • {collection.description}
-                      </span>
                     </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {selectedStartupCollection && (
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p>{selectedStartupCollection.mods.length} mods will be loaded on startup</p>
-                <p className="text-xs">
-                  {selectedStartupCollection.mods.filter((m) => !m.disabled).length} enabled,
-                  {selectedStartupCollection.mods.filter((m) => m.disabled).length} disabled
-                </p>
-              </div>
-            )}
           </>
         )}
       </div>
