@@ -284,7 +284,7 @@ class TestArma3API:
     def test_schedule_create(self, client: FlaskClient) -> None:
         assert len(Schedule.query.all()) == 0
         reply = client.post(
-            "/api/arma3/schedule",
+            "/api/schedule",
             json={
                 "name": "wonderful schedule",
                 "action": "server_restart",
@@ -299,7 +299,7 @@ class TestArma3API:
     def test_schedule_list(self, client: FlaskClient, add_schedule_to_db: None) -> None:
         add_schedule_to_db  # noqa: B018
         reply = client.get(
-            "/api/arma3/schedules",
+            "/api/schedules",
         )
         assert reply.status_code == HTTPStatus.OK
         assert reply.json["results"][0]["action"] == "server_restart"
@@ -313,7 +313,7 @@ class TestArma3API:
         add_schedule_to_db  # noqa: B018
         assert len(Schedule.query.all()) == 1
         reply = client.patch(
-            "/api/arma3/schedule/1",
+            "/api/schedule/1",
             json={
                 "name": "wonderful schedule, now updated",
             },
@@ -321,7 +321,7 @@ class TestArma3API:
         assert reply.status_code == HTTPStatus.OK
         assert len(Schedule.query.all()) == 1
         reply = client.get(
-            "/api/arma3/schedules",
+            "/api/schedules",
         )
         assert reply.status_code == HTTPStatus.OK
         assert reply.json["results"][0]["action"] == "server_restart"
@@ -335,7 +335,7 @@ class TestArma3API:
         add_schedule_to_db  # noqa: B018
         assert len(Schedule.query.all()) == 1
         reply = client.delete(
-            "/api/arma3/schedule/1",
+            "/api/schedule/1",
         )
         assert reply.status_code == HTTPStatus.OK
         assert len(Schedule.query.all()) == 0
@@ -549,7 +549,7 @@ class TestArma3API:
     def test_notification_create(self, client: FlaskClient) -> None:
         assert len(Notification.query.all()) == 0
         reply = client.post(
-            "/api/arma3/notification",
+            "/api/notification",
             json={
                 "name": "Test notification!",
                 "URL": "http://127.0.0.1:1337/test",
@@ -565,7 +565,7 @@ class TestArma3API:
     ) -> None:
         add_notification_to_db  # noqa: B018
         reply = client.get(
-            "/api/arma3/notifications",
+            "/api/notifications",
         )
         assert reply.status_code == HTTPStatus.OK
         assert reply.json["results"][0]["enabled"]
@@ -576,7 +576,7 @@ class TestArma3API:
         add_notification_to_db  # noqa: B018
         assert len(Notification.query.all()) == 1
         reply = client.patch(
-            "/api/arma3/notification/1",
+            "/api/notification/1",
             json={
                 "URL": "notification 2",
             },
@@ -589,7 +589,7 @@ class TestArma3API:
         add_notification_to_db  # noqa: B018
         assert len(Notification.query.all()) == 1
         reply = client.delete(
-            "/api/arma3/notification/1",
+            "/api/notification/1",
             json={
                 "mods": [1],
             },
