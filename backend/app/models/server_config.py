@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from .. import db
+from .collection import Collection
 
 
 class ServerConfig(db.Model):  # type: ignore[name-defined]
@@ -64,7 +65,7 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
     )
 
     # Relationships
-    collection: Mapped[object] = relationship(
+    collection: Mapped[Collection] = relationship(
         "Collection", back_populates="server_config"
     )
 
