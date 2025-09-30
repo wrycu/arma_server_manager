@@ -11,6 +11,7 @@ from .. import db
 
 if TYPE_CHECKING:
     from .mod_collection_entry import ModCollectionEntry
+    from .server_config import ServerConfig
 
 
 class Collection(db.Model):  # type: ignore[name-defined]
@@ -42,6 +43,9 @@ class Collection(db.Model):  # type: ignore[name-defined]
     # Relationships
     mod_entries: Mapped[list["ModCollectionEntry"]] = relationship(
         "ModCollectionEntry", back_populates="collection", cascade="all, delete-orphan"
+    )
+    server_config: Mapped[list["ServerConfig"]] = relationship(
+        "ServerConfig", back_populates="collection", cascade="all, delete-orphan"
     )
 
     def to_dict(self, include_mods: bool = False) -> dict[str, Any]:

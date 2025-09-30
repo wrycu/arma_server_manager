@@ -1,13 +1,16 @@
 """Server configuration model for Arma 3 server settings."""
 
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from .. import db
+
+if TYPE_CHECKING:
+    from .collection import Collection
 
 
 class ServerConfig(db.Model):  # type: ignore[name-defined]
@@ -27,8 +30,7 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
         mission_file: Path to mission file
         server_config_file: Path to server.cfg file
         basic_config_file: Path to basic.cfg file
-        server_mods: Comma-separated list of server mod IDs
-        client_mods: Comma-separated list of client mod IDs
+        collection_id: The currently active collection (used to determine mods to start with the server)
         additional_params: Additional command line parameters
         # TODO: this can have bad effects if anyone can change it...
         server_binary: Path to server binary
@@ -49,8 +51,11 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
     mission_file: Mapped[str | None] = mapped_column(String(500))
     server_config_file: Mapped[str | None] = mapped_column(String(500))
     basic_config_file: Mapped[str | None] = mapped_column(String(500))
-    server_mods: Mapped[str | None] = mapped_column(Text)
-    client_mods: Mapped[str | None] = mapped_column(Text)
+    collection_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("collections.id", ondelete="CASCADE"),
+        nullable=True,
+    )
     additional_params: Mapped[str | None] = mapped_column(Text)
     server_binary: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
@@ -59,6 +64,11 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    # Relationships
+    collection: Mapped[object] = relationship(
+        "Collection", back_populates="server_config"
     )
 
     def to_dict(self, include_sensitive: bool = False) -> dict[str, Any]:
@@ -79,14 +89,16 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
             "mission_file": self.mission_file,
             "server_config_file": self.server_config_file,
             "basic_config_file": self.basic_config_file,
-            "server_mods": self.server_mods,
-            "client_mods": self.client_mods,
+            "collection_id": self.collection_id,
+            "collection": {},
             "additional_params": self.additional_params,
             "server_binary": self.server_binary,
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
+        if self.collection:
+            result["collection"] = self.collection.to_dict()
 
         if include_sensitive:
             result.update(
