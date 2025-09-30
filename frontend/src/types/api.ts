@@ -230,24 +230,15 @@ export interface UpdateServerConfigRequest {
   customParams?: string[]
 }
 
-// Schedule API types
+// Schedule API types - matches backend arma3.py endpoints
 export interface ScheduleResponse {
   id: number
   name: string
-  description?: string
-  operationType: 'restart' | 'backup' | 'mod_update' | 'stop' | 'start'
-  frequency: string
-  cronExpression: string
-  nextRun: string
-  lastRun?: string
-  status: 'active' | 'inactive' | 'paused'
-  operationData?: {
-    collectionId?: number
-    customCommand?: string
-    parameters?: Record<string, unknown>
-  }
-  createdAt: string
-  updatedAt: string
+  celery_name: string
+  action: string
+  enabled: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface SchedulesListResponse {
@@ -257,34 +248,27 @@ export interface SchedulesListResponse {
 
 export interface CreateScheduleRequest {
   name: string
-  description?: string
-  operationType: 'restart' | 'backup' | 'mod_update' | 'stop' | 'start'
-  frequency: string
-  operationData?: {
-    collectionId?: number
-    customCommand?: string
-    parameters?: Record<string, unknown>
-  }
+  celery_name: string
+  action: string
+  enabled: boolean
 }
 
 export interface CreateScheduleResponse {
-  results: ScheduleResponse
+  result: number // Returns the ID of created schedule
   message: string
 }
 
 export interface UpdateScheduleRequest {
   name?: string
-  description?: string
-  frequency?: string
-  status?: 'active' | 'inactive' | 'paused'
-  operationData?: {
-    collectionId?: number
-    customCommand?: string
-    parameters?: Record<string, unknown>
-  }
+  celery_name?: string
+  action?: string
+  enabled?: boolean
 }
 
 export interface UpdateScheduleResponse {
-  results: ScheduleResponse
+  message: string
+}
+
+export interface TriggerScheduleResponse {
   message: string
 }

@@ -1,23 +1,18 @@
 import { useState, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { schedules } from '@/services'
-import type { Schedule, ScheduleOperationType, ScheduleStatus } from '../../../types/server.ts'
+import type { Schedule } from '@/types/server'
 import type { ScheduleResponse, CreateScheduleRequest, UpdateScheduleRequest } from '@/types/api'
 
 // Transform API response to local types
 const transformScheduleResponse = (apiSchedule: ScheduleResponse): Schedule => ({
   id: apiSchedule.id,
   name: apiSchedule.name,
-  description: apiSchedule.description,
-  operationType: apiSchedule.operationType as ScheduleOperationType,
-  frequency: apiSchedule.frequency,
-  cronExpression: apiSchedule.cronExpression,
-  nextRun: apiSchedule.nextRun,
-  lastRun: apiSchedule.lastRun,
-  status: apiSchedule.status as ScheduleStatus,
-  operationData: apiSchedule.operationData,
-  createdAt: apiSchedule.createdAt,
-  updatedAt: apiSchedule.updatedAt,
+  celery_name: apiSchedule.celery_name,
+  action: apiSchedule.action,
+  enabled: apiSchedule.enabled,
+  created_at: apiSchedule.created_at,
+  updated_at: apiSchedule.updated_at,
 })
 
 export function useSchedules() {
@@ -90,18 +85,17 @@ export function useSchedules() {
 
   // Action functions
   const createSchedule = useCallback(
-    async (
-      scheduleData: Omit<
-        Schedule,
-        'id' | 'createdAt' | 'updatedAt' | 'cronExpression' | 'nextRun' | 'lastRun'
-      >
-    ) => {
+    async (scheduleData: {
+      name: string
+      action: string
+      enabled?: boolean
+      celeryName?: string
+    }) => {
       const createRequest: CreateScheduleRequest = {
         name: scheduleData.name,
-        description: scheduleData.description,
-        operationType: scheduleData.operationType,
-        frequency: scheduleData.frequency,
-        operationData: scheduleData.operationData,
+        celery_name: scheduleData.celeryName || 'every_hour', // Use predefined celery name
+        action: scheduleData.action,
+        enabled: scheduleData.enabled ?? true,
       }
 
       return createScheduleMutation.mutateAsync(createRequest)
@@ -113,10 +107,9 @@ export function useSchedules() {
     async (id: number, updates: Partial<Schedule>) => {
       const updateRequest: UpdateScheduleRequest = {
         name: updates.name,
-        description: updates.description,
-        frequency: updates.frequency,
-        status: updates.status,
-        operationData: updates.operationData,
+        celery_name: updates.celery_name,
+        action: updates.action,
+        enabled: updates.enabled,
       }
 
       return updateScheduleMutation.mutateAsync({ id, data: updateRequest })
@@ -151,20 +144,18 @@ export function useSchedules() {
 
   // Helper functions
   const getActiveSchedules = useCallback(() => {
-    return schedulesData.filter((schedule) => schedule.status === 'active')
+    return schedulesData.filter((schedule) => schedule.enabled)
   }, [schedulesData])
 
-  const getSchedulesByType = useCallback(
-    (operationType: ScheduleOperationType) => {
-      return schedulesData.filter((schedule) => schedule.operationType === operationType)
+  const getSchedulesByAction = useCallback(
+    (action: string) => {
+      return schedulesData.filter((schedule) => schedule.action === action)
     },
     [schedulesData]
   )
 
-  const getUpcomingSchedules = useCallback(() => {
-    return schedulesData
-      .filter((schedule) => schedule.status === 'active' && schedule.nextRun)
-      .sort((a, b) => new Date(a.nextRun).getTime() - new Date(b.nextRun).getTime())
+  const getEnabledSchedules = useCallback(() => {
+    return schedulesData.filter((schedule) => schedule.enabled)
   }, [schedulesData])
 
   return {
@@ -187,8 +178,8 @@ export function useSchedules() {
 
     // Helper functions
     getActiveSchedules,
-    getSchedulesByType,
-    getUpcomingSchedules,
+    getSchedulesByAction,
+    getEnabledSchedules,
 
     // Mutation states
     isCreating: createScheduleMutation.isPending,

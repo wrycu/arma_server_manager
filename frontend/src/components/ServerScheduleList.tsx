@@ -10,6 +10,8 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Checkbox } from '@/components/ui/checkbox'
 import type { Schedule } from '@/types/server'
+import { formatDateTime } from '@/lib/date'
+import { getActionLabel } from '@/lib/schedules'
 
 interface ScheduleListProps {
   schedules: Schedule[]
@@ -19,38 +21,6 @@ interface ScheduleListProps {
   onEditSchedule?: (schedule: Schedule) => void
   onDeleteSchedule?: (id: number) => void
 }
-
-function formatNextRun(nextRun: string): string {
-  const date = new Date(nextRun)
-  const now = new Date()
-  const diffMs = date.getTime() - now.getTime()
-
-  if (diffMs < 0) return 'Overdue'
-
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffHours / 24)
-
-  if (diffDays > 0) return `${diffDays}d`
-  if (diffHours > 0) return `${diffHours}h`
-  return `${Math.floor(diffMs / (1000 * 60))}m`
-}
-
-function formatDateTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-const operationTypes = {
-  restart: 'Restart',
-  backup: 'Backup',
-  mod_update: 'Update',
-  stop: 'Stop',
-  start: 'Start',
-} as const
 
 export function ScheduleList({
   schedules,
@@ -82,9 +52,7 @@ export function ScheduleList({
   return (
     <div className="space-y-1">
       {schedules.map((schedule) => {
-        const isActive = schedule.status === 'active'
-        const isPaused = schedule.status === 'paused'
-        const isOverdue = schedule.nextRun && new Date(schedule.nextRun) < new Date()
+        const isActive = schedule.enabled
 
         return (
           <div
@@ -94,7 +62,6 @@ export function ScheduleList({
             <Checkbox
               checked={isActive}
               onCheckedChange={(checked) => onToggleSchedule?.(schedule.id, !!checked)}
-              disabled={isPaused}
               className="shrink-0 h-4 w-4"
             />
 
@@ -102,29 +69,13 @@ export function ScheduleList({
               <div className="flex items-baseline gap-2">
                 <span className="font-medium text-sm truncate">{schedule.name}</span>
                 <span className="text-xs text-muted-foreground shrink-0">
-                  {operationTypes[schedule.operationType]}
+                  {getActionLabel(schedule.action)}
                 </span>
-                {isPaused && <span className="text-xs text-muted-foreground">• Paused</span>}
-                {isOverdue && isActive && (
-                  <span className="text-xs text-destructive">• Overdue</span>
-                )}
               </div>
 
               <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                <span>{schedule.frequency}</span>
-
-                {schedule.nextRun && (
-                  <span>
-                    Next: {formatDateTime(schedule.nextRun)}
-                    <span className={`ml-1 ${isOverdue ? 'text-destructive' : ''}`}>
-                      ({formatNextRun(schedule.nextRun)})
-                    </span>
-                  </span>
-                )}
-
-                {schedule.operationData?.collectionId && (
-                  <span>Collection: {schedule.operationData.collectionId}</span>
-                )}
+                <span>Created: {formatDateTime(schedule.created_at)}</span>
+                <span>Updated: {formatDateTime(schedule.updated_at)}</span>
               </div>
             </div>
 
