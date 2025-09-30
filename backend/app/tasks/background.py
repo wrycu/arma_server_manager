@@ -137,9 +137,9 @@ def server_start(schedule_id: int = 0) -> None:
     try:
         for mod in sorted(server_details["collection"]["mods"], key=lambda x: x["load_order"]):
             if mod["mod"]["server_mod"]:
-                command.extend(f"-serverMod={mod['mod']['filename']}")
+                command.append(f"-serverMod={mod['mod']['filename']}")
             else:
-                command.extend(f"-mod={mod['mod']['filename']}")
+                command.append(f"-mod={mod['mod']['filename']}")
     except KeyError:
         # mods do not *have* to be defined...
         pass
