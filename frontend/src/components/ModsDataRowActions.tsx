@@ -32,7 +32,7 @@ export function DataTableRowActions({ row, onDelete, isLoading }: DataTableRowAc
         <DropdownMenuItem
           onClick={() => onDelete(mod.steamId)}
           disabled={isLoading === 'removing'}
-          className="text-red-600"
+          variant="destructive"
         >
           <Trash className="mr-2 h-4 w-4" />
           Delete
