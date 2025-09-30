@@ -450,17 +450,26 @@ def delete_mod_from_collection(
 
 
 @a3_bp.route("/async/<string:job_id>", methods=["GET"])
-def async_status(job_id) -> tuple[dict[str, str], int]:
+def async_status(job_id: str) -> tuple[dict[str, str], int]:
     """Look up the current state of a running async job, including the result (if finished)
 
     Returns:
         JSON response with current status and result (if applicable)
     """
-    result = AsyncResult(job_id)
-    if result.state == "SUCCESS":
-        return result.result, HTTPStatus.OK
-    else:
-        return {"status": result.status, "message": result.result}, HTTPStatus.OK
+    try:
+        result = AsyncResult(job_id)
+        if result.state == "SUCCESS":
+            return {
+                "status": result.status,
+                "message": "Completed successfully",
+            }, HTTPStatus.OK
+        else:
+            return {"status": result.status, "message": result.result}, HTTPStatus.OK
+    except Exception as e:
+        return {
+            "status": str(e),
+            "message": "Failed to get job status",
+        }, HTTPStatus.INTERNAL_SERVER_ERROR
 
 
 @a3_bp.route("/schedules", methods=["GET"])
