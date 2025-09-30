@@ -126,41 +126,33 @@ def server_start(schedule_id: int = 0) -> None:
         )
         helper.update_task_outcome(schedule_id, "Aborted: no server is set to active")
         return
-    server_details = entry.to_dict()
+    server_details = entry.to_dict(include_sensitive=True)
     command = [
-        server_details.server_binary,
-        server_details.additional_params,  # this should probably be split or something first
-        f"-name={server_details.server_name}",
-        f"-config={server_details.server_config_file}",
-        f"-mission={server_details.mission_file}",
+        server_details["server_binary"],
+        server_details[
+            "additional_params"
+        ],  # this should probably be split or something first
+        f"-name={server_details['server_name']}",
+        f"-config={server_details['server_config_file']}",
+        f"-mission={server_details['mission_file']}",
     ]
     try:
-        command.extend(
-            [
-                f"-serverMod={x}"
-                for x in [
-                    y["mod"]["filename"]
-                    for y in server_details["collection"]["mods"]
-                    if y["mod"]["server_mod"]
-                ]
-            ]
-        )
-        command.extend(
-            [
-                f"-mod={x}"
-                for x in [
-                    y["mod"]["filename"]
-                    for y in server_details["collection"]["mods"]
-                    if not y["mod"]["server_mod"]
-                ]
-            ]
-        )
+        for mod in sorted(
+            server_details["collection"]["mods"], key=lambda x: x["load_order"]
+        ):
+            if mod["mod"]["server_mod"]:
+                command.append(f"-serverMod={mod['mod']['filename']}")
+            else:
+                command.append(f"-mod={mod['mod']['filename']}")
     except KeyError:
         # mods do not *have* to be defined...
         pass
     subprocess.check_call(command)
     current_app.logger.info("Server started successfully!")
-    helper.update_task_outcome(schedule_id, "Server started successfully!")
+    try:
+        helper.update_task_outcome(schedule_id, "Server started successfully!")
+    except Exception as e:
+        current_app.logger.error(e)
     helper.send_webhooks("server_start", "successfully started server")
 
 

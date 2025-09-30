@@ -8,6 +8,7 @@ import pytest
 from flask.testing import FlaskClient
 
 from app import db
+from app.models import ModCollectionEntry
 from app.models.collection import Collection
 from app.models.mod import Mod
 from app.models.mod_image import ModImage
@@ -463,10 +464,7 @@ class TestArma3API:
         )
         assert reply.status_code == HTTPStatus.OK
         reply = client.delete(
-            "/api/arma3/mod/collection/1/mods",
-            json={
-                "mods": [1],
-            },
+            "/api/arma3/mod/collection/1/mods/1",
         )
         assert reply.status_code == HTTPStatus.OK
         reply = client.get(
@@ -479,6 +477,74 @@ class TestArma3API:
         )
         assert reply.status_code == HTTPStatus.OK
         assert len(Collection.query.all()) == 0
+
+    def test_collection_reorder_mods(self, client: FlaskClient) -> None:
+        add_collection_to_db  # noqa: B018
+        add_cba_to_db  # noqa: B018
+        add_ace_to_db  # noqa: B018
+        db.session.add(
+            ModCollectionEntry(
+                collection_id=1,
+                mod_id=1,
+                load_order=1,
+            )
+        )
+        db.session.add(
+            ModCollectionEntry(
+                collection_id=1,
+                mod_id=2,
+                load_order=2,
+            )
+        )
+        # confirm mods are in collection
+        assert (
+            len(
+                ModCollectionEntry.query.filter(
+                    ModCollectionEntry.collection_id == 1,
+                ).all()
+            )
+            == 2
+        )
+        # confirm load order is as expected
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 1,
+            )
+            .first()
+            .load_order
+            == 1
+        )
+        # modify the load order for the first mod
+        reply = client.patch(
+            "/api/arma3/mod/collection/1/mods/1/load/2",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        # confirm the load order changed
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 1,
+            )
+            .first()
+            .load_order
+            == 2
+        )
+        # test updating the load order for the second mod
+        reply = client.patch(
+            "/api/arma3/mod/collection/1/mods/2/load/1",
+        )
+        assert reply.status_code == HTTPStatus.OK
+        # confirm the load order updated for the second mod
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 2,
+            )
+            .first()
+            .load_order
+            == 1
+        )
 
     def test_notification_create(self, client: FlaskClient) -> None:
         assert len(Notification.query.all()) == 0

@@ -277,8 +277,7 @@ class Arma3ModManager:
     def get_collection_details(collection_id: int) -> dict[str, str]:
         return Collection.query.filter(Collection.id == collection_id).first()
 
-    @staticmethod
-    def create_collection(collection_data: dict[str, str]) -> int:
+    def create_collection(self, collection_data: dict[str, str]) -> int:
         collection = Collection(
             name=collection_data["name"],
             description=collection_data["description"],
@@ -288,11 +287,9 @@ class Arma3ModManager:
 
         try:
             for mod in collection_data["mods"]:
-                db.session.add(
-                    ModCollectionEntry(
-                        collection_id=collection.id,
-                        mod_id=mod,
-                    )
+                self.add_mod_to_collection(
+                    collection.id,
+                    int(mod),
                 )
             db.session.commit()
         except KeyError:
@@ -301,8 +298,9 @@ class Arma3ModManager:
 
         return collection.id
 
-    @staticmethod
-    def update_collection(collection_id: int, collection_data: dict[str, str]) -> None:
+    def update_collection(
+        self, collection_id: int, collection_data: dict[str, str]
+    ) -> None:
         try:
             result = Collection.query.filter(Collection.id == collection_id).first()
             if result:
@@ -315,11 +313,9 @@ class Arma3ModManager:
                         setattr(result, key, value)
                 try:
                     for mod in collection_data["mods"]:
-                        db.session.add(
-                            ModCollectionEntry(
-                                collection_id=collection_id,
-                                mod_id=mod,
-                            )
+                        self.add_mod_to_collection(
+                            collection_id,
+                            int(mod),
                         )
                 except KeyError:
                     # "mods" is not a required field for updates
@@ -329,6 +325,17 @@ class Arma3ModManager:
                 raise Exception("Collection not found")
         except Exception as e:
             raise Exception("Failed to update collection (mod not found?)") from e
+
+    @staticmethod
+    def reorder_mod_load(collection_id: int, mod_id: int, load_order: int) -> None:
+        mod = ModCollectionEntry.query.filter(
+            ModCollectionEntry.collection_id == collection_id,
+            ModCollectionEntry.mod_id == mod_id,
+        ).first()
+        if not mod:
+            raise Exception("Mod not found")
+        mod.load_order = load_order
+        db.session.commit()
 
     @staticmethod
     def delete_collection(collection_id: int) -> None:
@@ -341,32 +348,48 @@ class Arma3ModManager:
             raise Exception("Cannot find collection") from e
 
     @staticmethod
-    def add_mod_to_collection(collection_id: int, mods: list[int]) -> None:
-        try:
-            for mod in mods:
-                db.session.add(
-                    ModCollectionEntry(
-                        collection_id=collection_id,
-                        mod_id=mod,
-                    )
-                )
-            db.session.commit()
-        except Exception as e:
-            raise Exception(
-                "Failed to add mod to collection (mod not found? collection not found?)"
-            ) from e
+    def add_mod_to_collection(collection_id: int, mod_id: int) -> None:
+        # get the existing length so we can properly set the load order
+        existing_mod_count = len(
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == collection_id,
+            ).all()
+        )
+
+        db.session.add(
+            ModCollectionEntry(
+                collection_id=collection_id,
+                mod_id=mod_id,
+                load_order=existing_mod_count + 1,
+            )
+        )
 
     @staticmethod
-    def remove_mod_from_collection(collection_id: int, mods: list[int]) -> None:
+    def remove_mod_from_collection(collection_id: int, mod_id: int) -> None:
         try:
-            for mod in mods:
-                db.session.delete(
-                    ModCollectionEntry.query.filter(
-                        Collection.id == collection_id,
-                        ModCollectionEntry.mod_id == mod,
-                    ).first()
+            # locate the load order of the mod being removed
+            load_order = (
+                ModCollectionEntry.query.filter(
+                    ModCollectionEntry.mod_id == mod_id,
                 )
-                db.session.commit()
+                .first()
+                .load_order
+            )
+            # remove the mod
+            db.session.delete(
+                ModCollectionEntry.query.filter(
+                    Collection.id == collection_id,
+                    ModCollectionEntry.mod_id == mod_id,
+                ).first()
+            )
+            # cascade the load order change to other mods so we don't end up with a gap
+            needs_reordering = ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == collection_id,
+                ModCollectionEntry.load_order > load_order,
+            ).all()
+            for cur_reorder in needs_reordering:
+                cur_reorder.load_order -= 1
+            db.session.commit()
         except Exception as e:
             raise Exception(
                 "Failed to remove mod from collection (mod not found?)"
@@ -596,7 +619,8 @@ class Arma3ServerHelper:
             basic_config_file=server_data["basic_config_file"],
             additional_params=server_data["additional_params"],
             server_binary=server_data["server_binary"],
-            is_active=False,
+            collection_id=server_data.get("collection_id", None),
+            is_active=server_data.get("is_active", False),
         )
         db.session.add(schedule)
         db.session.commit()
@@ -685,6 +709,10 @@ class TaskHelper:
     @staticmethod
     def update_task_outcome(schedule_id: int, task_outcome: str):
         schedule = Schedule.query.filter(Schedule.id == schedule_id).first()
+        if not schedule:
+            raise Exception(
+                f"Unable to update schedule {schedule_id} with outcome '{task_outcome}' (schedule not found)"
+            )
         schedule.last_outcome = task_outcome
         schedule.last_run = datetime.utcnow()
         db.session.commit()

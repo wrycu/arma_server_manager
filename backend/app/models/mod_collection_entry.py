@@ -24,6 +24,7 @@ class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
         id: Primary key identifier
         collection_id: Foreign key to collection
         mod_id: Foreign key to mod
+        load_order: The order in which to load the mod on the server
         added_at: When mod was added to collection
     """
 
@@ -39,6 +40,7 @@ class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
     mod_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("mods.id", ondelete="CASCADE"), nullable=False, index=True
     )
+    load_order: Mapped[int] = mapped_column(Integer, nullable=False)
     added_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), nullable=False
     )
@@ -62,6 +64,7 @@ class ModCollectionEntry(db.Model):  # type: ignore[name-defined]
             "id": self.id,
             "collection_id": self.collection_id,
             "mod_id": self.mod_id,
+            "load_order": self.load_order,
             "added_at": self.added_at.isoformat(),
         }
 

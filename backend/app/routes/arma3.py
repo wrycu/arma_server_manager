@@ -4,7 +4,12 @@ from typing import Any
 from celery.result import AsyncResult
 from flask import Blueprint, Response, current_app, request
 
-from app.tasks.background import download_arma3_mod, remove_arma3_mod
+from app.tasks.background import (
+    download_arma3_mod,
+    remove_arma3_mod,
+    server_start,
+    server_stop,
+)
 
 a3_bp = Blueprint("arma3", __name__)
 
@@ -372,7 +377,7 @@ def add_mod_to_collection(collection_id: int) -> tuple[dict[str, str], int]:
         )
         return (
             {
-                "message": "Successfully updated collection",
+                "message": "Successfully added mod to collection",
             },
             HTTPStatus.OK,
         )
@@ -382,8 +387,45 @@ def add_mod_to_collection(collection_id: int) -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
 
-@a3_bp.route("/mod/collection/<int:collection_id>/mods", methods=["DELETE"])
-def delete_mod_from_collection(collection_id: int) -> tuple[dict[str, str], int]:
+@a3_bp.route(
+    "/mod/collection/<int:collection_id>/mods/<int:mod_id>/load/<int:load_slot>",
+    methods=["PATCH"],
+)
+def modify_mod_load_order(
+    collection_id: int, mod_id: int, load_slot: int
+) -> tuple[dict[str, str], int]:
+    """
+    Modifies the load order of mods within a collection
+    Note that it is possible to generate impossible load orders with this (e.g., multiple mods with the same load slot)
+    I _could_ fix this, but then it'd be a lot harder to allow swapping load order, so I haven't
+
+    Returns:
+        JSON description of outcome
+    """
+    try:
+        current_app.config["MOD_MANAGERS"]["ARMA3"].reorder_mod_load(
+            collection_id,
+            mod_id,
+            load_slot,
+        )
+        return (
+            {
+                "message": "Successfully updated collection load order",
+            },
+            HTTPStatus.OK,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route(
+    "/mod/collection/<int:collection_id>/mods/<int:mod_id>", methods=["DELETE"]
+)
+def delete_mod_from_collection(
+    collection_id: int, mod_id: int
+) -> tuple[dict[str, str], int]:
     """
     Remove mods from a collection
 
@@ -393,11 +435,11 @@ def delete_mod_from_collection(collection_id: int) -> tuple[dict[str, str], int]
     try:
         current_app.config["MOD_MANAGERS"]["ARMA3"].remove_mod_from_collection(
             collection_id,
-            request.json["mods"],
+            mod_id,
         )
         return (
             {
-                "message": "Successfully deleted collection",
+                "message": "Successfully deleted mod from collection",
             },
             HTTPStatus.OK,
         )
@@ -605,6 +647,42 @@ def create_server() -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully created", "result": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/server/start", methods=["POST"])
+def start_server() -> tuple[dict[str, str], int]:
+    """
+    Starts a server on-demand
+    Returns:
+        JSON response with message and async job ID (to look up job status)
+    """
+    try:
+        return {
+            "status": server_start.delay().id,
+            "message": "Server start queued",
+        }, HTTPStatus.OK
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/server/stop", methods=["POST"])
+def stop_server() -> tuple[dict[str, str], int]:
+    """
+    Stops a server on-demand
+    Returns:
+        JSON response with message and async job ID (to look up job status)
+    """
+    try:
+        return {
+            "status": server_stop.delay().id,
+            "message": "Server stop queued",
+        }, HTTPStatus.OK
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
 
 
 @a3_bp.route("/server/<int:server_id>", methods=["GET"])
