@@ -9,9 +9,6 @@ from sqlalchemy.sql import func
 
 from .. import db
 
-if TYPE_CHECKING:
-    from .collection import Collection
-
 
 class ServerConfig(db.Model):  # type: ignore[name-defined]
     """Server configuration model for Arma 3 server settings.
