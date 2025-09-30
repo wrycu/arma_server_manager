@@ -19,6 +19,21 @@ def health_check() -> tuple[dict[str, str], int]:
     return {"status": "healthy", "message": "Arma 3 API is running"}, HTTPStatus.OK
 
 
+@a3_bp.route("/steam/collection/<int:collection_id>", methods=["GET"])
+def collection_extract(collection_id: int) -> tuple[dict[str, str], int]:
+    """Retrieve a list of workshop items contained within a Steam collection
+
+    Returns:
+        JSON response with workshop items
+    """
+    return {
+        "results": current_app.config["MOD_MANAGERS"][
+            "ARMA3"
+        ].steam_api.get_collection_mods(collection_id),
+        "message": "Retrieved successfully",
+    }, HTTPStatus.OK
+
+
 @a3_bp.route("/mod/helper/<int:mod_id>", methods=["GET"])
 def get_mod_overview(mod_id: int) -> tuple[dict[str, str], int]:
     """
