@@ -135,7 +135,7 @@ def server_start(schedule_id: int = 0) -> None:
         f"-mission={server_details.mission_file}",
     ]
     try:
-        for mod in server_details["collection"]["mods"]:
+        for mod in sorted(server_details["collection"]["mods"], key=lambda x: x["load_order"]):
             if mod["mod"]["server_mod"]:
                 command.extend(f"-serverMod={mod['mod']['filename']}")
             else:
