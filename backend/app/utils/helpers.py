@@ -573,8 +573,6 @@ class Arma3ServerHelper:
             mission_file=server_data["mission_file"],
             server_config_file=server_data["server_config_file"],
             basic_config_file=server_data["basic_config_file"],
-            server_mods=server_data["server_mods"],
-            client_mods=server_data["client_mods"],
             additional_params=server_data["additional_params"],
             server_binary=server_data["server_binary"],
             is_active=False,

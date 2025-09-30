@@ -98,8 +98,6 @@ def add_server_to_db():
             mission_file="/home/tests/something.miz",
             server_config_file="/home/tests/server.cfg",
             basic_config_file="/home/tests/basic.cfg",
-            server_mods="@sling,@beep,@boop",
-            client_mods="@cba,@ace",
             additional_params="--bleh",
             server_binary="/home/tests/a3.sh",
             is_active=False,
@@ -355,8 +353,6 @@ class TestArma3API:
                 "mission_file": "/home/tests/something.miz",
                 "server_config_file": "/home/tests/server.cfg",
                 "basic_config_file": "/home/tests/basic.cfg",
-                "server_mods": "@sling,@beep,@boop",
-                "client_mods": "@cba,@ace",
                 "additional_params": "--bleh",
                 "server_binary": "/home/tests/a3.sh",
                 "is_active": False,
@@ -374,7 +370,6 @@ class TestArma3API:
         assert reply.status_code == HTTPStatus.OK
         assert reply.json["results"][0]["additional_params"] == "--bleh"
         assert reply.json["results"][0]["basic_config_file"] == "/home/tests/basic.cfg"
-        assert reply.json["results"][0]["server_mods"] == "@sling,@beep,@boop"
         assert not reply.json["results"][0]["is_active"]
         assert "admin_password" not in reply.json["results"][0].keys()
         reply = client.get(

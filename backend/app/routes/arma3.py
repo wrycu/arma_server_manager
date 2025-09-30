@@ -259,7 +259,7 @@ def create_mod_collection() -> tuple[dict[str, str], int]:
                 "result": current_app.config["MOD_MANAGERS"]["ARMA3"].create_collection(
                     request.json
                 ),
-                "message": "Created successfully",
+                "message": "Created collection successfully",
             },
             HTTPStatus.OK,
         )

@@ -134,8 +134,30 @@ def server_start(schedule_id: int = 0) -> None:
         f"-config={server_details.server_config_file}",
         f"-mission={server_details.mission_file}",
     ]
-    command.extend([f"-serverMod={x}" for x in server_details.server_mods])
-    command.extend([f"-mod={x}" for x in server_details.client_mods])
+    try:
+        command.extend(
+            [
+                f"-serverMod={x}"
+                for x in [
+                    y["mod"]["filename"]
+                    for y in server_details["collection"]["mods"]
+                    if y["mod"]["server_mod"]
+                ]
+            ]
+        )
+        command.extend(
+            [
+                f"-mod={x}"
+                for x in [
+                    y["mod"]["filename"]
+                    for y in server_details["collection"]["mods"]
+                    if not y["mod"]["server_mod"]
+                ]
+            ]
+        )
+    except KeyError:
+        # mods do not *have* to be defined...
+        pass
     subprocess.check_call(command)
     current_app.logger.info("Server started successfully!")
     helper.update_task_outcome(schedule_id, "Server started successfully!")
