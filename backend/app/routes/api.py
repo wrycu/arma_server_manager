@@ -3,7 +3,6 @@
 from http import HTTPStatus
 
 from celery.result import AsyncResult
-
 from flask import Blueprint, current_app, request
 
 api_bp = Blueprint("api", __name__)
