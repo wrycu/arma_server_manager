@@ -442,6 +442,7 @@ class SteamAPI:
     def __init__(self):
         self.URLs = {
             "fileDetails": "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/",
+            "getCollectionDetails": "https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/",
         }
 
     def get_mod_details(self, steam_mod_id):
@@ -478,6 +479,26 @@ class SteamAPI:
             details["mod_type"] = "map"
         else:
             details["mod_type"] = "mod"
+        return details
+
+    def get_collection_mods(self, collection_id: int) -> list[int]:
+        """
+        Accepts a Steam collection ID and returns a list of workshop item IDs contained within it
+        :param collection_id: INT - ID of the collection to get details for
+        :return: a list of workshop item IDs within the collection, e.g., [123, 456]
+        """
+        payload = {
+            "collectioncount": 1,
+            "publishedfileids[0]": collection_id,
+        }
+        reply = httpx.post(
+            self.URLs["getCollectionDetails"],
+            data=payload,
+        )
+        details = [
+            x["publishedfileid"]
+            for x in reply.json()["response"]["collectiondetails"][0]["children"]
+        ]
         return details
 
 
