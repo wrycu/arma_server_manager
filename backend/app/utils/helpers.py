@@ -495,7 +495,10 @@ class SteamAPI:
             self.URLs["getCollectionDetails"],
             data=payload,
         )
-        details = [x["publishedfileid"] for x in reply.json()["response"]["collectiondetails"][0]["children"]]
+        details = [
+            x["publishedfileid"]
+            for x in reply.json()["response"]["collectiondetails"][0]["children"]
+        ]
         return details
 
 
