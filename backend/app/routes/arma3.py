@@ -4,7 +4,7 @@ from typing import Any
 from celery.result import AsyncResult
 from flask import Blueprint, Response, current_app, request
 
-from app.tasks.background import download_arma3_mod, remove_arma3_mod
+from app.tasks.background import download_arma3_mod, remove_arma3_mod, server_start
 
 a3_bp = Blueprint("arma3", __name__)
 
@@ -642,6 +642,25 @@ def create_server() -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully created", "result": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/server/start", methods=["POST"])
+def start_server() -> tuple[dict[str, str], int]:
+    """
+    Creates a user-defined server (which relies on a celery server)
+    Must contain a JSON blob with the fields (you can find them in the model)
+    Returns:
+        JSON response with health status and HTTP 200
+    """
+    try:
+        return {
+            "status": server_start.delay().id,
+            "message": "Server start queued",
+        }, HTTPStatus.OK
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
 
 
 @a3_bp.route("/server/<int:server_id>", methods=["GET"])

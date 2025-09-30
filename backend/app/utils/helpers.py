@@ -619,7 +619,8 @@ class Arma3ServerHelper:
             basic_config_file=server_data["basic_config_file"],
             additional_params=server_data["additional_params"],
             server_binary=server_data["server_binary"],
-            is_active=False,
+            collection_id=server_data.get("collection_id", None),
+            is_active=server_data.get("is_active", False),
         )
         db.session.add(schedule)
         db.session.commit()
@@ -708,6 +709,10 @@ class TaskHelper:
     @staticmethod
     def update_task_outcome(schedule_id: int, task_outcome: str):
         schedule = Schedule.query.filter(Schedule.id == schedule_id).first()
+        if not schedule:
+            raise Exception(
+                f"Unable to update schedule {schedule_id} with outcome '{task_outcome}' (schedule not found)"
+            )
         schedule.last_outcome = task_outcome
         schedule.last_run = datetime.utcnow()
         db.session.commit()
