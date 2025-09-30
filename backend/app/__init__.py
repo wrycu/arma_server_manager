@@ -55,11 +55,6 @@ def create_app(config_name: str | None = None) -> Flask:
     celery.conf.update(app.config)
     # set up a kick-off job to launch other scheduled activities
     celery.conf.beat_schedule = {
-        "every_10_seconds": {
-            "task": "app.tasks.background.task_kickoff",
-            "schedule": 10,
-            "args": ["every_10_seconds"],
-        },
         "every_hour": {
             "task": "app.tasks.background.task_kickoff",
             "schedule": crontab(minute=0, hour="*"),
@@ -86,6 +81,12 @@ def create_app(config_name: str | None = None) -> Flask:
             "args": [],
         },
     }
+    if config_name == "development":
+        celery.conf.beat_schedule["every_10_seconds"] = {
+            "task": "app.tasks.background.task_kickoff",
+            "schedule": 10,
+            "args": ["every_10_seconds"],
+        }
 
     # Register blueprints
     from .routes.api import api_bp
