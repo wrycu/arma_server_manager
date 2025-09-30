@@ -8,7 +8,6 @@ Flask-based REST API server for managing Arma 3 server configurations, mod colle
 - **Flask**: Web framework with SQLAlchemy ORM
 - **SQLite**: Database (with PostgreSQL support)
 - **Celery**: Background task processing
-- **Redis**: Task broker (optional, SQLite default)
 - **Ruff**: Code linting and formatting
 - **MyPy**: Static type checking
 - **pytest**: Testing framework
@@ -23,8 +22,12 @@ backend/
 │   ├── models/             # SQLAlchemy models
 │   │   ├── mod.py          # Steam Workshop mod model
 │   │   ├── collection.py   # Mod collection model
-│   │   ├── server_config.py # Server configuration model
-│   │   └── mod_collection_entry.py # Many-to-many relationship
+│   │   ├── mod.py          # Subscribed mods model
+│   │   ├── mod_collection_entry.py # Many-to-many relationship
+│   │   ├── mod_image.py # Image data for subscribed mods
+│   │   ├── notification.py # Webhook endpoints for notifications
+│   │   ├── schedule.py # Auto-run tasks
+│   │   └── server_config.py # Server configuration model
 │   ├── routes/
 │   │   ├── api.py          # REST API endpoints
 │   │   └── arma3.py        # Arma 3 specific endpoints
@@ -42,7 +45,6 @@ backend/
 ### Prerequisites
 - Python 3.11+
 - uv (Python package manager)
-- Redis (optional, for production Celery setup)
 
 ### Installation
 
@@ -68,6 +70,7 @@ backend/
 ### Starting the Server
 
 ```bash
+cd backend/
 # Development server with hot reload
 uv run python main.py
 
@@ -82,10 +85,8 @@ The server will start on http://localhost:5000
 Start the Celery worker for background tasks:
 
 ```bash
-# Using SQLite broker (default)
-uv run celery -A app.celery worker --loglevel=info
-
-# Using Redis broker (requires Redis running)
+cd backend/
+# Using SQLite broker
 uv run celery -A app.celery worker --loglevel=info
 ```
 
@@ -98,41 +99,47 @@ uv run celery -A app.celery worker --loglevel=info
 | `uv run pytest --cov` | Run tests with coverage |
 | `uv run ruff check .` | Lint code |
 | `uv run ruff format .` | Format code |
-| `uv run mypy .` | Type check |
 | `uv run flask shell` | Open Flask shell with app context |
 
 ## API Documentation
 
-### Arma 3 Specific Endpoints
-
-| Endpoint | Methods | Description |
-|----------|---------|-------------|
-| `/arma3/health` | GET | Health check for Arma 3 API |
-| `/arma3/mod/helper/{mod_id}` | GET | Get Steam Workshop mod details |
-| `/arma3/mod/subscriptions` | GET | List all mod subscriptions |
-| `/arma3/mod/subscription` | POST | Subscribe to mods |
-| `/arma3/mod/subscription` | GET | Helper endpoint (returns error) |
-| `/arma3/mod/subscription/{mod_id}` | GET | Get specific mod subscription details |
-| `/arma3/mod/subscription/{mod_id}` | PATCH | Update mod subscription details |
-| `/arma3/mod/subscription/{mod_id}` | DELETE | Unsubscribe from mod |
-| `/arma3/mod/subscription/{mod_id}/image` | GET | Get mod preview image |
-| `/arma3/mod/{mod_id}/download` | POST | Queue mod download (async) |
-| `/arma3/mod/{mod_id}/download` | DELETE | Queue mod removal (async) |
-| `/arma3/async/{job_id}` | GET | Check async job status |
-| `/arma3/mod/collection` | POST, DELETE, GET | Mod collection management (TODO) |
-| `/arma3/collection` | POST, DELETE, GET | Collection management (TODO) |
-
 ### Core API Endpoints
 
-| Endpoint | Methods | Description |
-|----------|---------|-------------|
-| `/api/health` | GET | Health check |
-| `/api/mods` | GET, POST | Manage Steam Workshop mods |
-| `/api/mods/{id}` | GET, PUT, DELETE | Individual mod operations |
-| `/api/collections` | GET, POST | Manage mod collections |
-| `/api/collections/{id}` | GET, PUT, DELETE | Individual collection operations |
-| `/api/server-configs` | GET, POST | Manage server configurations |
-| `/api/server-configs/{id}` | GET, PUT, DELETE | Individual server config operations |
+| Endpoint                     | Methods            | Description                         |
+|------------------------------|--------------------|-------------------------------------|
+| `/api/health`                | GET                | Health check                        |
+| `/api/async`                 | GET                | Get Celery job status               |
+| `/api/schedules`             | GET                | Get all schedules                   |
+| `/api/schedule`              | POST               | Create schedules                    |
+| `/api/schedule/{id}`         | GET, PATCH, DELETE | Read, update, delete schedules      |
+| `/api/schedule/{id}/trigger` | POST               | Trigger a schedule immediately      |
+| `/api/notifications`         | GET                | Get all webhooks                    |
+| `/api/notification`          | POST               | Create webhooks                     |
+| `/api/notification/{id}`     | GET, PATCH, DELETE | Read, update, delete webhooks       |
+
+### Arma 3 Specific Endpoints
+
+| Endpoint                                                        | Methods            | Description                                     |
+|-----------------------------------------------------------------|--------------------|-------------------------------------------------|
+| `/api/arma3/health`                                             | GET                | Health check for Arma 3 API                     |
+| `/api/arma3/steam/collection/{id}`                              | GET                | Resolve a Steam collection to workshop item IDs |
+| `/api/arma3/mod/helper/{id}`                                    | GET                | Get debugging info from Steam about a mod       |
+| `/api/arma3/mod/subscriptions`                                  | GET                | Get all subscribed mods                         |
+| `/api/arma3/mod/subscription`                                   | POST               | Add mod subscription                            |
+| `/api/arma3/mod/subscription/{id}`                              | GET, PATCH, DELETE | Read, update, delete mod subscriptions          |
+| `/api/arma3/mod/subscription/{id}/image`                        | GET                | Get mod image (binary data)                     |
+| `/api/arma3/mod/{id}/download`                                  | POST, DELETE       | Trigger a subscribed mod to download (or rm it) |
+| `/api/arma3/mod/collections`                                    | GET                | Get all collections                             |
+| `/api/arma3/mod/collection`                                     | POST               | Add new collection                              |
+| `/api/arma3/mod/collection/{id}`                                | GET, PATCH, DELETE | Read, update, delete top-level collection info  |
+| `/api/arma3/mod/collection/{id}/mods`                           | PATCH              | Add mods to existing collection                 |
+| `/api/arma3/mod/collection/{id}/mods/{mod_id}/load/{load_slot}` | PATCH              | Update mod load order within a collection       |
+| `/api/arma3/mod/collection/{id}/mods/{mod_id}`                  | PATCH              | Remove mods from existing collection            |
+| `/api/arma3/servers`                                            | GET                | Get all server profiles                         |
+| `/api/arma3/server`                                             | POST               | Add new server profile                          |
+| `/api/arma3/server/start`                                       | POST               | Start the first active server profile           |
+| `/api/arma3/server/stop`                                        | POST               | Stop the currently-running active server        |
+| `/api/arma3/server/{id}`                                        | GET, PATCH, DELETE | Read, update, delete server profiles            |
 
 ### Request/Response Examples
 
