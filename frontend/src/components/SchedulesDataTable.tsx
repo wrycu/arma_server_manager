@@ -100,11 +100,11 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
             onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
             className="h-8 w-[150px] lg:w-[250px]"
           />
-          {table.getColumn('status') && (
+          {table.getColumn('enabled') && (
             <Select
-              value={(table.getColumn('status')?.getFilterValue() as string) ?? ''}
+              value={(table.getColumn('enabled')?.getFilterValue() as string) ?? ''}
               onValueChange={(value) =>
-                table.getColumn('status')?.setFilterValue(value === 'all' ? '' : value)
+                table.getColumn('enabled')?.setFilterValue(value === 'all' ? '' : value)
               }
             >
               <SelectTrigger className="h-8 w-[120px]">
@@ -113,7 +113,6 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
               <SelectContent side="top">
                 <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="paused">Paused</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
               </SelectContent>
             </Select>

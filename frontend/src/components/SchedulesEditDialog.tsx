@@ -19,19 +19,25 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type { Schedule, ScheduleOperationType } from '@/types/server'
+import type { Schedule } from '@/types/server'
 
-const operationTypeOptions = [
-  { value: 'restart', label: 'Restart Server' },
-  { value: 'backup', label: 'Create Backup' },
+const actionOptions = [
+  { value: 'server_restart', label: 'Restart Server' },
+  { value: 'server_start', label: 'Start Server' },
+  { value: 'server_stop', label: 'Stop Server' },
   { value: 'mod_update', label: 'Update Mods' },
-  { value: 'stop', label: 'Stop Server' },
-  { value: 'start', label: 'Start Server' },
+] as const
+
+const celeryScheduleOptions = [
+  { value: 'every_10_seconds', label: 'Every 10 seconds' },
+  { value: 'every_hour', label: 'Every hour' },
+  { value: 'every_day', label: 'Every day (6 AM)' },
+  { value: 'every_sunday', label: 'Every Sunday (6 AM)' },
+  { value: 'every_month', label: 'Every month (1st at 6 AM)' },
 ] as const
 
 const statusOptions = [
   { value: 'active', label: 'Active' },
-  { value: 'paused', label: 'Paused' },
   { value: 'inactive', label: 'Inactive' },
 ] as const
 
@@ -43,9 +49,9 @@ interface EditScheduleDialogProps {
     id: number,
     data: {
       name: string
-      operationType: ScheduleOperationType
-      frequency: string
-      status: string
+      action: string
+      celeryName: string
+      enabled: boolean
     }
   ) => Promise<void>
   isUpdating: boolean
@@ -60,9 +66,9 @@ export function EditScheduleDialog({
 }: EditScheduleDialogProps) {
   const [formData, setFormData] = React.useState({
     name: '',
-    operationType: 'restart' as ScheduleOperationType,
-    frequency: '',
-    status: 'active',
+    action: 'server_restart',
+    celeryName: 'every_hour',
+    enabled: true,
   })
 
   const [errors, setErrors] = React.useState<Record<string, string>>({})
@@ -72,9 +78,9 @@ export function EditScheduleDialog({
     if (schedule) {
       setFormData({
         name: schedule.name,
-        operationType: schedule.operationType,
-        frequency: schedule.frequency,
-        status: schedule.status,
+        action: schedule.action,
+        celeryName: schedule.celery_name,
+        enabled: schedule.enabled,
       })
       setErrors({})
     }
@@ -90,8 +96,11 @@ export function EditScheduleDialog({
     if (!formData.name.trim()) {
       newErrors.name = 'Schedule name is required'
     }
-    if (!formData.frequency.trim()) {
-      newErrors.frequency = 'Frequency is required'
+    if (!formData.action.trim()) {
+      newErrors.action = 'Action is required'
+    }
+    if (!formData.celeryName.trim()) {
+      newErrors.celeryName = 'Schedule frequency is required'
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -102,9 +111,9 @@ export function EditScheduleDialog({
     try {
       await onUpdateSchedule(schedule.id, {
         name: formData.name,
-        operationType: formData.operationType,
-        frequency: formData.frequency,
-        status: formData.status,
+        action: formData.action,
+        celeryName: formData.celeryName,
+        enabled: formData.enabled,
       })
 
       onOpenChange(false)
@@ -150,58 +159,63 @@ export function EditScheduleDialog({
               {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="operation">Operation Type</Label>
-                <Select
-                  value={formData.operationType}
-                  onValueChange={(value: ScheduleOperationType) =>
-                    updateFormData('operationType', value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {operationTypeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="status">Status</Label>
-                <Select
-                  value={formData.status}
-                  onValueChange={(value) => updateFormData('status', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid gap-2">
+              <Label htmlFor="action">Action</Label>
+              <Select
+                value={formData.action}
+                onValueChange={(value) => updateFormData('action', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {actionOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.action && <p className="text-sm text-destructive">{errors.action}</p>}
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="frequency">Frequency</Label>
-              <Input
-                id="frequency"
-                placeholder="e.g., every 2 hours, daily at 3am"
-                value={formData.frequency}
-                onChange={(e) => updateFormData('frequency', e.target.value)}
-                className={errors.frequency ? 'border-destructive' : ''}
-              />
-              {errors.frequency && <p className="text-sm text-destructive">{errors.frequency}</p>}
+              <Label htmlFor="celeryName">Schedule Frequency</Label>
+              <Select
+                value={formData.celeryName}
+                onValueChange={(value) => updateFormData('celeryName', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {celeryScheduleOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.celeryName && <p className="text-sm text-destructive">{errors.celeryName}</p>}
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="enabled">Status</Label>
+              <Select
+                value={formData.enabled ? 'active' : 'inactive'}
+                onValueChange={(value) => updateFormData('enabled', value === 'active')}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -216,7 +230,12 @@ export function EditScheduleDialog({
             </Button>
             <Button
               type="submit"
-              disabled={isUpdating || !formData.name.trim() || !formData.frequency.trim()}
+              disabled={
+                isUpdating ||
+                !formData.name.trim() ||
+                !formData.action.trim() ||
+                !formData.celeryName.trim()
+              }
             >
               {isUpdating ? 'Updating...' : 'Update Schedule'}
             </Button>

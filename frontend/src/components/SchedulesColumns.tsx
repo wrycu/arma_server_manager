@@ -13,57 +13,14 @@ import {
 
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
 import type { Schedule } from '@/types/server'
+import { formatDateTime } from '@/lib/date'
+import { getActionLabel, getStatusBadgeVariant, getStatusText } from '@/lib/schedules'
 
 interface GetColumnsProps {
   onExecute: (id: number) => Promise<void>
   onEdit: (schedule: Schedule) => void
   onDelete: (id: number) => Promise<void>
   isLoading: boolean
-}
-
-const operationTypes = {
-  restart: 'Restart',
-  backup: 'Backup',
-  mod_update: 'Update',
-  stop: 'Stop',
-  start: 'Start',
-} as const
-
-const getStatusBadgeVariant = (status: string) => {
-  switch (status) {
-    case 'active':
-      return 'default'
-    case 'paused':
-      return 'secondary'
-    case 'inactive':
-      return 'outline'
-    default:
-      return 'outline'
-  }
-}
-
-function formatNextRun(nextRun: string): string {
-  const date = new Date(nextRun)
-  const now = new Date()
-  const diffMs = date.getTime() - now.getTime()
-
-  if (diffMs < 0) return 'Overdue'
-
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffHours / 24)
-
-  if (diffDays > 0) return `${diffDays}d`
-  if (diffHours > 0) return `${diffHours}h`
-  return `${Math.floor(diffMs / (1000 * 60))}m`
-}
-
-function formatDateTime(dateStr: string): string {
-  return new Date(dateStr).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 export const getColumns = ({
@@ -84,67 +41,47 @@ export const getColumns = ({
     },
   },
   {
-    accessorKey: 'operationType',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Operation" />,
+    accessorKey: 'action',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Action" />,
     cell: ({ row }) => {
-      const operationType = row.getValue('operationType') as keyof typeof operationTypes
+      const action = row.getValue('action') as string
       return (
         <Badge variant="outline" className="font-normal">
-          {operationTypes[operationType]}
+          {getActionLabel(action)}
         </Badge>
       )
     },
   },
   {
-    accessorKey: 'frequency',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Frequency" />,
-    cell: ({ row }) => {
-      const frequency = row.getValue('frequency') as string
-      return <div className="text-sm font-mono text-muted-foreground">{frequency}</div>
-    },
-  },
-  {
-    accessorKey: 'status',
+    accessorKey: 'enabled',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
-      const status = row.getValue('status') as string
+      const enabled = row.getValue('enabled') as boolean
       return (
-        <Badge variant={getStatusBadgeVariant(status)} className="capitalize">
-          {status}
+        <Badge variant={getStatusBadgeVariant(enabled)} className="capitalize">
+          {getStatusText(enabled)}
         </Badge>
       )
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+      const enabled = row.getValue(id) as boolean
+      return value.includes(enabled ? 'active' : 'inactive')
     },
   },
   {
-    accessorKey: 'nextRun',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Next Run" />,
+    accessorKey: 'created_at',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Created" />,
     cell: ({ row }) => {
-      const nextRun = row.getValue('nextRun') as string
-      if (!nextRun) return <span className="text-muted-foreground">-</span>
-
-      const isOverdue = new Date(nextRun) < new Date()
-
-      return (
-        <div className="text-sm">
-          <div className="font-medium">{formatDateTime(nextRun)}</div>
-          <div className={`text-xs ${isOverdue ? 'text-destructive' : 'text-muted-foreground'}`}>
-            {formatNextRun(nextRun)}
-          </div>
-        </div>
-      )
+      const createdAt = row.getValue('created_at') as string
+      return <div className="text-sm text-muted-foreground">{formatDateTime(createdAt)}</div>
     },
   },
   {
-    accessorKey: 'lastRun',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Last Run" />,
+    accessorKey: 'updated_at',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Updated" />,
     cell: ({ row }) => {
-      const lastRun = row.getValue('lastRun') as string
-      if (!lastRun) return <span className="text-muted-foreground">Never</span>
-
-      return <div className="text-sm text-muted-foreground">{formatDateTime(lastRun)}</div>
+      const updatedAt = row.getValue('updated_at') as string
+      return <div className="text-sm text-muted-foreground">{formatDateTime(updatedAt)}</div>
     },
   },
   {

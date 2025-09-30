@@ -3,19 +3,25 @@ import { Clock, Plus } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { PageTitle } from '@/components/PageTitle'
-import { useRouter } from '@tanstack/react-router'
 
 import { SchedulesDataTable } from '@/components/SchedulesDataTable'
 import { CreateScheduleDialog } from '@/components/SchedulesCreateDialog'
 import { EditScheduleDialog } from '@/components/SchedulesEditDialog'
 import { getColumns } from '@/components/SchedulesColumns'
 import { useSchedules } from '@/hooks/useSchedules'
-import type { Schedule, ScheduleOperationType } from '@/types/server'
+import type { Schedule } from '@/types/server'
 
 export function SchedulesManager() {
-  const router = useRouter()
-  const { schedules, isLoading, createSchedule, executeSchedule, deleteSchedule, isCreating } =
-    useSchedules()
+  const {
+    schedules,
+    isLoading,
+    createSchedule,
+    updateSchedule,
+    executeSchedule,
+    deleteSchedule,
+    isCreating,
+    isUpdating,
+  } = useSchedules()
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -23,22 +29,16 @@ export function SchedulesManager() {
 
   const handleCreateSchedule = async (scheduleData: {
     name: string
-    operationType: ScheduleOperationType
-    frequency: string
+    action: string
+    celeryName: string
   }) => {
     try {
-      const newSchedule: Omit<
-        Schedule,
-        'id' | 'createdAt' | 'updatedAt' | 'cronExpression' | 'nextRun' | 'lastRun'
-      > = {
+      await createSchedule({
         name: scheduleData.name.trim(),
-        operationType: scheduleData.operationType,
-        frequency: scheduleData.frequency,
-        status: 'active',
-        operationData: {},
-      }
-
-      await createSchedule(newSchedule)
+        action: scheduleData.action,
+        celeryName: scheduleData.celeryName,
+        enabled: true,
+      })
       setCreateDialogOpen(false)
     } catch (error) {
       console.error('Failed to create schedule:', error)
@@ -54,17 +54,18 @@ export function SchedulesManager() {
     id: number,
     scheduleData: {
       name: string
-      operationType: ScheduleOperationType
-      frequency: string
-      status: string
+      action: string
+      celeryName: string
+      enabled: boolean
     }
   ) => {
     try {
-      // For now, log the update. This will need to be implemented in the useSchedules hook
-      console.log('Updating schedule:', id, scheduleData)
-
-      // TODO: Implement actual update functionality
-      // await updateSchedule(id, scheduleData);
+      await updateSchedule(id, {
+        name: scheduleData.name.trim(),
+        action: scheduleData.action,
+        celery_name: scheduleData.celeryName,
+        enabled: scheduleData.enabled,
+      })
 
       setEditDialogOpen(false)
       setEditingSchedule(null)
@@ -89,12 +90,6 @@ export function SchedulesManager() {
       <PageTitle
         title="Schedules"
         description="Manage automated server operations and schedules"
-        breadcrumbs={[
-          {
-            label: 'Control Panel',
-            onClick: () => router.navigate({ to: '/' }),
-          },
-        ]}
         actions={
           <CreateScheduleDialog
             open={createDialogOpen}
@@ -135,7 +130,7 @@ export function SchedulesManager() {
         onOpenChange={setEditDialogOpen}
         schedule={editingSchedule}
         onUpdateSchedule={handleUpdateSchedule}
-        isUpdating={false} // TODO: Add isUpdating state from useSchedules hook
+        isUpdating={isUpdating}
       />
     </div>
   )
