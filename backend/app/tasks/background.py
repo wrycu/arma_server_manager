@@ -135,26 +135,11 @@ def server_start(schedule_id: int = 0) -> None:
         f"-mission={server_details.mission_file}",
     ]
     try:
-        command.extend(
-            [
-                f"-serverMod={x}"
-                for x in [
-                    y["mod"]["filename"]
-                    for y in server_details["collection"]["mods"]
-                    if y["mod"]["server_mod"]
-                ]
-            ]
-        )
-        command.extend(
-            [
-                f"-mod={x}"
-                for x in [
-                    y["mod"]["filename"]
-                    for y in server_details["collection"]["mods"]
-                    if not y["mod"]["server_mod"]
-                ]
-            ]
-        )
+        for mod in server_details["collection"]["mods"]:
+            if mod["mod"]["server_mod"]:
+                command.extend(f"-serverMod={mod['mod']['filename']}")
+            else:
+                command.extend(f"-mod={mod['mod']['filename']}")
     except KeyError:
         # mods do not *have* to be defined...
         pass
