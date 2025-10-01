@@ -14,9 +14,10 @@ import { Route as ServerConfigsRouteImport } from './routes/server-configs'
 import { Route as SchedulesRouteImport } from './routes/schedules'
 import { Route as ModSubscriptionsRouteImport } from './routes/mod-subscriptions'
 import { Route as ControlPanelRouteImport } from './routes/control-panel'
-import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
+import { Route as CollectionsCollectionIdRouteImport } from './routes/collections/$collectionId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -43,11 +44,6 @@ const ControlPanelRoute = ControlPanelRouteImport.update({
   path: '/control-panel',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionsRoute = CollectionsRouteImport.update({
-  id: '/collections',
-  path: '/collections',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -58,80 +54,97 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
+  id: '/collections/',
+  path: '/collections/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsCollectionIdRoute = CollectionsCollectionIdRouteImport.update({
+  id: '/collections/$collectionId',
+  path: '/collections/$collectionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/collections': typeof CollectionsRoute
   '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/settings': typeof SettingsRoute
+  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
+  '/collections': typeof CollectionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/collections': typeof CollectionsRoute
   '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/settings': typeof SettingsRoute
+  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
+  '/collections': typeof CollectionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/collections': typeof CollectionsRoute
   '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
   '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/settings': typeof SettingsRoute
+  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
+  '/collections/': typeof CollectionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
-    | '/collections'
     | '/control-panel'
     | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
     | '/settings'
+    | '/collections/$collectionId'
+    | '/collections'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/collections'
     | '/control-panel'
     | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
     | '/settings'
+    | '/collections/$collectionId'
+    | '/collections'
   id:
     | '__root__'
     | '/'
     | '/auth'
-    | '/collections'
     | '/control-panel'
     | '/mod-subscriptions'
     | '/schedules'
     | '/server-configs'
     | '/settings'
+    | '/collections/$collectionId'
+    | '/collections/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
-  CollectionsRoute: typeof CollectionsRoute
   ControlPanelRoute: typeof ControlPanelRoute
   ModSubscriptionsRoute: typeof ModSubscriptionsRoute
   SchedulesRoute: typeof SchedulesRoute
   ServerConfigsRoute: typeof ServerConfigsRoute
   SettingsRoute: typeof SettingsRoute
+  CollectionsCollectionIdRoute: typeof CollectionsCollectionIdRoute
+  CollectionsIndexRoute: typeof CollectionsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -171,13 +184,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlPanelRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections': {
-      id: '/collections'
-      path: '/collections'
-      fullPath: '/collections'
-      preLoaderRoute: typeof CollectionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -192,18 +198,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/collections/': {
+      id: '/collections/'
+      path: '/collections'
+      fullPath: '/collections'
+      preLoaderRoute: typeof CollectionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/$collectionId': {
+      id: '/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/collections/$collectionId'
+      preLoaderRoute: typeof CollectionsCollectionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
-  CollectionsRoute: CollectionsRoute,
   ControlPanelRoute: ControlPanelRoute,
   ModSubscriptionsRoute: ModSubscriptionsRoute,
   SchedulesRoute: SchedulesRoute,
   ServerConfigsRoute: ServerConfigsRoute,
   SettingsRoute: SettingsRoute,
+  CollectionsCollectionIdRoute: CollectionsCollectionIdRoute,
+  CollectionsIndexRoute: CollectionsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

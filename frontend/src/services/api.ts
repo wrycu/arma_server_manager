@@ -51,3 +51,11 @@ export const healthCheck = async (): Promise<{ status: string; message: string }
   const response = await api.get('/health')
   return response.data
 }
+
+// Async job status function
+export const getAsyncJobStatus = async (
+  jobId: string
+): Promise<{ status: string; message: string }> => {
+  const response = await api.get(`/async/${jobId}`)
+  return response.data
+}

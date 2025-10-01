@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { collections as collectionsService } from '@/services'
 import { handleApiError } from '@/lib/error-handler'
@@ -39,9 +38,6 @@ const transformApiCollections = (collections: CollectionResponse[]): Collection[
 export function useCollections() {
   const queryClient = useQueryClient()
 
-  // Local state for UI-specific concerns
-  const [selectedCollectionId, setSelectedCollectionId] = useState<number | null>(null)
-
   // Fetch collections using React Query
   const {
     data: collections = [],
@@ -55,11 +51,6 @@ export function useCollections() {
       return transformApiCollections(apiCollections)
     },
   })
-
-  // Derive selectedCollection from collections array to keep it in sync
-  const selectedCollection = selectedCollectionId
-    ? collections.find((c: Collection) => c.id === selectedCollectionId) || null
-    : null
 
   // Helper functions
   const findCollection = (id: number) => collections.find((c: Collection) => c.id === id)
@@ -102,11 +93,8 @@ export function useCollections() {
       await collectionsService.deleteCollection(id)
       return id
     },
-    onSuccess: (deletedId) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] })
-      if (selectedCollection?.id === deletedId) {
-        setSelectedCollectionId(null)
-      }
     },
     onError: (error) => {
       handleApiError(error, 'Failed to delete collection')
@@ -212,8 +200,6 @@ export function useCollections() {
 
   return {
     collections,
-    selectedCollection,
-    setSelectedCollectionId,
     isLoading,
     error,
     createCollection,

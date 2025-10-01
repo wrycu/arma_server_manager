@@ -1,4 +1,4 @@
-import { IconFolder, IconTrash } from '@tabler/icons-react'
+import { IconFolder, IconTrash, IconCheck } from '@tabler/icons-react'
 
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -8,12 +8,16 @@ interface CollectionItemProps {
   collection: Collection
   onSelectCollection: (collection: Collection) => void
   onDeleteCollection: (collectionId: number) => void
+  onSetActive?: (collection: Collection) => void
+  isActive?: boolean
 }
 
 export function CollectionItem({
   collection,
   onSelectCollection,
   onDeleteCollection,
+  onSetActive,
+  isActive = false,
 }: CollectionItemProps) {
   return (
     <div className="group flex items-center gap-3 px-3 py-3 rounded-md border bg-card hover:bg-muted/30 transition-colors">
@@ -34,6 +38,20 @@ export function CollectionItem({
       </div>
 
       <div className="flex items-center gap-2">
+        {onSetActive && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary"
+            onClick={(e) => {
+              e.stopPropagation()
+              onSetActive(collection)
+            }}
+          >
+            <IconCheck className="h-3 w-3 mr-1" />
+            {isActive ? 'Active' : 'Set active'}
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="sm"

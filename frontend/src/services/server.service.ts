@@ -39,46 +39,50 @@ export const serverService = {
     return response.data
   },
 
-  // Server action methods using schedule system
-  // Create a temporary schedule for immediate server action
-  createServerActionSchedule: async (
-    action: 'server_start' | 'server_stop' | 'server_restart'
-  ): Promise<{ result: number; message: string }> => {
-    const scheduleData = {
-      name: `Immediate ${action.replace('server_', '')}`,
-      action: action,
-      celery_name: 'immediate', // Special celery name for immediate execution
-      enabled: true,
-    }
-    const response = await api.post<{ result: number; message: string }>(
-      '/arma3/schedule',
-      scheduleData
-    )
+  // Activate a server configuration (set as active for start/stop operations)
+  activateServer: async (id: number): Promise<{ message: string }> => {
+    const response = await api.post<{ message: string }>(`/arma3/server/${id}/activate`)
     return response.data
   },
 
-  // Trigger a schedule (for immediate server actions)
-  triggerSchedule: async (scheduleId: number): Promise<{ message: string }> => {
-    const response = await api.post<{ message: string }>(`/arma3/schedule/${scheduleId}/trigger`)
+  // Update server collection ID
+  updateServerCollectionId: async (
+    id: number,
+    collectionId: number | null
+  ): Promise<{ message: string }> => {
+    const response = await api.patch<{ message: string }>(`/arma3/server/${id}`, {
+      collection_id: collectionId,
+    })
     return response.data
   },
 
-  // Perform server action by creating and triggering a schedule
+  // Direct server action methods using backend endpoints
+  startServer: async (): Promise<{ message: string; status: string }> => {
+    const response = await api.post<{ message: string; status: string }>('/arma3/server/start')
+    return response.data
+  },
+
+  stopServer: async (): Promise<{ message: string; status: string }> => {
+    const response = await api.post<{ message: string; status: string }>('/arma3/server/stop')
+    return response.data
+  },
+
+  // Perform server action using direct endpoints
   performServerAction: async (
     action: 'start' | 'stop' | 'restart',
     _collectionId?: number
-  ): Promise<{ message: string }> => {
+  ): Promise<{ message: string; status?: string }> => {
     try {
-      // Create temporary schedule for the action
-      const scheduleAction = `server_${action}` as 'server_start' | 'server_stop' | 'server_restart'
-      const createResponse = await serverService.createServerActionSchedule(scheduleAction)
-
-      // Trigger the schedule immediately
-      await serverService.triggerSchedule(createResponse.result)
-
-      return {
-        message: `Server ${action} initiated successfully`,
+      if (action === 'start') {
+        return await serverService.startServer()
+      } else if (action === 'stop') {
+        return await serverService.stopServer()
+      } else if (action === 'restart') {
+        // For restart, we need to stop then start
+        await serverService.stopServer()
+        return await serverService.startServer()
       }
+      throw new Error(`Unknown action: ${action}`)
     } catch (error) {
       throw new Error(`Failed to ${action} server: ${error}`)
     }
