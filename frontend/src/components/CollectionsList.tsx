@@ -2,17 +2,22 @@ import { IconFolder } from '@tabler/icons-react'
 
 import { CollectionItem } from '@/components/CollectionItem'
 import type { Collection } from '@/types/collections'
+import type { ServerConfig } from '@/types/server'
 
 interface CollectionsListProps {
   collections: Collection[]
   onSelectCollection: (collection: Collection) => void
   onDeleteCollection: (collectionId: number) => void
+  onSetActive?: (collection: Collection) => void
+  server?: ServerConfig | null
 }
 
-export function CollectionsList({
+function CollectionsList({
   collections,
   onSelectCollection,
   onDeleteCollection,
+  onSetActive,
+  server,
 }: CollectionsListProps) {
   if (collections.length === 0) {
     return (
@@ -31,8 +36,12 @@ export function CollectionsList({
           collection={collection}
           onSelectCollection={onSelectCollection}
           onDeleteCollection={onDeleteCollection}
+          onSetActive={onSetActive}
+          isActive={server?.collection_id === collection.id}
         />
       ))}
     </div>
   )
 }
+
+export default CollectionsList

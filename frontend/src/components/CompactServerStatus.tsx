@@ -31,7 +31,6 @@ interface CompactServerStatusProps {
   selectedStartupCollection: Collection | null
   onServerAction: (action: ServerActionRequest, collectionId?: number) => void
   onStartupCollectionChange: (collection: Collection | null) => void
-  onViewDetails?: () => void
   onDeleteServer?: () => void
 }
 
@@ -43,7 +42,6 @@ export function CompactServerStatus({
   selectedStartupCollection,
   onServerAction,
   onStartupCollectionChange,
-  onViewDetails,
   onDeleteServer,
 }: CompactServerStatusProps) {
   const navigate = useNavigate()
@@ -71,10 +69,6 @@ export function CompactServerStatus({
 
   // Mock server status - in a real implementation this would come from props
   const isServerRunning = serverStatus?.status === 'online' || false
-  const currentServerCollection = serverStatus?.activeCollection
-
-  // Check if selected collection is different from current server collection
-  const _isCollectionDifferent = selectedStartupCollection?.id !== currentServerCollection?.id
 
   // Determine available actions based on server state
   const canStart = !isServerRunning
@@ -100,6 +94,7 @@ export function CompactServerStatus({
           </CardTitle>
           <div className="flex items-center gap-2">
             {isServerRunning && <Badge variant="default">Running</Badge>}
+            {server.is_active && <Badge variant="secondary">Active</Badge>}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
@@ -107,12 +102,10 @@ export function CompactServerStatus({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {onViewDetails && (
-                  <DropdownMenuItem onClick={onViewDetails}>
-                    <IconSettings className="size-4 mr-2" />
-                    Settings
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
+                  <IconSettings className="size-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
                 {onDeleteServer && (
                   <>
                     <DropdownMenuSeparator />
@@ -130,9 +123,21 @@ export function CompactServerStatus({
 
       <CardContent className="space-y-6">
         {/* Server Details */}
-        <div className="space-y-1">
-          <div className="text-sm text-muted-foreground">Max Players</div>
-          <div className="font-medium">{server.max_players}</div>
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <div className="text-sm text-muted-foreground">Max Players</div>
+            <div className="font-medium">{server.max_players}</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-sm text-muted-foreground">Status</div>
+            <div className="text-sm">
+              {server.is_active ? (
+                <span className="text-green-600">Active configuration</span>
+              ) : (
+                <span className="text-amber-600">Inactive - will be activated when starting</span>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Mod Collection Section */}

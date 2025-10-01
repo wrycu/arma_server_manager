@@ -8,4 +8,4 @@ export const server = serverService
 export const mods = modService
 export const schedules = scheduleService
 
-export { api } from './api'
+export { api, healthCheck, getAsyncJobStatus } from './api'

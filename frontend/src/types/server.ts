@@ -12,6 +12,7 @@ export interface ServerConfig {
   client_mods: string | null
   additional_params: string | null
   server_binary: string
+  collection_id: number | null
   is_active: boolean
   created_at: string
   updated_at: string

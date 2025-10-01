@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { PageTitle } from '@/components/PageTitle'
 import { CompactServerStatus } from '@/components/CompactServerStatus'
+import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { useCollections } from '@/hooks/useCollections'
 import { useServer } from '@/hooks/useServer'
 import { serverService } from '@/services/server.service'
 import type { Collection } from '@/types/collections'
-import type { ServerActionRequest } from '@/types/api'
+import type { ServerActionRequest, ServerStatusResponse } from '@/types/api'
 
 export function ControlPanelPage() {
   const { collections } = useCollections()
@@ -20,13 +21,10 @@ export function ControlPanelPage() {
   )
 
   // Mock server status - real status checking not yet implemented
-  const [serverStatus] = useState<{
-    status: 'online' | 'offline'
-    activeCollection?: { id: number; name: string } | null
-  }>({
-    status: 'offline',
-    activeCollection: null,
-  })
+  const [serverStatus] = useState<ServerStatusResponse | null>(null)
+
+  // Confirmation dialog state
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   // Refetch server data when component mounts to ensure fresh data
   useEffect(() => {
@@ -43,18 +41,36 @@ export function ControlPanelPage() {
   const handleServerAction = async (action: ServerActionRequest, _collectionId?: number) => {
     if (!server) return
 
-    // Mock the server action with toast notification
-    const actionText =
-      action.action === 'start'
-        ? 'server start'
-        : action.action === 'stop'
-          ? 'server stop'
-          : 'server restart'
+    try {
+      const actionText =
+        action.action === 'start' ? 'start' : action.action === 'stop' ? 'stop' : 'restart'
 
-    toast.info(`Would send immediate ${actionText} task`)
+      // Ensure server is active before attempting to start/restart
+      if ((action.action === 'start' || action.action === 'restart') && !server.is_active) {
+        toast.info('Activating server configuration...')
+        await serverService.activateServer(server.id)
+        toast.success('Server configuration activated')
+        // Refetch to get updated server data
+        await refetchServers()
+      }
 
-    if (selectedStartupCollection) {
-      toast.info(`Would use collection: ${selectedStartupCollection.name}`)
+      toast.info(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)}ing server...`)
+
+      const result = await serverService.performServerAction(action.action, _collectionId)
+
+      toast.success(result.message)
+
+      if (selectedStartupCollection) {
+        toast.info(`Using collection: ${selectedStartupCollection.name}`)
+      }
+
+      // Refetch server data to get updated status
+      refetchServers()
+    } catch (error) {
+      console.error(`Failed to ${action.action} server:`, error)
+      toast.error(
+        `Failed to ${action.action} server: ${error instanceof Error ? error.message : String(error)}`
+      )
     }
   }
 
@@ -62,23 +78,13 @@ export function ControlPanelPage() {
     setSelectedStartupCollection(collection)
   }
 
-  const handleViewDetails = () => {
-    if (server) {
-      toast.info('Server settings page not yet implemented')
-    }
+  const handleDeleteServer = () => {
+    if (!server) return
+    setShowDeleteDialog(true)
   }
 
-  const handleDeleteServer = async () => {
+  const confirmDeleteServer = async () => {
     if (!server) return
-
-    // Add confirmation
-    if (
-      !window.confirm(
-        `Are you sure you want to delete server "${server.server_name}"? This action cannot be undone.`
-      )
-    ) {
-      return
-    }
 
     try {
       await serverService.deleteServer(server.id)
@@ -120,8 +126,19 @@ export function ControlPanelPage() {
         selectedStartupCollection={selectedStartupCollection}
         onServerAction={handleServerAction}
         onStartupCollectionChange={handleStartupCollectionChange}
-        onViewDetails={handleViewDetails}
         onDeleteServer={handleDeleteServer}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Delete Server"
+        description={`Are you sure you want to delete server "${server?.server_name}"? This action cannot be undone.`}
+        confirmText="Delete Server"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmDeleteServer}
       />
     </div>
   )
