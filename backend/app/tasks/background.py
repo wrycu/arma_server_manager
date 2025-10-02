@@ -133,11 +133,11 @@ def server_start(schedule_id: int = 0) -> None:
     if server_details["additional_params"]:
         command.append(server_details["additional_params"])
     if server_details["server_name"]:
-        command.append(server_details["server_name"])
+        command.append(f"-name={server_details['additional_params']}")
     if server_details["server_config_file"]:
-        command.append(server_details["server_config_file"])
+        command.append(f"-config={server_details['server_config_file']}")
     if server_details["mission_file"]:
-        command.append(server_details["mission_file"])
+        command.append(f"-mission={server_details['mission_file']}")
     try:
         for mod in sorted(
             server_details["collection"]["mods"], key=lambda x: x["load_order"]
