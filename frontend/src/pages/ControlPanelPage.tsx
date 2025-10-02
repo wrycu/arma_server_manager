@@ -45,15 +45,6 @@ export function ControlPanelPage() {
       const actionText =
         action.action === 'start' ? 'start' : action.action === 'stop' ? 'stop' : 'restart'
 
-      // Ensure server is active before attempting to start/restart
-      if ((action.action === 'start' || action.action === 'restart') && !server.is_active) {
-        toast.info('Activating server configuration...')
-        await serverService.activateServer(server.id)
-        toast.success('Server configuration activated')
-        // Refetch to get updated server data
-        await refetchServers()
-      }
-
       toast.info(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)}ing server...`)
 
       const result = await serverService.performServerAction(action.action, _collectionId)

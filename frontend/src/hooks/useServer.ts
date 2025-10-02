@@ -31,7 +31,7 @@ export function useServer(serverId?: number) {
     queryKey: ['server', serverId],
     queryFn: async (): Promise<ServerConfig> => {
       if (!serverId) throw new Error('No server id provided')
-      return await server.getServer(serverId, false)
+      return await server.getServer(serverId, true)
     },
     enabled: !!serverId,
   })

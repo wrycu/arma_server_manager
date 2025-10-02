@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { mods } from '@/services'
-import { handleApiError } from '@/lib/error-handler'
+import { handleApiError, showInfoToast, showSuccessToast } from '@/lib/error-handler'
 import type { ModHelper, ModSubscriptionResponse } from '@/types/api'
 import type { ModSubscription } from '@/types/mods'
 
@@ -97,6 +97,23 @@ export function useMods() {
     },
   })
 
+  const downloadModMutation = useMutation({
+    mutationFn: async (modId: number) => {
+      await mods.downloadMod(modId)
+    },
+    onSuccess: (_, modId) => {
+      // Find the mod to get its name for the success message
+      const mod = modSubscriptions.find((m) => m.id === modId)
+      const modName = mod?.name || `Mod ${mod?.steamId || modId}`
+
+      showSuccessToast('Download Complete', `${modName} has been downloaded successfully`)
+      queryClient.invalidateQueries({ queryKey: ['mods'] })
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to download mod')
+    },
+  })
+
   // Action functions
   const addModSubscription = async (steamId: number): Promise<void> => {
     try {
@@ -131,6 +148,20 @@ export function useMods() {
     }
   }
 
+  const downloadMod = async (steamId: number): Promise<void> => {
+    const mod = findModSubscription(steamId)
+    if (!mod) return
+
+    // Show toast notification that download is starting
+    showInfoToast('Download Started', `Starting download for ${mod.name || `Mod ${mod.steamId}`}`)
+
+    try {
+      await downloadModMutation.mutateAsync(mod.id)
+    } catch (error) {
+      console.error('Download mod failed:', error)
+    }
+  }
+
   // Get mod helper information from Steam API
   const getModHelper = useCallback(async (modId: number): Promise<ModHelper> => {
     try {
@@ -151,11 +182,13 @@ export function useMods() {
     isAdding: addModSubscriptionMutation.isPending,
     isRemoving: removeModSubscriptionMutation.isPending,
     isUpdating: updateModSubscriptionMutation.isPending,
+    isDownloading: downloadModMutation.isPending,
 
     // Actions
     addModSubscription,
     removeModSubscription,
     updateModSubscription,
+    downloadMod,
     getModHelper,
 
     // Helper functions

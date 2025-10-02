@@ -1,5 +1,5 @@
 import { type Row } from '@tanstack/react-table'
-import { MoreHorizontal, Trash } from 'lucide-react'
+import { MoreHorizontal, Trash, Download } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -14,10 +14,16 @@ import type { ModSubscription } from '@/types/mods'
 interface DataTableRowActionsProps {
   row: Row<ModSubscription>
   onDelete: (id: number) => Promise<void>
+  onDownload: (id: number) => Promise<void>
   isLoading?: string | null
 }
 
-export function DataTableRowActions({ row, onDelete, isLoading }: DataTableRowActionsProps) {
+export function DataTableRowActions({
+  row,
+  onDelete,
+  onDownload,
+  isLoading,
+}: DataTableRowActionsProps) {
   const mod = row.original
 
   return (
@@ -29,6 +35,13 @@ export function DataTableRowActions({ row, onDelete, isLoading }: DataTableRowAc
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuItem
+          onClick={() => onDownload(mod.steamId)}
+          disabled={isLoading === 'downloading' || !!mod.localPath}
+        >
+          <Download className="mr-2 h-4 w-4" />
+          {mod.localPath ? 'Downloaded' : 'Download'}
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onDelete(mod.steamId)}
           disabled={isLoading === 'removing'}

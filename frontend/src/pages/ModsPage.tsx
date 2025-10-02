@@ -10,7 +10,14 @@ import type { ExtendedModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
 export function SubscribedModsManager() {
-  const { modSubscriptions, isLoading, addModSubscription, removeModSubscription } = useMods()
+  const {
+    modSubscriptions,
+    isLoading,
+    addModSubscription,
+    removeModSubscription,
+    downloadMod,
+    isDownloading,
+  } = useMods()
 
   // Transform mod subscriptions to match UI expectations
   const mods: ExtendedModSubscription[] = modSubscriptions.map((mod) => ({
@@ -24,6 +31,10 @@ export function SubscribedModsManager() {
     await removeModSubscription(steamId)
   }
 
+  const handleDownload = async (steamId: number) => {
+    await downloadMod(steamId)
+  }
+
   const handleCreateCollection = (collection: CreateCollectionRequest) => {
     // TODO: Integrate with collections API
     console.log('Creating collection:', collection)
@@ -33,7 +44,8 @@ export function SubscribedModsManager() {
 
   const columns = getColumns({
     onDelete: handleDelete,
-    isLoading,
+    onDownload: handleDownload,
+    isLoading: isDownloading ? 'downloading' : isLoading ? 'loading' : null,
   })
 
   // Subscribe dialog state and handler
