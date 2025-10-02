@@ -119,7 +119,7 @@ def server_start(schedule_id: int = 0) -> None:
     print("'starting' server")
     current_app.logger.info("Started starting server")
     helper = TaskHelper()
-    entry = ServerConfig.query.filter(ServerConfig.is_active).first()
+    entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
     if not entry:
         current_app.logger.warning(
             "Unable to start server: no server is set to active!"
@@ -129,13 +129,15 @@ def server_start(schedule_id: int = 0) -> None:
     server_details = entry.to_dict(include_sensitive=True)
     command = [
         server_details["server_binary"],
-        server_details[
-            "additional_params"
-        ],  # this should probably be split or something first
-        f"-name={server_details['server_name']}",
-        f"-config={server_details['server_config_file']}",
-        f"-mission={server_details['mission_file']}",
     ]
+    if server_details["additional_params"]:
+        command.append(server_details["additional_params"])
+    if server_details["server_name"]:
+        command.append(server_details["server_name"])
+    if server_details["server_config_file"]:
+        command.append(server_details["server_config_file"])
+    if server_details["mission_file"]:
+        command.append(server_details["mission_file"])
     try:
         for mod in sorted(
             server_details["collection"]["mods"], key=lambda x: x["load_order"]
