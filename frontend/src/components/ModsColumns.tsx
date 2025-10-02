@@ -9,6 +9,7 @@ import type { ModSubscription } from '@/types/mods.ts'
 
 interface GetColumnsProps {
   onDelete: (id: number) => Promise<void>
+  onDownload: (id: number) => Promise<void>
   isLoading?: string | null
 }
 
@@ -27,6 +28,7 @@ const getTypeIcon = (type: ModSubscription['modType']) => {
 
 export const getColumns = ({
   onDelete,
+  onDownload,
   isLoading,
 }: GetColumnsProps): ColumnDef<ModSubscription>[] => [
   {
@@ -105,7 +107,14 @@ export const getColumns = ({
   },
   {
     id: 'actions',
-    cell: ({ row }) => <DataTableRowActions row={row} onDelete={onDelete} isLoading={isLoading} />,
+    cell: ({ row }) => (
+      <DataTableRowActions
+        row={row}
+        onDelete={onDelete}
+        onDownload={onDownload}
+        isLoading={isLoading}
+      />
+    ),
     enableSorting: false,
     enableHiding: false,
   },
