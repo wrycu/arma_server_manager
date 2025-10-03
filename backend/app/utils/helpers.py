@@ -669,7 +669,7 @@ class Arma3ServerHelper:
             )
             db.session.commit()
         except sqlalchemy.orm.exc.UnmappedInstanceError as e:
-            raise Exception("Cannot find schedule") from e
+            raise Exception("Cannot find server") from e
 
     @staticmethod
     def get_active_server_details():
@@ -729,12 +729,15 @@ class TaskHelper:
                 Notification.send_mod_update, Notification.enabled
             ).all()
         for notification in notifications:
-            httpx.post(
-                notification.URL,
-                json={
-                    "task_type": task_type,
-                    "outcome": task_outcome,
-                },
-            )
-            notification.last_run = datetime.now()
-            db.session.commit()
+            try:
+                httpx.post(
+                    notification.URL,
+                    json={
+                        "task_type": task_type,
+                        "outcome": task_outcome,
+                    },
+                )
+                notification.last_run = datetime.now()
+                db.session.commit()
+            except Exception as e:
+                print(f"Failed to send notification: {e}")

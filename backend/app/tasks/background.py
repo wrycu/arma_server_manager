@@ -3,6 +3,7 @@
 import os
 import shutil
 import subprocess
+import time
 from datetime import datetime
 from typing import Any
 
@@ -133,7 +134,9 @@ def server_start(schedule_id: int = 0) -> None:
     if server_details["additional_params"]:
         command.append(server_details["additional_params"])
     if server_details["server_name"]:
-        command.append(f"-name={server_details['additional_params']}")
+        command.append(f"-name={server_details['server_name']}")
+    else:
+        command.append("-name=arma_server_manager_managed_server")
     if server_details["server_config_file"]:
         command.append(f"-config={server_details['server_config_file']}")
     if server_details["mission_file"]:
@@ -149,12 +152,42 @@ def server_start(schedule_id: int = 0) -> None:
     except KeyError:
         # mods do not *have* to be defined...
         pass
-    subprocess.check_call(command)
+    current_app.logger.debug(f"running start server command {command}")
+    try:
+        proc = subprocess.Popen(
+            command, cwd=os.path.dirname(server_details["server_binary"])
+        )
+        time.sleep(10)
+        return_code = proc.poll()
+        if return_code:
+            try:
+                helper.update_task_outcome(
+                    schedule_id, f"Server failed to start with exit code {return_code}"
+                )
+            except Exception as e2:
+                if schedule_id != 0:
+                    current_app.logger.error(e2)
+            current_app.logger.info(
+                f"Server failed to start with exit code {return_code}"
+            )
+            helper.send_webhooks(
+                "server_start", f"Server failed to start with exit code {return_code}"
+            )
+            return
+    except Exception as e:
+        try:
+            helper.update_task_outcome(schedule_id, f"Server failed to start: {str(e)}")
+        except Exception as e2:
+            if schedule_id != 0:
+                current_app.logger.error(e2)
+        helper.send_webhooks("server_start", f"Server failed to start: {str(e)}")
+        return
     current_app.logger.info("Server started successfully!")
     try:
         helper.update_task_outcome(schedule_id, "Server started successfully!")
     except Exception as e:
-        current_app.logger.error(e)
+        if schedule_id != 0:
+            current_app.logger.error(e)
     helper.send_webhooks("server_start", "successfully started server")
 
 
@@ -167,15 +200,20 @@ def server_stop(schedule_id: int = 0) -> None:
     stopped = server_helper.stop_server()
     if stopped:
         current_app.logger.info("Server stopped successfully!")
-        helper.update_task_outcome(schedule_id, "Server stopped successfully!")
+        try:
+            helper.update_task_outcome(schedule_id, "Server stopped successfully!")
+        except Exception as e:
+            if schedule_id != 0:
+                current_app.logger.error(e)
         helper.send_webhooks("server_stop", "successfully stopped server")
     else:
         current_app.logger.info(
             "Server failed to stop! (permissions issue? not running?)"
         )
-        helper.update_task_outcome(
-            schedule_id, "Server failed to stop! (permissions issue? not running?)"
-        )
+        if schedule_id != 0:
+            helper.update_task_outcome(
+                schedule_id, "Server failed to stop! (permissions issue? not running?)"
+            )
         helper.send_webhooks(
             "server_stop", "Server failed to stop! (permissions issue? not running?)"
         )
