@@ -20,17 +20,35 @@ from app.utils.helpers import Arma3ServerHelper, SteamAPI, TaskHelper
 
 @shared_task
 def download_arma3_mod(mod_id: int) -> dict[str, Any]:
+    """
+    Downloads a subscribed, NOT ALREADY DOWNLOADED Arma 3 mod
+    :param mod_id: - INT, the subscribed mod ID to download
+    :return: DICT representing the download outcome
+    {
+        "status": "<overall_outcome>",
+        "message": "<more_detailed_outcome>",
+        "meta": {
+            "mod_id": "<ID_of_mod_this_applies_to",
+        },
+    }
+    """
     current_app.logger.info(f"Starting arma 3 mod download ({mod_id})")
     mod_data = Mod.query.get(mod_id)
     if not mod_data:
         return {
             "status": "aborted",
             "message": f"Mod {mod_id} not found",
+            "meta": {
+                "mod_id": mod_id,
+            },
         }
     if mod_data.local_path:
         return {
             "status": "aborted",
             "message": f"Mod {mod_id} already downloaded, try deleting first!",
+            "meta": {
+                "mod_id": mod_id,
+            },
         }
 
     mod_dir = os.path.join(
@@ -62,8 +80,91 @@ def download_arma3_mod(mod_id: int) -> dict[str, Any]:
     return result
 
 
+@shared_task
+def update_arma3_mod(mod_id: int) -> dict[str, Any]:
+    """
+    Updates a single Arma 3 mod. Note that this is here as an async task; it should not be scheduled
+    Instead, `mod_update` should be used within a schedule (which invokes this task)
+    :param mod_id:
+        INT - the subscribed mod ID to update
+    :return:
+        DICT representing the result
+        {
+            "status": "<update_status>",
+            "message": "<more_verbose_status_info>",
+            "meta": {
+                "mod_id": "<ID_of_the_mod_this_applies_to>",
+            }
+        }
+    """
+    current_app.logger.info(f"Starting arma 3 mod update ({mod_id})")
+    mod_data = Mod.query.get(mod_id)
+    if not mod_data:
+        current_app.logger.info("Mod not found")
+        return {
+            "status": "aborted",
+            "message": f"Mod {mod_id} not found",
+            "meta": {
+                "mod_id": mod_id,
+            },
+        }
+    if not mod_data.local_path:
+        current_app.logger.info("Mod not installed")
+        return {
+            "status": "aborted",
+            "message": f"Mod {mod_id} not downloaded, try downloading first!",
+            "meta": {
+                "mod_id": mod_id,
+            },
+        }
+
+    # build the destination path
+    mod_dir = os.path.join(
+        current_app.config["MOD_MANAGERS"]["ARMA3"].dst_dir,
+        f"{mod_data.filename}",
+    )
+    if mod_data.mod_type == "mission":
+        mod_dir = os.path.join(
+            current_app.config["MOD_MANAGERS"]["ARMA3"].mission_dir,
+            f"{mod_data.filename}",
+        )
+
+    # trigger the actual update
+    current_app.config["MOD_MANAGERS"]["ARMA3"].download_single_mod(
+        mod_data.steam_id,
+        mod_dir,
+    )
+
+    # update the DB to reflect this
+    mod_data.local_path = mod_dir
+    mod_data.last_updated = datetime.now()
+    db.session.commit()
+
+    result = {
+        "status": "completed",
+        "message": f"Downloaded to {mod_dir}",
+        "meta": {
+            "mod_id": mod_id,
+        },
+    }
+    current_app.logger.info(f"Done updating {mod_id}")
+    return result
+
+
 @shared_task()
 def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
+    """
+    Uninstalls an installed, subscribed mod
+    :param mod_id: - INT, the subscribed mod ID to uninstall
+    :return: DICT representing the uninstall outcome
+    {
+        "status": "<overall_outcome>",
+        "message": "<more_detailed_outcome>",
+        "meta": {
+            "mod_id": "<ID_of_mod_this_applies_to",
+        },
+    }
+    """
     current_app.logger.info(f"Starting arma 3 mod removal ({mod_id})")
     mod_data = Mod.query.get(mod_id)
     if not mod_data:
@@ -71,12 +172,18 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
         return {
             "status": "aborted",
             "message": f"Mod {mod_id} not found",
+            "meta": {
+                "mod_id": mod_id,
+            },
         }
     if not mod_data.local_path:
         current_app.logger.warning(f"Mod {mod_id} not downloaded")
         return {
             "status": "aborted",
             "message": f"Mod {mod_id} not downloaded, why are you even deleting it?!",
+            "meta": {
+                "mod_id": mod_id,
+            },
         }
 
     mod_dir = os.path.join(
@@ -106,18 +213,16 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
 
 @shared_task()
 def server_restart(schedule_id: int = 0) -> None:
-    print("'restarting' server")
     current_app.logger.info("Started restarting server")
     helper = TaskHelper()
     server_stop(schedule_id)
     server_start(schedule_id)
     current_app.logger.info("Server restarted successfully!")
-    helper.update_task_outcome(schedule_id, "Server restarted successfully!")
+    helper.log_scheduled_task_outcome(schedule_id, "Server restarted successfully!")
 
 
 @shared_task()
 def server_start(schedule_id: int = 0) -> None:
-    print("'starting' server")
     current_app.logger.info("Started starting server")
     helper = TaskHelper()
     entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
@@ -125,7 +230,9 @@ def server_start(schedule_id: int = 0) -> None:
         current_app.logger.warning(
             "Unable to start server: no server is set to active!"
         )
-        helper.update_task_outcome(schedule_id, "Aborted: no server is set to active")
+        helper.log_scheduled_task_outcome(
+            schedule_id, "Aborted: no server is set to active"
+        )
         return
     server_details = entry.to_dict(include_sensitive=True)
     command = [
@@ -161,12 +268,11 @@ def server_start(schedule_id: int = 0) -> None:
         return_code = proc.poll()
         if return_code:
             try:
-                helper.update_task_outcome(
+                helper.log_scheduled_task_outcome(
                     schedule_id, f"Server failed to start with exit code {return_code}"
                 )
             except Exception as e2:
-                if schedule_id != 0:
-                    current_app.logger.error(e2)
+                current_app.logger.error(e2)
             current_app.logger.info(
                 f"Server failed to start with exit code {return_code}"
             )
@@ -176,24 +282,23 @@ def server_start(schedule_id: int = 0) -> None:
             return
     except Exception as e:
         try:
-            helper.update_task_outcome(schedule_id, f"Server failed to start: {str(e)}")
+            helper.log_scheduled_task_outcome(
+                schedule_id, f"Server failed to start: {str(e)}"
+            )
         except Exception as e2:
-            if schedule_id != 0:
-                current_app.logger.error(e2)
+            current_app.logger.error(e2)
         helper.send_webhooks("server_start", f"Server failed to start: {str(e)}")
         return
     current_app.logger.info("Server started successfully!")
     try:
-        helper.update_task_outcome(schedule_id, "Server started successfully!")
+        helper.log_scheduled_task_outcome(schedule_id, "Server started successfully!")
     except Exception as e:
-        if schedule_id != 0:
-            current_app.logger.error(e)
+        current_app.logger.error(e)
     helper.send_webhooks("server_start", "successfully started server")
 
 
 @shared_task()
 def server_stop(schedule_id: int = 0) -> None:
-    print("'stopping' server")
     current_app.logger.info("Started stopping server")
     helper = TaskHelper()
     server_helper = Arma3ServerHelper()
@@ -201,19 +306,19 @@ def server_stop(schedule_id: int = 0) -> None:
     if stopped:
         current_app.logger.info("Server stopped successfully!")
         try:
-            helper.update_task_outcome(schedule_id, "Server stopped successfully!")
+            helper.log_scheduled_task_outcome(
+                schedule_id, "Server stopped successfully!"
+            )
         except Exception as e:
-            if schedule_id != 0:
-                current_app.logger.error(e)
+            current_app.logger.error(e)
         helper.send_webhooks("server_stop", "successfully stopped server")
     else:
         current_app.logger.info(
             "Server failed to stop! (permissions issue? not running?)"
         )
-        if schedule_id != 0:
-            helper.update_task_outcome(
-                schedule_id, "Server failed to stop! (permissions issue? not running?)"
-            )
+        helper.log_scheduled_task_outcome(
+            schedule_id, "Server failed to stop! (permissions issue? not running?)"
+        )
         helper.send_webhooks(
             "server_stop", "Server failed to stop! (permissions issue? not running?)"
         )
@@ -221,31 +326,40 @@ def server_stop(schedule_id: int = 0) -> None:
 
 @shared_task()
 def mod_update(schedule_id: int = 0) -> None:
-    print("'updating' mods")
+    """
+    Updates installed and subscribed mods
+    Stops the server, if it's running (restarting it after the mods finish updating)
+    """
     current_app.logger.info("Updating mods!")
     helper = TaskHelper()
     server_helper = Arma3ServerHelper()
+    server_running = server_helper.is_server_running()
 
-    if server_helper.is_server_running():
-        current_app.logger.info("aborted due to server running")
-        helper.update_task_outcome(schedule_id, "aborted due to server running")
-        return
+    if server_running:
+        current_app.logger.info("stopping the running server for mod updates")
+        server_stop()
 
     mods = Mod.query.filter(
         Mod.should_update,
         Mod.steam_last_updated > Mod.last_updated,
     ).all()
     if not mods:
-        pass
-    last_updated = datetime.now()
-    for mod in mods:
-        mod_status = download_arma3_mod(mod.id)
-        mod.last_updated = last_updated
-        db.session.commit()
         current_app.logger.info(
+            "aborted due to lack of mods (mods already up-to-date?)"
+        )
+        helper.log_scheduled_task_outcome(
+            schedule_id, "aborted due to lack of mods (mods already up-to-date?)"
+        )
+        return
+    for mod in mods:
+        mod_status = update_arma3_mod(mod.id)
+        current_app.logger.debug(
             f"Mod update for {mod.name} returned the following result: {mod_status['status']}"
         )
-        helper.update_task_outcome(schedule_id, mod_status["status"])
+        helper.log_scheduled_task_outcome(schedule_id, mod_status["status"])
+    if server_running:
+        current_app.logger.info("starting the server after mod updates")
+        server_start()
     helper.send_webhooks("mod_update", "successfully updated mods")
 
 

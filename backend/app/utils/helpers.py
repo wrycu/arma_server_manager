@@ -1,6 +1,7 @@
 """Utility helper functions."""
 
 import os
+import shutil
 import subprocess
 from datetime import datetime
 from xmlrpc.client import Binary
@@ -202,6 +203,7 @@ class Arma3ModManager:
         :param dst_dir: - STR, the destination directory to move the downloaded mod to
         :return:
         """
+        self._delete_mod_(dst_dir)
         os.rename(
             os.path.join(
                 self.staging_dir,
@@ -261,6 +263,11 @@ class Arma3ModManager:
                     raise Exception(
                         f"Failed to create directory {directory}: {e}"
                     ) from e
+
+    @staticmethod
+    def _delete_mod_(mod_dir: str):
+        if os.path.exists(mod_dir):
+            shutil.rmtree(mod_dir)
 
     @staticmethod
     def get_all_collections():
@@ -707,7 +714,10 @@ class Arma3ServerHelper:
 
 class TaskHelper:
     @staticmethod
-    def update_task_outcome(schedule_id: int, task_outcome: str):
+    def log_scheduled_task_outcome(schedule_id: int, task_outcome: str):
+        if schedule_id == 0:
+            # this was an unscheduled task, do not update outcome
+            return
         schedule = Schedule.query.filter(Schedule.id == schedule_id).first()
         if not schedule:
             raise Exception(

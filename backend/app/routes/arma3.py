@@ -5,9 +5,11 @@ from flask import Blueprint, Response, current_app, request
 
 from app.tasks.background import (
     download_arma3_mod,
+    mod_update,
     remove_arma3_mod,
     server_start,
     server_stop,
+    update_arma3_mod,
 )
 
 a3_bp = Blueprint("arma3", __name__)
@@ -226,6 +228,24 @@ def trigger_mod_delete(
     return {
         "status": remove_arma3_mod.delay(mod_id).id,
         "message": "Remove queued",
+    }, HTTPStatus.OK
+
+
+@a3_bp.route("/mod/<int:mod_id>/update", methods=["POST"])
+def trigger_mod_update(
+    mod_id: int,
+) -> tuple[Response, int] | tuple[dict[str, str], int]:
+    return {
+        "status": update_arma3_mod.delay(mod_id).id,
+        "message": "Downloaded queued",
+    }, HTTPStatus.OK
+
+
+@a3_bp.route("/mods/update", methods=["POST"])
+def trigger_all_mod_update() -> tuple[Response, int] | tuple[dict[str, str], int]:
+    return {
+        "status": mod_update.delay().id,
+        "message": "Mod updates queued",
     }, HTTPStatus.OK
 
 
