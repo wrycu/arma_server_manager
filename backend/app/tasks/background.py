@@ -290,6 +290,8 @@ def server_start(schedule_id: int = 0) -> None:
         helper.send_webhooks("server_start", f"Server failed to start: {str(e)}")
         return
     current_app.logger.info("Server started successfully!")
+    entry.is_active = True
+    db.session.commit()
     try:
         helper.log_scheduled_task_outcome(schedule_id, "Server started successfully!")
     except Exception as e:
@@ -304,6 +306,9 @@ def server_stop(schedule_id: int = 0) -> None:
     server_helper = Arma3ServerHelper()
     stopped = server_helper.stop_server()
     if stopped:
+        entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+        entry.is_active = False
+        db.session.commit()
         current_app.logger.info("Server stopped successfully!")
         try:
             helper.log_scheduled_task_outcome(
