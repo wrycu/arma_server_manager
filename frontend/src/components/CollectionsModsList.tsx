@@ -9,9 +9,16 @@ interface ModsListProps {
   collectionId: number
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
   onAddMods: (collectionId: number) => void
+  onModClick?: (mod: ModSubscription) => void
 }
 
-export function ModsList({ mods, collectionId, onRemoveMod, onAddMods }: ModsListProps) {
+export function ModsList({
+  mods,
+  collectionId,
+  onRemoveMod,
+  onAddMods,
+  onModClick,
+}: ModsListProps) {
   if (mods.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
@@ -32,7 +39,18 @@ export function ModsList({ mods, collectionId, onRemoveMod, onAddMods }: ModsLis
           key={mod.id}
           className="group flex items-center gap-3 px-3 py-2 rounded-md border bg-card hover:bg-muted/30 transition-colors"
         >
-          <div className="flex-1 min-w-0">
+          <div
+            className="flex-1 min-w-0 cursor-pointer"
+            onClick={() => onModClick?.(mod)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onModClick?.(mod)
+              }
+            }}
+          >
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium truncate">{mod.name}</span>
               <div className="flex items-center gap-1">
@@ -52,7 +70,10 @@ export function ModsList({ mods, collectionId, onRemoveMod, onAddMods }: ModsLis
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onRemoveMod(collectionId, mod.id, mod.name)}
+              onClick={(e) => {
+                e.stopPropagation()
+                onRemoveMod(collectionId, mod.id, mod.name)
+              }}
               className="h-6 w-6 p-0 hover:text-destructive"
             >
               <IconTrash className="h-3 w-3" />

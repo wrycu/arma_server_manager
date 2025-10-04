@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Clock, Plus } from 'lucide-react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { PageTitle } from '@/components/PageTitle'
 
 import { SchedulesDataTable } from '@/components/SchedulesDataTable'
 import { CreateScheduleDialog } from '@/components/SchedulesCreateDialog'
-import { EditScheduleDialog } from '@/components/SchedulesEditDialog'
+import { ScheduleDetailSidebar } from '@/components/ScheduleDetailSidebar'
 import { getColumns } from '@/components/SchedulesColumns'
 import { useSchedules } from '@/hooks/useSchedules'
 import type { Schedule } from '@/types/server'
@@ -20,12 +21,13 @@ export function SchedulesManager() {
     executeSchedule,
     deleteSchedule,
     isCreating,
-    isUpdating,
   } = useSchedules()
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null)
+
+  // Sidebar state
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const handleCreateSchedule = async (scheduleData: {
     name: string
@@ -45,45 +47,41 @@ export function SchedulesManager() {
     }
   }
 
-  const handleEditSchedule = (schedule: Schedule) => {
-    setEditingSchedule(schedule)
-    setEditDialogOpen(true)
+  const handleRowClick = (schedule: Schedule) => {
+    setSelectedSchedule(schedule)
+    setIsSidebarOpen(true)
   }
 
-  const handleUpdateSchedule = async (
+  const handleSave = async (
     id: number,
-    scheduleData: {
+    updates: {
       name: string
       action: string
       celeryName: string
       enabled: boolean
     }
   ) => {
-    try {
-      await updateSchedule(id, {
-        name: scheduleData.name.trim(),
-        action: scheduleData.action,
-        celery_name: scheduleData.celeryName,
-        enabled: scheduleData.enabled,
-      })
-
-      setEditDialogOpen(false)
-      setEditingSchedule(null)
-    } catch (error) {
-      console.error('Failed to update schedule:', error)
-    }
+    await updateSchedule(id, {
+      name: updates.name.trim(),
+      action: updates.action,
+      celery_name: updates.celeryName,
+      enabled: updates.enabled,
+    })
+    toast.success('Schedule updated successfully')
   }
 
-  const columns = getColumns({
-    onExecute: async (id) => {
-      await executeSchedule(id)
-    },
-    onEdit: handleEditSchedule,
-    onDelete: async (id) => {
-      await deleteSchedule(id)
-    },
-    isLoading,
-  })
+  const handleExecute = async (id: number) => {
+    await executeSchedule(id)
+    toast.success('Schedule executed successfully')
+  }
+
+  const handleDelete = async (id: number) => {
+    await deleteSchedule(id)
+    setIsSidebarOpen(false)
+    toast.success('Schedule deleted successfully')
+  }
+
+  const columns = getColumns()
 
   return (
     <div className="space-y-6">
@@ -121,16 +119,18 @@ export function SchedulesManager() {
             columns,
             data: schedules,
             isLoading,
+            onRowClick: handleRowClick,
           }}
         />
       </div>
 
-      <EditScheduleDialog
-        open={editDialogOpen}
-        onOpenChange={setEditDialogOpen}
-        schedule={editingSchedule}
-        onUpdateSchedule={handleUpdateSchedule}
-        isUpdating={isUpdating}
+      <ScheduleDetailSidebar
+        schedule={selectedSchedule}
+        open={isSidebarOpen}
+        onOpenChange={setIsSidebarOpen}
+        onSave={handleSave}
+        onExecute={handleExecute}
+        onDelete={handleDelete}
       />
     </div>
   )

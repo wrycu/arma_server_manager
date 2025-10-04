@@ -77,12 +77,12 @@ describe('ModsPage Download Functionality', () => {
       </TestWrapper>
     )
 
-    // Click the action button to open dropdown
-    const actionButton = screen.getByRole('button', { name: /open menu/i })
-    await user.click(actionButton)
+    // Click on a table row to open the sidebar
+    const tableRow = screen.getByRole('row', { name: /test mod steam id: 12345/i })
+    await user.click(tableRow)
 
-    // Click the download button
-    const downloadButton = screen.getByRole('menuitem', { name: /download/i })
+    // Click the download button in the sidebar
+    const downloadButton = screen.getByRole('button', { name: /download mod/i })
     await user.click(downloadButton)
 
     // Verify downloadMod was called with the correct steamId
@@ -108,12 +108,12 @@ describe('ModsPage Download Functionality', () => {
       </TestWrapper>
     )
 
-    // Click the action button to open dropdown
-    const actionButton = screen.getByRole('button', { name: /open menu/i })
-    await user.click(actionButton)
+    // Click on a table row to open the sidebar
+    const tableRow = screen.getByRole('row', { name: /test mod steam id: 12345/i })
+    await user.click(tableRow)
 
-    // Click the download button
-    const downloadButton = screen.getByRole('menuitem', { name: /download/i })
+    // Click the download button in the sidebar
+    const downloadButton = screen.getByRole('button', { name: /download mod/i })
     await user.click(downloadButton)
 
     // Verify downloadMod was called (error handling is tested in the hook)

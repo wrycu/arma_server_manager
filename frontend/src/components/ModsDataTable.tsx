@@ -47,12 +47,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onCreateCollection?: (collection: CreateCollectionRequest) => void
+  onRowClick?: (row: TData) => void
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onCreateCollection,
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -183,9 +185,27 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  onClick={() => onRowClick?.(row.original)}
+                  className={onRowClick ? 'cursor-pointer' : ''}
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      onClick={(e) => {
+                        // Prevent row click when clicking on interactive elements
+                        const target = e.target as HTMLElement
+                        if (
+                          target.closest('button') ||
+                          target.closest('input[type="checkbox"]') ||
+                          target.closest('[role="button"]')
+                        ) {
+                          e.stopPropagation()
+                        }
+                      }}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
