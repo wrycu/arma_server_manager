@@ -41,6 +41,7 @@ class Arma3ModManager:
         self.dst_dir = mod_dest_dir
         self.mission_dir = os.path.join(mod_dest_dir, "mpmissions")
         self._validate_dirs()
+        self._validate_steam_cmd()
         self.steam_api = SteamAPI()
 
     @staticmethod
@@ -263,6 +264,12 @@ class Arma3ModManager:
                     raise Exception(
                         f"Failed to create directory {directory}: {e}"
                     ) from e
+
+    def _validate_steam_cmd(self):
+        if not os.path.isfile(self.steam_cmd_path):
+            raise Exception(
+                "SteamCMD is not set properly. Please check the path you have set!"
+            )
 
     @staticmethod
     def _delete_mod_(mod_dir: str):
