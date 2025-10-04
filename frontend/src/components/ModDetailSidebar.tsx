@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { IconCheck, IconDownload, IconTrash, IconExternalLink } from '@tabler/icons-react'
+import { IconCheck, IconDownload, IconTrash, IconExternalLink, IconX } from '@tabler/icons-react'
 
 import {
   RightSidebar,
@@ -176,6 +176,22 @@ export function ModDetailSidebar({
               <div>
                 <p className="text-xs text-muted-foreground">Workshop ID</p>
                 <p className="font-medium">{mod.steamId}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Downloaded</p>
+                <div className="flex items-center gap-1.5">
+                  {mod.localPath ? (
+                    <>
+                      <IconDownload className="h-4 w-4 text-green-500" />
+                      <span className="font-medium text-green-500">Yes</span>
+                    </>
+                  ) : (
+                    <>
+                      <IconX className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">No</span>
+                    </>
+                  )}
+                </div>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Size</p>

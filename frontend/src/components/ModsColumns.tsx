@@ -1,7 +1,15 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { IconUser, IconPuzzle, IconFlag, IconMap, IconCheck, IconX } from '@tabler/icons-react'
+import {
+  IconUser,
+  IconPuzzle,
+  IconFlag,
+  IconMap,
+  IconCheck,
+  IconX,
+  IconDownload,
+} from '@tabler/icons-react'
 
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
 import { formatDateTime } from '@/lib/date'
@@ -85,6 +93,32 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
+    },
+  },
+  {
+    accessorKey: 'localPath',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Downloaded" />,
+    cell: ({ row }) => {
+      const localPath = row.getValue('localPath') as string | null
+      const isDownloaded = localPath !== null
+      return (
+        <div className="flex items-center gap-2">
+          {isDownloaded ? (
+            <>
+              <IconDownload className="h-4 w-4 text-green-500" />
+              <Badge variant="outline" className="text-xs border-green-500 text-green-500">
+                Downloaded
+              </Badge>
+            </>
+          ) : (
+            <IconX className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      const isDownloaded = row.getValue(id) !== null
+      return value.includes(isDownloaded)
     },
   },
   {
