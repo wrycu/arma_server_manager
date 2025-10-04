@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Kbd } from '@/components/ui/kbd'
 import { Badge } from '@/components/ui/badge'
 import type { Schedule } from '@/types/server'
 import { getActionLabel, getStatusBadgeVariant, getStatusText } from '@/lib/schedules'
@@ -162,156 +161,164 @@ export function ScheduleDetailSidebar({
       <div className="flex flex-col h-full">
         {/* HEADER: Title and Close */}
         <RightSidebarHeader onClose={() => onOpenChange(false)}>
-          <div className="space-y-1">
+          <div>
             <div className="flex items-center gap-2">
-              <IconClock className="h-5 w-5 text-muted-foreground" />
-              <h2 className="text-lg font-semibold truncate">{schedule.name}</h2>
+              <IconClock className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-base font-semibold truncate">{schedule.name}</h2>
             </div>
-            <Badge variant={getStatusBadgeVariant(schedule.enabled)} className="capitalize">
+            <Badge variant={getStatusBadgeVariant(schedule.enabled)} className="capitalize mt-1">
               {getStatusText(schedule.enabled)}
             </Badge>
           </div>
         </RightSidebarHeader>
 
         {/* CONTENT: All information always visible */}
-        <RightSidebarContent>
+        <RightSidebarContent className="space-y-5">
           {/* Delete Confirmation (inline) */}
           {showDeleteConfirm && (
-            <div className="mb-6 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-              <h3 className="text-sm font-semibold text-destructive mb-2">Delete Schedule?</h3>
-              <p className="text-xs text-muted-foreground mb-3">
+            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3">
+              <h3 className="text-sm font-medium text-destructive mb-1">Delete Schedule?</h3>
+              <p className="text-xs text-muted-foreground mb-2.5">
                 This will permanently delete this schedule. This action cannot be undone.
               </p>
               <div className="flex gap-2">
-                <Button variant="destructive" size="sm" onClick={handleDelete}>
+                <Button variant="destructive" size="sm" onClick={handleDelete} className="h-8">
                   Delete
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="h-8"
+                >
                   Cancel
                 </Button>
               </div>
             </div>
           )}
 
-          <div className="space-y-6">
-            {/* Metadata Grid - 2 columns */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground">Action</p>
-                <p className="font-medium">{getActionLabel(schedule.action)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Frequency</p>
-                <p className="font-medium">{frequencyLabel}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Created</p>
-                <p className="font-medium">{formatDateTime(schedule.created_at)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Updated</p>
-                <p className="font-medium">{formatDateTime(schedule.updated_at)}</p>
-              </div>
+          {/* Metadata Grid - 2 columns */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Action</p>
+              <p className="font-medium text-sm">{getActionLabel(schedule.action)}</p>
             </div>
-
-            {/* Editable Configuration - Inline, no box */}
-            {onSave && (
-              <div className="space-y-3 pt-2">
-                {/* Name Input */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="name" className="text-sm">
-                    Schedule Name
-                  </Label>
-                  <Input
-                    id="name"
-                    placeholder="e.g., Nightly Server Restart"
-                    value={editedName}
-                    onChange={(e) => setEditedName(e.target.value)}
-                  />
-                </div>
-
-                {/* Action Select */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="action" className="text-sm">
-                    Action
-                  </Label>
-                  <Select value={editedAction} onValueChange={setEditedAction}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {actionOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Frequency Select */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="frequency" className="text-sm">
-                    Frequency
-                  </Label>
-                  <Select value={editedCeleryName} onValueChange={setEditedCeleryName}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {celeryScheduleOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Status Select */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="status" className="text-sm">
-                    Status
-                  </Label>
-                  <Select
-                    value={editedEnabled ? 'active' : 'inactive'}
-                    onValueChange={(value) => setEditedEnabled(value === 'active')}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Save Button */}
-                {isDirty && (
-                  <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full">
-                    <IconCheck className="h-3.5 w-3.5 mr-1.5" />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                )}
-              </div>
-            )}
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Frequency</p>
+              <p className="font-medium text-sm">{frequencyLabel}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Created</p>
+              <p className="font-medium text-sm">{formatDateTime(schedule.created_at)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Updated</p>
+              <p className="font-medium text-sm">{formatDateTime(schedule.updated_at)}</p>
+            </div>
           </div>
+
+          {/* Divider before editable section */}
+          {onSave && <div className="border-t -mx-6" />}
+
+          {/* Editable Configuration */}
+          {onSave && (
+            <div className="space-y-2.5">
+              {/* Name Input */}
+              <div className="space-y-1">
+                <Label htmlFor="name" className="text-xs text-muted-foreground">
+                  Schedule Name
+                </Label>
+                <Input
+                  id="name"
+                  placeholder="e.g., Nightly Server Restart"
+                  value={editedName}
+                  onChange={(e) => setEditedName(e.target.value)}
+                  className="h-8"
+                />
+              </div>
+
+              {/* Action Select */}
+              <div className="space-y-1">
+                <Label htmlFor="action" className="text-xs text-muted-foreground">
+                  Action
+                </Label>
+                <Select value={editedAction} onValueChange={setEditedAction}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {actionOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Frequency Select */}
+              <div className="space-y-1">
+                <Label htmlFor="frequency" className="text-xs text-muted-foreground">
+                  Frequency
+                </Label>
+                <Select value={editedCeleryName} onValueChange={setEditedCeleryName}>
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {celeryScheduleOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Status Select */}
+              <div className="space-y-1">
+                <Label htmlFor="status" className="text-xs text-muted-foreground">
+                  Status
+                </Label>
+                <Select
+                  value={editedEnabled ? 'active' : 'inactive'}
+                  onValueChange={(value) => setEditedEnabled(value === 'active')}
+                >
+                  <SelectTrigger className="h-8">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Save Button */}
+              {isDirty && (
+                <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full h-8">
+                  <IconCheck className="h-3.5 w-3.5 mr-1.5" />
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              )}
+            </div>
+          )}
         </RightSidebarContent>
 
-        {/* FOOTER: Primary Actions (Sticky) */}
+        {/* FOOTER: Primary Actions */}
         {(onExecute || onDelete) && !showDeleteConfirm && (
           <RightSidebarFooter>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {/* Execute action */}
               {onExecute && (
                 <Button
                   variant="default"
-                  className="w-full"
+                  className="w-full h-8"
+                  size="sm"
                   onClick={handleExecute}
                   disabled={isExecuting}
                 >
-                  <IconPlayerPlay className="h-4 w-4 mr-2" />
+                  <IconPlayerPlay className="h-3.5 w-3.5 mr-2" />
                   {isExecuting ? 'Executing...' : 'Execute Now'}
                 </Button>
               )}
@@ -319,29 +326,18 @@ export function ScheduleDetailSidebar({
               {/* Delete action */}
               {onDelete && (
                 <Button
-                  variant="outline"
-                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                  variant="ghost"
+                  className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
                 >
-                  <IconTrash className="h-4 w-4 mr-2" />
+                  <IconTrash className="h-3.5 w-3.5 mr-2" />
                   Delete Schedule
                 </Button>
               )}
             </div>
           </RightSidebarFooter>
         )}
-
-        {/* Keyboard Shortcut Hint */}
-        <div className="px-6 pb-4 text-xs text-muted-foreground text-center space-x-3">
-          <span>
-            <Kbd>Esc</Kbd> to close
-          </span>
-          {isDirty && (
-            <span>
-              <Kbd>⌘S</Kbd> to save
-            </span>
-          )}
-        </div>
       </div>
     </RightSidebar>
   )

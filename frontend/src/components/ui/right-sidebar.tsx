@@ -68,16 +68,11 @@ export function RightSidebarHeader({
   className,
 }: RightSidebarHeaderProps) {
   return (
-    <div
-      className={cn(
-        'flex items-center justify-between border-b bg-background/95 backdrop-blur px-6 py-4',
-        className
-      )}
-    >
+    <div className={cn('flex items-center justify-between border-b px-6 py-3.5', className)}>
       <div className="flex-1 min-w-0">{children}</div>
       <div className="flex items-center gap-1 ml-4 flex-shrink-0">
         {actions}
-        <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0">
+        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
           <IconX className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </Button>
@@ -107,16 +102,5 @@ interface RightSidebarFooterProps {
  * Footer section for the right sidebar with actions (sticky to bottom)
  */
 export function RightSidebarFooter({ children, className }: RightSidebarFooterProps) {
-  return (
-    <div
-      className={cn(
-        'sticky bottom-0 z-10',
-        'border-t bg-background/95 backdrop-blur px-6 py-4',
-        'shadow-[0_-4px_6px_-1px_rgb(0,0,0,0.1)]',
-        className
-      )}
-    >
-      {children}
-    </div>
-  )
+  return <div className={cn('border-t px-6 py-3', className)}>{children}</div>
 }
