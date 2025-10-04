@@ -22,7 +22,8 @@ export function CollectionDetailPage() {
   const navigate = useNavigate()
   const collectionIdNum = parseInt(collectionId, 10)
 
-  const { collections, removeModFromCollection, addModsToCollection } = useCollections()
+  const { collections, removeModFromCollection, addModsToCollection, reorderModInCollection } =
+    useCollections()
 
   const { servers, refetchServers } = useServer()
   const server = servers?.[0] || null
@@ -185,6 +186,7 @@ export function CollectionDetailPage() {
           onRemoveMod={handleRemoveModFromCollection}
           onAddMods={handleAddMods}
           onModClick={handleModClick}
+          onReorderMod={reorderModInCollection}
         />
       </div>
 

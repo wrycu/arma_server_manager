@@ -82,6 +82,18 @@ export const collectionsService = {
     return response.data
   },
 
+  // Reorder mod in collection
+  reorderModInCollection: async (
+    collectionId: number,
+    modId: number,
+    newLoadOrder: number
+  ): Promise<{ message: string }> => {
+    const response = await api.patch<{ message: string }>(
+      `/arma3/mod/collection/${collectionId}/mods/${modId}/load/${newLoadOrder}`
+    )
+    return response.data
+  },
+
   // // Toggle mod in collection
   // toggleModInCollection: async (
   //   collectionId: number,

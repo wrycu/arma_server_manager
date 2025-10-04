@@ -42,7 +42,10 @@ class Collection(db.Model):  # type: ignore[name-defined]
 
     # Relationships
     mod_entries: Mapped[list["ModCollectionEntry"]] = relationship(
-        "ModCollectionEntry", back_populates="collection", cascade="all, delete-orphan"
+        "ModCollectionEntry",
+        back_populates="collection",
+        cascade="all, delete-orphan",
+        order_by="ModCollectionEntry.load_order",
     )
     server_config: Mapped[list["ServerConfig"]] = relationship(
         "ServerConfig", back_populates="collection", cascade="all, delete-orphan"
