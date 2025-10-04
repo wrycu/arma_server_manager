@@ -1,15 +1,17 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import { IconUser, IconPuzzle, IconFlag, IconMap } from '@tabler/icons-react'
+import { IconUser, IconPuzzle, IconFlag, IconMap, IconCheck, IconX } from '@tabler/icons-react'
 
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
 import { DataTableRowActions } from '@/components/ModsDataRowActions'
+import { formatDateTime } from '@/lib/date'
 import type { ModSubscription } from '@/types/mods.ts'
 
 interface GetColumnsProps {
   onDelete: (id: number) => Promise<void>
   onDownload: (id: number) => Promise<void>
+  onEdit: (mod: ModSubscription) => void
   isLoading?: string | null
 }
 
@@ -29,6 +31,7 @@ const getTypeIcon = (type: ModSubscription['modType']) => {
 export const getColumns = ({
   onDelete,
   onDownload,
+  onEdit,
   isLoading,
 }: GetColumnsProps): ColumnDef<ModSubscription>[] => [
   {
@@ -106,12 +109,68 @@ export const getColumns = ({
     },
   },
   {
+    accessorKey: 'isServerMod',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Server Mod" />,
+    cell: ({ row }) => {
+      const isServerMod = row.getValue('isServerMod') as boolean
+      return (
+        <div className="flex items-center gap-2">
+          {isServerMod ? (
+            <IconCheck className="h-4 w-4 text-green-500" />
+          ) : (
+            <IconX className="h-4 w-4 text-muted-foreground" />
+          )}
+        </div>
+      )
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+  {
+    accessorKey: 'arguments',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Arguments" />,
+    cell: ({ row }) => {
+      const args = row.getValue('arguments') as string | null
+      return (
+        <div className="max-w-[200px] truncate text-sm font-mono text-muted-foreground">
+          {args || '-'}
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: 'lastUpdated',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Last Updated" />,
+    cell: ({ row }) => {
+      const lastUpdated = row.getValue('lastUpdated') as string | null
+      return (
+        <div className="text-sm text-muted-foreground">
+          {lastUpdated ? formatDateTime(lastUpdated) : 'Never'}
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: 'steamLastUpdated',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Steam Updated" />,
+    cell: ({ row }) => {
+      const steamLastUpdated = row.getValue('steamLastUpdated') as string | null
+      return (
+        <div className="text-sm text-muted-foreground">
+          {steamLastUpdated ? formatDateTime(steamLastUpdated) : 'Unknown'}
+        </div>
+      )
+    },
+  },
+  {
     id: 'actions',
     cell: ({ row }) => (
       <DataTableRowActions
         row={row}
         onDelete={onDelete}
         onDownload={onDownload}
+        onEdit={onEdit}
         isLoading={isLoading}
       />
     ),

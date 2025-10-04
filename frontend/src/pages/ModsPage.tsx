@@ -6,7 +6,8 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { IconPlus } from '@tabler/icons-react'
 import { ModsSubscribeDialog } from '@/components/ModsSubscribeDialog'
-import type { ExtendedModSubscription } from '@/types/mods'
+import { ModsEditDialog } from '@/components/ModsEditDialog'
+import type { ExtendedModSubscription, ModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
 export function SubscribedModsManager() {
@@ -15,6 +16,7 @@ export function SubscribedModsManager() {
     isLoading,
     addModSubscription,
     removeModSubscription,
+    updateModSubscription,
     downloadMod,
     isDownloading,
   } = useMods()
@@ -42,9 +44,26 @@ export function SubscribedModsManager() {
     // This will be implemented when the collections API is available
   }
 
+  // Edit dialog state and handlers
+  const [editOpen, setEditOpen] = useState(false)
+  const [editingMod, setEditingMod] = useState<ModSubscription | null>(null)
+
+  const handleEdit = (mod: ModSubscription) => {
+    setEditingMod(mod)
+    setEditOpen(true)
+  }
+
+  const handleEditSave = async (
+    steamId: number,
+    updates: { arguments: string | null; isServerMod: boolean }
+  ) => {
+    await updateModSubscription(steamId, updates)
+  }
+
   const columns = getColumns({
     onDelete: handleDelete,
     onDownload: handleDownload,
+    onEdit: handleEdit,
     isLoading: isDownloading ? 'downloading' : isLoading ? 'loading' : null,
   })
 
@@ -72,6 +91,13 @@ export function SubscribedModsManager() {
         open={subscribeOpen}
         onOpenChange={setSubscribeOpen}
         onSubscribe={handleSubscribeMods}
+      />
+
+      <ModsEditDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        mod={editingMod}
+        onSave={handleEditSave}
       />
     </div>
   )

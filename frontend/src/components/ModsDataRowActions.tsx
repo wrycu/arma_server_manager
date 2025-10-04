@@ -1,11 +1,12 @@
 import { type Row } from '@tanstack/react-table'
-import { MoreHorizontal, Trash, Download } from 'lucide-react'
+import { MoreHorizontal, Trash, Download, Edit } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
@@ -15,6 +16,7 @@ interface DataTableRowActionsProps {
   row: Row<ModSubscription>
   onDelete: (id: number) => Promise<void>
   onDownload: (id: number) => Promise<void>
+  onEdit: (mod: ModSubscription) => void
   isLoading?: string | null
 }
 
@@ -22,6 +24,7 @@ export function DataTableRowActions({
   row,
   onDelete,
   onDownload,
+  onEdit,
   isLoading,
 }: DataTableRowActionsProps) {
   const mod = row.original
@@ -35,6 +38,10 @@ export function DataTableRowActions({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
+        <DropdownMenuItem onClick={() => onEdit(mod)}>
+          <Edit className="mr-2 h-4 w-4" />
+          Edit
+        </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onDownload(mod.steamId)}
           disabled={isLoading === 'downloading' || !!mod.localPath}
@@ -42,6 +49,7 @@ export function DataTableRowActions({
           <Download className="mr-2 h-4 w-4" />
           {mod.localPath ? 'Downloaded' : 'Download'}
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => onDelete(mod.steamId)}
           disabled={isLoading === 'removing'}
