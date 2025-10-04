@@ -11,18 +11,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ChevronDown, Settings2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
@@ -119,36 +111,6 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
             </Select>
           )}
         </div>
-        <div className="flex items-center space-x-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="ml-auto hidden h-8 lg:flex">
-                <Settings2 className="mr-2 h-4 w-4" />
-                View
-                <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[150px]">
-              <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {table
-                .getAllColumns()
-                .filter((column) => typeof column.accessorFn !== 'undefined' && column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                    >
-                      {column.id}
-                    </DropdownMenuCheckboxItem>
-                  )
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -192,23 +154,48 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="space-x-2">
+      <div className="flex items-center justify-between space-x-2 py-4">
+        <div className="flex-1 text-sm text-muted-foreground">
+          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+        </div>
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">Rows per page</p>
+          <Select
+            value={`${table.getState().pagination.pageSize}`}
+            onValueChange={(value) => {
+              table.setPageSize(Number(value))
+            }}
+          >
+            <SelectTrigger className="h-8 w-[70px] border-0 bg-transparent hover:bg-muted/50">
+              <SelectValue placeholder={table.getState().pagination.pageSize} />
+            </SelectTrigger>
+            <SelectContent side="top">
+              {[10, 20, 50, 100].map((pageSize) => (
+                <SelectItem key={pageSize} value={`${pageSize}`}>
+                  {pageSize}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex items-center gap-1">
           <Button
-            variant="outline"
-            size="sm"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Previous
+            <ChevronLeft className="h-4 w-4" />
           </Button>
           <Button
-            variant="outline"
-            size="sm"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Next
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

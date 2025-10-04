@@ -1,32 +1,9 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
-import {
-  IconUser,
-  IconPuzzle,
-  IconFlag,
-  IconMap,
-  IconCheck,
-  IconX,
-  IconDownload,
-} from '@tabler/icons-react'
 
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
 import { formatDateTime } from '@/lib/date'
 import type { ModSubscription } from '@/types/mods.ts'
-
-const getTypeIcon = (type: ModSubscription['modType']) => {
-  switch (type) {
-    case 'mod':
-      return <IconPuzzle className="h-3 w-3 text-muted-foreground" />
-    case 'mission':
-      return <IconFlag className="h-3 w-3 text-muted-foreground" />
-    case 'map':
-      return <IconMap className="h-3 w-3 text-muted-foreground" />
-    default:
-      return <IconPuzzle className="h-3 w-3 text-muted-foreground" />
-  }
-}
 
 export const getColumns = (): ColumnDef<ModSubscription>[] => [
   {
@@ -58,8 +35,8 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
       const steamId = row.original.steamId
       return (
         <div className="max-w-[200px]">
-          <div className="font-medium">{name || `Mod ${steamId}`}</div>
-          <div className="text-xs text-muted-foreground">Steam ID: {steamId}</div>
+          <div className="text-sm">{name || `Mod ${steamId}`}</div>
+          <div className="text-xs text-muted-foreground/70">Steam ID: {steamId}</div>
         </div>
       )
     },
@@ -69,12 +46,7 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Author" />,
     cell: ({ row }) => {
       const author = row.getValue('author') as string
-      return (
-        <div className="flex items-center gap-2">
-          <IconUser className="h-3 w-3 text-muted-foreground" />
-          <span className="text-sm">{author || 'Unknown'}</span>
-        </div>
-      )
+      return <span className="text-sm text-muted-foreground">{author || 'Unknown'}</span>
     },
   },
   {
@@ -82,14 +54,8 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Type" />,
     cell: ({ row }) => {
       const type = row.getValue('modType') as ModSubscription['modType']
-      return (
-        <div className="flex items-center gap-2">
-          {getTypeIcon(type || 'mod')}
-          <Badge variant="outline" className="text-xs">
-            {(type || 'mod').charAt(0).toUpperCase() + (type || 'mod').slice(1)}
-          </Badge>
-        </div>
-      )
+      const typeLabel = (type || 'mod').charAt(0).toUpperCase() + (type || 'mod').slice(1)
+      return <span className="text-sm text-muted-foreground">{typeLabel}</span>
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
@@ -102,16 +68,17 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
       const localPath = row.getValue('localPath') as string | null
       const isDownloaded = localPath !== null
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {isDownloaded ? (
             <>
-              <IconDownload className="h-4 w-4 text-green-500" />
-              <Badge variant="outline" className="text-xs border-green-500 text-green-500">
-                Downloaded
-              </Badge>
+              <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              <span className="text-sm text-muted-foreground">Yes</span>
             </>
           ) : (
-            <IconX className="h-4 w-4 text-muted-foreground" />
+            <>
+              <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
+              <span className="text-sm text-muted-foreground/50">No</span>
+            </>
           )}
         </div>
       )
@@ -126,7 +93,7 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Size" />,
     cell: ({ row }) => {
       const size = row.getValue('size') as string
-      return <div className="text-sm">{size || 'Unknown'}</div>
+      return <span className="text-sm text-muted-foreground">{size || '—'}</span>
     },
   },
   {
@@ -134,15 +101,7 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Server Mod" />,
     cell: ({ row }) => {
       const isServerMod = row.getValue('isServerMod') as boolean
-      return (
-        <div className="flex items-center gap-2">
-          {isServerMod ? (
-            <IconCheck className="h-4 w-4 text-green-500" />
-          ) : (
-            <IconX className="h-4 w-4 text-muted-foreground" />
-          )}
-        </div>
-      )
+      return <span className="text-sm text-muted-foreground">{isServerMod ? 'Yes' : '—'}</span>
     },
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
@@ -154,9 +113,9 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     cell: ({ row }) => {
       const lastUpdated = row.getValue('lastUpdated') as string | null
       return (
-        <div className="text-sm text-muted-foreground">
-          {lastUpdated ? formatDateTime(lastUpdated) : 'Never'}
-        </div>
+        <span className="text-sm text-muted-foreground/70">
+          {lastUpdated ? formatDateTime(lastUpdated) : '—'}
+        </span>
       )
     },
   },
@@ -166,9 +125,9 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     cell: ({ row }) => {
       const steamLastUpdated = row.getValue('steamLastUpdated') as string | null
       return (
-        <div className="text-sm text-muted-foreground">
-          {steamLastUpdated ? formatDateTime(steamLastUpdated) : 'Unknown'}
-        </div>
+        <span className="text-sm text-muted-foreground/70">
+          {steamLastUpdated ? formatDateTime(steamLastUpdated) : '—'}
+        </span>
       )
     },
   },

@@ -1,11 +1,9 @@
 import { type ColumnDef } from '@tanstack/react-table'
 
-import { Badge } from '@/components/ui/badge'
-
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
 import type { Schedule } from '@/types/server'
 import { formatDateTime } from '@/lib/date'
-import { getActionLabel, getStatusBadgeVariant, getStatusText } from '@/lib/schedules'
+import { getActionLabel, getStatusText } from '@/lib/schedules'
 
 export const getColumns = (): ColumnDef<Schedule>[] => [
   {
@@ -15,7 +13,7 @@ export const getColumns = (): ColumnDef<Schedule>[] => [
       const name = row.getValue('name') as string
       return (
         <div className="max-w-[200px]">
-          <div className="font-medium truncate">{name}</div>
+          <div className="text-sm truncate">{name}</div>
         </div>
       )
     },
@@ -25,11 +23,7 @@ export const getColumns = (): ColumnDef<Schedule>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Action" />,
     cell: ({ row }) => {
       const action = row.getValue('action') as string
-      return (
-        <Badge variant="outline" className="font-normal">
-          {getActionLabel(action)}
-        </Badge>
-      )
+      return <span className="text-sm text-muted-foreground">{getActionLabel(action)}</span>
     },
   },
   {
@@ -38,9 +32,16 @@ export const getColumns = (): ColumnDef<Schedule>[] => [
     cell: ({ row }) => {
       const enabled = row.getValue('enabled') as boolean
       return (
-        <Badge variant={getStatusBadgeVariant(enabled)} className="capitalize">
-          {getStatusText(enabled)}
-        </Badge>
+        <div className="flex items-center gap-1.5">
+          <div
+            className={`h-1.5 w-1.5 rounded-full ${enabled ? 'bg-green-500' : 'bg-muted-foreground/30'}`}
+          />
+          <span
+            className={`text-sm ${enabled ? 'text-muted-foreground' : 'text-muted-foreground/50'}`}
+          >
+            {getStatusText(enabled)}
+          </span>
+        </div>
       )
     },
     filterFn: (row, id, value) => {
@@ -53,7 +54,7 @@ export const getColumns = (): ColumnDef<Schedule>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Created" />,
     cell: ({ row }) => {
       const createdAt = row.getValue('created_at') as string
-      return <div className="text-sm text-muted-foreground">{formatDateTime(createdAt)}</div>
+      return <span className="text-sm text-muted-foreground/70">{formatDateTime(createdAt)}</span>
     },
   },
   {
@@ -61,7 +62,7 @@ export const getColumns = (): ColumnDef<Schedule>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Updated" />,
     cell: ({ row }) => {
       const updatedAt = row.getValue('updated_at') as string
-      return <div className="text-sm text-muted-foreground">{formatDateTime(updatedAt)}</div>
+      return <span className="text-sm text-muted-foreground/70">{formatDateTime(updatedAt)}</span>
     },
   },
 ]
