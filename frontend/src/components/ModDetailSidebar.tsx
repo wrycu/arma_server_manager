@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Kbd } from '@/components/ui/kbd'
 import type { ModSubscription } from '@/types/mods'
 
 interface ModDetailSidebarProps {
@@ -120,10 +119,28 @@ export function ModDetailSidebar({
     <RightSidebar open={open} onOpenChange={onOpenChange}>
       <div className="flex flex-col h-full">
         {/* HEADER: Title and Close */}
-        <RightSidebarHeader onClose={() => onOpenChange(false)}>
-          <div className="space-y-1">
-            <h2 className="text-lg font-semibold truncate">{mod.name}</h2>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <RightSidebarHeader
+          onClose={() => onOpenChange(false)}
+          actions={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() =>
+                window.open(
+                  `https://steamcommunity.com/sharedfiles/filedetails/?id=${mod.steamId}`,
+                  '_blank'
+                )
+              }
+              title="View on Steam Workshop"
+            >
+              <IconExternalLink className="h-4 w-4" />
+            </Button>
+          }
+        >
+          <div>
+            <h2 className="text-base font-semibold truncate">{mod.name}</h2>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
               {mod.isServerMod && <span>Server Mod</span>}
               {mod.isServerMod && mod.modType && <span>•</span>}
               {mod.modType && <span className="capitalize">{mod.modType}</span>}
@@ -132,14 +149,14 @@ export function ModDetailSidebar({
         </RightSidebarHeader>
 
         {/* CONTENT: All information always visible */}
-        <RightSidebarContent>
+        <RightSidebarContent className="space-y-5">
           {/* Delete Confirmation (inline) */}
           {showDeleteConfirm && (
-            <div className="mb-6 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
-              <h3 className="text-sm font-semibold text-destructive mb-2">
+            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3">
+              <h3 className="text-sm font-medium text-destructive mb-1">
                 {onRemove ? 'Remove from Collection?' : 'Delete Subscription?'}
               </h3>
-              <p className="text-xs text-muted-foreground mb-3">
+              <p className="text-xs text-muted-foreground mb-2.5">
                 {onRemove
                   ? 'This will remove the mod from this collection. The mod files will remain.'
                   : 'This will permanently delete the mod subscription. This action cannot be undone.'}
@@ -149,84 +166,94 @@ export function ModDetailSidebar({
                   variant="destructive"
                   size="sm"
                   onClick={onRemove ? handleRemove : handleDelete}
+                  className="h-8"
                 >
                   {onRemove ? 'Remove' : 'Delete'}
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="h-8"
+                >
                   Cancel
                 </Button>
               </div>
             </div>
           )}
 
-          <div className="space-y-6">
-            {/* Mod Image */}
-            {mod.imageAvailable && (
-              <div className="w-full aspect-video rounded-lg overflow-hidden bg-muted">
-                <img
-                  src={`/api/arma3/mod/subscription/${mod.id}/image`}
-                  alt={mod.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
+          {/* Mod Image */}
+          {mod.imageAvailable && (
+            <div className="w-full aspect-video rounded-md overflow-hidden bg-muted -mt-1">
+              <img
+                src={`/api/arma3/mod/subscription/${mod.id}/image`}
+                alt={mod.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
 
-            {/* Metadata Grid - 2 columns for efficiency */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground">Workshop ID</p>
-                <p className="font-medium">{mod.steamId}</p>
+          {/* Metadata Grid - 2 columns for efficiency */}
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Workshop ID</p>
+              <p className="font-medium text-sm">{mod.steamId}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Downloaded</p>
+              <div className="flex items-center gap-1.5">
+                {mod.localPath ? (
+                  <>
+                    <IconCheck className="h-3.5 w-3.5 text-green-600" />
+                    <span className="font-medium text-sm text-green-600">Yes</span>
+                  </>
+                ) : (
+                  <>
+                    <IconX className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="font-medium text-sm text-muted-foreground">No</span>
+                  </>
+                )}
               </div>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Size</p>
+              <p className="font-medium text-sm">{mod.size}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Last Updated</p>
+              <p className="font-medium text-sm">
+                {mod.lastUpdated ? new Date(mod.lastUpdated).toLocaleDateString() : 'Never'}
+              </p>
+            </div>
+            {mod.steamLastUpdated && (
               <div>
-                <p className="text-xs text-muted-foreground">Downloaded</p>
-                <div className="flex items-center gap-1.5">
-                  {mod.localPath ? (
-                    <>
-                      <IconDownload className="h-4 w-4 text-green-500" />
-                      <span className="font-medium text-green-500">Yes</span>
-                    </>
-                  ) : (
-                    <>
-                      <IconX className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">No</span>
-                    </>
-                  )}
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Size</p>
-                <p className="font-medium">{mod.size}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Last Updated</p>
-                <p className="font-medium">
-                  {mod.lastUpdated ? new Date(mod.lastUpdated).toLocaleDateString() : 'Never'}
+                <p className="text-xs text-muted-foreground mb-0.5">Steam Updated</p>
+                <p className="font-medium text-sm">
+                  {new Date(mod.steamLastUpdated).toLocaleDateString()}
                 </p>
               </div>
-              {mod.steamLastUpdated && (
-                <div>
-                  <p className="text-xs text-muted-foreground">Steam Updated</p>
-                  <p className="font-medium">
-                    {new Date(mod.steamLastUpdated).toLocaleDateString()}
-                  </p>
-                </div>
-              )}
-              <div className="col-span-2">
-                <p className="text-xs text-muted-foreground">Filename</p>
-                <p className="font-medium break-all">{mod.filename}</p>
-              </div>
-              {mod.localPath && (
-                <div className="col-span-2">
-                  <p className="text-xs text-muted-foreground">Local Path</p>
-                  <p className="font-medium break-all text-xs">{mod.localPath}</p>
-                </div>
-              )}
+            )}
+            <div className="col-span-2">
+              <p className="text-xs text-muted-foreground mb-0.5">Filename</p>
+              <p className="font-medium text-sm break-all">{mod.filename}</p>
             </div>
+            {mod.localPath && (
+              <div className="col-span-2">
+                <p className="text-xs text-muted-foreground mb-0.5">Local Path</p>
+                <p className="font-mono text-xs break-all text-muted-foreground">{mod.localPath}</p>
+              </div>
+            )}
+          </div>
 
-            {/* Editable Configuration - Inline, no box */}
-            {onSave && (
-              <div className="space-y-3 pt-2">
-                {/* Server Mod Checkbox */}
+          {/* Divider before editable section */}
+          {onSave && <div className="border-t -mx-6" />}
+
+          {/* Editable Configuration */}
+          {onSave && (
+            <div className="space-y-2.5">
+              {/* Server Mod Checkbox */}
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Configuration</Label>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="server-mod"
@@ -234,65 +261,50 @@ export function ModDetailSidebar({
                     onCheckedChange={(checked) => setEditedIsServerMod(checked as boolean)}
                   />
                   <Label htmlFor="server-mod" className="text-sm cursor-pointer">
-                    Server-side only mod
+                    Server only mod
                   </Label>
                 </div>
-
-                {/* Arguments Textarea */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="arguments" className="text-sm">
-                    Arguments
-                  </Label>
-                  <Textarea
-                    id="arguments"
-                    placeholder="-serverMod"
-                    value={editedArguments}
-                    onChange={(e) => setEditedArguments(e.target.value)}
-                    rows={2}
-                    className="font-mono text-xs resize-none"
-                  />
-                </div>
-
-                {/* Save Button */}
-                {isDirty && (
-                  <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full">
-                    <IconCheck className="h-3.5 w-3.5 mr-1.5" />
-                    {isSaving ? 'Saving...' : 'Save Changes'}
-                  </Button>
-                )}
               </div>
-            )}
 
-            {/* Steam Workshop Link */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() =>
-                window.open(
-                  `https://steamcommunity.com/sharedfiles/filedetails/?id=${mod.steamId}`,
-                  '_blank'
-                )
-              }
-            >
-              <IconExternalLink className="h-3.5 w-3.5 mr-1.5" />
-              View on Steam Workshop
-            </Button>
-          </div>
+              {/* Arguments Textarea */}
+              <div className="space-y-1">
+                <Label htmlFor="arguments" className="text-xs text-muted-foreground">
+                  Arguments
+                </Label>
+                <Textarea
+                  id="arguments"
+                  placeholder="-serverMod"
+                  value={editedArguments}
+                  onChange={(e) => setEditedArguments(e.target.value)}
+                  rows={2}
+                  className="font-mono text-xs resize-none"
+                />
+              </div>
+
+              {/* Save Button */}
+              {isDirty && (
+                <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full h-8">
+                  <IconCheck className="h-3.5 w-3.5 mr-1.5" />
+                  {isSaving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              )}
+            </div>
+          )}
         </RightSidebarContent>
 
-        {/* FOOTER: Primary Actions (Sticky) */}
+        {/* FOOTER: Primary Actions */}
         {(onDownload || onRemove || onDelete) && !showDeleteConfirm && (
           <RightSidebarFooter>
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {/* Primary action: Download */}
               {onDownload && !mod.localPath && (
                 <Button
                   variant="default"
-                  className="w-full"
+                  className="w-full h-8"
+                  size="sm"
                   onClick={() => onDownload(mod.steamId)}
                 >
-                  <IconDownload className="h-4 w-4 mr-2" />
+                  <IconDownload className="h-3.5 w-3.5 mr-2" />
                   Download Mod
                 </Button>
               )}
@@ -300,11 +312,12 @@ export function ModDetailSidebar({
               {/* Collection context: Remove from collection */}
               {onRemove && (
                 <Button
-                  variant="outline"
-                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                  variant="ghost"
+                  className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
                 >
-                  <IconTrash className="h-4 w-4 mr-2" />
+                  <IconTrash className="h-3.5 w-3.5 mr-2" />
                   Remove from Collection
                 </Button>
               )}
@@ -312,29 +325,18 @@ export function ModDetailSidebar({
               {/* Mod subscription context: Delete subscription */}
               {onDelete && !onRemove && (
                 <Button
-                  variant="outline"
-                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                  variant="ghost"
+                  className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
                 >
-                  <IconTrash className="h-4 w-4 mr-2" />
+                  <IconTrash className="h-3.5 w-3.5 mr-2" />
                   Delete Subscription
                 </Button>
               )}
             </div>
           </RightSidebarFooter>
         )}
-
-        {/* Keyboard Shortcut Hint */}
-        <div className="px-6 pb-4 text-xs text-muted-foreground text-center space-x-3">
-          <span>
-            <Kbd>Esc</Kbd> to close
-          </span>
-          {isDirty && (
-            <span>
-              <Kbd>⌘S</Kbd> to save
-            </span>
-          )}
-        </div>
       </div>
     </RightSidebar>
   )
