@@ -73,6 +73,31 @@ def get_schedule_404() -> tuple[dict[str, str], int]:
     }, HTTPStatus.BAD_REQUEST
 
 
+@api_bp.route("/schedule/results", methods=["GET"])
+def get_all_schedule_results() -> tuple[dict[str, str], int]:
+    """
+    Retrieve results of all scheduled tasks
+    :return:
+        {
+            "message": "<outcome_of_request>",
+            "result": {
+                "<schedule_id>": {
+                    "last_outcome": "<reported_outcome_from_last_execution>",
+                    "last_run": "<date_time:of_last_run>",
+                }
+            },
+        }
+    """
+    try:
+        created = current_app.config["SCHEDULE_HELPER"].get_all_results()
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully retrieved", "result": created}, HTTPStatus.OK
+
+
 @api_bp.route("/schedule", methods=["POST"])
 def create_schedule() -> tuple[dict[str, str], int]:
     """
@@ -155,6 +180,31 @@ def delete_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully deleted"}, HTTPStatus.OK
+
+
+@api_bp.route("/schedule/<int:schedule_id>results", methods=["GET"])
+def get_single_schedule_results(schedule_id: int) -> tuple[dict[str, str], int]:
+    """
+    Retrieve results of a specific scheduled task
+    :return:
+        {
+            "message": "<outcome_of_request>",
+            "result": {
+                "last_outcome": "<reported_outcome_from_last_execution>",
+                "last_run": "<date_time:of_last_run>",
+            },
+        }
+    """
+    try:
+        created = current_app.config["SCHEDULE_HELPER"].get_schedule_results(
+            schedule_id,
+        )
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+    return {"message": "Successfully retrieved", "result": created}, HTTPStatus.OK
 
 
 @api_bp.route("/schedule/<int:schedule_id>/trigger", methods=["POST"])
