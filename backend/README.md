@@ -105,17 +105,19 @@ uv run celery -A app.celery worker --loglevel=info
 
 ### Core API Endpoints
 
-| Endpoint                     | Methods            | Description                         |
-|------------------------------|--------------------|-------------------------------------|
-| `/api/health`                | GET                | Health check                        |
-| `/api/async`                 | GET                | Get Celery job status               |
-| `/api/schedules`             | GET                | Get all schedules                   |
-| `/api/schedule`              | POST               | Create schedules                    |
-| `/api/schedule/{id}`         | GET, PATCH, DELETE | Read, update, delete schedules      |
-| `/api/schedule/{id}/trigger` | POST               | Trigger a schedule immediately      |
-| `/api/notifications`         | GET                | Get all webhooks                    |
-| `/api/notification`          | POST               | Create webhooks                     |
-| `/api/notification/{id}`     | GET, PATCH, DELETE | Read, update, delete webhooks       |
+| Endpoint                     | Methods            | Description                      |
+|------------------------------|--------------------|----------------------------------|
+| `/api/health`                | GET                | Health check                     |
+| `/api/async`                 | GET                | Get Celery job status            |
+| `/api/schedules`             | GET                | Get all schedules                |
+| `/api/schedules/results`     | GET                | Get the outcome of all schedules |
+| `/api/schedule`              | POST               | Create schedules                 |
+| `/api/schedule/{id}`         | GET, PATCH, DELETE | Read, update, delete schedules   |
+| `/api/schedule/{id}/trigger` | POST               | Trigger a schedule immediately   |
+| `/api/schedule/{id}/results` | GET                | Get the outcome of one schedule  |
+| `/api/notifications`         | GET                | Get all webhooks                 |
+| `/api/notification`          | POST               | Create webhooks                  |
+| `/api/notification/{id}`     | GET, PATCH, DELETE | Read, update, delete webhooks    |
 
 ### Arma 3 Specific Endpoints
 

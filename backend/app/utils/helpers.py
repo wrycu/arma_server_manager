@@ -595,6 +595,44 @@ class ScheduleHelper:
         except sqlalchemy.orm.exc.UnmappedInstanceError as e:
             raise Exception("Cannot find schedule") from e
 
+    def get_all_results(self):
+        """
+        Returns a list of all scheduled task results
+        :return: DICT representing the last outcome of all schedules
+        {
+            "<schedule_id>": {
+                <schedule_results>: <see_get_schedule_results>,
+            }
+        }
+        """
+        results = {}
+        schedules = Schedule.query.all()
+        for schedule in schedules:
+            results[schedule.id] = self.get_schedule_results(schedule.id)
+        return results
+
+    @staticmethod
+    def get_schedule_results(schedule_id: int) -> dict[str, str]:
+        """
+        Retrieve the last results of a specific schedule
+        :param schedule_id: INT: id of the schedule to retrieve
+        :return: DICT representing the last outcome
+        {
+            "last_outcome": "<reported_outcome_from_last_execution>",
+            "last_run": "<date_time:of_last_run>",
+        }
+        """
+        try:
+            result = Schedule.query.filter(Schedule.id == schedule_id).first().to_dict()
+            return {
+                "last_outcome": result.get("last_outcome", "N/A"),
+                "last_run": result.get("last_run", "N/A"),
+            }
+        except Exception as e:
+            raise Exception(
+                "Failed to get schedule results, likely schedule doesn't exist or hasn't run"
+            ) from e
+
 
 class Arma3ServerHelper:
     @staticmethod
