@@ -1,33 +1,13 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { Play, Trash2, MoreHorizontal, Edit3 } from 'lucide-react'
 
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
 import type { Schedule } from '@/types/server'
 import { formatDateTime } from '@/lib/date'
 import { getActionLabel, getStatusBadgeVariant, getStatusText } from '@/lib/schedules'
 
-interface GetColumnsProps {
-  onExecute: (id: number) => Promise<void>
-  onEdit: (schedule: Schedule) => void
-  onDelete: (id: number) => Promise<void>
-  isLoading: boolean
-}
-
-export const getColumns = ({
-  onExecute,
-  onEdit,
-  onDelete,
-}: GetColumnsProps): ColumnDef<Schedule>[] => [
+export const getColumns = (): ColumnDef<Schedule>[] => [
   {
     accessorKey: 'name',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
@@ -82,39 +62,6 @@ export const getColumns = ({
     cell: ({ row }) => {
       const updatedAt = row.getValue('updated_at') as string
       return <div className="text-sm text-muted-foreground">{formatDateTime(updatedAt)}</div>
-    },
-  },
-  {
-    id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => {
-      const schedule = row.original
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onExecute(schedule.id)}>
-              <Play className="mr-2 h-4 w-4" />
-              Execute Now
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(schedule)}>
-              <Edit3 className="mr-2 h-4 w-4" />
-              Edit Schedule
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => onDelete(schedule.id)} variant="destructive">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
     },
   },
 ]

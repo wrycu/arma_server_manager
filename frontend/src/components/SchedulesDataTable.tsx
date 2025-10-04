@@ -45,10 +45,11 @@ export interface SchedulesDataTableProps {
   columns: ColumnDef<Schedule>[]
   data: Schedule[]
   isLoading?: boolean
+  onRowClick?: (schedule: Schedule) => void
 }
 
 export function SchedulesDataTable(props: SchedulesDataTableProps) {
-  const { columns, data, isLoading = false } = props
+  const { columns, data, isLoading = false, onRowClick } = props
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -169,7 +170,11 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}
+                  onClick={() => onRowClick?.(row.original)}
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}

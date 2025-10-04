@@ -4,16 +4,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { IconUser, IconPuzzle, IconFlag, IconMap, IconCheck, IconX } from '@tabler/icons-react'
 
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
-import { DataTableRowActions } from '@/components/ModsDataRowActions'
 import { formatDateTime } from '@/lib/date'
 import type { ModSubscription } from '@/types/mods.ts'
-
-interface GetColumnsProps {
-  onDelete: (id: number) => Promise<void>
-  onDownload: (id: number) => Promise<void>
-  onEdit: (mod: ModSubscription) => void
-  isLoading?: string | null
-}
 
 const getTypeIcon = (type: ModSubscription['modType']) => {
   switch (type) {
@@ -28,12 +20,7 @@ const getTypeIcon = (type: ModSubscription['modType']) => {
   }
 }
 
-export const getColumns = ({
-  onDelete,
-  onDownload,
-  onEdit,
-  isLoading,
-}: GetColumnsProps): ColumnDef<ModSubscription>[] => [
+export const getColumns = (): ColumnDef<ModSubscription>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -128,18 +115,6 @@ export const getColumns = ({
     },
   },
   {
-    accessorKey: 'arguments',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Arguments" />,
-    cell: ({ row }) => {
-      const args = row.getValue('arguments') as string | null
-      return (
-        <div className="max-w-[200px] truncate text-sm font-mono text-muted-foreground">
-          {args || '-'}
-        </div>
-      )
-    },
-  },
-  {
     accessorKey: 'lastUpdated',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Last Updated" />,
     cell: ({ row }) => {
@@ -162,19 +137,5 @@ export const getColumns = ({
         </div>
       )
     },
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => (
-      <DataTableRowActions
-        row={row}
-        onDelete={onDelete}
-        onDownload={onDownload}
-        onEdit={onEdit}
-        isLoading={isLoading}
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
   },
 ]

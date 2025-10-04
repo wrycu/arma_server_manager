@@ -8,11 +8,14 @@ import { PageTitle } from '@/components/PageTitle'
 
 import { useCollections } from '@/hooks/useCollections'
 import { useServer } from '@/hooks/useServer'
+import { useMods } from '@/hooks/useMods'
 import { serverService } from '@/services/server.service'
 import { RemoveModDialog } from '@/components/CollectionsRemoveModDialog'
 import { AddModsDialog } from '@/components/AddModsDialog'
 import { ModsList } from '@/components/CollectionsModsList'
+import { ModDetailSidebar } from '@/components/ModDetailSidebar'
 import type { ModToRemove } from '@/types/collections'
+import type { ModSubscription } from '@/types/mods'
 
 export function CollectionDetailPage() {
   const { collectionId } = useParams({ from: '/collections/$collectionId' })
@@ -24,9 +27,13 @@ export function CollectionDetailPage() {
   const { servers, refetchServers } = useServer()
   const server = servers?.[0] || null
 
+  const { updateModSubscription } = useMods()
+
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
   const [isAddModsDialogOpen, setIsAddModsDialogOpen] = useState(false)
   const [modToRemove, setModToRemove] = useState<ModToRemove | null>(null)
+  const [selectedMod, setSelectedMod] = useState<ModSubscription | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // Find the collection by ID
   const collection = collections.find((c) => c.id === collectionIdNum)
@@ -74,6 +81,29 @@ export function CollectionDetailPage() {
 
   const handleBackToCollections = () => {
     navigate({ to: '/collections' })
+  }
+
+  const handleModClick = (mod: ModSubscription) => {
+    setSelectedMod(mod)
+    setIsSidebarOpen(true)
+  }
+
+  const handleRemoveFromSidebar = () => {
+    if (selectedMod) {
+      handleRemoveModFromCollection(collectionIdNum, selectedMod.id, selectedMod.name)
+      setIsSidebarOpen(false)
+    }
+  }
+
+  const handleSaveModSettings = async (
+    steamId: number,
+    updates: { arguments: string | null; isServerMod: boolean }
+  ) => {
+    await updateModSubscription(steamId, {
+      arguments: updates.arguments,
+      isServerMod: updates.isServerMod,
+    })
+    toast.success('Mod settings updated successfully')
   }
 
   if (!collection) {
@@ -154,8 +184,17 @@ export function CollectionDetailPage() {
           collectionId={collection.id}
           onRemoveMod={handleRemoveModFromCollection}
           onAddMods={handleAddMods}
+          onModClick={handleModClick}
         />
       </div>
+
+      <ModDetailSidebar
+        mod={selectedMod}
+        open={isSidebarOpen}
+        onOpenChange={setIsSidebarOpen}
+        onRemove={handleRemoveFromSidebar}
+        onSave={handleSaveModSettings}
+      />
 
       <RemoveModDialog
         open={isRemoveDialogOpen}

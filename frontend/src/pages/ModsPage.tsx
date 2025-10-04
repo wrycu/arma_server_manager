@@ -6,19 +6,18 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { IconPlus } from '@tabler/icons-react'
 import { ModsSubscribeDialog } from '@/components/ModsSubscribeDialog'
-import { ModsEditDialog } from '@/components/ModsEditDialog'
+import { ModDetailSidebar } from '@/components/ModDetailSidebar'
+import { toast } from 'sonner'
 import type { ExtendedModSubscription, ModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
 export function SubscribedModsManager() {
   const {
     modSubscriptions,
-    isLoading,
     addModSubscription,
     removeModSubscription,
     updateModSubscription,
     downloadMod,
-    isDownloading,
   } = useMods()
 
   // Transform mod subscriptions to match UI expectations
@@ -44,28 +43,24 @@ export function SubscribedModsManager() {
     // This will be implemented when the collections API is available
   }
 
-  // Edit dialog state and handlers
-  const [editOpen, setEditOpen] = useState(false)
-  const [editingMod, setEditingMod] = useState<ModSubscription | null>(null)
+  // Sidebar state and handlers
+  const [selectedMod, setSelectedMod] = useState<ModSubscription | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-  const handleEdit = (mod: ModSubscription) => {
-    setEditingMod(mod)
-    setEditOpen(true)
+  const handleRowClick = (mod: ExtendedModSubscription) => {
+    setSelectedMod(mod)
+    setIsSidebarOpen(true)
   }
 
-  const handleEditSave = async (
+  const handleSave = async (
     steamId: number,
     updates: { arguments: string | null; isServerMod: boolean }
   ) => {
     await updateModSubscription(steamId, updates)
+    toast.success('Mod settings updated successfully')
   }
 
-  const columns = getColumns({
-    onDelete: handleDelete,
-    onDownload: handleDownload,
-    onEdit: handleEdit,
-    isLoading: isDownloading ? 'downloading' : isLoading ? 'loading' : null,
-  })
+  const columns = getColumns()
 
   // Subscribe dialog state and handler
   const [subscribeOpen, setSubscribeOpen] = useState(false)
@@ -85,7 +80,12 @@ export function SubscribedModsManager() {
         </Button>
       </div>
 
-      <DataTable columns={columns} data={mods} onCreateCollection={handleCreateCollection} />
+      <DataTable
+        columns={columns}
+        data={mods}
+        onCreateCollection={handleCreateCollection}
+        onRowClick={handleRowClick}
+      />
 
       <ModsSubscribeDialog
         open={subscribeOpen}
@@ -93,11 +93,13 @@ export function SubscribedModsManager() {
         onSubscribe={handleSubscribeMods}
       />
 
-      <ModsEditDialog
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        mod={editingMod}
-        onSave={handleEditSave}
+      <ModDetailSidebar
+        mod={selectedMod}
+        open={isSidebarOpen}
+        onOpenChange={setIsSidebarOpen}
+        onSave={handleSave}
+        onDownload={handleDownload}
+        onDelete={handleDelete}
       />
     </div>
   )
