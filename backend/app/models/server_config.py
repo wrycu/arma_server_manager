@@ -32,7 +32,7 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
         additional_params: Additional command line parameters
         # TODO: this can have bad effects if anyone can change it...
         server_binary: Path to server binary
-        is_active: Whether this configuration is currently active
+        is_active: Whether the server is currently running or not
         created_at: When configuration was created
         updated_at: When configuration was last modified
     """

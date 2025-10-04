@@ -672,7 +672,7 @@ class Arma3ServerHelper:
             additional_params=server_data["additional_params"],
             server_binary=server_data["server_binary"],
             collection_id=server_data.get("collection_id", None),
-            is_active=server_data.get("is_active", False),
+            is_active=False,
         )
         db.session.add(schedule)
         db.session.commit()
