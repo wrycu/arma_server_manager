@@ -119,27 +119,29 @@ uv run celery -A app.celery worker --loglevel=info
 
 ### Arma 3 Specific Endpoints
 
-| Endpoint                                                        | Methods            | Description                                     |
-|-----------------------------------------------------------------|--------------------|-------------------------------------------------|
-| `/api/arma3/health`                                             | GET                | Health check for Arma 3 API                     |
-| `/api/arma3/steam/collection/{id}`                              | GET                | Resolve a Steam collection to workshop item IDs |
-| `/api/arma3/mod/helper/{id}`                                    | GET                | Get debugging info from Steam about a mod       |
-| `/api/arma3/mod/subscriptions`                                  | GET                | Get all subscribed mods                         |
-| `/api/arma3/mod/subscription`                                   | POST               | Add mod subscription                            |
-| `/api/arma3/mod/subscription/{id}`                              | GET, PATCH, DELETE | Read, update, delete mod subscriptions          |
-| `/api/arma3/mod/subscription/{id}/image`                        | GET                | Get mod image (binary data)                     |
-| `/api/arma3/mod/{id}/download`                                  | POST, DELETE       | Trigger a subscribed mod to download (or rm it) |
-| `/api/arma3/mod/collections`                                    | GET                | Get all collections                             |
-| `/api/arma3/mod/collection`                                     | POST               | Add new collection                              |
-| `/api/arma3/mod/collection/{id}`                                | GET, PATCH, DELETE | Read, update, delete top-level collection info  |
-| `/api/arma3/mod/collection/{id}/mods`                           | PATCH              | Add mods to existing collection                 |
-| `/api/arma3/mod/collection/{id}/mods/{mod_id}/load/{load_slot}` | PATCH              | Update mod load order within a collection       |
-| `/api/arma3/mod/collection/{id}/mods/{mod_id}`                  | PATCH              | Remove mods from existing collection            |
-| `/api/arma3/servers`                                            | GET                | Get all server profiles                         |
-| `/api/arma3/server`                                             | POST               | Add new server profile                          |
-| `/api/arma3/server/start`                                       | POST               | Start the first active server profile           |
-| `/api/arma3/server/stop`                                        | POST               | Stop the currently-running active server        |
-| `/api/arma3/server/{id}`                                        | GET, PATCH, DELETE | Read, update, delete server profiles            |
+| Endpoint                                                        | Methods            | Description                                                                                      |
+|-----------------------------------------------------------------|--------------------|--------------------------------------------------------------------------------------------------|
+| `/api/arma3/health`                                             | GET                | Health check for Arma 3 API                                                                      |
+| `/api/arma3/steam/collection/{id}`                              | GET                | Resolve a Steam collection to workshop item IDs                                                  |
+| `/api/arma3/mod/helper/{id}`                                    | GET                | Get debugging info from Steam about a mod                                                        |
+| `/api/arma3/mod/subscriptions`                                  | GET                | Get all subscribed mods                                                                          |
+| `/api/arma3/mod/subscription`                                   | POST               | Add mod subscription                                                                             |
+| `/api/arma3/mod/subscription/{id}`                              | GET, PATCH, DELETE | Read, update, delete mod subscriptions                                                           |
+| `/api/arma3/mod/subscription/{id}/image`                        | GET                | Get mod image (binary data)                                                                      |
+| `/api/arma3/mod/{id}/download`                                  | POST, DELETE       | Trigger a subscribed mod to download (or rm it)                                                  |
+| `/api/arma3/mod/{id}/update`                                    | POST               | Trigger a subscribed, downloaded mod to update                                                   |
+| `/api/arma3/mod/collections`                                    | GET                | Get all collections                                                                              |
+| `/api/arma3/mod/collection`                                     | POST               | Add new collection                                                                               |
+| `/api/arma3/mod/collection/{id}`                                | GET, PATCH, DELETE | Read, update, delete top-level collection info                                                   |
+| `/api/arma3/mod/collection/{id}/mods`                           | PATCH              | Add mods to existing collection                                                                  |
+| `/api/arma3/mod/collection/{id}/mods/{mod_id}/load/{load_slot}` | PATCH              | Update mod load order within a collection                                                        |
+| `/api/arma3/mod/collection/{id}/mods/{mod_id}`                  | PATCH              | Remove mods from existing collection                                                             |
+| `/api/arma3/mods/update`                                        | POST               | Triggers an immediate update of all mods. This stops and restarts the server, if it was running. |
+| `/api/arma3/servers`                                            | GET                | Get all server profiles                                                                          |
+| `/api/arma3/server`                                             | POST               | Add new server profile                                                                           |
+| `/api/arma3/server/start`                                       | POST               | Start the first active server profile                                                            |
+| `/api/arma3/server/stop`                                        | POST               | Stop the currently-running active server                                                         |
+| `/api/arma3/server/{id}`                                        | GET, PATCH, DELETE | Read, update, delete server profiles                                                             |
 
 ### Request/Response Examples
 
