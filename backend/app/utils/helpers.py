@@ -611,7 +611,6 @@ class ScheduleHelper:
             results[schedule.id] = self.get_schedule_results(schedule.id)
         return results
 
-
     @staticmethod
     def get_schedule_results(schedule_id: int) -> dict[str, str]:
         """
@@ -626,11 +625,13 @@ class ScheduleHelper:
         try:
             result = Schedule.query.filter(Schedule.id == schedule_id).first().to_dict()
             return {
-                'last_outcome': result.get('last_outcome', "N/A"),
-                'last_run': result.get('last_run', "N/A"),
+                "last_outcome": result.get("last_outcome", "N/A"),
+                "last_run": result.get("last_run", "N/A"),
             }
         except Exception as e:
-            raise Exception("Failed to get schedule results, likely schedule doesn't exist or hasn't run") from e
+            raise Exception(
+                "Failed to get schedule results, likely schedule doesn't exist or hasn't run"
+            ) from e
 
 
 class Arma3ServerHelper:
