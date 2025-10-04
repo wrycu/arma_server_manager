@@ -125,6 +125,26 @@ export function useCollections() {
     },
   })
 
+  const reorderModInCollectionMutation = useMutation({
+    mutationFn: async ({
+      collectionId,
+      modId,
+      newLoadOrder,
+    }: {
+      collectionId: number
+      modId: number
+      newLoadOrder: number
+    }) => {
+      await collectionsService.reorderModInCollection(collectionId, modId, newLoadOrder)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to reorder mod in collection')
+    },
+  })
+
   // Action functions
   const createCollection = async (
     newCollection: NewCollection
@@ -198,6 +218,22 @@ export function useCollections() {
     }
   }
 
+  const reorderModInCollection = async (
+    collectionId: number,
+    modId: number,
+    newLoadOrder: number
+  ) => {
+    try {
+      await reorderModInCollectionMutation.mutateAsync({
+        collectionId,
+        modId,
+        newLoadOrder,
+      })
+    } catch (error) {
+      console.error('Reorder mod failed:', error)
+    }
+  }
+
   return {
     collections,
     isLoading,
@@ -209,5 +245,6 @@ export function useCollections() {
     addModsToCollection,
     setActive,
     updateCollectionName,
+    reorderModInCollection,
   }
 }
