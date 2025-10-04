@@ -13,11 +13,9 @@ vi.mock('@/lib/error-handler')
 
 // Mock the toast functions
 const mockShowInfoToast = vi.fn()
-const mockShowSuccessToast = vi.fn()
 const mockHandleApiError = vi.fn()
 
 vi.mocked(errorHandler.showInfoToast).mockImplementation(mockShowInfoToast)
-vi.mocked(errorHandler.showSuccessToast).mockImplementation(mockShowSuccessToast)
 vi.mocked(errorHandler.handleApiError).mockImplementation(mockHandleApiError)
 
 // Mock mod data
