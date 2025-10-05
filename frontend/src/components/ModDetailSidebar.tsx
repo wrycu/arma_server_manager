@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { ModSubscription } from '@/types/mods'
+import { BACKEND_BASE_URL } from '@/services/api'
 
 interface ModDetailSidebarProps {
   mod: ModSubscription | null
@@ -186,9 +187,10 @@ export function ModDetailSidebar({
           {mod.imageAvailable && (
             <div className="w-full aspect-video rounded-md overflow-hidden bg-muted -mt-1">
               <img
-                src={`/api/arma3/mod/subscription/${mod.id}/image`}
+                src={`${BACKEND_BASE_URL}/api/arma3/mod/subscription/${mod.id}/image`}
                 alt={mod.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
+                crossOrigin="anonymous"
               />
             </div>
           )}
