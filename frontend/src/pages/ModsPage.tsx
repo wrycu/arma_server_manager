@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { IconPlus } from '@tabler/icons-react'
 import { ModsSubscribeDialog } from '@/components/ModsSubscribeDialog'
 import { ModDetailSidebar } from '@/components/ModDetailSidebar'
+import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { toast } from 'sonner'
 import type { ExtendedModSubscription, ModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
@@ -32,6 +33,27 @@ export function SubscribedModsManager() {
     await removeModSubscription(steamId)
   }
 
+  const handleBatchDelete = (steamIds: number[]) => {
+    if (steamIds.length === 0) return
+    setModsToDelete(steamIds)
+    setDeleteConfirmOpen(true)
+  }
+
+  const confirmBatchDelete = async () => {
+    try {
+      // Delete all selected mods using their Steam IDs
+      for (const steamId of modsToDelete) {
+        await removeModSubscription(steamId)
+      }
+      toast.success(`Successfully deleted ${modsToDelete.length} mod(s)`)
+    } catch (error) {
+      console.error('Failed to delete mods:', error)
+      toast.error('Failed to delete some mods')
+    } finally {
+      setModsToDelete([])
+    }
+  }
+
   const handleDownload = async (steamId: number) => {
     await downloadMod(steamId)
   }
@@ -46,6 +68,10 @@ export function SubscribedModsManager() {
   // Sidebar state and handlers
   const [selectedMod, setSelectedMod] = useState<ModSubscription | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  // Batch delete confirmation state
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [modsToDelete, setModsToDelete] = useState<number[]>([]) // Steam IDs
 
   const handleRowClick = (mod: ExtendedModSubscription) => {
     setSelectedMod(mod)
@@ -84,6 +110,7 @@ export function SubscribedModsManager() {
         columns={columns}
         data={mods}
         onCreateCollection={handleCreateCollection}
+        onBatchDelete={handleBatchDelete}
         onRowClick={handleRowClick}
       />
 
@@ -100,6 +127,17 @@ export function SubscribedModsManager() {
         onSave={handleSave}
         onDownload={handleDownload}
         onDelete={handleDelete}
+      />
+
+      <ConfirmationDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Delete Mods"
+        description={`Are you sure you want to delete ${modsToDelete.length} mod(s)? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmBatchDelete}
       />
     </div>
   )

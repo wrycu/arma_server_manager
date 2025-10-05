@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,6 +39,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onCreateCollection?: (collection: CreateCollectionRequest) => void
+  onBatchDelete?: (steamIds: number[]) => void
   onRowClick?: (row: TData) => void
 }
 
@@ -46,6 +47,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   onCreateCollection,
+  onBatchDelete,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -87,6 +89,15 @@ export function DataTable<TData, TValue>({
     setRowSelection({})
   }
 
+  const handleBatchDelete = () => {
+    if (onBatchDelete) {
+      const steamIds = selectedMods.map((mod) => mod.steamId)
+      onBatchDelete(steamIds)
+    }
+    // Clear selection after deleting
+    setRowSelection({})
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -115,15 +126,23 @@ export function DataTable<TData, TValue>({
           </Select>
         </div>
         {hasSelectedMods && (
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => setCreateCollectionDialogOpen(true)}
-            className="h-8"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create Collection
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setCreateCollectionDialogOpen(true)}
+              className="h-8"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Collection
+            </Button>
+            {onBatchDelete && (
+              <Button variant="destructive" size="sm" onClick={handleBatchDelete} className="h-8">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete ({selectedRows.length})
+              </Button>
+            )}
+          </div>
         )}
       </div>
 

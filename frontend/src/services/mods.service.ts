@@ -3,7 +3,7 @@ import type {
   ModHelperResponse,
   ModHelper,
   ModSubscriptionsResponse,
-  ModSubscription,
+  ModSubscriptionResponse,
   AddModSubscriptionRequest,
   AddModSubscriptionResponse,
   ModSubscriptionDetailsResponse,
@@ -11,6 +11,7 @@ import type {
   ModDownloadResponse,
   AsyncJobStatusResponse,
   AsyncJobSuccessResponse,
+  SteamCollectionResponse,
 } from '@/types/api'
 
 // Mod API endpoints
@@ -22,7 +23,7 @@ export const modService = {
   },
 
   // Get list of existing mod subscriptions
-  getModSubscriptions: async (): Promise<ModSubscription[]> => {
+  getModSubscriptions: async (): Promise<ModSubscriptionResponse[]> => {
     const response = await api.get<ModSubscriptionsResponse>('/arma3/mod/subscriptions')
     return response.data.results
   },
@@ -40,7 +41,7 @@ export const modService = {
   },
 
   // Get specific mod subscription details
-  getModSubscriptionDetails: async (modId: number): Promise<ModSubscription> => {
+  getModSubscriptionDetails: async (modId: number): Promise<ModSubscriptionResponse> => {
     const response = await api.get<ModSubscriptionDetailsResponse>(
       `/arma3/mod/subscription/${modId}`
     )
@@ -93,5 +94,13 @@ export const modService = {
       `/arma3/async/${jobId}`
     )
     return response.data
+  },
+
+  // Get mods from Steam collection
+  getSteamCollectionMods: async (collectionId: number): Promise<number[]> => {
+    const response = await api.get<SteamCollectionResponse>(
+      `/arma3/steam/collection/${collectionId}`
+    )
+    return response.data.results
   },
 }
