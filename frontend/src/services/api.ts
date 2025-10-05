@@ -4,6 +4,11 @@ import { handleApiError } from '@/lib/error-handler'
 // API base configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
 
+// Export backend base URL (without /api) for direct access to endpoints like images
+export const BACKEND_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  ? import.meta.env.VITE_API_BASE_URL.replace(/\/api$/, '')
+  : 'http://localhost:5000'
+
 // Create axios instance with default configuration
 export const api = axios.create({
   baseURL: API_BASE_URL,
