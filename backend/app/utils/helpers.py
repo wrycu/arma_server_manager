@@ -760,15 +760,134 @@ class Arma3ServerHelper:
         return {"name": "arma3server_x64"} in procs or {"name": "arma3server"} in procs
 
     @staticmethod
+    def is_hc_running() -> bool:
+        """
+        Checks running processes for the default arma 3 server HC binary name
+        :return:
+        """
+        for server_proc in psutil.process_iter():
+            if (
+                server_proc.name() in ["arma3server_x64", "arma3server"]
+                and "-client" in server_proc.cmdline()
+            ):
+                return True
+        return False
+
+    @staticmethod
     def stop_server() -> bool:
+        """
+        Stops the dedicated server AND HEADLESS CLIENTS
+        :return:
+        """
         for server_proc in psutil.process_iter():
             if server_proc.name() in ["arma3server_x64", "arma3server"]:
                 server_proc.kill()
                 return True
         return False
 
+    @staticmethod
+    def stop_headless_client() -> bool:
+        for server_proc in psutil.process_iter():
+            if (
+                server_proc.name() in ["arma3server_x64", "arma3server"]
+                and "-client" in server_proc.cmdline()
+            ):
+                server_proc.kill()
+                return True
+        return False
+
+    @staticmethod
+    def build_run_command(headless_client=False) -> tuple[list[str], str]:
+        """
+        Constructs a command to run either the dedicated server or headless client
+        example DS command:
+            arma3server_x64 -name=noplz -config=<config_file> -mod=<client_mods> -serverMod=<
+        example headless client command:
+            arma3server_x64 -client -connect=127.0.0.1 -password=<pass> -mod=<client_mods_only>
+        :param headless_client:
+        :return: - ([command_with_args], working_directory)
+        """
+        entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+        if not entry:
+            raise Exception("Unable to start server: no server is set to active!")
+        server_details = entry.to_dict(include_sensitive=True)
+
+        command = [
+            server_details["server_binary"],
+        ]
+        if server_details["additional_params"]:
+            command.append(server_details["additional_params"])
+        if not headless_client:
+            if server_details["server_name"]:
+                command.append(f"-name={server_details['server_name']}")
+            else:
+                command.append("-name=arma_server_manager_managed_server")
+            if server_details["server_config_file"]:
+                command.append(f"-config={server_details['server_config_file']}")
+            if server_details["mission_file"]:
+                command.append(f"-mission={server_details['mission_file']}")
+        else:
+            command.extend(["-client", "-connect=127.0.0.1"])
+        try:
+            for mod in sorted(
+                server_details["collection"]["mods"], key=lambda x: x["load_order"]
+            ):
+                if not mod["mod"]["local_path"]:
+                    # do not attempt to load mods which are not downloaded
+                    continue
+                if mod["mod"]["server_mod"] and not headless_client:
+                    command.append(f"-serverMod={mod['mod']['filename']}")
+                elif not mod["mod"]["server_mod"]:
+                    command.append(f"-mod={mod['mod']['filename']}")
+        except KeyError:
+            # mods do not *have* to be defined...
+            pass
+        return command, os.path.dirname(server_details["server_binary"])
+
 
 class TaskHelper:
+    def update_task_state(
+        self,
+        task_type: int,
+        current_app: object,
+        level: str,
+        schedule_id: int,
+        msg: str,
+    ):
+        """
+        Helper function to update the state of a task in multiple different places (and handle error handling gracefully)
+        :param task_type:
+            The type of the task (for webhook notifications)
+        :param current_app:
+            The 'current_app' instance from Celery
+        :param level:
+            Logging level for the event
+        :param schedule_id:
+            ID of the schedule this ran as
+        :param msg:
+            Message to notify
+        :return:
+            N/A
+        """
+        if level == "debug":
+            current_app.logger.debug(msg)
+        elif level == "info":
+            current_app.logger.info(msg)
+        elif level == "warning" or level == "warn":
+            current_app.logger.warning(msg)
+        else:
+            current_app.logger.error(msg)
+        try:
+            self.log_scheduled_task_outcome(schedule_id, msg)
+        except Exception as e:
+            current_app.logger.error("Failed to update task state:", str(e))
+        try:
+            self.send_webhooks(task_type, msg)
+        except Exception as e:
+            current_app.logger.error(
+                "Failed to send webhook on task state change:", str(e)
+            )
+
     @staticmethod
     def log_scheduled_task_outcome(schedule_id: int, task_outcome: str):
         if schedule_id == 0:
@@ -794,6 +913,8 @@ class TaskHelper:
             notifications = Notification.query.filter(
                 Notification.send_mod_update, Notification.enabled
             ).all()
+        else:
+            return
         for notification in notifications:
             try:
                 httpx.post(

@@ -217,86 +217,73 @@ def server_restart(schedule_id: int = 0) -> None:
     helper = TaskHelper()
     server_stop(schedule_id)
     server_start(schedule_id)
-    current_app.logger.info("Server restarted successfully!")
-    helper.log_scheduled_task_outcome(schedule_id, "Server restarted successfully!")
+    helper.update_task_state(
+        "server_restart",
+        current_app,
+        "info",
+        schedule_id,
+        "Server restarted successfully!",
+    )
 
 
 @shared_task()
 def server_start(schedule_id: int = 0) -> None:
     current_app.logger.info("Started starting server")
     helper = TaskHelper()
-    entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
-    if not entry:
-        current_app.logger.warning(
-            "Unable to start server: no server is set to active!"
-        )
-        helper.log_scheduled_task_outcome(
-            schedule_id, "Aborted: no server is set to active"
+
+    try:
+        server_helper = Arma3ServerHelper()
+
+        if server_helper.is_server_running():
+            helper.update_task_state(
+                "",
+                current_app,
+                "warning",
+                schedule_id,
+                "aborted starting server - server already running",
+            )
+            return
+
+        command, working_dir = server_helper.build_run_command(headless_client=False)
+    except Exception as e:
+        helper.update_task_state(
+            "server_start",
+            current_app,
+            "warning",
+            schedule_id,
+            e,
         )
         return
-    server_details = entry.to_dict(include_sensitive=True)
-    command = [
-        server_details["server_binary"],
-    ]
-    if server_details["additional_params"]:
-        command.append(server_details["additional_params"])
-    if server_details["server_name"]:
-        command.append(f"-name={server_details['server_name']}")
-    else:
-        command.append("-name=arma_server_manager_managed_server")
-    if server_details["server_config_file"]:
-        command.append(f"-config={server_details['server_config_file']}")
-    if server_details["mission_file"]:
-        command.append(f"-mission={server_details['mission_file']}")
-    try:
-        for mod in sorted(
-            server_details["collection"]["mods"], key=lambda x: x["load_order"]
-        ):
-            if mod["mod"]["server_mod"]:
-                command.append(f"-serverMod={mod['mod']['filename']}")
-            else:
-                command.append(f"-mod={mod['mod']['filename']}")
-    except KeyError:
-        # mods do not *have* to be defined...
-        pass
+
     current_app.logger.debug(f"running start server command {command}")
     try:
-        proc = subprocess.Popen(
-            command, cwd=os.path.dirname(server_details["server_binary"])
-        )
+        proc = subprocess.Popen(command, cwd=working_dir)
         time.sleep(10)
         return_code = proc.poll()
         if return_code:
-            try:
-                helper.log_scheduled_task_outcome(
-                    schedule_id, f"Server failed to start with exit code {return_code}"
-                )
-            except Exception as e2:
-                current_app.logger.error(e2)
-            current_app.logger.info(
-                f"Server failed to start with exit code {return_code}"
-            )
-            helper.send_webhooks(
-                "server_start", f"Server failed to start with exit code {return_code}"
+            helper.update_task_state(
+                "server_start",
+                current_app,
+                "warning",
+                schedule_id,
+                f"Server failed to start with exit code {return_code}",
             )
             return
     except Exception as e:
-        try:
-            helper.log_scheduled_task_outcome(
-                schedule_id, f"Server failed to start: {str(e)}"
-            )
-        except Exception as e2:
-            current_app.logger.error(e2)
-        helper.send_webhooks("server_start", f"Server failed to start: {str(e)}")
+        helper.update_task_state(
+            "server_start",
+            current_app,
+            "warning",
+            schedule_id,
+            f"Server failed to start: {str(e)}",
+        )
         return
-    current_app.logger.info("Server started successfully!")
+    entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
     entry.is_active = True
     db.session.commit()
-    try:
-        helper.log_scheduled_task_outcome(schedule_id, "Server started successfully!")
-    except Exception as e:
-        current_app.logger.error(e)
-    helper.send_webhooks("server_start", "successfully started server")
+    helper.update_task_state(
+        "server_start", current_app, "info", schedule_id, "Server started successfully!"
+    )
 
 
 @shared_task()
@@ -309,23 +296,20 @@ def server_stop(schedule_id: int = 0) -> None:
         entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
         entry.is_active = False
         db.session.commit()
-        current_app.logger.info("Server stopped successfully!")
-        try:
-            helper.log_scheduled_task_outcome(
-                schedule_id, "Server stopped successfully!"
-            )
-        except Exception as e:
-            current_app.logger.error(e)
-        helper.send_webhooks("server_stop", "successfully stopped server")
+        helper.update_task_state(
+            "server_stop",
+            current_app,
+            "info",
+            schedule_id,
+            "Server stopped successfully!",
+        )
     else:
-        current_app.logger.info(
-            "Server failed to stop! (permissions issue? not running?)"
-        )
-        helper.log_scheduled_task_outcome(
-            schedule_id, "Server failed to stop! (permissions issue? not running?)"
-        )
-        helper.send_webhooks(
-            "server_stop", "Server failed to stop! (permissions issue? not running?)"
+        helper.update_task_state(
+            "server_stop",
+            current_app,
+            "info",
+            schedule_id,
+            "Server failed to stop! (permissions issue? not running?)",
         )
 
 
@@ -349,23 +333,140 @@ def mod_update(schedule_id: int = 0) -> None:
         Mod.steam_last_updated > Mod.last_updated,
     ).all()
     if not mods:
-        current_app.logger.info(
-            "aborted due to lack of mods (mods already up-to-date?)"
-        )
-        helper.log_scheduled_task_outcome(
-            schedule_id, "aborted due to lack of mods (mods already up-to-date?)"
+        helper.update_task_state(
+            "mod_update",
+            current_app,
+            "info",
+            schedule_id,
+            "aborted due to lack of mods (mods already up-to-date?)",
         )
         return
     for mod in mods:
         mod_status = update_arma3_mod(mod.id)
-        current_app.logger.debug(
-            f"Mod update for {mod.name} returned the following result: {mod_status['status']}"
+        helper.update_task_state(
+            "",  # blank to avoid webhooks for every mod
+            current_app,
+            "debug",
+            schedule_id,
+            f"Mod update for {mod.name} returned the following result: {mod_status['status']}",
         )
-        helper.log_scheduled_task_outcome(schedule_id, mod_status["status"])
     if server_running:
         current_app.logger.info("starting the server after mod updates")
         server_start()
-    helper.send_webhooks("mod_update", "successfully updated mods")
+    helper.update_task_state(
+        "mod_update", current_app, "info", schedule_id, "successfully updated mods"
+    )
+
+
+@shared_task()
+def headless_client_start(schedule_id: int = 0) -> None:
+    """
+    Starts a headless client and attempts to connect it to localhost
+        Optional INT representing the schedule this was invoked under
+    :return:
+        N/A, but logs the outcome to the schedule
+    """
+    current_app.logger.info("Started starting headless client")
+    helper = TaskHelper()
+
+    try:
+        server_helper = Arma3ServerHelper()
+
+        if not server_helper.is_server_running():
+            helper.update_task_state(
+                "",
+                current_app,
+                "warning",
+                schedule_id,
+                "aborted starting HC - server not running",
+            )
+            return
+
+        if server_helper.is_hc_running():
+            helper.update_task_state(
+                "",
+                current_app,
+                "warning",
+                schedule_id,
+                "aborted starting HC - HC already running",
+            )
+            return
+
+        command, working_dir = server_helper.build_run_command(headless_client=True)
+    except Exception as e:
+        helper.update_task_state(
+            "",
+            current_app,
+            "warning",
+            schedule_id,
+            e,
+        )
+        return
+
+    current_app.logger.debug(f"running start headless client command {command}")
+    try:
+        proc = subprocess.Popen(command, cwd=working_dir)
+        time.sleep(10)
+        return_code = proc.poll()
+        if return_code:
+            helper.update_task_state(
+                "",
+                current_app,
+                "warning",
+                schedule_id,
+                f"Server failed to start headless client with exit code {return_code}",
+            )
+            return
+    except Exception as e:
+        helper.update_task_state(
+            "",
+            current_app,
+            "warning",
+            schedule_id,
+            f"Headless client failed to start: {str(e)}",
+        )
+        return
+    entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+    entry.is_active = True
+    db.session.commit()
+    helper.update_task_state(
+        "", current_app, "info", schedule_id, "Headless client started successfully!"
+    )
+
+
+@shared_task()
+def headless_client_stop(schedule_id: int = 0) -> None:
+    """
+    Stops a running headless client
+    :param schedule_id:
+        Optional INT representing the schedule this was invoked under
+    :return:
+        N/A, but logs the outcome to the schedule
+    """
+    current_app.logger.info("Started stopping headless client")
+    helper = TaskHelper()
+
+    server_helper = Arma3ServerHelper()
+    stopped = server_helper.stop_headless_client()
+    if stopped:
+        entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+        entry.is_active = False
+        db.session.commit()
+        helper.update_task_state(
+            "",
+            current_app,
+            "info",
+            schedule_id,
+            "Headless client stopped successfully!",
+        )
+    else:
+        helper.update_task_state(
+            "",
+            current_app,
+            "info",
+            schedule_id,
+            "Headless client failed to stop! (permissions issue? not running?)",
+        )
 
 
 @shared_task()

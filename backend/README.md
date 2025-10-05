@@ -144,6 +144,8 @@ uv run celery -A app.celery worker --loglevel=info
 | `/api/arma3/server/start`                                       | POST               | Start the first active server profile                                                                       |
 | `/api/arma3/server/stop`                                        | POST               | Stop the currently-running active server                                                                    |
 | `/api/arma3/server/{id}`                                        | GET, PATCH, DELETE | Read, update, delete server profiles                                                                        |
+| `/api/arma3/hc/start`                                           | POST               | Start the headless client with the current server profile                                                   |
+| `/api/arma3/hc/stop`                                            | POST               | Stop the headless client with the current server profile                                                    |
 
 ### Request/Response Examples
 

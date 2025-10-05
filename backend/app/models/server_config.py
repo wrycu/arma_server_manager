@@ -35,6 +35,8 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
         is_active: Whether the server is currently running or not
         created_at: When configuration was created
         updated_at: When configuration was last modified
+        use_headless_client: Whether or not a headless client should be launched as a part of starting the server
+        headless_client_active: Whether or not the headless client is currently running
     """
 
     __tablename__ = "server_configs"
@@ -62,6 +64,12 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=False
+    )
+    use_headless_client: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    headless_client_active: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
     )
 
     # Relationships
@@ -94,6 +102,8 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
+            "use_headless_client": self.use_headless_client,
+            "headless_client_active": self.headless_client_active,
         }
         if self.collection:
             result["collection"] = self.collection.to_dict()
@@ -110,6 +120,4 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
 
     def __repr__(self) -> str:
         """String representation of ServerConfig instance."""
-        return (
-            f"<ServerConfig {self.name} ({'active' if self.is_active else 'inactive'})>"
-        )
+        return f"<ServerConfig {self.name} ({'running' if self.is_active else 'inactive'})>"
