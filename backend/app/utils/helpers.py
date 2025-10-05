@@ -544,7 +544,6 @@ class SteamAPI:
         if exclude_subscribed:
             subscribed = [str(x.steam_id) for x in Mod.query.all()]
             details = list(set(details) - set(subscribed))
-            pass
         return details
 
 
