@@ -10,6 +10,8 @@ from app.tasks.background import (
     server_start,
     server_stop,
     update_arma3_mod,
+    headless_client_start,
+    headless_client_stop,
 )
 
 a3_bp = Blueprint("arma3", __name__)
@@ -642,3 +644,39 @@ def delete_server(server_id: int) -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully deleted"}, HTTPStatus.OK
+
+
+@a3_bp.route("/hc/start", methods=["POST"])
+def start_hc() -> tuple[dict[str, str], int]:
+    """
+    Starts a headless client on-demand
+    Returns:
+        JSON response with message and async job ID (to look up job status)
+    """
+    try:
+        return {
+            "status": headless_client_start.delay().id,
+            "message": "headless client start queued",
+        }, HTTPStatus.OK
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
+@a3_bp.route("/hc/stop", methods=["POST"])
+def stop_hc() -> tuple[dict[str, str], int]:
+    """
+    Stops a headless client on-demand
+    Returns:
+        JSON response with message and async job ID (to look up job status)
+    """
+    try:
+        return {
+            "status": headless_client_stop.delay().id,
+            "message": "headless client stop queued",
+        }, HTTPStatus.OK
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
