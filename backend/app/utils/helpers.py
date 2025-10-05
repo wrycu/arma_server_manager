@@ -518,10 +518,13 @@ class SteamAPI:
             details["mod_type"] = "mod"
         return details
 
-    def get_collection_mods(self, collection_id: int) -> list[int]:
+    def get_collection_mods(
+        self, collection_id: int, exclude_subscribed: bool
+    ) -> list[int]:
         """
         Accepts a Steam collection ID and returns a list of workshop item IDs contained within it
         :param collection_id: INT - ID of the collection to get details for
+        :param exclude_subscribed: bool - If true, exclude mods which are already subscribed
         :return: a list of workshop item IDs within the collection, e.g., [123, 456]
         """
         payload = {
@@ -536,6 +539,12 @@ class SteamAPI:
             x["publishedfileid"]
             for x in reply.json()["response"]["collectiondetails"][0]["children"]
         ]
+
+        # filter out anything already subscribed
+        if exclude_subscribed:
+            subscribed = [str(x.steam_id) for x in Mod.query.all()]
+            details = list(set(details) - set(subscribed))
+            pass
         return details
 
 
