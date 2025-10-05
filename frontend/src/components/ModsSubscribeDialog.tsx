@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { handleApiError } from '@/lib/error-handler'
 
 interface ModsSubscribeDialogProps {
   open: boolean
@@ -32,14 +33,16 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
   }
 
   const handleSubscribe = async () => {
-    const steamIds = parseSteamIds(inputValue)
-    if (steamIds.length === 0) return
+    const ids = parseSteamIds(inputValue)
+    if (ids.length === 0) return
 
     try {
       setSubmitting(true)
-      await onSubscribe(steamIds)
+      await onSubscribe(ids)
       setInputValue('')
       onOpenChange(false)
+    } catch (error) {
+      handleApiError(error, 'Failed to subscribe to mods')
     } finally {
       setSubmitting(false)
     }
@@ -59,11 +62,11 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
         <DialogHeader>
           <DialogTitle className="text-base">Subscribe to Mods</DialogTitle>
           <DialogDescription className="text-sm">
-            Enter one or more Steam Workshop IDs to subscribe. Separate with commas or spaces.
+            Enter Workshop IDs from Steam (separate multiple with spaces or commas)
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           <Input
             placeholder="e.g. 123456 987654, 13579"
             value={inputValue}
@@ -71,7 +74,7 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
             className="h-9"
           />
           <p className="text-xs text-muted-foreground">
-            Tip: You can paste multiple IDs. We'll look up names automatically.
+            Find the ID in the Steam Workshop URL after <span className="font-mono">?id=</span>
           </p>
         </div>
 
@@ -90,8 +93,10 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
             disabled={submitting || parseSteamIds(inputValue).length === 0}
           >
             <IconPlus className="h-3 w-3 mr-1" />
-            Subscribe{' '}
-            {parseSteamIds(inputValue).length > 0 ? `(${parseSteamIds(inputValue).length})` : ''}
+            {submitting ? 'Subscribing...' : 'Subscribe'}{' '}
+            {!submitting && parseSteamIds(inputValue).length > 0
+              ? `(${parseSteamIds(inputValue).length})`
+              : ''}
           </Button>
         </DialogFooter>
       </DialogContent>

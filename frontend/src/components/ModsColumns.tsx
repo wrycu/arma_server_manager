@@ -35,8 +35,8 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
       const steamId = row.original.steamId
       return (
         <div className="max-w-[200px]">
-          <div className="text-sm">{name || `Mod ${steamId}`}</div>
-          <div className="text-xs text-muted-foreground/70">Steam ID: {steamId}</div>
+          <div className="text-sm truncate">{name || `Mod ${steamId}`}</div>
+          <div className="text-xs text-muted-foreground/70 truncate">Steam ID: {steamId}</div>
         </div>
       )
     },
@@ -46,7 +46,11 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Author" />,
     cell: ({ row }) => {
       const author = row.getValue('author') as string
-      return <span className="text-sm text-muted-foreground">{author || 'Unknown'}</span>
+      return (
+        <span className="text-sm text-muted-foreground max-w-[150px] truncate inline-block">
+          {author || 'Unknown'}
+        </span>
+      )
     },
   },
   {

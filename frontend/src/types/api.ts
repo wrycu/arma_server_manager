@@ -80,6 +80,12 @@ export interface AsyncJobSuccessResponse {
   [key: string]: string | number | boolean | object | undefined
 }
 
+// Steam Collection API types
+export interface SteamCollectionResponse {
+  results: number[] // Array of Steam Workshop item IDs
+  message: string
+}
+
 // Collections API types
 // Note: ModResponse is the same as ModSubscriptionResponse - they represent the same backend Mod model
 export type ModResponse = ModSubscriptionResponse
