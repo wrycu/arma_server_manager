@@ -32,10 +32,20 @@ def collection_extract(collection_id: int) -> tuple[dict[str, str], int]:
     Returns:
         JSON response with workshop items
     """
+    str_to_bool = {
+        "true": True,
+        "false": False,
+        True: True,
+        False: False,
+    }
+
     return {
         "results": current_app.config["MOD_MANAGERS"][
             "ARMA3"
-        ].steam_api.get_collection_mods(collection_id),
+        ].steam_api.get_collection_mods(
+            collection_id,
+            str_to_bool[request.args.get("exclude_subscribed", False)],
+        ),
         "message": "Retrieved successfully",
     }, HTTPStatus.OK
 
