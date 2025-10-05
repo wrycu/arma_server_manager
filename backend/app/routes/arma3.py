@@ -485,10 +485,18 @@ def get_servers() -> tuple[dict[str, str], int]:
     :return:
         JSON representation of all servers
     """
+    str_to_bool = {
+        "true": True,
+        "false": False,
+        True: True,
+        False: False,
+    }
     try:
         return (
             {
-                "results": current_app.config["A3_SERVER_HELPER"].get_servers(),
+                "results": current_app.config["A3_SERVER_HELPER"].get_servers(
+                    str_to_bool[request.args.get("include_sensitive", False)],
+                ),
                 "message": "Retrieved successfully",
             },
             HTTPStatus.OK,

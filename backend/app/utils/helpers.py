@@ -651,12 +651,15 @@ class ScheduleHelper:
 
 class Arma3ServerHelper:
     @staticmethod
-    def get_servers() -> list[dict[str, str]]:
+    def get_servers(include_sensitive: bool) -> list[dict[str, str]]:
         """
         Retrieve all currently-defined user schedules
         :return:
         """
-        return [x.to_dict() for x in ServerConfig.query.all()]
+        return [
+            x.to_dict(include_sensitive=include_sensitive)
+            for x in ServerConfig.query.all()
+        ]
 
     @staticmethod
     def create_server(server_data: dict[str, str]) -> int:
