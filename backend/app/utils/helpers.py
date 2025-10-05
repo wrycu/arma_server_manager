@@ -766,7 +766,10 @@ class Arma3ServerHelper:
         :return:
         """
         for server_proc in psutil.process_iter():
-            if server_proc.name() in ["arma3server_x64", "arma3server"] and "-client" in server_proc.cmdline():
+            if (
+                server_proc.name() in ["arma3server_x64", "arma3server"]
+                and "-client" in server_proc.cmdline()
+            ):
                 return True
         return False
 
@@ -785,7 +788,10 @@ class Arma3ServerHelper:
     @staticmethod
     def stop_headless_client() -> bool:
         for server_proc in psutil.process_iter():
-            if server_proc.name() in ["arma3server_x64", "arma3server"] and "-client" in server_proc.cmdline():
+            if (
+                server_proc.name() in ["arma3server_x64", "arma3server"]
+                and "-client" in server_proc.cmdline()
+            ):
                 server_proc.kill()
                 return True
         return False
@@ -824,7 +830,7 @@ class Arma3ServerHelper:
             command.extend(["-client", "-connect=127.0.0.1"])
         try:
             for mod in sorted(
-                    server_details["collection"]["mods"], key=lambda x: x["load_order"]
+                server_details["collection"]["mods"], key=lambda x: x["load_order"]
             ):
                 if not mod["mod"]["local_path"]:
                     # do not attempt to load mods which are not downloaded
@@ -840,7 +846,14 @@ class Arma3ServerHelper:
 
 
 class TaskHelper:
-    def update_task_state(self, task_type: int, current_app: object, level: str, schedule_id: int, msg: str):
+    def update_task_state(
+        self,
+        task_type: int,
+        current_app: object,
+        level: str,
+        schedule_id: int,
+        msg: str,
+    ):
         """
         Helper function to update the state of a task in multiple different places (and handle error handling gracefully)
         :param task_type:
@@ -871,7 +884,9 @@ class TaskHelper:
         try:
             self.send_webhooks(task_type, msg)
         except Exception as e:
-            current_app.logger.error("Failed to send webhook on task state change:", str(e))
+            current_app.logger.error(
+                "Failed to send webhook on task state change:", str(e)
+            )
 
     @staticmethod
     def log_scheduled_task_outcome(schedule_id: int, task_outcome: str):

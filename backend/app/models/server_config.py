@@ -65,8 +65,12 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, default=func.now(), onupdate=func.now(), nullable=False
     )
-    use_headless_client: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    headless_client_active: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    use_headless_client: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    headless_client_active: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
 
     # Relationships
     collection: Mapped[Collection] = relationship(
@@ -116,6 +120,4 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
 
     def __repr__(self) -> str:
         """String representation of ServerConfig instance."""
-        return (
-            f"<ServerConfig {self.name} ({'running' if self.is_active else 'inactive'})>"
-        )
+        return f"<ServerConfig {self.name} ({'running' if self.is_active else 'inactive'})>"

@@ -5,13 +5,13 @@ from flask import Blueprint, Response, current_app, request
 
 from app.tasks.background import (
     download_arma3_mod,
+    headless_client_start,
+    headless_client_stop,
     mod_update,
     remove_arma3_mod,
     server_start,
     server_stop,
     update_arma3_mod,
-    headless_client_start,
-    headless_client_stop,
 )
 
 a3_bp = Blueprint("arma3", __name__)

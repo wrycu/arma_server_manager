@@ -257,9 +257,7 @@ def server_start(schedule_id: int = 0) -> None:
 
     current_app.logger.debug(f"running start server command {command}")
     try:
-        proc = subprocess.Popen(
-            command, cwd=working_dir
-        )
+        proc = subprocess.Popen(command, cwd=working_dir)
         time.sleep(10)
         return_code = proc.poll()
         if return_code:
@@ -277,18 +275,14 @@ def server_start(schedule_id: int = 0) -> None:
             current_app,
             "warning",
             schedule_id,
-            f"Server failed to start: {str(e)}"
+            f"Server failed to start: {str(e)}",
         )
         return
     entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
     entry.is_active = True
     db.session.commit()
     helper.update_task_state(
-        "server_start",
-        current_app,
-        "info",
-        schedule_id,
-        "Server started successfully!"
+        "server_start", current_app, "info", schedule_id, "Server started successfully!"
     )
 
 
@@ -344,7 +338,7 @@ def mod_update(schedule_id: int = 0) -> None:
             current_app,
             "info",
             schedule_id,
-            "aborted due to lack of mods (mods already up-to-date?)"
+            "aborted due to lack of mods (mods already up-to-date?)",
         )
         return
     for mod in mods:
@@ -354,17 +348,13 @@ def mod_update(schedule_id: int = 0) -> None:
             current_app,
             "debug",
             schedule_id,
-            f"Mod update for {mod.name} returned the following result: {mod_status['status']}"
+            f"Mod update for {mod.name} returned the following result: {mod_status['status']}",
         )
     if server_running:
         current_app.logger.info("starting the server after mod updates")
         server_start()
     helper.update_task_state(
-        "mod_update",
-        current_app,
-        "info",
-        schedule_id,
-        "successfully updated mods"
+        "mod_update", current_app, "info", schedule_id, "successfully updated mods"
     )
 
 
@@ -415,9 +405,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
 
     current_app.logger.debug(f"running start headless client command {command}")
     try:
-        proc = subprocess.Popen(
-            command, cwd=working_dir
-        )
+        proc = subprocess.Popen(command, cwd=working_dir)
         time.sleep(10)
         return_code = proc.poll()
         if return_code:
@@ -435,18 +423,14 @@ def headless_client_start(schedule_id: int = 0) -> None:
             current_app,
             "warning",
             schedule_id,
-            f"Headless client failed to start: {str(e)}"
+            f"Headless client failed to start: {str(e)}",
         )
         return
     entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
     entry.is_active = True
     db.session.commit()
     helper.update_task_state(
-        "",
-        current_app,
-        "info",
-        schedule_id,
-        "Headless client started successfully!"
+        "", current_app, "info", schedule_id, "Headless client started successfully!"
     )
 
 
