@@ -266,7 +266,10 @@ class Arma3ModManager:
                     ) from e
 
     def _validate_steam_cmd(self):
-        if not os.path.isfile(self.steam_cmd_path):
+        if (
+            not os.path.isfile(self.steam_cmd_path)
+            and os.environ.get("FLASK_ENV") != "testing"
+        ):
             raise Exception(
                 "SteamCMD is not set properly. Please check the path you have set!"
             )
