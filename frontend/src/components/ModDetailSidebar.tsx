@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import type { ModSubscription } from '@/types/mods'
 import { BACKEND_BASE_URL } from '@/services/api'
+import { formatDate } from '@/lib/date'
 
 interface ModDetailSidebarProps {
   mod: ModSubscription | null
@@ -224,15 +225,13 @@ export function ModDetailSidebar({
             <div>
               <p className="text-xs text-muted-foreground mb-0.5">Last Updated</p>
               <p className="font-medium text-sm">
-                {mod.lastUpdated ? new Date(mod.lastUpdated).toLocaleDateString() : 'Never'}
+                {mod.lastUpdated ? formatDate(mod.lastUpdated) : 'Never'}
               </p>
             </div>
             {mod.steamLastUpdated && (
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">Steam Updated</p>
-                <p className="font-medium text-sm">
-                  {new Date(mod.steamLastUpdated).toLocaleDateString()}
-                </p>
+                <p className="font-medium text-sm">{formatDate(mod.steamLastUpdated)}</p>
               </div>
             )}
             <div className="col-span-2">
