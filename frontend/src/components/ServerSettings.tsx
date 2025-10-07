@@ -1,9 +1,11 @@
-import { IconServer } from '@tabler/icons-react'
+import { useState } from 'react'
+import { IconServer, IconEye, IconEyeOff } from '@tabler/icons-react'
 
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 import type { ServerConfiguration } from '@/types/settings'
 
@@ -13,6 +15,8 @@ interface ServerSettingsProps {
 }
 
 export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
+  const [showPassword, setShowPassword] = useState(false)
+  const [showAdminPassword, setShowAdminPassword] = useState(false)
   const handleInputChange =
     (field: keyof ServerConfiguration) =>
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -37,7 +41,7 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
         {/* Basic Server Info */}
         <div className="space-y-4">
           <h4 className="text-sm font-medium text-muted-foreground">Basic Information</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="config-name">Configuration Name *</Label>
               <Input
@@ -59,53 +63,7 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
                 required
               />
             </div>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="A brief description of your server configuration"
-              value={settings.description}
-              onChange={handleInputChange('description')}
-              className="min-h-[80px]"
-            />
-          </div>
-        </div>
-
-        {/* Authentication */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium text-muted-foreground">Authentication</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Server Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Optional server password"
-                value={settings.password}
-                onChange={handleInputChange('password')}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="admin-password">Admin Password *</Label>
-              <Input
-                id="admin-password"
-                type="password"
-                placeholder="Required admin password"
-                value={settings.admin_password}
-                onChange={handleInputChange('admin_password')}
-                required
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Server Settings */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-medium text-muted-foreground">Server Settings</h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="max-players">Max Players</Label>
               <Input
@@ -129,12 +87,86 @@ export function ServerSettings({ settings, onUpdate }: ServerSettingsProps) {
               />
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              placeholder="A brief description of your server configuration"
+              value={settings.description}
+              onChange={handleInputChange('description')}
+              className="min-h-[80px]"
+            />
+          </div>
+        </div>
+
+        {/* Authentication */}
+        <div className="space-y-4">
+          <h4 className="text-sm font-medium text-muted-foreground">Authentication</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="password">Server Password</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Optional server password"
+                  value={settings.password}
+                  onChange={handleInputChange('password')}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <IconEyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <IconEye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="admin-password">Admin Password *</Label>
+              <div className="relative">
+                <Input
+                  id="admin-password"
+                  type={showAdminPassword ? 'text' : 'password'}
+                  placeholder="Required admin password"
+                  value={settings.admin_password}
+                  onChange={handleInputChange('admin_password')}
+                  required
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  onClick={() => setShowAdminPassword(!showAdminPassword)}
+                  tabIndex={-1}
+                >
+                  {showAdminPassword ? (
+                    <IconEyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <IconEye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* File Paths */}
         <div className="space-y-4">
           <h4 className="text-sm font-medium text-muted-foreground">Configuration Files</h4>
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="mission-file">Mission File</Label>
               <Input

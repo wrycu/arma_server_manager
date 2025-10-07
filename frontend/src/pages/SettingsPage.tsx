@@ -43,7 +43,7 @@ const getInitialSettings = (serverConfig?: ServerConfig): SettingsData => ({
 
 export function Settings() {
   const navigate = useNavigate()
-  const { servers, isServersLoading } = useServer()
+  const { servers, isServersLoading } = useServer(undefined, true)
   const [settings, setSettings] = useState<SettingsData>(getInitialSettings())
   const [activeTab, setActiveTab] = useState<SettingsTab>('server')
   const [isLoading, setIsLoading] = useState(false)

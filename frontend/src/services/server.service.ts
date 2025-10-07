@@ -5,8 +5,10 @@ import type { ServerConfig, CreateServerRequest, UpdateServerRequest } from '@/t
 export const serverService = {
   // ----- New server config endpoints aligned to backend (/api/arma3) -----
   // List server configurations
-  listServers: async (): Promise<ServerConfig[]> => {
-    const response = await api.get<{ results: ServerConfig[]; message: string }>('/arma3/servers')
+  listServers: async (includeSensitive: boolean = false): Promise<ServerConfig[]> => {
+    const response = await api.get<{ results: ServerConfig[]; message: string }>('/arma3/servers', {
+      params: { include_sensitive: includeSensitive },
+    })
     return response.data.results
   },
 
