@@ -97,9 +97,14 @@ export const modService = {
   },
 
   // Get mods from Steam collection
-  getSteamCollectionMods: async (collectionId: number): Promise<number[]> => {
+  getSteamCollectionMods: async (
+    collectionId: number,
+    excludeSubscribed = false
+  ): Promise<number[]> => {
+    const params = excludeSubscribed ? { exclude_subscribed: 'true' } : {}
     const response = await api.get<SteamCollectionResponse>(
-      `/arma3/steam/collection/${collectionId}`
+      `/arma3/steam/collection/${collectionId}`,
+      { params }
     )
     return response.data.results
   },
