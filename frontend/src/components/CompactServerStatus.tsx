@@ -184,8 +184,22 @@ export function CompactServerStatus({
         {/* Footer with timestamps */}
         <div className="pt-4 border-t border-border/30">
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Created {new Date(server.created_at).toLocaleDateString()}</span>
-            <span>Updated {new Date(server.updated_at).toLocaleDateString()}</span>
+            <span>
+              Created{' '}
+              {new Date(server.created_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
+            <span>
+              Updated{' '}
+              {new Date(server.updated_at).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
           </div>
         </div>
       </CardContent>

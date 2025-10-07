@@ -5,10 +5,11 @@
 /**
  * Formats a date string to a localized short format
  * @param dateStr - ISO date string
- * @returns Formatted date string (e.g., "Dec 25, 2:30 PM")
+ * @returns Formatted date string (e.g., "Dec 25, 2024, 2:30 PM")
  */
 export function formatDateTime(dateStr: string): string {
   return new Date(dateStr).toLocaleString('en-US', {
+    year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',

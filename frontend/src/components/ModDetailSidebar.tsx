@@ -224,14 +224,24 @@ export function ModDetailSidebar({
             <div>
               <p className="text-xs text-muted-foreground mb-0.5">Last Updated</p>
               <p className="font-medium text-sm">
-                {mod.lastUpdated ? new Date(mod.lastUpdated).toLocaleDateString() : 'Never'}
+                {mod.lastUpdated
+                  ? new Date(mod.lastUpdated).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })
+                  : 'Never'}
               </p>
             </div>
             {mod.steamLastUpdated && (
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">Steam Updated</p>
                 <p className="font-medium text-sm">
-                  {new Date(mod.steamLastUpdated).toLocaleDateString()}
+                  {new Date(mod.steamLastUpdated).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })}
                 </p>
               </div>
             )}
