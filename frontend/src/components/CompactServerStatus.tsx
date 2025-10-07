@@ -18,6 +18,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { formatDate } from '@/lib/date'
 import { useNavigate } from '@tanstack/react-router'
 import type { Collection } from '@/types/collections'
 import type { ServerConfig } from '@/types/server'
@@ -184,22 +185,8 @@ export function CompactServerStatus({
         {/* Footer with timestamps */}
         <div className="pt-4 border-t border-border/30">
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>
-              Created{' '}
-              {new Date(server.created_at).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
-            </span>
-            <span>
-              Updated{' '}
-              {new Date(server.updated_at).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-              })}
-            </span>
+            <span>Created {formatDate(server.created_at)}</span>
+            <span>Updated {formatDate(server.updated_at)}</span>
           </div>
         </div>
       </CardContent>
