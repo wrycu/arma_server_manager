@@ -3,7 +3,7 @@ import { server } from '@/services'
 import { handleApiError } from '@/lib/error-handler'
 import type { ServerConfig } from '@/types/server'
 
-export function useServer(serverId?: number) {
+export function useServer(serverId?: number, includeSensitive: boolean = false) {
   const queryClient = useQueryClient()
   // Servers list (no polling, simple fetch)
   const {
@@ -11,10 +11,10 @@ export function useServer(serverId?: number) {
     isLoading: isServersLoading,
     error: serversError,
   } = useQuery({
-    queryKey: ['servers'],
+    queryKey: ['servers', includeSensitive],
     queryFn: async (): Promise<ServerConfig[]> => {
       try {
-        return await server.listServers()
+        return await server.listServers(includeSensitive)
       } catch (error) {
         handleApiError(error, 'Failed to load servers')
         return []
