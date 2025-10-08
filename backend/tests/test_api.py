@@ -521,6 +521,7 @@ class TestArma3API:
         )
         db.session.commit()
 
+        # confirm mods are in collection
         assert (
             len(
                 ModCollectionEntry.query.filter(
@@ -534,6 +535,8 @@ class TestArma3API:
             "/api/arma3/mod/collection/1/mods/1/load/3",
         )
         assert reply.status_code == HTTPStatus.OK
+
+        # confirm load order is as expected
         assert (
             ModCollectionEntry.query.filter(
                 ModCollectionEntry.collection_id == 1,
@@ -562,10 +565,13 @@ class TestArma3API:
             == 2
         )
 
+        # modify the load order for the first mod
         reply = client.patch(
             "/api/arma3/mod/collection/1/mods/1/load/1",
         )
         assert reply.status_code == HTTPStatus.OK
+
+        # confirm the load order changed
         assert (
             ModCollectionEntry.query.filter(
                 ModCollectionEntry.collection_id == 1,
@@ -594,10 +600,13 @@ class TestArma3API:
             == 3
         )
 
+        # test updating the load order for the second mod
         reply = client.patch(
             "/api/arma3/mod/collection/1/mods/2/load/3",
         )
         assert reply.status_code == HTTPStatus.OK
+
+        # confirm the load order updated for the second mod
         assert (
             ModCollectionEntry.query.filter(
                 ModCollectionEntry.collection_id == 1,
