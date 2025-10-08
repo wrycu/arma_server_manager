@@ -26,6 +26,7 @@ interface ModDetailSidebarProps {
   ) => Promise<void>
   onDownload?: (steamId: number) => void
   onDelete?: (steamId: number) => void
+  onUninstall?: (steamId: number) => void
 }
 
 export function ModDetailSidebar({
@@ -36,6 +37,7 @@ export function ModDetailSidebar({
   onSave,
   onDownload,
   onDelete,
+  onUninstall,
 }: ModDetailSidebarProps) {
   // Form state
   const [editedArguments, setEditedArguments] = useState<string>('')
@@ -48,6 +50,9 @@ export function ModDetailSidebar({
   // Delete confirmation state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
+  // Uninstall confirmation state
+  const [showUninstallConfirm, setShowUninstallConfirm] = useState(false)
+
   // Reset form when mod changes or sidebar closes
   useEffect(() => {
     if (mod && open) {
@@ -55,6 +60,7 @@ export function ModDetailSidebar({
       setEditedIsServerMod(mod.isServerMod)
       setIsDirty(false)
       setShowDeleteConfirm(false)
+      setShowUninstallConfirm(false)
     }
   }, [mod, open])
 
@@ -112,6 +118,13 @@ export function ModDetailSidebar({
     if (onRemove) {
       onRemove()
       setShowDeleteConfirm(false)
+    }
+  }
+
+  const handleUninstall = () => {
+    if (onUninstall && mod) {
+      onUninstall(mod.steamId)
+      setShowUninstallConfirm(false)
     }
   }
 
@@ -176,6 +189,35 @@ export function ModDetailSidebar({
                   variant="outline"
                   size="sm"
                   onClick={() => setShowDeleteConfirm(false)}
+                  className="h-8"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Uninstall Confirmation (inline) */}
+          {showUninstallConfirm && (
+            <div className="rounded-md border border-orange-500/30 bg-orange-500/5 p-3">
+              <h3 className="text-sm font-medium text-orange-600 mb-1">Uninstall Local Files?</h3>
+              <p className="text-xs text-muted-foreground mb-2.5">
+                This will delete the local mod files but keep your subscription. You can re-download
+                the mod at any time.
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleUninstall}
+                  className="h-8 border-orange-500/30 text-orange-600 hover:bg-orange-500/10"
+                >
+                  Uninstall
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowUninstallConfirm(false)}
                   className="h-8"
                 >
                   Cancel
@@ -294,50 +336,65 @@ export function ModDetailSidebar({
         </RightSidebarContent>
 
         {/* FOOTER: Primary Actions */}
-        {(onDownload || onRemove || onDelete) && !showDeleteConfirm && (
-          <RightSidebarFooter>
-            <div className="space-y-1.5">
-              {/* Primary action: Download */}
-              {onDownload && !mod.localPath && (
-                <Button
-                  variant="default"
-                  className="w-full h-8"
-                  size="sm"
-                  onClick={() => onDownload(mod.steamId)}
-                >
-                  <IconDownload className="h-3.5 w-3.5 mr-2" />
-                  Download Mod
-                </Button>
-              )}
+        {(onDownload || onRemove || onDelete || onUninstall) &&
+          !showDeleteConfirm &&
+          !showUninstallConfirm && (
+            <RightSidebarFooter>
+              <div className="space-y-1.5">
+                {/* Primary action: Download */}
+                {onDownload && !mod.localPath && (
+                  <Button
+                    variant="default"
+                    className="w-full h-8"
+                    size="sm"
+                    onClick={() => onDownload(mod.steamId)}
+                  >
+                    <IconDownload className="h-3.5 w-3.5 mr-2" />
+                    Download Mod
+                  </Button>
+                )}
 
-              {/* Collection context: Remove from collection */}
-              {onRemove && (
-                <Button
-                  variant="ghost"
-                  className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(true)}
-                >
-                  <IconTrash className="h-3.5 w-3.5 mr-2" />
-                  Remove from Collection
-                </Button>
-              )}
+                {/* Uninstall local files (keeps subscription) */}
+                {onUninstall && mod.localPath && (
+                  <Button
+                    variant="outline"
+                    className="w-full h-8 border-orange-500/30 text-orange-600 hover:bg-orange-500/10 hover:text-orange-600"
+                    size="sm"
+                    onClick={() => setShowUninstallConfirm(true)}
+                  >
+                    <IconTrash className="h-3.5 w-3.5 mr-2" />
+                    Uninstall Local Files
+                  </Button>
+                )}
 
-              {/* Mod subscription context: Delete subscription */}
-              {onDelete && !onRemove && (
-                <Button
-                  variant="ghost"
-                  className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(true)}
-                >
-                  <IconTrash className="h-3.5 w-3.5 mr-2" />
-                  Delete Subscription
-                </Button>
-              )}
-            </div>
-          </RightSidebarFooter>
-        )}
+                {/* Collection context: Remove from collection */}
+                {onRemove && (
+                  <Button
+                    variant="ghost"
+                    className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                  >
+                    <IconTrash className="h-3.5 w-3.5 mr-2" />
+                    Remove from Collection
+                  </Button>
+                )}
+
+                {/* Mod subscription context: Delete subscription */}
+                {onDelete && !onRemove && (
+                  <Button
+                    variant="ghost"
+                    className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                  >
+                    <IconTrash className="h-3.5 w-3.5 mr-2" />
+                    Delete Subscription
+                  </Button>
+                )}
+              </div>
+            </RightSidebarFooter>
+          )}
       </div>
     </RightSidebar>
   )

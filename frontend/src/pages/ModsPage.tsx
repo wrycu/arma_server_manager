@@ -19,6 +19,7 @@ export function SubscribedModsManager() {
     removeModSubscription,
     updateModSubscription,
     downloadMod,
+    uninstallMod,
   } = useMods()
 
   // Transform mod subscriptions to match UI expectations
@@ -56,6 +57,10 @@ export function SubscribedModsManager() {
 
   const handleDownload = async (steamId: number) => {
     await downloadMod(steamId)
+  }
+
+  const handleUninstall = async (steamId: number) => {
+    await uninstallMod(steamId)
   }
 
   const handleCreateCollection = (collection: CreateCollectionRequest) => {
@@ -127,6 +132,7 @@ export function SubscribedModsManager() {
         onSave={handleSave}
         onDownload={handleDownload}
         onDelete={handleDelete}
+        onUninstall={handleUninstall}
       />
 
       <ConfirmationDialog
