@@ -351,6 +351,28 @@ class Arma3ModManager:
         ).first()
         if not mod:
             raise Exception("Mod not found")
+
+        old_load_order = mod.load_order
+        if old_load_order == load_order:
+            return
+
+        if old_load_order < load_order:
+            mods_to_shift = ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == collection_id,
+                ModCollectionEntry.load_order > old_load_order,
+                ModCollectionEntry.load_order <= load_order,
+            ).all()
+            for m in mods_to_shift:
+                m.load_order -= 1
+        else:
+            mods_to_shift = ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == collection_id,
+                ModCollectionEntry.load_order >= load_order,
+                ModCollectionEntry.load_order < old_load_order,
+            ).all()
+            for m in mods_to_shift:
+                m.load_order += 1
+
         mod.load_order = load_order
         db.session.commit()
 
