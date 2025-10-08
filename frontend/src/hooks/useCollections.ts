@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { collections as collectionsService } from '@/services'
 import { handleApiError } from '@/lib/error-handler'
+import { formatFileSize } from '@/lib/filesize'
 import type { Collection, NewCollection } from '@/types/collections'
 import type { CollectionResponse } from '@/types/api'
 
@@ -22,9 +23,7 @@ const transformApiCollections = (collections: CollectionResponse[]): Collection[
         arguments: entry.mod!.arguments,
         isServerMod: entry.mod!.server_mod,
         sizeBytes: entry.mod!.size_bytes,
-        size: entry.mod!.size_bytes
-          ? `${Math.round(entry.mod!.size_bytes / 1024 / 1024)} MB`
-          : 'Unknown',
+        size: formatFileSize(entry.mod!.size_bytes),
         lastUpdated: entry.mod!.last_updated,
         steamLastUpdated: entry.mod!.steam_last_updated,
         shouldUpdate: entry.mod!.should_update,

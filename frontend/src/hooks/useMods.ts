@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { mods } from '@/services'
 import { handleApiError, showInfoToast } from '@/lib/error-handler'
+import { formatFileSize } from '@/lib/filesize'
 import type { ModHelper, ModSubscriptionResponse } from '@/types/api'
 import type { ModSubscription } from '@/types/mods'
 
@@ -17,7 +18,7 @@ const transformApiMods = (response: ModSubscriptionResponse[]): ModSubscription[
     arguments: mod.arguments,
     isServerMod: mod.server_mod,
     sizeBytes: mod.size_bytes,
-    size: mod.size_bytes ? `${Math.round(mod.size_bytes / 1024 / 1024)} MB` : 'Unknown',
+    size: formatFileSize(mod.size_bytes),
     lastUpdated: mod.last_updated,
     steamLastUpdated: mod.steam_last_updated,
     shouldUpdate: mod.should_update,
