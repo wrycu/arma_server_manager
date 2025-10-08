@@ -95,9 +95,15 @@ export function SubscribedModsManager() {
 
   // Subscribe dialog state and handler
   const [subscribeOpen, setSubscribeOpen] = useState(false)
-  const handleSubscribeMods = async (steamIds: number[]) => {
+  const handleSubscribeMods = async (steamIds: number[], downloadNow: boolean) => {
     for (const id of steamIds) {
       await addModSubscription(id)
+    }
+
+    if (downloadNow) {
+      for (const id of steamIds) {
+        await downloadMod(id)
+      }
     }
   }
 
