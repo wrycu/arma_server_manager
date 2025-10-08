@@ -30,7 +30,7 @@ const mockModSubscriptions = [
     arguments: null,
     isServerMod: false,
     sizeBytes: 1024000,
-    size: '1 MB',
+    size: '1000.000 KB',
     lastUpdated: null,
     steamLastUpdated: '2024-01-01T00:00:00Z',
     shouldUpdate: true,

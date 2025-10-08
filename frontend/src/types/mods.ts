@@ -9,7 +9,7 @@ export interface ModSubscription {
   readonly arguments: string | null
   readonly isServerMod: boolean
   readonly sizeBytes: number | null
-  readonly size: string // Formatted size string (e.g. "150 MB")
+  readonly size: string // Formatted size string (e.g. "49.503 KB", "1.25 MB", "2.10 GB")
   readonly lastUpdated: string | null
   readonly steamLastUpdated: string | null
   readonly shouldUpdate: boolean
