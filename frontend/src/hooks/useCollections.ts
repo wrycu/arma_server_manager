@@ -113,8 +113,8 @@ export function useCollections() {
   })
 
   const removeModFromCollectionMutation = useMutation({
-    mutationFn: async ({ collectionId, modIds }: { collectionId: number; modIds: number[] }) => {
-      await collectionsService.removeModFromCollection(collectionId, { mods: modIds })
+    mutationFn: async ({ collectionId, modId }: { collectionId: number; modId: number }) => {
+      await collectionsService.removeModFromCollection(collectionId, modId)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] })
@@ -175,7 +175,7 @@ export function useCollections() {
     try {
       await removeModFromCollectionMutation.mutateAsync({
         collectionId,
-        modIds: [modId],
+        modId,
       })
     } catch (error) {
       console.error('Remove mod failed:', error)
