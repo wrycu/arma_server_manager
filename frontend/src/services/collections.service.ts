@@ -8,7 +8,6 @@ import type {
   UpdateCollectionRequest,
   UpdateCollectionResponse,
   AddModToCollectionRequest,
-  RemoveModFromCollectionRequest,
   AddModToCollectionResponse,
   RemoveModFromCollectionResponse,
 } from '@/types/api'
@@ -73,11 +72,10 @@ export const collectionsService = {
   // Remove mod from collection
   removeModFromCollection: async (
     collectionId: number,
-    params: RemoveModFromCollectionRequest
+    modId: number
   ): Promise<RemoveModFromCollectionResponse> => {
     const response = await api.delete<RemoveModFromCollectionResponse>(
-      `/arma3/mod/collection/${collectionId}/mods`,
-      { data: params }
+      `/arma3/mod/collection/${collectionId}/mods/${modId}`
     )
     return response.data
   },

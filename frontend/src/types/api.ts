@@ -147,10 +147,6 @@ export interface AddModToCollectionResponse {
   readonly message: string
 }
 
-export interface RemoveModFromCollectionRequest {
-  readonly mods: number[]
-}
-
 export interface RemoveModFromCollectionResponse {
   readonly message: string
 }
