@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { IconFolder, IconPlus, IconTrash, IconGripVertical } from '@tabler/icons-react'
 import {
   DndContext,
@@ -8,6 +8,8 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragCancelEvent,
 } from '@dnd-kit/core'
 import {
   arrayMove,
@@ -116,11 +118,14 @@ export function ModsList({
   onReorderMod,
 }: ModsListProps) {
   const [items, setItems] = useState(mods)
+  const [activeId, setActiveId] = useState<number | null>(null)
+  const reorderTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const pendingOperationRef = useRef(false)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // 8px movement needed to activate drag
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -128,34 +133,67 @@ export function ModsList({
     })
   )
 
-  // Update local state when mods prop changes
   useEffect(() => {
-    setItems(mods)
-  }, [mods])
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-
-    if (!over || active.id === over.id) {
-      return
+    if (!activeId && !pendingOperationRef.current) {
+      setItems(mods)
     }
+  }, [mods, activeId])
 
-    const oldIndex = items.findIndex((item) => item.id === active.id)
-    const newIndex = items.findIndex((item) => item.id === over.id)
-
-    if (oldIndex === -1 || newIndex === -1) {
-      return
-    }
-
-    // Update local state immediately for smooth UX
-    const newItems = arrayMove(items, oldIndex, newIndex)
-    setItems(newItems)
-
-    // Call the API to update the order (1-indexed)
-    if (onReorderMod) {
-      onReorderMod(collectionId, active.id as number, newIndex + 1)
-    }
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as number)
   }
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveId(null)
+
+      const { active, over } = event
+      if (!over || active.id === over.id) {
+        return
+      }
+
+      const oldIndex = items.findIndex((item) => item.id === active.id)
+      const newIndex = items.findIndex((item) => item.id === over.id)
+
+      if (oldIndex === -1 || newIndex === -1) {
+        return
+      }
+
+      const newItems = arrayMove(items, oldIndex, newIndex)
+      setItems(newItems)
+      pendingOperationRef.current = true
+
+      if (reorderTimeoutRef.current) {
+        clearTimeout(reorderTimeoutRef.current)
+      }
+
+      reorderTimeoutRef.current = setTimeout(async () => {
+        try {
+          if (onReorderMod) {
+            await onReorderMod(collectionId, active.id as number, newIndex + 1)
+          }
+        } catch (error) {
+          console.error('Failed to reorder mod:', error)
+          setItems(mods)
+        } finally {
+          pendingOperationRef.current = false
+        }
+      }, 300)
+    },
+    [items, collectionId, onReorderMod, mods]
+  )
+
+  const handleDragCancel = (_event: DragCancelEvent) => {
+    setActiveId(null)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (reorderTimeoutRef.current) {
+        clearTimeout(reorderTimeoutRef.current)
+      }
+    }
+  }, [])
 
   if (mods.length === 0) {
     return (
@@ -171,7 +209,13 @@ export function ModsList({
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
       <SortableContext items={items.map((mod) => mod.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-1">
           {items.map((mod) => (

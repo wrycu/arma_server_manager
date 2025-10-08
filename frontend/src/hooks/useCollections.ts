@@ -141,6 +141,7 @@ export function useCollections() {
     },
     onError: (error) => {
       handleApiError(error, 'Failed to reorder mod in collection')
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
     },
   })
 
@@ -230,6 +231,7 @@ export function useCollections() {
       })
     } catch (error) {
       console.error('Reorder mod failed:', error)
+      throw error
     }
   }
 

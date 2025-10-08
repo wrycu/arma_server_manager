@@ -483,6 +483,22 @@ class TestArma3API:
         add_cba_to_db  # noqa: B018
         add_ace_to_db  # noqa: B018
         db.session.add(
+            Mod(
+                steam_id=843577117,
+                name="JSRS SOUNDMOD",
+                filename="@jsrs_soundmod",
+                local_path=None,
+                arguments=None,
+                server_mod=False,
+                size_bytes=0,
+                last_updated=datetime.now(),
+                steam_last_updated=datetime.now(),
+                should_update=True,
+            )
+        )
+        db.session.commit()
+
+        db.session.add(
             ModCollectionEntry(
                 collection_id=1,
                 mod_id=1,
@@ -496,6 +512,15 @@ class TestArma3API:
                 load_order=2,
             )
         )
+        db.session.add(
+            ModCollectionEntry(
+                collection_id=1,
+                mod_id=3,
+                load_order=3,
+            )
+        )
+        db.session.commit()
+
         # confirm mods are in collection
         assert (
             len(
@@ -503,8 +528,14 @@ class TestArma3API:
                     ModCollectionEntry.collection_id == 1,
                 ).all()
             )
-            == 2
+            == 3
         )
+
+        reply = client.patch(
+            "/api/arma3/mod/collection/1/mods/1/load/3",
+        )
+        assert reply.status_code == HTTPStatus.OK
+
         # confirm load order is as expected
         assert (
             ModCollectionEntry.query.filter(
@@ -513,29 +544,8 @@ class TestArma3API:
             )
             .first()
             .load_order
-            == 1
+            == 3
         )
-        # modify the load order for the first mod
-        reply = client.patch(
-            "/api/arma3/mod/collection/1/mods/1/load/2",
-        )
-        assert reply.status_code == HTTPStatus.OK
-        # confirm the load order changed
-        assert (
-            ModCollectionEntry.query.filter(
-                ModCollectionEntry.collection_id == 1,
-                ModCollectionEntry.mod_id == 1,
-            )
-            .first()
-            .load_order
-            == 2
-        )
-        # test updating the load order for the second mod
-        reply = client.patch(
-            "/api/arma3/mod/collection/1/mods/2/load/1",
-        )
-        assert reply.status_code == HTTPStatus.OK
-        # confirm the load order updated for the second mod
         assert (
             ModCollectionEntry.query.filter(
                 ModCollectionEntry.collection_id == 1,
@@ -544,6 +554,85 @@ class TestArma3API:
             .first()
             .load_order
             == 1
+        )
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 3,
+            )
+            .first()
+            .load_order
+            == 2
+        )
+
+        # modify the load order for the first mod
+        reply = client.patch(
+            "/api/arma3/mod/collection/1/mods/1/load/1",
+        )
+        assert reply.status_code == HTTPStatus.OK
+
+        # confirm the load order changed
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 1,
+            )
+            .first()
+            .load_order
+            == 1
+        )
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 2,
+            )
+            .first()
+            .load_order
+            == 2
+        )
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 3,
+            )
+            .first()
+            .load_order
+            == 3
+        )
+
+        # test updating the load order for the second mod
+        reply = client.patch(
+            "/api/arma3/mod/collection/1/mods/2/load/3",
+        )
+        assert reply.status_code == HTTPStatus.OK
+
+        # confirm the load order updated for the second mod
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 1,
+            )
+            .first()
+            .load_order
+            == 1
+        )
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 2,
+            )
+            .first()
+            .load_order
+            == 3
+        )
+        assert (
+            ModCollectionEntry.query.filter(
+                ModCollectionEntry.collection_id == 1,
+                ModCollectionEntry.mod_id == 3,
+            )
+            .first()
+            .load_order
+            == 2
         )
 
     def test_notification_create(self, client: FlaskClient) -> None:
