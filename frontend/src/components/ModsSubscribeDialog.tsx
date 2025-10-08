@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -18,12 +19,13 @@ import { modService } from '@/services/mods.service'
 interface ModsSubscribeDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubscribe: (steamIds: number[]) => Promise<void> | void
+  onSubscribe: (steamIds: number[], downloadNow: boolean) => Promise<void> | void
 }
 
 export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSubscribeDialogProps) {
   const [inputValue, setInputValue] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [downloadNow, setDownloadNow] = useState(true)
 
   const parseSteamIds = (value: string): number[] => {
     return value
@@ -54,7 +56,7 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
           }
 
           // Successfully resolved as collection
-          await onSubscribe(modIds)
+          await onSubscribe(modIds, downloadNow)
           setInputValue('')
           onOpenChange(false)
           return
@@ -64,7 +66,7 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
       }
 
       // Either multiple IDs or single ID that's not a collection
-      await onSubscribe(ids)
+      await onSubscribe(ids, downloadNow)
       setInputValue('')
       onOpenChange(false)
     } catch (error) {
@@ -78,6 +80,7 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
     if (!next) {
       setInputValue('')
       setSubmitting(false)
+      setDownloadNow(true)
     }
     onOpenChange(next)
   }
@@ -104,6 +107,20 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
             Find the ID in the Steam Workshop URL after <span className="font-mono">?id=</span>.
             Single IDs are automatically checked as collections first.
           </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="download-now"
+            checked={downloadNow}
+            onCheckedChange={(checked) => setDownloadNow(checked === true)}
+          />
+          <label
+            htmlFor="download-now"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+          >
+            Download now
+          </label>
         </div>
 
         <DialogFooter className="gap-2">
