@@ -28,7 +28,7 @@ export function CollectionDetailPage() {
   const { servers, refetchServers } = useServer()
   const server = servers?.[0] || null
 
-  const { updateModSubscription } = useMods()
+  const { updateModSubscription, uninstallMod } = useMods()
 
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
   const [isAddModsDialogOpen, setIsAddModsDialogOpen] = useState(false)
@@ -105,6 +105,10 @@ export function CollectionDetailPage() {
       isServerMod: updates.isServerMod,
     })
     toast.success('Mod settings updated successfully')
+  }
+
+  const handleUninstall = async (steamId: number) => {
+    await uninstallMod(steamId)
   }
 
   if (!collection) {
@@ -196,6 +200,7 @@ export function CollectionDetailPage() {
         onOpenChange={setIsSidebarOpen}
         onRemove={handleRemoveFromSidebar}
         onSave={handleSaveModSettings}
+        onUninstall={handleUninstall}
       />
 
       <RemoveModDialog

@@ -112,6 +112,18 @@ export function useMods() {
     },
   })
 
+  const uninstallModMutation = useMutation({
+    mutationFn: async (modId: number) => {
+      await mods.deleteMod(modId)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mods'] })
+    },
+    onError: (error) => {
+      handleApiError(error, 'Failed to uninstall mod')
+    },
+  })
+
   // Action functions
   const addModSubscription = async (steamId: number): Promise<void> => {
     try {
@@ -160,6 +172,20 @@ export function useMods() {
     }
   }
 
+  const uninstallMod = async (steamId: number): Promise<void> => {
+    const mod = findModSubscription(steamId)
+    if (!mod) return
+
+    // Show toast notification that uninstall has been requested
+    showInfoToast('Uninstall Requested')
+
+    try {
+      await uninstallModMutation.mutateAsync(mod.id)
+    } catch (error) {
+      console.error('Uninstall mod failed:', error)
+    }
+  }
+
   // Get mod helper information from Steam API
   const getModHelper = useCallback(async (modId: number): Promise<ModHelper> => {
     try {
@@ -181,12 +207,14 @@ export function useMods() {
     isRemoving: removeModSubscriptionMutation.isPending,
     isUpdating: updateModSubscriptionMutation.isPending,
     isDownloading: downloadModMutation.isPending,
+    isUninstalling: uninstallModMutation.isPending,
 
     // Actions
     addModSubscription,
     removeModSubscription,
     updateModSubscription,
     downloadMod,
+    uninstallMod,
     getModHelper,
 
     // Helper functions
