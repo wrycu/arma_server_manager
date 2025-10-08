@@ -52,6 +52,15 @@ export function AddModsDialog({
     onOpenChange(false)
   }
 
+  const handleSelectAll = () => {
+    const allFilteredModIds = filteredMods.map((mod) => mod.id)
+    setSelectedModIds(allFilteredModIds)
+  }
+
+  const handleDeselectAll = () => {
+    setSelectedModIds([])
+  }
+
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       setSelectedModIds([])
@@ -72,14 +81,34 @@ export function AddModsDialog({
 
         <div className="space-y-4">
           {/* Search input */}
-          <div className="relative">
-            <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search mods..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-8 text-sm"
-            />
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <IconSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search mods..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-8 text-sm"
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSelectAll}
+              disabled={filteredMods.length === 0}
+              className="h-8"
+            >
+              Select All
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDeselectAll}
+              disabled={selectedModIds.length === 0}
+              className="h-8"
+            >
+              Deselect All
+            </Button>
           </div>
 
           {/* Mods list */}
