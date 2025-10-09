@@ -27,6 +27,7 @@ import type { ModSubscription } from '@/types/mods'
 interface ModsListProps {
   mods: ModSubscription[]
   collectionId: number
+  searchQuery?: string
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
   onAddMods: (collectionId: number) => void
   onModClick?: (mod: ModSubscription) => void
@@ -112,6 +113,7 @@ function SortableModItem({ mod, collectionId, onRemoveMod, onModClick }: Sortabl
 export function ModsList({
   mods,
   collectionId,
+  searchQuery = '',
   onRemoveMod,
   onAddMods,
   onModClick,
@@ -121,6 +123,11 @@ export function ModsList({
   const [activeId, setActiveId] = useState<number | null>(null)
   const reorderTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pendingOperationRef = useRef(false)
+
+  // Filter mods based on search query
+  const filteredMods = mods.filter((mod) =>
+    mod.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -135,9 +142,9 @@ export function ModsList({
 
   useEffect(() => {
     if (!activeId && !pendingOperationRef.current) {
-      setItems(mods)
+      setItems(filteredMods)
     }
-  }, [mods, activeId])
+  }, [filteredMods, activeId])
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as number)
@@ -174,13 +181,13 @@ export function ModsList({
           }
         } catch (error) {
           console.error('Failed to reorder mod:', error)
-          setItems(mods)
+          setItems(filteredMods)
         } finally {
           pendingOperationRef.current = false
         }
       }, 300)
     },
-    [items, collectionId, onReorderMod, mods]
+    [items, collectionId, onReorderMod, filteredMods]
   )
 
   const handleDragCancel = (_event: DragCancelEvent) => {
@@ -195,15 +202,19 @@ export function ModsList({
     }
   }, [])
 
-  if (mods.length === 0) {
+  if (filteredMods.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <IconFolder className="h-12 w-12 text-muted-foreground/30 mb-3" />
-        <p className="text-sm text-muted-foreground mb-3">No mods in this collection</p>
-        <Button size="sm" onClick={() => onAddMods(collectionId)}>
-          <IconPlus className="h-3 w-3 mr-1" />
-          Add Mods
-        </Button>
+        <p className="text-sm text-muted-foreground mb-3">
+          {searchQuery ? 'No mods match your search' : 'No mods in this collection'}
+        </p>
+        {!searchQuery && (
+          <Button size="sm" onClick={() => onAddMods(collectionId)}>
+            <IconPlus className="h-3 w-3 mr-1" />
+            Add Mods
+          </Button>
+        )}
       </div>
     )
   }
