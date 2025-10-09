@@ -38,16 +38,3 @@ export function formatDate(dateStr: string, locale?: string): string {
     day: 'numeric',
   })
 }
-
-/**
- * Formats a date string to a localized time-only format
- * @param dateStr - ISO date string
- * @param locale - Optional locale string (defaults to user's browser locale)
- * @returns Formatted time string (e.g., "2:30 PM" for en-US)
- */
-export function formatTime(dateStr: string, locale?: string): string {
-  return new Date(dateStr).toLocaleTimeString(locale ?? getUserLocale(), {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
