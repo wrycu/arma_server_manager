@@ -1,5 +1,5 @@
 /// <reference types="vitest/globals" />
-import { formatDateTime, formatDate, formatTime } from './date'
+import { formatDateTime, formatDate } from './date'
 
 describe('formatDateTime', () => {
   it('includes the year in the formatted output', () => {
@@ -82,30 +82,5 @@ describe('formatDate', () => {
 
     // Japanese uses different format (year/month/day)
     expect(jaJP).toMatch(/2021/)
-  })
-})
-
-describe('formatTime', () => {
-  it('formats time without date components', () => {
-    const testDate = '2021-12-30T12:24:00Z'
-    const formatted = formatTime(testDate, 'en-US')
-
-    // Should contain time
-    expect(formatted).toMatch(/\d{1,2}:\d{2}/)
-    // Should not contain date components
-    expect(formatted).not.toContain('Dec')
-    expect(formatted).not.toContain('2021')
-  })
-
-  it('respects different locale settings for time format', () => {
-    const testDate = '2021-12-30T14:24:00Z'
-
-    const enUS = formatTime(testDate, 'en-US')
-    const enGB = formatTime(testDate, 'en-GB')
-
-    // US uses 12-hour format with AM/PM
-    expect(enUS).toMatch(/[AP]M/)
-    // UK typically uses 24-hour format (though this can vary)
-    expect(enGB).toMatch(/\d{1,2}:\d{2}/)
   })
 })

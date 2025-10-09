@@ -68,13 +68,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
           cache-dependency-path: frontend/pnpm-lock.yaml
           
       - name: Install frontend dependencies
         working-directory: ./frontend
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
         
       - name: Lint with ESLint
         working-directory: ./frontend

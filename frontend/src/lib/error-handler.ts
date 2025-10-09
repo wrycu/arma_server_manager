@@ -72,13 +72,6 @@ export const handleApiError = (error: unknown, customMessage?: string): void => 
   console.error('API Error:', apiError)
 }
 
-export const showSuccessToast = (message: string, description?: string): void => {
-  toast.success(message, {
-    description,
-    duration: 3000,
-  })
-}
-
 export const showInfoToast = (message: string, description?: string): void => {
   toast.info(message, {
     description,
