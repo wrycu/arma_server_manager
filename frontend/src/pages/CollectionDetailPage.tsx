@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, useSearch } from '@tanstack/react-router'
 import { IconPlus } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { PageTitle } from '@/components/PageTitle'
 
 import { useCollections } from '@/hooks/useCollections'
@@ -38,8 +39,6 @@ export function CollectionDetailPage() {
   const [selectedMod, setSelectedMod] = useState<ModSubscription | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState(search?.search || '')
-  const [isAtBottom, setIsAtBottom] = useState(false)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   // Find the collection by ID
   const collection = collections.find((c) => c.id === collectionIdNum)
@@ -125,29 +124,6 @@ export function CollectionDetailPage() {
     })
   }
 
-  const handleScroll = () => {
-    if (!scrollContainerRef.current) return
-
-    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
-    const threshold = 5 // Small threshold to account for rounding
-    setIsAtBottom(scrollTop + clientHeight >= scrollHeight - threshold)
-  }
-
-  useEffect(() => {
-    const container = scrollContainerRef.current
-    if (!container) return
-
-    // Check initial state
-    handleScroll()
-
-    // Add scroll listener
-    container.addEventListener('scroll', handleScroll)
-
-    return () => {
-      container.removeEventListener('scroll', handleScroll)
-    }
-  }, [collection?.mods, searchQuery])
-
   if (!collection) {
     return (
       <div className="space-y-4">
@@ -174,49 +150,49 @@ export function CollectionDetailPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <PageTitle
-          title={collection.name}
-          description={`${collection.mods.length} mods in this collection`}
-          breadcrumbs={[
-            {
-              label: 'Collections',
-              onClick: handleBackToCollections,
-            },
-          ]}
-        />
-        <div className="flex items-center gap-2">
-          {server && server.collection_id !== collection.id && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleSetActiveCollection}
-              className="h-7 px-3 text-xs"
-            >
-              Set Active
-            </Button>
-          )}
-          {server && server.collection_id === collection.id && (
-            <Button variant="outline" size="sm" disabled className="h-7 px-3 text-xs">
-              Active
-            </Button>
-          )}
-          {collection.mods.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 px-3 text-xs"
-              onClick={() => handleAddMods(collection.id)}
-            >
-              <IconPlus className="h-3 w-3 mr-1" />
-              New
-            </Button>
-          )}
+    <div className="flex flex-col h-[calc(100vh-8rem)] overflow-hidden -ml-8">
+      <div className="flex-shrink-0 space-y-4 pb-4 pl-8">
+        <div className="flex items-center justify-between">
+          <PageTitle
+            title={collection.name}
+            description={`${collection.mods.length} mods in this collection`}
+            breadcrumbs={[
+              {
+                label: 'Collections',
+                onClick: handleBackToCollections,
+              },
+            ]}
+          />
+          <div className="flex items-center gap-2">
+            {server && server.collection_id !== collection.id && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSetActiveCollection}
+                className="h-7 px-3 text-xs"
+              >
+                Set Active
+              </Button>
+            )}
+            {server && server.collection_id === collection.id && (
+              <Button variant="outline" size="sm" disabled className="h-7 px-3 text-xs">
+                Active
+              </Button>
+            )}
+            {collection.mods.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-3 text-xs"
+                onClick={() => handleAddMods(collection.id)}
+              >
+                <IconPlus className="h-3 w-3 mr-1" />
+                New
+              </Button>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-4">
         <div className="flex items-center">
           <Input
             placeholder="Filter mods..."
@@ -225,7 +201,10 @@ export function CollectionDetailPage() {
             className="max-w-sm"
           />
         </div>
-        <div className="max-h-[60vh] overflow-auto relative" ref={scrollContainerRef}>
+      </div>
+
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="h-full max-w-3xl rounded-md">
           <ModsList
             mods={collection.mods}
             collectionId={collection.id}
@@ -235,10 +214,7 @@ export function CollectionDetailPage() {
             onModClick={handleModClick}
             onReorderMod={reorderModInCollection}
           />
-          {!isAtBottom && (
-            <div className="absolute bottom-0 left-0 right-0 h-14 bg-gradient-to-t from-background/98 to-transparent pointer-events-none" />
-          )}
-        </div>
+        </ScrollArea>
       </div>
 
       <ModDetailSidebar
