@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import { IconFolder, IconPlus, IconTrash, IconGripVertical } from '@tabler/icons-react'
+import { useState, useEffect, useCallback } from 'react'
+import { IconFolder, IconPlus, IconGripVertical } from '@tabler/icons-react'
 import {
   DndContext,
   closestCenter,
@@ -22,7 +22,16 @@ import { CSS } from '@dnd-kit/utilities'
 
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@/components/ui/context-menu'
+import { Item, ItemMedia, ItemContent, ItemTitle, ItemDescription } from '@/components/ui/item'
 import type { ModSubscription } from '@/types/mods'
+import { modService } from '@/services/mods.service'
 
 interface ModsListProps {
   mods: ModSubscription[]
@@ -31,7 +40,7 @@ interface ModsListProps {
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
   onAddMods: (collectionId: number) => void
   onModClick?: (mod: ModSubscription) => void
-  onReorderMod?: (collectionId: number, modId: number, newPosition: number) => void
+  onReorderMod?: (collectionId: number, modId: number, newPosition: number) => Promise<void>
 }
 
 interface SortableModItemProps {
@@ -39,9 +48,16 @@ interface SortableModItemProps {
   collectionId: number
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
   onModClick?: (mod: ModSubscription) => void
+  imageUrl: string | null
 }
 
-function SortableModItem({ mod, collectionId, onRemoveMod, onModClick }: SortableModItemProps) {
+function SortableModItem({
+  mod,
+  collectionId,
+  onRemoveMod,
+  onModClick,
+  imageUrl,
+}: SortableModItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: mod.id,
   })
@@ -53,59 +69,66 @@ function SortableModItem({ mod, collectionId, onRemoveMod, onModClick }: Sortabl
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="group flex items-center gap-3 px-3 py-2 rounded-md border bg-card hover:bg-muted/30 transition-colors"
-    >
+    <div ref={setNodeRef} style={style} className="group/sortable flex items-start">
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors"
+        className="opacity-0 group-hover/sortable:opacity-100 cursor-grab active:cursor-grabbing transition-opacity duration-150 flex items-center justify-center w-8 h-6 shrink-0 mt-2"
+        onClick={(e) => e.stopPropagation()}
       >
-        <IconGripVertical className="h-4 w-4" />
+        <IconGripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <Item
+            variant="muted"
+            size="sm"
+            className="cursor-pointer w-full max-w-3xl py-2 bg-muted border border-border"
+            onClick={() => onModClick?.(mod)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                onModClick?.(mod)
+              }
+            }}
+            tabIndex={0}
+          >
+            <ItemMedia>
+              <Avatar className="h-8 w-8">
+                <AvatarImage
+                  src={imageUrl || undefined}
+                  alt={mod.name}
+                  className="object-cover antialiased"
+                  style={{ imageRendering: 'auto' }}
+                />
+                <AvatarFallback className="text-xs">
+                  {mod.name.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            </ItemMedia>
 
-      <div
-        className="flex-1 min-w-0 cursor-pointer"
-        onClick={() => onModClick?.(mod)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onModClick?.(mod)
-          }
-        }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium truncate">{mod.name}</span>
-          <div className="flex items-center gap-1">
-            {mod.isServerMod && (
-              <Badge variant="outline" className="h-4 px-1 text-xs">
-                S
-              </Badge>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{mod.size}</span>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation()
-            onRemoveMod(collectionId, mod.id, mod.name)
-          }}
-          className="h-6 w-6 p-0 hover:text-destructive"
-        >
-          <IconTrash className="h-3 w-3" />
-        </Button>
-      </div>
+            <ItemContent>
+              <ItemTitle>
+                {mod.name}
+                {mod.isServerMod && (
+                  <Badge variant="outline" className="h-4 px-1 text-xs">
+                    S
+                  </Badge>
+                )}
+              </ItemTitle>
+              <ItemDescription>{mod.size}</ItemDescription>
+            </ItemContent>
+          </Item>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem
+            className="text-destructive focus:text-destructive"
+            onSelect={() => onRemoveMod(collectionId, mod.id, mod.name)}
+          >
+            Delete
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
     </div>
   )
 }
@@ -121,8 +144,7 @@ export function ModsList({
 }: ModsListProps) {
   const [items, setItems] = useState(mods)
   const [activeId, setActiveId] = useState<number | null>(null)
-  const reorderTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const pendingOperationRef = useRef(false)
+  const [imageCache, setImageCache] = useState<Map<number, string>>(new Map())
 
   // Filter mods based on search query
   const filteredMods = mods.filter((mod) =>
@@ -140,11 +162,56 @@ export function ModsList({
     })
   )
 
+  // Only sync from props when the set of mod IDs changes (additions/removals), not just reordering
   useEffect(() => {
-    if (!activeId && !pendingOperationRef.current) {
+    const currentIds = items
+      .map((item) => item.id)
+      .sort()
+      .join(',')
+    const propsIds = filteredMods
+      .map((mod) => mod.id)
+      .sort()
+      .join(',')
+
+    // Only update if the set of mods has changed (not just reordered)
+    if (currentIds !== propsIds && !activeId) {
       setItems(filteredMods)
     }
-  }, [filteredMods, activeId])
+  }, [filteredMods, activeId, items])
+
+  // Load and cache mod images
+  useEffect(() => {
+    const loadImages = async () => {
+      const newCache = new Map(imageCache)
+      const modsToLoad = mods.filter((mod) => !imageCache.has(mod.id))
+
+      for (const mod of modsToLoad) {
+        try {
+          const blob = await modService.getModSubscriptionImage(mod.id)
+          const objectUrl = URL.createObjectURL(blob)
+          newCache.set(mod.id, objectUrl)
+        } catch (error) {
+          console.error('Failed to load mod image:', error)
+        }
+      }
+
+      if (modsToLoad.length > 0) {
+        setImageCache(newCache)
+      }
+    }
+
+    loadImages()
+
+    // Cleanup: revoke URLs for mods that are no longer in the list
+    return () => {
+      const currentModIds = new Set(mods.map((mod) => mod.id))
+      imageCache.forEach((url, modId) => {
+        if (!currentModIds.has(modId)) {
+          URL.revokeObjectURL(url)
+        }
+      })
+    }
+  }, [mods, imageCache])
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as number)
@@ -168,24 +235,13 @@ export function ModsList({
 
       const newItems = arrayMove(items, oldIndex, newIndex)
       setItems(newItems)
-      pendingOperationRef.current = true
 
-      if (reorderTimeoutRef.current) {
-        clearTimeout(reorderTimeoutRef.current)
-      }
-
-      reorderTimeoutRef.current = setTimeout(async () => {
-        try {
-          if (onReorderMod) {
-            await onReorderMod(collectionId, active.id as number, newIndex + 1)
-          }
-        } catch (error) {
+      if (onReorderMod) {
+        onReorderMod(collectionId, active.id as number, newIndex + 1).catch((error: unknown) => {
           console.error('Failed to reorder mod:', error)
           setItems(filteredMods)
-        } finally {
-          pendingOperationRef.current = false
-        }
-      }, 300)
+        })
+      }
     },
     [items, collectionId, onReorderMod, filteredMods]
   )
@@ -193,14 +249,6 @@ export function ModsList({
   const handleDragCancel = (_event: DragCancelEvent) => {
     setActiveId(null)
   }
-
-  useEffect(() => {
-    return () => {
-      if (reorderTimeoutRef.current) {
-        clearTimeout(reorderTimeoutRef.current)
-      }
-    }
-  }, [])
 
   if (filteredMods.length === 0) {
     return (
@@ -236,6 +284,7 @@ export function ModsList({
               collectionId={collectionId}
               onRemoveMod={onRemoveMod}
               onModClick={onModClick}
+              imageUrl={imageCache.get(mod.id) || null}
             />
           ))}
         </div>

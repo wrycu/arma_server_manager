@@ -136,11 +136,9 @@ export function useCollections() {
     }) => {
       await collectionsService.reorderModInCollection(collectionId, modId, newLoadOrder)
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['collections'] })
-    },
     onError: (error) => {
       handleApiError(error, 'Failed to reorder mod in collection')
+      // Only refetch on error to get correct server state
       queryClient.invalidateQueries({ queryKey: ['collections'] })
     },
   })
