@@ -251,7 +251,7 @@ def server_start(schedule_id: int = 0) -> None:
             current_app,
             "warning",
             schedule_id,
-            e,
+            str(e),
         )
         return
 
@@ -399,7 +399,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
             current_app,
             "warning",
             schedule_id,
-            e,
+            str(e),
         )
         return
 
