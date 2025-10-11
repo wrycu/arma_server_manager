@@ -787,8 +787,17 @@ class Arma3ServerHelper:
         Checks running processes for the default arma 3 server binary name
         :return:
         """
-        procs = [x.info for x in psutil.process_iter(["name"])]
-        return {"name": "arma3server_x64"} in procs or {"name": "arma3server"} in procs
+        return (
+            len(
+                [
+                    x
+                    for x in psutil.process_iter(["name", "status"])
+                    if x.name() in ["arma3server_x64", "arma3server"]
+                    and x.status() != "zombie"
+                ]
+            )
+            > 0
+        )
 
     @staticmethod
     def is_hc_running() -> bool:
@@ -937,7 +946,12 @@ class TaskHelper:
     @staticmethod
     def send_webhooks(task_type: str, task_outcome: str) -> None:
         notifications = []
-        if task_type in ["server_restart", "server_start", "server_stop"]:
+        if task_type in [
+            "server_restart",
+            "server_start",
+            "server_stop",
+            "server_died",
+        ]:
             notifications = Notification.query.filter(
                 Notification.send_server, Notification.enabled
             ).all()

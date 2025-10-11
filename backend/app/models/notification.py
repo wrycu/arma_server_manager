@@ -19,7 +19,7 @@ class Notification(db.Model):  # type: ignore[name-defined]
         id: Primary key identifier
         enabled: Whether this notification is currently enabled
         URL: Location of the webhook to send the notification
-        send_server: Whether this notification should be sent on server start/stop events
+        send_server: Whether this notification should be sent on server start/stop/crash events
         send_mod_update: Whether this notification should be sent on mod update events
         last_run: Date and time the notification was last run
         created_at: Date and time the notification was created

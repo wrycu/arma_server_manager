@@ -80,6 +80,11 @@ def create_app(config_name: str | None = None) -> Flask:
             "schedule": crontab(minute=0, hour="*"),  # hourly
             "args": [],
         },
+        "check_server_death": {
+            "task": "app.tasks.background.check_for_server_death",
+            "schedule": 90,  # every 90 seconds - for rapid detection without running _all the time_
+            "args": [],
+        },
     }
     if config_name == "development":
         celery.conf.beat_schedule["every_10_seconds"] = {
