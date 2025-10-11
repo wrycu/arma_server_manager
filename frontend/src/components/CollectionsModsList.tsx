@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { IconFolder, IconPlus, IconGripVertical } from '@tabler/icons-react'
+import { IconFolder, IconPlus, IconGripVertical, IconTrash } from '@tabler/icons-react'
 import {
   DndContext,
   closestCenter,
@@ -24,12 +24,13 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from '@/components/ui/context-menu'
-import { Item, ItemMedia, ItemContent, ItemTitle, ItemDescription } from '@/components/ui/item'
+  Item,
+  ItemMedia,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions,
+} from '@/components/ui/item'
 import type { ModSubscription } from '@/types/mods'
 import { modService } from '@/services/mods.service'
 
@@ -78,57 +79,59 @@ function SortableModItem({
       >
         <IconGripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          <Item
-            variant="muted"
-            size="sm"
-            className="cursor-pointer w-full max-w-3xl py-2 bg-muted border border-border"
-            onClick={() => onModClick?.(mod)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onModClick?.(mod)
-              }
-            }}
-            tabIndex={0}
-          >
-            <ItemMedia>
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src={imageUrl || undefined}
-                  alt={mod.name}
-                  className="object-cover antialiased"
-                  style={{ imageRendering: 'auto' }}
-                />
-                <AvatarFallback className="text-xs">
-                  {mod.name.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            </ItemMedia>
+      <Item
+        variant="muted"
+        size="sm"
+        className="cursor-pointer w-full max-w-3xl py-2 bg-muted border border-border group"
+        onClick={() => onModClick?.(mod)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault()
+            onModClick?.(mod)
+          }
+        }}
+        tabIndex={0}
+      >
+        <ItemMedia>
+          <Avatar className="h-8 w-8">
+            <AvatarImage
+              src={imageUrl || undefined}
+              alt={mod.name}
+              className="object-cover antialiased"
+              style={{ imageRendering: 'auto' }}
+            />
+            <AvatarFallback className="text-xs">
+              {mod.name.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </ItemMedia>
 
-            <ItemContent>
-              <ItemTitle>
-                {mod.name}
-                {mod.isServerMod && (
-                  <Badge variant="outline" className="h-4 px-1 text-xs">
-                    S
-                  </Badge>
-                )}
-              </ItemTitle>
-              <ItemDescription>{mod.size}</ItemDescription>
-            </ItemContent>
-          </Item>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem
-            className="text-destructive focus:text-destructive"
-            onSelect={() => onRemoveMod(collectionId, mod.id, mod.name)}
+        <ItemContent>
+          <ItemTitle>
+            {mod.name}
+            {mod.isServerMod && (
+              <Badge variant="outline" className="h-4 px-1 text-xs">
+                S
+              </Badge>
+            )}
+          </ItemTitle>
+          <ItemDescription>{mod.size}</ItemDescription>
+        </ItemContent>
+
+        <ItemActions>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
+            onClick={(e) => {
+              e.stopPropagation()
+              onRemoveMod(collectionId, mod.id, mod.name)
+            }}
           >
-            Delete
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+            <IconTrash className="h-3 w-3" />
+          </Button>
+        </ItemActions>
+      </Item>
     </div>
   )
 }
