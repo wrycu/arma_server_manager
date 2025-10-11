@@ -204,16 +204,22 @@ class Arma3ModManager:
         :param dst_dir: - STR, the destination directory to move the downloaded mod to
         :return:
         """
+        src_dir = os.path.join(
+            self.staging_dir,
+            "steamapps",
+            "workshop",
+            "content",
+            str(self.arma3_app_id),
+            str(mod_id),
+        )
+        if not os.path.exists(src_dir):
+            raise Exception(
+                "Unable to locate mod: download failed or files deleted (check Celery logs)"
+            )
+
         self._delete_mod_(dst_dir)
         os.rename(
-            os.path.join(
-                self.staging_dir,
-                "steamapps",
-                "workshop",
-                "content",
-                str(self.arma3_app_id),
-                str(mod_id),
-            ),
+            src_dir,
             os.path.join(
                 self.dst_dir,
                 dst_dir,

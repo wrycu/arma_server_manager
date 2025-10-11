@@ -33,7 +33,10 @@ def async_status(job_id: str) -> tuple[dict[str, str], int]:
                 "message": "Completed successfully",
             }, HTTPStatus.OK
         else:
-            return {"status": result.status, "message": result.result}, HTTPStatus.OK
+            return {
+                "status": result.status,
+                "message": str(result.result),
+            }, HTTPStatus.OK
     except Exception as e:
         return {
             "status": str(e),
