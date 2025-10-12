@@ -20,7 +20,6 @@ const transformApiCollections = (collections: CollectionResponse[]): Collection[
         name: entry.mod!.name || `Mod ${entry.mod!.steam_id}`,
         modType: (entry.mod!.mod_type as 'mod' | 'mission' | 'map') || null,
         localPath: entry.mod!.local_path,
-        arguments: entry.mod!.arguments,
         isServerMod: entry.mod!.server_mod,
         sizeBytes: entry.mod!.size_bytes,
         size: formatFileSize(entry.mod!.size_bytes),

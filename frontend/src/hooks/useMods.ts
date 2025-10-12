@@ -15,7 +15,6 @@ const transformApiMods = (response: ModSubscriptionResponse[]): ModSubscription[
     name: mod.name || `Mod ${mod.steam_id}`,
     modType: (mod.mod_type as 'mod' | 'mission' | 'map') || null,
     localPath: mod.local_path,
-    arguments: mod.arguments,
     isServerMod: mod.server_mod,
     sizeBytes: mod.size_bytes,
     size: formatFileSize(mod.size_bytes),
@@ -85,7 +84,6 @@ export function useMods() {
         filename: updates.filename,
         mod_type: updates.modType || undefined,
         local_path: updates.localPath || undefined,
-        arguments: updates.arguments || undefined,
         server_mod: updates.isServerMod,
         should_update: updates.shouldUpdate,
       })

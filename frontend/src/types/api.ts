@@ -25,7 +25,6 @@ export interface ModSubscriptionResponse {
   readonly name: string
   readonly mod_type: string | null
   readonly local_path: string | null
-  readonly arguments: string | null
   readonly server_mod: boolean
   readonly size_bytes: number | null
   readonly last_updated: string | null
@@ -60,7 +59,6 @@ export interface UpdateModSubscriptionRequest {
   readonly name?: string
   readonly mod_type?: 'mod' | 'mission' | 'map'
   readonly local_path?: string
-  readonly arguments?: string
   readonly server_mod?: boolean
   readonly should_update?: boolean
 }
