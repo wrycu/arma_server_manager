@@ -370,7 +370,7 @@ def update_mod_collection(collection_id: int) -> tuple[dict[str, str], int]:
 
 
 @a3_bp.route("/mod/collection/<int:collection_id>", methods=["DELETE"])
-def delete_moc_collection(collection_id: int) -> tuple[dict[str, str], int]:
+def delete_mod_collection(collection_id: int) -> tuple[dict[str, str], int]:
     """
     Delete a collection
 

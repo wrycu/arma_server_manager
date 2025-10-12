@@ -22,6 +22,20 @@ class ModType(enum.Enum):
     map = "map"
 
 
+class ModStatus(enum.Enum):
+    """Enumeration for mod statuses."""
+
+    not_installed = "not_installed"  # the default state of a newly-subscribed mod; also used when uninstalled
+    install_requested = "install_requested"  # a download of the mod is underway
+    installed = "installed"  # the mod exists on the local FS
+    install_failed = "install_failed"  # a download of the mod was requested, but failed
+    uninstall_requested = "uninstall_requested"  # an uninstall of the mod was requested
+    uninstall_failed = (
+        "uninstall_failed"  # an uninstall of the mod was requested, but failed
+    )
+    update_requested = "update_requested"  # essentially, a reinstall was requested
+
+
 class Mod(db.Model):  # type: ignore[name-defined]
     """Mod model for Arma 3 mod management.
 
@@ -38,12 +52,12 @@ class Mod(db.Model):  # type: ignore[name-defined]
         mod_type: Type of mod (mod, mission, map)
         local_path: Local file system path, e.g. /home/user/server/arma3/addons/@CBA_A3.
             Used to determine if the mod is downloaded or not. DO NOT MANUALLY EDIT.
-        arguments: Command line arguments for server
         server_mod: Whether this is a server-side only mod
         size_bytes: Size of mod in bytes
         last_updated: When mod was last updated locally
         steam_last_updated: When mod was last updated on Steam
-        :should_update: If this mod should be kept up-to-date when update operations are run
+        should_update If this mod should be kept up-to-date when update operations are run
+        status: The current state of the mod
     """
 
     __tablename__ = "mods"
@@ -62,6 +76,9 @@ class Mod(db.Model):  # type: ignore[name-defined]
     last_updated: Mapped[datetime | None] = mapped_column(DateTime)
     steam_last_updated: Mapped[datetime | None] = mapped_column(DateTime)
     should_update: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    status: Mapped[ModType] = mapped_column(
+        Enum(ModStatus), default=ModStatus.not_installed, nullable=False
+    )
 
     # Relationships
     images: Mapped[list["ModImage"]] = relationship(
@@ -82,9 +99,8 @@ class Mod(db.Model):  # type: ignore[name-defined]
             "steam_id": self.steam_id,
             "filename": self.filename,
             "name": self.name,
-            "mod_type": self.mod_type.value if self.mod_type else None,
+            "mod_type": self.mod_type.value,
             "local_path": self.local_path,
-            "arguments": self.arguments,
             "server_mod": self.server_mod,
             "size_bytes": self.size_bytes,
             "last_updated": (
@@ -94,6 +110,7 @@ class Mod(db.Model):  # type: ignore[name-defined]
                 self.steam_last_updated.isoformat() if self.steam_last_updated else None
             ),
             "should_update": self.should_update,
+            "status": self.status.value,
         }
 
     def __repr__(self) -> str:

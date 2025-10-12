@@ -12,7 +12,7 @@ import sqlalchemy
 
 from app import db
 from app.models.collection import Collection
-from app.models.mod import Mod
+from app.models.mod import Mod, ModStatus
 from app.models.mod_collection_entry import ModCollectionEntry
 from app.models.mod_image import ModImage
 from app.models.notification import Notification
@@ -93,6 +93,7 @@ class Arma3ModManager:
                     "id",
                     "updated_at",
                     "steam_last_updated",
+                    "status",
                 ]  # do not allow certain fields to be modified
                 for key, value in updated_data.items():
                     if key not in disallowed_attrs:
@@ -147,6 +148,7 @@ class Arma3ModManager:
             size_bytes=mod_details["file_size"],
             steam_last_updated=datetime.utcfromtimestamp(mod_details["time_updated"]),
             should_update=True,
+            status=ModStatus.not_installed,
         )
         db.session.add(prepared_mod)
         try:
@@ -872,7 +874,7 @@ class Arma3ServerHelper:
             for mod in sorted(
                 server_details["collection"]["mods"], key=lambda x: x["load_order"]
             ):
-                if not mod["mod"]["local_path"]:
+                if mod["status"] not in [ModStatus.installed]:
                     # do not attempt to load mods which are not downloaded
                     continue
                 if mod["mod"]["server_mod"] and not headless_client:
