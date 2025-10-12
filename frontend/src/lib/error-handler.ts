@@ -65,7 +65,7 @@ export const handleApiError = (error: unknown, customMessage?: string): void => 
   toast.error(message, {
     richColors: true,
     description: apiError.status ? `Error ${apiError.status}` : undefined,
-    duration: 4000,
+    duration: 2000,
   })
 
   // Log error for debugging
@@ -75,6 +75,6 @@ export const handleApiError = (error: unknown, customMessage?: string): void => 
 export const showInfoToast = (message: string, description?: string): void => {
   toast.info(message, {
     description,
-    duration: 4000,
+    duration: 2000,
   })
 }
