@@ -1,7 +1,6 @@
 import { IconFolder, IconTrash, IconCheck } from '@tabler/icons-react'
 
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import type { Collection } from '@/types/collections'
 
@@ -38,13 +37,9 @@ export function CollectionItem({
       </div>
 
       <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onSelectCollection(collection)}>
-        <div className="flex items-center gap-2 mb-0.5">
+        <div className="flex items-baseline gap-2 mb-0.5">
           <span className="font-medium text-sm truncate">{collection.name}</span>
-          <div className="flex items-center gap-1">
-            <Badge variant="outline" className="h-4 px-1 text-xs">
-              {collection.mods.length} mods
-            </Badge>
-          </div>
+          <span className="text-xs text-muted-foreground">{collection.mods.length} mods</span>
         </div>
         <p className="text-xs text-muted-foreground truncate">{collection.description}</p>
       </div>
