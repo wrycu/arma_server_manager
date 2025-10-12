@@ -2,6 +2,7 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@/components/ui/checkbox'
 
 import { DataTableColumnHeader } from '@/components/ModsDataTableHeader'
+import { ModAvatar } from '@/components/ModAvatar'
 import { formatDateTime } from '@/lib/date'
 import type { ModSubscription } from '@/types/mods.ts'
 
@@ -26,6 +27,24 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     ),
     enableSorting: false,
     enableHiding: false,
+  },
+  {
+    id: 'image',
+    header: '',
+    cell: ({ row }) => {
+      const mod = row.original
+      return (
+        <ModAvatar
+          modId={mod.id}
+          name={mod.name}
+          imageAvailable={mod.imageAvailable}
+          className="h-10 w-10"
+        />
+      )
+    },
+    enableSorting: false,
+    enableHiding: false,
+    size: 48,
   },
   {
     accessorKey: 'name',

@@ -1,5 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
-import { IconFolder, IconPlus, IconGripVertical, IconTrash } from '@tabler/icons-react'
+import {
+  IconFolder,
+  IconPlus,
+  IconGripVertical,
+  IconTrash,
+  IconCheck,
+  IconAlertCircle,
+  IconServer,
+  IconDownload,
+  IconCloudOff,
+} from '@tabler/icons-react'
 import {
   DndContext,
   closestCenter,
@@ -21,8 +31,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import {
   Item,
   ItemMedia,
@@ -42,6 +52,7 @@ interface ModsListProps {
   onAddMods: (collectionId: number) => void
   onModClick?: (mod: ModSubscription) => void
   onReorderMod?: (collectionId: number, modId: number, newPosition: number) => Promise<void>
+  onDownload?: (steamId: number) => void
 }
 
 interface SortableModItemProps {
@@ -49,6 +60,7 @@ interface SortableModItemProps {
   collectionId: number
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
   onModClick?: (mod: ModSubscription) => void
+  onDownload?: (steamId: number) => void
   imageUrl: string | null
 }
 
@@ -57,6 +69,7 @@ function SortableModItem({
   collectionId,
   onRemoveMod,
   onModClick,
+  onDownload,
   imageUrl,
 }: SortableModItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
@@ -67,6 +80,44 @@ function SortableModItem({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+  }
+
+  // Render download state icon
+  const renderDownloadIcon = () => {
+    if (!mod.localPath) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center">
+              <IconCloudOff className="h-3.5 w-3.5 text-destructive" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="right">Not downloaded</TooltipContent>
+        </Tooltip>
+      )
+    }
+    if (mod.shouldUpdate) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center">
+              <IconAlertCircle className="h-3.5 w-3.5 text-orange-600" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="right">Update available</TooltipContent>
+        </Tooltip>
+      )
+    }
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center">
+            <IconCheck className="h-3.5 w-3.5 text-green-600" />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="right">Up to date</TooltipContent>
+      </Tooltip>
+    )
   }
 
   return (
@@ -107,22 +158,43 @@ function SortableModItem({
         </ItemMedia>
 
         <ItemContent>
-          <ItemTitle>
-            {mod.name}
-            {mod.isServerMod && (
-              <Badge variant="outline" className="h-4 px-1 text-xs">
-                S
-              </Badge>
-            )}
-          </ItemTitle>
-          <ItemDescription>{mod.size}</ItemDescription>
+          <ItemTitle>{mod.name}</ItemTitle>
+          <ItemDescription>
+            <div className="flex items-center gap-2">
+              {renderDownloadIcon()}
+              {mod.isServerMod && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center">
+                      <IconServer className="h-3.5 w-3.5 text-muted-foreground" />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Server-side mod</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+          </ItemDescription>
         </ItemContent>
 
         <ItemActions>
+          {!mod.localPath && onDownload && (
+            <Button
+              variant="ghost"
+              size="inline"
+              className="opacity-0 group-hover:opacity-100 transition-all hover:bg-yellow-500/10 hover:text-yellow-600 dark:hover:text-yellow-500"
+              onClick={(e) => {
+                e.stopPropagation()
+                onDownload(mod.steamId)
+              }}
+              title="Download mod"
+            >
+              <IconDownload className="h-3 w-3" />
+            </Button>
+          )}
           <Button
             variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
+            size="inline"
+            className="w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
             onClick={(e) => {
               e.stopPropagation()
               onRemoveMod(collectionId, mod.id, mod.name)
@@ -144,6 +216,7 @@ export function ModsList({
   onAddMods,
   onModClick,
   onReorderMod,
+  onDownload,
 }: ModsListProps) {
   const [items, setItems] = useState(mods)
   const [activeId, setActiveId] = useState<number | null>(null)
@@ -261,8 +334,8 @@ export function ModsList({
           {searchQuery ? 'No mods match your search' : 'No mods in this collection'}
         </p>
         {!searchQuery && (
-          <Button size="sm" onClick={() => onAddMods(collectionId)}>
-            <IconPlus className="h-3 w-3 mr-1" />
+          <Button size="xs" onClick={() => onAddMods(collectionId)}>
+            <IconPlus className="h-4 w-4" />
             Add Mods
           </Button>
         )}
@@ -287,6 +360,7 @@ export function ModsList({
               collectionId={collectionId}
               onRemoveMod={onRemoveMod}
               onModClick={onModClick}
+              onDownload={onDownload}
               imageUrl={imageCache.get(mod.id) || null}
             />
           ))}
