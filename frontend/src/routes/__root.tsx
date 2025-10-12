@@ -25,7 +25,7 @@ export const Route = createRootRoute({
           </SidebarInset>
         </SidebarProvider>
         <NavigationCommandDialog />
-        <Toaster />
+        <Toaster position="bottom-center" duration={2000} />
         <TanStackRouterDevtools />
       </div>
     </div>

@@ -1,5 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
-import { IconCheck, IconDownload, IconTrash, IconExternalLink, IconX } from '@tabler/icons-react'
+import {
+  IconCheck,
+  IconDownload,
+  IconTrash,
+  IconExternalLink,
+  IconCloudDownload,
+  IconAlertCircle,
+} from '@tabler/icons-react'
 
 import {
   RightSidebar,
@@ -10,7 +17,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import type { ModSubscription } from '@/types/mods'
 import { BACKEND_BASE_URL } from '@/services/api'
 import { formatDate } from '@/lib/date'
@@ -20,10 +26,7 @@ interface ModDetailSidebarProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onRemove?: () => void
-  onSave?: (
-    steamId: number,
-    updates: { arguments: string | null; isServerMod: boolean }
-  ) => Promise<void>
+  onSave?: (steamId: number, updates: { isServerMod: boolean }) => Promise<void>
   onDownload?: (steamId: number) => void
   onDelete?: (steamId: number) => void
   onUninstall?: (steamId: number) => void
@@ -40,7 +43,6 @@ export function ModDetailSidebar({
   onUninstall,
 }: ModDetailSidebarProps) {
   // Form state
-  const [editedArguments, setEditedArguments] = useState<string>('')
   const [editedIsServerMod, setEditedIsServerMod] = useState<boolean>(false)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -56,7 +58,6 @@ export function ModDetailSidebar({
   // Reset form when mod changes or sidebar closes
   useEffect(() => {
     if (mod && open) {
-      setEditedArguments(mod.arguments || '')
       setEditedIsServerMod(mod.isServerMod)
       setIsDirty(false)
       setShowDeleteConfirm(false)
@@ -67,11 +68,10 @@ export function ModDetailSidebar({
   // Check if form has been modified
   useEffect(() => {
     if (mod) {
-      const argumentsChanged = (editedArguments.trim() || null) !== (mod.arguments || null)
       const serverModChanged = editedIsServerMod !== mod.isServerMod
-      setIsDirty(argumentsChanged || serverModChanged)
+      setIsDirty(serverModChanged)
     }
-  }, [editedArguments, editedIsServerMod, mod])
+  }, [editedIsServerMod, mod])
 
   const handleSave = useCallback(async () => {
     if (!mod || !onSave || !isDirty) return
@@ -79,7 +79,6 @@ export function ModDetailSidebar({
     setIsSaving(true)
     try {
       await onSave(mod.steamId, {
-        arguments: editedArguments.trim() || null,
         isServerMod: editedIsServerMod,
       })
       // Form is no longer dirty after successful save
@@ -89,7 +88,7 @@ export function ModDetailSidebar({
     } finally {
       setIsSaving(false)
     }
-  }, [mod, onSave, isDirty, editedArguments, editedIsServerMod])
+  }, [mod, onSave, isDirty, editedIsServerMod])
 
   // Keyboard shortcut for save
   useEffect(() => {
@@ -245,17 +244,26 @@ export function ModDetailSidebar({
               <p className="font-medium text-sm">{mod.steamId}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Downloaded</p>
+              <p className="text-xs text-muted-foreground mb-0.5">Download Status</p>
               <div className="flex items-center gap-1.5">
                 {mod.localPath ? (
-                  <>
-                    <IconCheck className="h-3.5 w-3.5 text-green-600" />
-                    <span className="font-medium text-sm text-green-600">Yes</span>
-                  </>
+                  mod.shouldUpdate ? (
+                    <>
+                      <IconAlertCircle className="h-3.5 w-3.5 text-orange-600" />
+                      <span className="font-medium text-sm text-orange-600">Update available</span>
+                    </>
+                  ) : (
+                    <>
+                      <IconCheck className="h-3.5 w-3.5 text-green-600" />
+                      <span className="font-medium text-sm text-green-600">Up to date</span>
+                    </>
+                  )
                 ) : (
                   <>
-                    <IconX className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="font-medium text-sm text-muted-foreground">No</span>
+                    <IconCloudDownload className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="font-medium text-sm text-muted-foreground">
+                      Not downloaded
+                    </span>
                   </>
                 )}
               </div>
@@ -307,21 +315,6 @@ export function ModDetailSidebar({
                     Server only mod
                   </Label>
                 </div>
-              </div>
-
-              {/* Arguments Textarea */}
-              <div className="space-y-1">
-                <Label htmlFor="arguments" className="text-xs text-muted-foreground">
-                  Arguments
-                </Label>
-                <Textarea
-                  id="arguments"
-                  placeholder="-serverMod"
-                  value={editedArguments}
-                  onChange={(e) => setEditedArguments(e.target.value)}
-                  rows={2}
-                  className="font-mono text-xs resize-none"
-                />
               </div>
 
               {/* Save Button */}

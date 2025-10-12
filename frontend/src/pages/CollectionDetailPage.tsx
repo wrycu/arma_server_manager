@@ -31,7 +31,7 @@ export function CollectionDetailPage() {
   const { servers, refetchServers } = useServer()
   const server = servers?.[0] || null
 
-  const { updateModSubscription, uninstallMod } = useMods()
+  const { updateModSubscription, uninstallMod, downloadMod } = useMods()
 
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
   const [isAddModsDialogOpen, setIsAddModsDialogOpen] = useState(false)
@@ -100,12 +100,8 @@ export function CollectionDetailPage() {
     }
   }
 
-  const handleSaveModSettings = async (
-    steamId: number,
-    updates: { arguments: string | null; isServerMod: boolean }
-  ) => {
+  const handleSaveModSettings = async (steamId: number, updates: { isServerMod: boolean }) => {
     await updateModSubscription(steamId, {
-      arguments: updates.arguments,
       isServerMod: updates.isServerMod,
     })
     toast.success('Mod settings updated successfully')
@@ -113,6 +109,10 @@ export function CollectionDetailPage() {
 
   const handleUninstall = async (steamId: number) => {
     await uninstallMod(steamId)
+  }
+
+  const handleDownload = async (steamId: number) => {
+    await downloadMod(steamId)
   }
 
   const handleSearchChange = (value: string) => {
@@ -213,6 +213,7 @@ export function CollectionDetailPage() {
             onAddMods={handleAddMods}
             onModClick={handleModClick}
             onReorderMod={reorderModInCollection}
+            onDownload={handleDownload}
           />
         </ScrollArea>
       </div>
@@ -223,6 +224,7 @@ export function CollectionDetailPage() {
         onOpenChange={setIsSidebarOpen}
         onRemove={handleRemoveFromSidebar}
         onSave={handleSaveModSettings}
+        onDownload={handleDownload}
         onUninstall={handleUninstall}
       />
 
