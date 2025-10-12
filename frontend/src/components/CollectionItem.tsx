@@ -2,6 +2,7 @@ import { IconFolder, IconTrash, IconCheck } from '@tabler/icons-react'
 
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import type { Collection } from '@/types/collections'
 
 interface CollectionItemProps {
@@ -22,7 +23,18 @@ export function CollectionItem({
   return (
     <div className="group flex items-center gap-3 px-3 py-3 rounded-md border bg-card hover:bg-muted/30 transition-colors">
       <div className="flex items-center gap-2 flex-shrink-0">
-        <IconFolder className="h-4 w-4 text-muted-foreground" />
+        {isActive ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <IconCheck className="h-4 w-4 text-green-500" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>Active on server</TooltipContent>
+          </Tooltip>
+        ) : (
+          <IconFolder className="h-4 w-4 text-muted-foreground" />
+        )}
       </div>
 
       <div className="flex-1 min-w-0 cursor-pointer" onClick={() => onSelectCollection(collection)}>
@@ -38,7 +50,7 @@ export function CollectionItem({
       </div>
 
       <div className="flex items-center gap-2">
-        {onSetActive && (
+        {onSetActive && !isActive && (
           <Button
             variant="ghost"
             size="inline"
@@ -48,8 +60,7 @@ export function CollectionItem({
               onSetActive(collection)
             }}
           >
-            <IconCheck className="h-3 w-3" />
-            {isActive ? 'Active' : 'Set active'}
+            Set active
           </Button>
         )}
         <Button
