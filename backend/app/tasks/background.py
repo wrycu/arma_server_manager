@@ -488,6 +488,49 @@ def update_mod_steam_updated_time() -> None:
 
 
 @shared_task()
+def check_for_server_death() -> None:
+    """
+    Checks if the defined run state of the server matches the current run state, notifying if they don't match
+    :return:
+        N/A
+    """
+    current_app.logger.info("Checking server state sync status")
+    helper = TaskHelper()
+
+    try:
+        server_helper = Arma3ServerHelper()
+        server_saved_state = ServerConfig.query.filter(ServerConfig.id == 1).first()
+
+        if not server_helper.is_server_running() and server_saved_state.is_active:
+            helper.update_task_state(
+                "server_died",
+                current_app,
+                "warning",
+                0,
+                "server state mismatch; the server died or was killed!",
+            )
+            server_saved_state.is_active = False
+            db.session.commit()
+            return
+    except Exception as e:
+        helper.update_task_state(
+            "",
+            current_app,
+            "error",
+            0,
+            f"failed to check server running status: {str(e)}",
+        )
+        return
+    helper.update_task_state(
+        "",
+        current_app,
+        "debug",
+        0,
+        "server status is correct, hooray!",
+    )
+
+
+@shared_task()
 def task_kickoff(celery_name) -> None:
     """
     This job is scheduled to run at various frequencies.
