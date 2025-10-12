@@ -6,7 +6,6 @@ export interface ModSubscription {
   readonly name: string
   readonly modType: 'mod' | 'mission' | 'map' | null
   readonly localPath: string | null
-  readonly arguments: string | null
   readonly isServerMod: boolean
   readonly sizeBytes: number | null
   readonly size: string // Formatted size string (e.g. "49.503 KB", "1.25 MB", "2.10 GB")
