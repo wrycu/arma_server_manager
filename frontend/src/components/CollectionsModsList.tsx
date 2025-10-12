@@ -180,8 +180,8 @@ function SortableModItem({
           {!mod.localPath && onDownload && (
             <Button
               variant="ghost"
-              size="sm"
-              className="h-6 px-2 opacity-0 group-hover:opacity-100 transition-all cursor-pointer hover:bg-yellow-500/10 hover:text-yellow-600 dark:hover:text-yellow-500"
+              size="inline"
+              className="opacity-0 group-hover:opacity-100 transition-all hover:bg-yellow-500/10 hover:text-yellow-600 dark:hover:text-yellow-500"
               onClick={(e) => {
                 e.stopPropagation()
                 onDownload(mod.steamId)
@@ -193,8 +193,8 @@ function SortableModItem({
           )}
           <Button
             variant="ghost"
-            size="sm"
-            className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive cursor-pointer"
+            size="inline"
+            className="w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
             onClick={(e) => {
               e.stopPropagation()
               onRemoveMod(collectionId, mod.id, mod.name)
@@ -334,8 +334,8 @@ export function ModsList({
           {searchQuery ? 'No mods match your search' : 'No mods in this collection'}
         </p>
         {!searchQuery && (
-          <Button size="sm" onClick={() => onAddMods(collectionId)}>
-            <IconPlus className="h-3 w-3 mr-1" />
+          <Button size="xs" onClick={() => onAddMods(collectionId)}>
+            <IconPlus className="h-4 w-4" />
             Add Mods
           </Button>
         )}

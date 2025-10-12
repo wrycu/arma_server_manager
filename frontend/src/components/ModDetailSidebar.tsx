@@ -180,16 +180,10 @@ export function ModDetailSidebar({
                   variant="destructive"
                   size="sm"
                   onClick={onRemove ? handleRemove : handleDelete}
-                  className="h-8"
                 >
                   {onRemove ? 'Remove' : 'Delete'}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="h-8"
-                >
+                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
                   Cancel
                 </Button>
               </div>
@@ -209,16 +203,11 @@ export function ModDetailSidebar({
                   variant="outline"
                   size="sm"
                   onClick={handleUninstall}
-                  className="h-8 border-orange-500/30 text-orange-600 hover:bg-orange-500/10"
+                  className="border-orange-500/30 text-orange-600 hover:bg-orange-500/10"
                 >
                   Uninstall
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowUninstallConfirm(false)}
-                  className="h-8"
-                >
+                <Button variant="outline" size="sm" onClick={() => setShowUninstallConfirm(false)}>
                   Cancel
                 </Button>
               </div>
@@ -319,7 +308,7 @@ export function ModDetailSidebar({
 
               {/* Save Button */}
               {isDirty && (
-                <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full h-8">
+                <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full">
                   <IconCheck className="h-3.5 w-3.5 mr-1.5" />
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -338,7 +327,7 @@ export function ModDetailSidebar({
                 {onDownload && !mod.localPath && (
                   <Button
                     variant="default"
-                    className="w-full h-8"
+                    className="w-full"
                     size="sm"
                     onClick={() => onDownload(mod.steamId)}
                   >
@@ -351,7 +340,7 @@ export function ModDetailSidebar({
                 {onUninstall && mod.localPath && (
                   <Button
                     variant="outline"
-                    className="w-full h-8 border-orange-500/30 text-orange-600 hover:bg-orange-500/10 hover:text-orange-600"
+                    className="w-full border-orange-500/30 text-orange-600 hover:bg-orange-500/10 hover:text-orange-600"
                     size="sm"
                     onClick={() => setShowUninstallConfirm(true)}
                   >
@@ -364,7 +353,7 @@ export function ModDetailSidebar({
                 {onRemove && (
                   <Button
                     variant="ghost"
-                    className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
                     size="sm"
                     onClick={() => setShowDeleteConfirm(true)}
                   >
@@ -377,7 +366,7 @@ export function ModDetailSidebar({
                 {onDelete && !onRemove && (
                   <Button
                     variant="ghost"
-                    className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
                     size="sm"
                     onClick={() => setShowDeleteConfirm(true)}
                   >

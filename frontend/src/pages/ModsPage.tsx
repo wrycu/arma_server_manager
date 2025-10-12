@@ -83,10 +83,7 @@ export function SubscribedModsManager() {
     setIsSidebarOpen(true)
   }
 
-  const handleSave = async (
-    steamId: number,
-    updates: { arguments: string | null; isServerMod: boolean }
-  ) => {
+  const handleSave = async (steamId: number, updates: { isServerMod: boolean }) => {
     await updateModSubscription(steamId, updates)
     toast.success('Mod settings updated successfully')
   }
@@ -111,8 +108,8 @@ export function SubscribedModsManager() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <PageTitle title="Mod Subscriptions" description="Manage your installed content" />
-        <Button size="sm" className="h-7 px-3 text-xs" onClick={() => setSubscribeOpen(true)}>
-          <IconPlus className="h-4 w-4 mr-1" />
+        <Button size="xs" onClick={() => setSubscribeOpen(true)}>
+          <IconPlus className="h-4 w-4" />
           New
         </Button>
       </div>

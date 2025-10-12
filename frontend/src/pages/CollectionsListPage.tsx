@@ -61,8 +61,8 @@ export function CollectionsListPage() {
               onOpenChange={setIsCreateDialogOpen}
               onCreate={handleCreateCollection}
               trigger={
-                <Button size="sm" className="h-7 px-3 text-xs">
-                  <IconPlus className="h-3 w-3 mr-1" />
+                <Button size="xs">
+                  <IconPlus className="h-4 w-4" />
                   New
                 </Button>
               }

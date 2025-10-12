@@ -165,28 +165,18 @@ export function CollectionDetailPage() {
           />
           <div className="flex items-center gap-2">
             {server && server.collection_id !== collection.id && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSetActiveCollection}
-                className="h-7 px-3 text-xs"
-              >
+              <Button variant="outline" size="xs" onClick={handleSetActiveCollection}>
                 Set Active
               </Button>
             )}
             {server && server.collection_id === collection.id && (
-              <Button variant="outline" size="sm" disabled className="h-7 px-3 text-xs">
+              <Button variant="outline" size="xs" disabled>
                 Active
               </Button>
             )}
             {collection.mods.length > 0 && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 px-3 text-xs"
-                onClick={() => handleAddMods(collection.id)}
-              >
-                <IconPlus className="h-3 w-3 mr-1" />
+              <Button variant="outline" size="xs" onClick={() => handleAddMods(collection.id)}>
+                <IconPlus className="h-4 w-4" />
                 New
               </Button>
             )}
