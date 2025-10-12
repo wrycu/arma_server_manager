@@ -46,7 +46,8 @@ export const getColumns = (): ColumnDef<Schedule>[] => [
     },
     filterFn: (row, id, value) => {
       const enabled = row.getValue(id) as boolean
-      return value.includes(enabled ? 'active' : 'inactive')
+      const status = enabled ? 'active' : 'inactive'
+      return value === status
     },
   },
   {
