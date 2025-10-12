@@ -95,8 +95,8 @@ export function SchedulesManager() {
             onCreateSchedule={handleCreateSchedule}
             isCreating={isCreating}
             trigger={
-              <Button size="sm" className="h-7 px-3 text-xs">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button size="xs">
+                <Plus className="h-4 w-4" />
                 New
               </Button>
             }

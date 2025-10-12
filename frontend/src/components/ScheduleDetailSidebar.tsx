@@ -182,15 +182,10 @@ export function ScheduleDetailSidebar({
                 This will permanently delete this schedule. This action cannot be undone.
               </p>
               <div className="flex gap-2">
-                <Button variant="destructive" size="sm" onClick={handleDelete} className="h-8">
+                <Button variant="destructive" size="sm" onClick={handleDelete}>
                   Delete
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="h-8"
-                >
+                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
                   Cancel
                 </Button>
               </div>
@@ -296,7 +291,7 @@ export function ScheduleDetailSidebar({
 
               {/* Save Button */}
               {isDirty && (
-                <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full h-8">
+                <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full">
                   <IconCheck className="h-3.5 w-3.5 mr-1.5" />
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
@@ -313,7 +308,7 @@ export function ScheduleDetailSidebar({
               {onExecute && (
                 <Button
                   variant="default"
-                  className="w-full h-8"
+                  className="w-full"
                   size="sm"
                   onClick={handleExecute}
                   disabled={isExecuting}
@@ -327,7 +322,7 @@ export function ScheduleDetailSidebar({
               {onDelete && (
                 <Button
                   variant="ghost"
-                  className="w-full h-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
                   size="sm"
                   onClick={() => setShowDeleteConfirm(true)}
                 >

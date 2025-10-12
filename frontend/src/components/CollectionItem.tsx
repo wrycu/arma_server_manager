@@ -41,21 +41,21 @@ export function CollectionItem({
         {onSetActive && (
           <Button
             variant="ghost"
-            size="sm"
-            className="h-6 px-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary"
+            size="inline"
+            className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-primary"
             onClick={(e) => {
               e.stopPropagation()
               onSetActive(collection)
             }}
           >
-            <IconCheck className="h-3 w-3 mr-1" />
+            <IconCheck className="h-3 w-3" />
             {isActive ? 'Active' : 'Set active'}
           </Button>
         )}
         <Button
           variant="ghost"
-          size="sm"
-          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
+          size="inline"
+          className="w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity hover:text-destructive"
           onClick={(e) => {
             e.stopPropagation()
             onDeleteCollection(collection.id)
