@@ -12,7 +12,7 @@ from flask import current_app
 from sqlalchemy.sql import and_
 
 from app import db
-from app.models.mod import Mod
+from app.models.mod import Mod, ModStatus
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
 from app.utils.helpers import Arma3ServerHelper, SteamAPI, TaskHelper
@@ -42,14 +42,16 @@ def download_arma3_mod(mod_id: int) -> dict[str, Any]:
                 "mod_id": mod_id,
             },
         }
-    if mod_data.local_path:
+    if mod_data.status in [ModStatus.install_requested, ModStatus.installed]:
         return {
             "status": "aborted",
-            "message": f"Mod {mod_id} already downloaded, try deleting first!",
+            "message": f"Mod {mod_id} already downloaded or download already requested",
             "meta": {
                 "mod_id": mod_id,
             },
         }
+    mod_data.status = ModStatus.install_requested
+    db.session.commit()
 
     mod_dir = os.path.join(
         current_app.config["MOD_MANAGERS"]["ARMA3"].dst_dir,
@@ -61,12 +63,16 @@ def download_arma3_mod(mod_id: int) -> dict[str, Any]:
             f"{mod_data.filename}",
         )
 
-    current_app.config["MOD_MANAGERS"]["ARMA3"].download_single_mod(
-        mod_data.steam_id,
-        mod_dir,
-    )
-    mod_data.local_path = mod_dir
-    mod_data.last_updated = datetime.now()
+    try:
+        current_app.config["MOD_MANAGERS"]["ARMA3"].download_single_mod(
+            mod_data.steam_id,
+            mod_dir,
+        )
+        mod_data.local_path = mod_dir
+        mod_data.last_updated = datetime.now()
+        mod_data.status = ModStatus.installed
+    except Exception:
+        mod_data.status = ModStatus.install_failed
     db.session.commit()
 
     result = {
@@ -108,7 +114,7 @@ def update_arma3_mod(mod_id: int) -> dict[str, Any]:
                 "mod_id": mod_id,
             },
         }
-    if not mod_data.local_path:
+    if mod_data.status not in [ModStatus.installed]:
         current_app.logger.info("Mod not installed")
         return {
             "status": "aborted",
@@ -117,6 +123,8 @@ def update_arma3_mod(mod_id: int) -> dict[str, Any]:
                 "mod_id": mod_id,
             },
         }
+    mod_data.status = ModStatus.update_requested
+    db.session.commit()
 
     # build the destination path
     mod_dir = os.path.join(
@@ -129,15 +137,19 @@ def update_arma3_mod(mod_id: int) -> dict[str, Any]:
             f"{mod_data.filename}",
         )
 
-    # trigger the actual update
-    current_app.config["MOD_MANAGERS"]["ARMA3"].download_single_mod(
-        mod_data.steam_id,
-        mod_dir,
-    )
+    try:
+        # trigger the actual update
+        current_app.config["MOD_MANAGERS"]["ARMA3"].download_single_mod(
+            mod_data.steam_id,
+            mod_dir,
+        )
 
-    # update the DB to reflect this
-    mod_data.local_path = mod_dir
-    mod_data.last_updated = datetime.now()
+        # update the DB to reflect this
+        mod_data.local_path = mod_dir
+        mod_data.last_updated = datetime.now()
+        mod_data.status = ModStatus.installed
+    except Exception:
+        mod_data.status = ModStatus.install_failed
     db.session.commit()
 
     result = {
@@ -176,7 +188,7 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
                 "mod_id": mod_id,
             },
         }
-    if not mod_data.local_path:
+    if mod_data.status not in [ModStatus.installed, ModStatus.install_failed]:
         current_app.logger.warning(f"Mod {mod_id} not downloaded")
         return {
             "status": "aborted",
@@ -185,19 +197,25 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
                 "mod_id": mod_id,
             },
         }
+    mod_data.status = ModStatus.uninstall_requested
+    db.session.commit()
 
-    mod_dir = os.path.join(
-        current_app.config["MOD_MANAGERS"]["ARMA3"].dst_dir,
-        f"@{mod_data.name}",
-    )
-    if mod_data.mod_type == "mission":
+    try:
         mod_dir = os.path.join(
-            current_app.config["MOD_MANAGERS"]["ARMA3"].mission_dir,
+            current_app.config["MOD_MANAGERS"]["ARMA3"].dst_dir,
+            f"@{mod_data.name}",
         )
+        if mod_data.mod_type == "mission":
+            mod_dir = os.path.join(
+                current_app.config["MOD_MANAGERS"]["ARMA3"].mission_dir,
+            )
 
-    shutil.rmtree(mod_dir)
-    mod_data.local_path = None
-    mod_data.last_updated = datetime.now()
+        shutil.rmtree(mod_dir)
+        mod_data.local_path = None
+        mod_data.last_updated = datetime.now()
+        mod_data.status = ModStatus.not_installed
+    except Exception:
+        mod_data.status = ModStatus.uninstall_failed
     db.session.commit()
 
     result = {
