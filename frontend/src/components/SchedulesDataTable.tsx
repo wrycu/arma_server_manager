@@ -95,12 +95,12 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
           />
           {table.getColumn('enabled') && (
             <Select
-              value={(table.getColumn('enabled')?.getFilterValue() as string) ?? ''}
+              value={(table.getColumn('enabled')?.getFilterValue() as string) ?? 'all'}
               onValueChange={(value) =>
-                table.getColumn('enabled')?.setFilterValue(value === 'all' ? '' : value)
+                table.getColumn('enabled')?.setFilterValue(value === 'all' ? undefined : value)
               }
             >
-              <SelectTrigger className="h-8 w-[120px]">
+              <SelectTrigger size="sm" className="w-[120px]">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent side="top">
