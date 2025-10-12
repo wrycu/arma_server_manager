@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useSearch } from '@tanstack/react-router'
-import { IconPlus } from '@tabler/icons-react'
+import { IconPlus, IconCheck, IconX } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,7 @@ import { PageTitle } from '@/components/PageTitle'
 import { useCollections } from '@/hooks/useCollections'
 import { useServer } from '@/hooks/useServer'
 import { useMods } from '@/hooks/useMods'
+import { useTitleEditing } from '@/hooks/useTitleEditing'
 import { serverService } from '@/services/server.service'
 import { RemoveModDialog } from '@/components/CollectionsRemoveModDialog'
 import { AddModsDialog } from '@/components/AddModsDialog'
@@ -25,8 +26,13 @@ export function CollectionDetailPage() {
   const navigate = useNavigate()
   const collectionIdNum = parseInt(collectionId, 10)
 
-  const { collections, removeModFromCollection, addModsToCollection, reorderModInCollection } =
-    useCollections()
+  const {
+    collections,
+    removeModFromCollection,
+    addModsToCollection,
+    reorderModInCollection,
+    updateCollectionName,
+  } = useCollections()
 
   const { servers, refetchServers } = useServer()
   const server = servers?.[0] || null
@@ -39,6 +45,17 @@ export function CollectionDetailPage() {
   const [selectedMod, setSelectedMod] = useState<ModSubscription | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState(search?.search || '')
+
+  // Title editing state
+  const {
+    isEditingTitle,
+    editingTitle,
+    setEditingTitle,
+    startEditingTitle,
+    saveTitle,
+    cancelEditingTitle,
+    handleTitleKeyDown,
+  } = useTitleEditing()
 
   // Find the collection by ID
   const collection = collections.find((c) => c.id === collectionIdNum)
@@ -124,6 +141,21 @@ export function CollectionDetailPage() {
     })
   }
 
+  const handleSaveCollectionName = async (newName: string) => {
+    if (!collection) return
+    // Only save if the name has actually changed
+    if (newName.trim() === collection.name) {
+      cancelEditingTitle()
+      return
+    }
+    try {
+      await updateCollectionName(collection.id, newName)
+    } catch (error) {
+      console.error('Failed to update collection name:', error)
+      toast.error('Failed to update collection name')
+    }
+  }
+
   if (!collection) {
     return (
       <div className="space-y-4">
@@ -153,16 +185,58 @@ export function CollectionDetailPage() {
     <div className="flex flex-col h-[calc(100vh-8rem)] overflow-hidden -ml-8">
       <div className="flex-shrink-0 space-y-4 pb-4 pl-8">
         <div className="flex items-center justify-between">
-          <PageTitle
-            title={collection.name}
-            description={`${collection.mods.length} mods in this collection`}
-            breadcrumbs={[
-              {
-                label: 'Collections',
-                onClick: handleBackToCollections,
-              },
-            ]}
-          />
+          <div>
+            <div className="flex items-center">
+              <h1 className="text-2xl font-semibold text-foreground">
+                <button
+                  onClick={handleBackToCollections}
+                  className="font-medium transition-all duration-200 text-muted-foreground hover:text-foreground cursor-pointer rounded-md hover:bg-muted/50"
+                >
+                  Collections
+                </button>
+                <span className="text-muted-foreground/60 mx-2">/</span>
+                {isEditingTitle ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Input
+                      value={editingTitle}
+                      onChange={(e) => setEditingTitle(e.target.value)}
+                      onKeyDown={(e) => handleTitleKeyDown(e, handleSaveCollectionName)}
+                      className="h-8 text-lg font-semibold inline-block w-auto min-w-[200px]"
+                      autoFocus
+                      onBlur={() => saveTitle(handleSaveCollectionName)}
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={() => saveTitle(handleSaveCollectionName)}
+                      disabled={editingTitle.trim() === collection.name}
+                    >
+                      <IconCheck className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-7 w-7"
+                      onClick={cancelEditingTitle}
+                    >
+                      <IconX className="h-4 w-4" />
+                    </Button>
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => startEditingTitle(collection.name)}
+                    className="hover:text-muted-foreground transition-colors cursor-pointer"
+                  >
+                    {collection.name}
+                  </button>
+                )}
+              </h1>
+            </div>
+            <p className="text-muted-foreground text-sm mt-1">
+              {collection.mods.length} mods in this collection
+            </p>
+          </div>
           <div className="flex items-center gap-2">
             {server && server.collection_id !== collection.id && (
               <Button variant="outline" size="xs" onClick={handleSetActiveCollection}>
@@ -177,7 +251,7 @@ export function CollectionDetailPage() {
             {collection.mods.length > 0 && (
               <Button variant="outline" size="xs" onClick={() => handleAddMods(collection.id)}>
                 <IconPlus className="h-4 w-4" />
-                New
+                Add Mods
               </Button>
             )}
           </div>
