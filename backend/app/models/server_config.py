@@ -1,8 +1,10 @@
 """Server configuration model for Arma 3 server settings."""
 
+import time
 from datetime import datetime
 from typing import Any
 
+import psutil
 from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -104,6 +106,11 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
             "updated_at": self.updated_at.isoformat(),
             "use_headless_client": self.use_headless_client,
             "headless_client_active": self.headless_client_active,
+            "resources": {
+                "cpu_usage_percent": psutil.cpu_percent(),
+                "ram_usage_percent": psutil.virtual_memory().percent,
+                "uptime_in_seconds": int(time.time() - psutil.boot_time()),
+            },
         }
         if self.collection:
             result["collection"] = self.collection.to_dict()
