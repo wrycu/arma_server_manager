@@ -1,5 +1,6 @@
 """Utility helper functions."""
 
+import enum
 import os
 import shutil
 import subprocess
@@ -701,6 +702,12 @@ class ScheduleHelper:
 
 
 class Arma3ServerHelper:
+    def __init__(self, steam_cmd_path, steam_cmd_user, arma3_path) -> None:
+        self.steam_cmd_path = steam_cmd_path
+        self.steam_cmd_user = steam_cmd_user
+        self.server_install_path = arma3_path
+        self.arma3_app_id = 107410
+
     @staticmethod
     def get_servers(include_sensitive: bool) -> list[dict[str, str]]:
         """
@@ -869,7 +876,7 @@ class Arma3ServerHelper:
         """
         entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
         if not entry:
-            raise Exception("Unable to start server: no server is set to active!")
+            raise Exception("Unable to start server: no server is defined!")
         server_details = entry.to_dict(include_sensitive=True)
 
         command = [
@@ -905,26 +912,46 @@ class Arma3ServerHelper:
         return command, os.path.dirname(server_details["server_binary"])
 
 
+class TaskStatus(enum.Enum):
+    """
+    Helper class for the possible states a task can be updated to
+    """
+
+    success = "SUCCEEDED"  # Task completed successfully
+    failed = "FAILED"  # Task encountered an unrecoverable exception
+    running = "RUNNING"  # Task is currently being executed
+    aborted = "ABORTED"  # Task precondition failed and it did not attempt to run
+
+
 class TaskHelper:
     def update_task_state(
         self,
-        task_type: str,
+        current_task,  # type: ignore
         current_app,  # type: ignore
-        level: str,
         schedule_id: int,
+        task_type: str,
+        level: str,
+        status: TaskStatus,
         msg: str,
     ):
         """
         Helper function to update the state of a task in multiple different places (and handle error handling gracefully)
-        :param task_type:
-            The type of the task (for webhook notifications)
+        :param current_task:
+            The current task being executed/updated
         :param current_app:
             The 'current_app' instance from Celery
             Untyped because this is a local flask proxy which is not exposed and is a GIANT pain to pull in
-        :param level:
-            Logging level for the event
         :param schedule_id:
             ID of the schedule this ran as
+        :param task_type:
+            The type of the task (for webhook notifications)
+            Note that if you don't want to send a webhook notification (e.g., for starting a task), this should be
+                blank
+        :param level:
+            Logging level for the event
+        :param status:
+            The status to report for the task, e.g.:
+                "Running", "Failed", "Succeeded"
         :param msg:
             Message to notify
         :return:
@@ -938,20 +965,22 @@ class TaskHelper:
             current_app.logger.warning(msg)
         else:
             current_app.logger.error(msg)
+        current_task.update_state(state=status, meta=msg)
         try:
             self.log_scheduled_task_outcome(schedule_id, msg)
         except Exception as e:
             current_app.logger.error("Failed to update task state:", str(e))
-        try:
-            self.send_webhooks(task_type, msg)
-        except Exception as e:
-            current_app.logger.error(
-                "Failed to send webhook on task state change:", str(e)
-            )
+        if status in [TaskStatus.success, TaskStatus.failed]:
+            try:
+                self.send_webhooks(task_type, msg)
+            except Exception as e:
+                current_app.logger.error(
+                    "Failed to send webhook on task state change:", str(e)
+                )
 
     @staticmethod
     def log_scheduled_task_outcome(schedule_id: int, task_outcome: str):
-        if schedule_id == 0:
+        if schedule_id <= 0:
             # this was an unscheduled task, do not update outcome
             return
         schedule = Schedule.query.filter(Schedule.id == schedule_id).first()

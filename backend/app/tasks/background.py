@@ -5,9 +5,8 @@ import shutil
 import subprocess
 import time
 from datetime import datetime
-from typing import Any
 
-from celery import shared_task
+from celery import current_task, shared_task
 from flask import current_app
 from sqlalchemy.sql import and_
 
@@ -15,41 +14,50 @@ from app import db
 from app.models.mod import Mod, ModStatus
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
-from app.utils.helpers import Arma3ServerHelper, SteamAPI, TaskHelper
 
 
 @shared_task
-def download_arma3_mod(mod_id: int) -> dict[str, Any]:
+def download_arma3_mod(mod_id: int) -> None:
     """
     Downloads a subscribed, NOT ALREADY DOWNLOADED Arma 3 mod
-    :param mod_id: - INT, the subscribed mod ID to download
-    :return: DICT representing the download outcome
-    {
-        "status": "<overall_outcome>",
-        "message": "<more_detailed_outcome>",
-        "meta": {
-            "mod_id": "<ID_of_mod_this_applies_to",
-        },
-    }
+    :param mod_id:
+        INT, the subscribed mod ID to download
+    :return:
+        N/A, though the result is stored in the task output
     """
-    current_app.logger.info(f"Starting arma 3 mod download ({mod_id})")
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=0,
+        task_type="mod_download",
+        level="info",
+        status="RUNNING",
+        msg=f"Starting Arma 3 mod download ({mod_id})",
+    )
     mod_data = Mod.query.get(mod_id)
     if not mod_data:
-        return {
-            "status": "aborted",
-            "message": f"Mod {mod_id} not found",
-            "meta": {
-                "mod_id": mod_id,
-            },
-        }
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=0,
+            task_type="mod_download",
+            level="warn",
+            status="ABORTED",
+            msg=f"Arma 3 mod {mod_id} not found",
+        )
+        return
     if mod_data.status in [ModStatus.install_requested, ModStatus.installed]:
-        return {
-            "status": "aborted",
-            "message": f"Mod {mod_id} already downloaded or download already requested",
-            "meta": {
-                "mod_id": mod_id,
-            },
-        }
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=0,
+            task_type="mod_download",
+            level="warn",
+            status="ABORTED",
+            msg=f"Arma 3 mod {mod_id} already downloaded or download already requested",
+        )
+        return
     mod_data.status = ModStatus.install_requested
     db.session.commit()
 
@@ -73,56 +81,74 @@ def download_arma3_mod(mod_id: int) -> dict[str, Any]:
         mod_data.status = ModStatus.installed
     except Exception:
         mod_data.status = ModStatus.install_failed
+        db.session.commit()
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=0,
+            task_type="mod_download",
+            level="error",
+            status="FAILURE",
+            msg=f"Failed to download Arma 3 mod {mod_id}",
+        )
+        return
     db.session.commit()
 
-    result = {
-        "status": "completed",
-        "message": f"Downloaded to {mod_dir}",
-        "meta": {
-            "mod_id": mod_id,
-        },
-    }
-    current_app.logger.info(f"Done downloading {mod_id}")
-    return result
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=0,
+        task_type="mod_download",
+        level="info",
+        status="SUCCEEDED",
+        msg=f"Successfully downloaded Arma 3 mod {mod_id}",
+    )
 
 
 @shared_task
-def update_arma3_mod(mod_id: int) -> dict[str, Any]:
+def update_arma3_mod(mod_id: int, schedule_id: int = 0) -> None:
     """
     Updates a single Arma 3 mod. Note that this is here as an async task; it should not be scheduled
     Instead, `mod_update` should be used within a schedule (which invokes this task)
     :param mod_id:
         INT - the subscribed mod ID to update
+    :param schedule_id:
     :return:
-        DICT representing the result
-        {
-            "status": "<update_status>",
-            "message": "<more_verbose_status_info>",
-            "meta": {
-                "mod_id": "<ID_of_the_mod_this_applies_to>",
-            }
-        }
+        N/A, though the result is stored in the task output
     """
-    current_app.logger.info(f"Starting arma 3 mod update ({mod_id})")
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="mod_update",
+        level="info",
+        status="RUNNING",
+        msg=f"Starting Arma 3 mod update ({mod_id})",
+    )
     mod_data = Mod.query.get(mod_id)
     if not mod_data:
-        current_app.logger.info("Mod not found")
-        return {
-            "status": "aborted",
-            "message": f"Mod {mod_id} not found",
-            "meta": {
-                "mod_id": mod_id,
-            },
-        }
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="mod_update",
+            level="warn",
+            status="ABORTED",
+            msg=f"Arma 3 mod {mod_id} not found",
+        )
+        return
     if mod_data.status not in [ModStatus.installed]:
-        current_app.logger.info("Mod not installed")
-        return {
-            "status": "aborted",
-            "message": f"Mod {mod_id} not downloaded, try downloading first!",
-            "meta": {
-                "mod_id": mod_id,
-            },
-        }
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="mod_update",
+            level="warn",
+            status="ABORTED",
+            msg=f"Arma 3 mod {mod_id} not installed",
+        )
+        return
     mod_data.status = ModStatus.update_requested
     db.session.commit()
 
@@ -148,55 +174,74 @@ def update_arma3_mod(mod_id: int) -> dict[str, Any]:
         mod_data.local_path = mod_dir
         mod_data.last_updated = datetime.now()
         mod_data.status = ModStatus.installed
-    except Exception:
+    except Exception as e:
         mod_data.status = ModStatus.install_failed
+        db.session.commit()
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="mod_download",
+            level="error",
+            status="FAILURE",
+            msg=f"Failed to update Arma 3 mod {mod_id}: {str(e)}",
+        )
+        return
     db.session.commit()
 
-    result = {
-        "status": "completed",
-        "message": f"Downloaded to {mod_dir}",
-        "meta": {
-            "mod_id": mod_id,
-        },
-    }
-    current_app.logger.info(f"Done updating {mod_id}")
-    return result
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="mod_update",
+        level="info",
+        status="SUCCEEDED",
+        msg=f"Successfully updated Arma 3 mod {mod_id}",
+    )
 
 
 @shared_task()
-def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
+def remove_arma3_mod(mod_id: int) -> None:
     """
     Uninstalls an installed, subscribed mod
-    :param mod_id: - INT, the subscribed mod ID to uninstall
-    :return: DICT representing the uninstall outcome
-    {
-        "status": "<overall_outcome>",
-        "message": "<more_detailed_outcome>",
-        "meta": {
-            "mod_id": "<ID_of_mod_this_applies_to",
-        },
-    }
+    :param mod_id:
+        INT, the subscribed mod ID to uninstall
+    :return:
+        N/A, though the result is stored in the task output
     """
-    current_app.logger.info(f"Starting arma 3 mod removal ({mod_id})")
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=0,
+        task_type="mod_remove",
+        level="info",
+        status="RUNNING",
+        msg=f"Starting Arma 3 mod uninstall {mod_id}",
+    )
     mod_data = Mod.query.get(mod_id)
     if not mod_data:
-        current_app.logger.warning(f"Mod {mod_id} not found")
-        return {
-            "status": "aborted",
-            "message": f"Mod {mod_id} not found",
-            "meta": {
-                "mod_id": mod_id,
-            },
-        }
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=0,
+            task_type="mod_remove",
+            level="warn",
+            status="ABORTED",
+            msg=f"Arma 3 mod {mod_id} not found",
+        )
+        return
     if mod_data.status not in [ModStatus.installed, ModStatus.install_failed]:
-        current_app.logger.warning(f"Mod {mod_id} not downloaded")
-        return {
-            "status": "aborted",
-            "message": f"Mod {mod_id} not downloaded, why are you even deleting it?!",
-            "meta": {
-                "mod_id": mod_id,
-            },
-        }
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=0,
+            task_type="mod_remove",
+            level="warn",
+            status="ABORTED",
+            msg=f"Arma 3 mod {mod_id} not downloaded, why are you even deleting it?!",
+        )
+        return
     mod_data.status = ModStatus.uninstall_requested
     db.session.commit()
 
@@ -216,119 +261,241 @@ def remove_arma3_mod(mod_id: int) -> dict[str, Any]:
         mod_data.status = ModStatus.not_installed
     except Exception:
         mod_data.status = ModStatus.uninstall_failed
+        db.session.commit()
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=0,
+            task_type="mod_remove",
+            level="error",
+            status="FAILURE",
+            msg=f"Starting arma 3 mod download ({mod_id})",
+        )
+        return
     db.session.commit()
 
-    result = {
-        "status": "completed",
-        "message": f"Removed from {mod_dir}",
-        "meta": {
-            "mod_id": mod_id,
-        },
-    }
-    current_app.logger.info("Done removing")
-    return result
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=0,
+        task_type="mod_remove",
+        level="info",
+        status="SUCCEEDED",
+        msg=f"Uninstalled Arma 3 mod {mod_id}",
+    )
 
 
 @shared_task()
 def server_restart(schedule_id: int = 0) -> None:
-    current_app.logger.info("Started restarting server")
-    helper = TaskHelper()
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_restart",
+        level="info",
+        status="RUNNING",
+        msg="Started restarting Arma 3 server",
+    )
     server_stop(schedule_id)
     server_start(schedule_id)
     helper.update_task_state(
-        "server_restart",
-        current_app,
-        "info",
-        schedule_id,
-        "Server restarted successfully!",
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_restart",
+        level="info",
+        status="SUCCEEDED",
+        msg="Arma 3 server restarted successfully!",
     )
 
 
 @shared_task()
 def server_start(schedule_id: int = 0) -> None:
-    current_app.logger.info("Started starting server")
-    helper = TaskHelper()
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_start",
+        level="info",
+        status="RUNNING",
+        msg="Beginning Arma 3 server start...",
+    )
 
     try:
-        server_helper = Arma3ServerHelper()
-
+        server_helper = current_app.config["A3_SERVER_HELPER"]
         if server_helper.is_server_running():
             helper.update_task_state(
-                "",
-                current_app,
-                "warning",
-                schedule_id,
-                "aborted starting server - server already running",
+                current_task=current_task,
+                current_app=current_app,
+                schedule_id=schedule_id,
+                task_type="server_start",
+                level="warn",
+                status="ABORTED",
+                msg="Aborted starting Arma 3 server: server already running",
             )
             return
-
         command, working_dir = server_helper.build_run_command(headless_client=False)
     except Exception as e:
         helper.update_task_state(
-            "server_start",
-            current_app,
-            "warning",
-            schedule_id,
-            str(e),
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="server_start",
+            level="error",
+            status="FAILURE",
+            msg=f"Failed to start Arma 3 server: {str(e)}",
         )
         return
 
-    current_app.logger.debug(f"running start server command {command}")
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_start",
+        level="debug",
+        status="RUNNING",
+        msg=f"Running Arma 3 start command: {' '.join(command)}",
+    )
     try:
         proc = subprocess.Popen(command, cwd=working_dir)
         time.sleep(10)
         return_code = proc.poll()
         if return_code:
             helper.update_task_state(
-                "server_start",
-                current_app,
-                "warning",
-                schedule_id,
-                f"Server failed to start with exit code {return_code}",
+                current_task=current_task,
+                current_app=current_app,
+                schedule_id=schedule_id,
+                task_type="server_start",
+                level="error",
+                status="FAILURE",
+                msg=f"Arma 3 server failed to start: {str(return_code)}",
             )
             return
     except Exception as e:
         helper.update_task_state(
-            "server_start",
-            current_app,
-            "warning",
-            schedule_id,
-            f"Server failed to start: {str(e)}",
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="server_start",
+            level="error",
+            status="RUNNING",
+            msg=f"Arma 3 server command failed: {str(e)}",
         )
         return
     entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
     entry.is_active = True
     db.session.commit()
     helper.update_task_state(
-        "server_start", current_app, "info", schedule_id, "Server started successfully!"
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_start",
+        level="info",
+        status="SUCCEEDED",
+        msg="Arma 3 server successfully started",
     )
 
 
 @shared_task()
 def server_stop(schedule_id: int = 0) -> None:
-    current_app.logger.info("Started stopping server")
-    helper = TaskHelper()
-    server_helper = Arma3ServerHelper()
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="",
+        level="info",
+        status="RUNNING",
+        msg="Beginning Arma 3 server stop...",
+    )
+
+    server_helper = current_app.config["A3_SERVER_HELPER"]
     stopped = server_helper.stop_server()
     if stopped:
         entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
         entry.is_active = False
         db.session.commit()
         helper.update_task_state(
-            "server_stop",
-            current_app,
-            "info",
-            schedule_id,
-            "Server stopped successfully!",
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="server_stop",
+            level="info",
+            status="SUCCEEDED",
+            msg="Arma 3 server successfully stopped",
         )
     else:
         helper.update_task_state(
-            "server_stop",
-            current_app,
-            "info",
-            schedule_id,
-            "Server failed to stop! (permissions issue? not running?)",
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="server_stop",
+            level="error",
+            status="FAILURE",
+            msg="Arma 3 server failed to stop! (permissions issue? not running?)",
         )
+
+
+@shared_task()
+def server_update(schedule_id: int = 0) -> None:
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_update",
+        level="info",
+        status="RUNNING",
+        msg="Beginning Arma 3 server binary update...",
+    )
+
+    server_helper = current_app.config["A3_SERVER_HELPER"]
+
+    server_running = server_helper.is_server_running()
+    if server_running:
+        server_stop()
+    command = [
+        server_helper.steam_cmd_path,
+        f"+force_install_dir {server_helper.server_install_path}",
+        f"+login {server_helper.steam_cmd_user}",
+        f"+app_update {server_helper.arma3_app_id}",
+        "validate",
+        "+quit",
+    ]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_update",
+        level="debug",
+        status="RUNNING",
+        msg=f"Running steamcmd command {' '.join(command)} to update Arma 3 server...",
+    )
+    subprocess.check_call(
+        command,
+    )
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_update",
+        level="debug",
+        status="RUNNING",
+        msg="Arma 3 command executed, checking if we need to start the server again...",
+    )
+    if server_running:
+        server_start()
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="server_update",
+        level="info",
+        status="SUCCEEDED",
+        msg="Arma 3 server binary successfully updated.",
+    )
 
 
 @shared_task()
@@ -337,13 +504,29 @@ def mod_update(schedule_id: int = 0) -> None:
     Updates installed and subscribed mods
     Stops the server, if it's running (restarting it after the mods finish updating)
     """
-    current_app.logger.info("Updating mods!")
-    helper = TaskHelper()
-    server_helper = Arma3ServerHelper()
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="mod_update",
+        level="info",
+        status="RUNNING",
+        msg="Updating installed Arma 3 mods!",
+    )
+    server_helper = current_app.config["A3_SERVER_HELPER"]
     server_running = server_helper.is_server_running()
 
     if server_running:
-        current_app.logger.info("stopping the running server for mod updates")
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="mod_update",
+            level="debug",
+            status="RUNNING",
+            msg="Stopping Arma 3 server to update mods...",
+        )
         server_stop()
 
     mods = Mod.query.filter(
@@ -352,27 +535,36 @@ def mod_update(schedule_id: int = 0) -> None:
     ).all()
     if not mods:
         helper.update_task_state(
-            "mod_update",
-            current_app,
-            "info",
-            schedule_id,
-            "aborted due to lack of mods (mods already up-to-date?)",
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="mod_update",
+            level="warn",
+            status="ABORTED",
+            msg="No mods found to update! Aborting",
         )
         return
     for mod in mods:
-        mod_status = update_arma3_mod(mod.id)
-        helper.update_task_state(
-            "",  # blank to avoid webhooks for every mod
-            current_app,
-            "debug",
-            schedule_id,
-            f"Mod update for {mod.name} returned the following result: {mod_status['status']}",
-        )
+        update_arma3_mod(mod.id)
     if server_running:
-        current_app.logger.info("starting the server after mod updates")
+        helper.update_task_state(
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="mod_update",
+            level="debug",
+            status="RUNNING",
+            msg="Starting server after mod updates",
+        )
         server_start()
     helper.update_task_state(
-        "mod_update", current_app, "info", schedule_id, "successfully updated mods"
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="mod_update",
+        level="info",
+        status="SUCCEEDED",
+        msg="Successfully updated installed Arma 3 mods!",
     )
 
 
@@ -384,71 +576,103 @@ def headless_client_start(schedule_id: int = 0) -> None:
     :return:
         N/A, but logs the outcome to the schedule
     """
-    current_app.logger.info("Started starting headless client")
-    helper = TaskHelper()
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="hc_start",
+        level="info",
+        status="RUNNING",
+        msg="Starting Arma 3 headless client",
+    )
 
     try:
-        server_helper = Arma3ServerHelper()
+        server_helper = current_app.config["A3_SERVER_HELPER"]
 
         if not server_helper.is_server_running():
             helper.update_task_state(
-                "",
-                current_app,
-                "warning",
-                schedule_id,
-                "aborted starting HC - server not running",
+                current_task=current_task,
+                current_app=current_app,
+                schedule_id=schedule_id,
+                task_type="hc_start",
+                level="warn",
+                status="ABORTED",
+                msg="Arma 3 server not running, aborted headless client start",
             )
             return
 
         if server_helper.is_hc_running():
             helper.update_task_state(
-                "",
-                current_app,
-                "warning",
-                schedule_id,
-                "aborted starting HC - HC already running",
+                current_task=current_task,
+                current_app=current_app,
+                schedule_id=schedule_id,
+                task_type="hc_start",
+                level="warn",
+                status="ABORTED",
+                msg="Arma 3 headless client already running, aborted headless client start",
             )
             return
 
         command, working_dir = server_helper.build_run_command(headless_client=True)
     except Exception as e:
         helper.update_task_state(
-            "",
-            current_app,
-            "warning",
-            schedule_id,
-            str(e),
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="hc_start",
+            level="error",
+            status="FAILURE",
+            msg=f"Failed starting Arma 3 headless client: {str(e)}",
         )
         return
 
-    current_app.logger.debug(f"running start headless client command {command}")
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="hc_start",
+        level="debug",
+        status="RUNNING",
+        msg=f"Arma 3 headless client command: {' '.join(command)}",
+    )
     try:
         proc = subprocess.Popen(command, cwd=working_dir)
         time.sleep(10)
         return_code = proc.poll()
         if return_code:
             helper.update_task_state(
-                "",
-                current_app,
-                "warning",
-                schedule_id,
-                f"Server failed to start headless client with exit code {return_code}",
+                current_task=current_task,
+                current_app=current_app,
+                schedule_id=schedule_id,
+                task_type="hc_start",
+                level="error",
+                status="FAILURE",
+                msg=f"Failed to start Arma 3 headless client: {str(return_code)}",
             )
             return
     except Exception as e:
         helper.update_task_state(
-            "",
-            current_app,
-            "warning",
-            schedule_id,
-            f"Headless client failed to start: {str(e)}",
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="hc_start",
+            level="error",
+            status="FAILURE",
+            msg=f"Failed to start Arma 3 headless client: {str(e)}",
         )
         return
     entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
     entry.is_active = True
     db.session.commit()
     helper.update_task_state(
-        "", current_app, "info", schedule_id, "Headless client started successfully!"
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="hc_start",
+        level="info",
+        status="SUCCEEDED",
+        msg="Arma 3 headless client started successfully",
     )
 
 
@@ -461,29 +685,41 @@ def headless_client_stop(schedule_id: int = 0) -> None:
     :return:
         N/A, but logs the outcome to the schedule
     """
-    current_app.logger.info("Started stopping headless client")
-    helper = TaskHelper()
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=schedule_id,
+        task_type="hc_stop",
+        level="info",
+        status="RUNNING",
+        msg="Starting stopping Arma 3 headless client",
+    )
 
-    server_helper = Arma3ServerHelper()
+    server_helper = current_app.config["A3_SERVER_HELPER"]
     stopped = server_helper.stop_headless_client()
     if stopped:
         entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
         entry.is_active = False
         db.session.commit()
         helper.update_task_state(
-            "",
-            current_app,
-            "info",
-            schedule_id,
-            "Headless client stopped successfully!",
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="hc_stop",
+            level="info",
+            status="SUCCEEDED",
+            msg="Arma 3 headless client stopped successfully",
         )
     else:
         helper.update_task_state(
-            "",
-            current_app,
-            "info",
-            schedule_id,
-            "Headless client failed to stop! (permissions issue? not running?)",
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=schedule_id,
+            task_type="hc_stop",
+            level="error",
+            status="FAILURE",
+            msg="Arma 3 headless client failed to stop (permissions issue? not running?)",
         )
 
 
@@ -495,14 +731,31 @@ def update_mod_steam_updated_time() -> None:
     :return:
         N/A
     """
-    current_app.logger.debug("Updating mod steam updated time for all subscribed mods")
-    steam_helper = SteamAPI()
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=-1,
+        task_type="mod_steam_update",
+        level="debug",
+        status="RUNNING",
+        msg="Updating mod steam updated time for all subscribed mods",
+    )
+    steam_helper = current_app.config["STEAM_API_HELPER"]
     mods = Mod.query.filter(Mod.should_update).all()
     for mod in mods:
         mod_details = steam_helper.get_mod_details(mod.steam_id)
         mod.steam_last_updated = datetime.utcfromtimestamp(mod_details["time_updated"])
     db.session.commit()
-    current_app.logger.debug("Done Updating mod steam updated time")
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=-1,
+        task_type="mod_steam_update",
+        level="debug",
+        status="SUCCEEDED",
+        msg="Done Updating mod steam updated time",
+    )
 
 
 @shared_task()
@@ -512,39 +765,53 @@ def check_for_server_death() -> None:
     :return:
         N/A
     """
-    current_app.logger.info("Checking server state sync status")
-    helper = TaskHelper()
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=-1,
+        task_type="server_died",
+        level="info",
+        status="RUNNING",
+        msg="Checking Arma 3 server death",
+    )
 
     try:
-        server_helper = Arma3ServerHelper()
+        server_helper = current_app.config["A3_SERVER_HELPER"]
         server_saved_state = ServerConfig.query.filter(ServerConfig.id == 1).first()
 
         if not server_helper.is_server_running() and server_saved_state.is_active:
             helper.update_task_state(
-                "server_died",
-                current_app,
-                "warning",
-                0,
-                "server state mismatch; the server died or was killed!",
+                current_task=current_task,
+                current_app=current_app,
+                schedule_id=-1,
+                task_type="server_died",
+                level="warn",
+                status="SUCCEEDED",
+                msg="Arma 3 server state mismatch: the server died or was killed!",
             )
             server_saved_state.is_active = False
             db.session.commit()
             return
     except Exception as e:
         helper.update_task_state(
-            "",
-            current_app,
-            "error",
-            0,
-            f"failed to check server running status: {str(e)}",
+            current_task=current_task,
+            current_app=current_app,
+            schedule_id=-1,
+            task_type="server_died",
+            level="error",
+            status="FAILURE",
+            msg=f"Problem checking for Arma 3 server state mismatch: {str(e)}",
         )
         return
     helper.update_task_state(
-        "",
-        current_app,
-        "debug",
-        0,
-        "server status is correct, hooray!",
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=-1,
+        task_type="server_died",
+        level="debug",
+        status="SUCCEEDED",
+        msg="Arma 3 server state is correct, hooray!",
     )
 
 
@@ -559,7 +826,16 @@ def task_kickoff(celery_name) -> None:
     :return:
         N/A
     """
-    current_app.logger.info(f"Kicking off scheduled tasks for {celery_name}")
+    helper = current_app.config["TASK_HELPER"]
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=-1,
+        task_type="",
+        level="debug",
+        status="RUNNING",
+        msg=f"Kicking off scheduled tasks for {celery_name}",
+    )
     task_map = {
         "server_restart": server_restart,
         "server_start": server_start,

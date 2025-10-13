@@ -2,7 +2,13 @@
 
 import os
 
-from app.utils.helpers import Arma3ModManager, Arma3ServerHelper, ScheduleHelper
+from app.utils.helpers import (
+    Arma3ModManager,
+    Arma3ServerHelper,
+    ScheduleHelper,
+    SteamAPI,
+    TaskHelper,
+)
 
 
 class Config:
@@ -38,6 +44,8 @@ class Config:
         or os.path.join(os.getcwd(), "temp", "mods"),
         "MOD_BACKUP_DIR": os.environ.get("MOD_BACKUP_DIR")
         or os.path.join(os.getcwd(), "temp", "backups"),
+        "ARMA3_INSTALL_DIR": os.environ.get("ARMA3_INSTALL_DIR")
+        or os.path.join(os.getcwd(), "arma3"),
     }
 
     # Classes to actually subscribe, download, etc. mods
@@ -50,7 +58,13 @@ class Config:
         ),
     }
     SCHEDULE_HELPER = ScheduleHelper()
-    A3_SERVER_HELPER = Arma3ServerHelper()
+    A3_SERVER_HELPER = Arma3ServerHelper(
+        STEAMCMD["STEAMCMD_PATH"],
+        STEAMCMD["STEAMCMD_USER"],
+        STEAMCMD["ARMA3_INSTALL_DIR"],
+    )
+    STEAM_API_HELPER = SteamAPI()
+    TASK_HELPER = TaskHelper()
 
 
 class DevelopmentConfig(Config):

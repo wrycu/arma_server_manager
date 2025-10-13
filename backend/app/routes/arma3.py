@@ -11,6 +11,7 @@ from app.tasks.background import (
     remove_arma3_mod,
     server_start,
     server_stop,
+    server_update,
     update_arma3_mod,
 )
 
@@ -538,6 +539,24 @@ def create_server() -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully created", "result": created}, HTTPStatus.OK
+
+
+@a3_bp.route("/server/update", methods=["POST"])
+def update_server_binary() -> tuple[dict[str, str], int]:
+    """
+    Updates the Arma 3 installed instance
+    Returns:
+        JSON response with message and async job ID (to look up job status)
+    """
+    try:
+        return {
+            "status": server_update.delay().id,
+            "message": "Server update queued",
+        }, HTTPStatus.OK
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
 
 
 @a3_bp.route("/server/start", methods=["POST"])
