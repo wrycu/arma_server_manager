@@ -521,26 +521,6 @@ def get_server_404() -> tuple[dict[str, str], int]:
     }, HTTPStatus.BAD_REQUEST
 
 
-@a3_bp.route("/server", methods=["POST"])
-def create_server() -> tuple[dict[str, str], int]:
-    """
-    Creates a user-defined server (which relies on a celery server)
-    Must contain a JSON blob with the fields (you can find them in the model)
-    Returns:
-        JSON response with health status and HTTP 200
-    """
-    try:
-        created = current_app.config["A3_SERVER_HELPER"].create_server(
-            request.json,
-        )
-    except Exception as e:
-        return {
-            "message": str(e),
-        }, HTTPStatus.BAD_REQUEST
-
-    return {"message": "Successfully created", "result": created}, HTTPStatus.OK
-
-
 @a3_bp.route("/server/update", methods=["POST"])
 def update_server_binary() -> tuple[dict[str, str], int]:
     """
@@ -644,25 +624,6 @@ def update_server(server_id: int) -> tuple[dict[str, str], int]:
         }, HTTPStatus.BAD_REQUEST
 
     return {"message": "Successfully updated"}, HTTPStatus.OK
-
-
-@a3_bp.route("/server/<int:server_id>", methods=["DELETE"])
-def delete_server(server_id: int) -> tuple[dict[str, str], int]:
-    """
-    Delete a single user-defined server
-    :return:
-        Status code indicating success or failure
-    """
-    try:
-        current_app.config["A3_SERVER_HELPER"].delete_server(
-            server_id,
-        )
-    except Exception as e:
-        return {
-            "message": str(e),
-        }, HTTPStatus.BAD_REQUEST
-
-    return {"message": "Successfully deleted"}, HTTPStatus.OK
 
 
 @a3_bp.route("/hc/start", methods=["POST"])

@@ -338,29 +338,6 @@ class TestArma3API:
         assert reply.status_code == HTTPStatus.OK
         assert len(Schedule.query.all()) == 0
 
-    def test_server_create(self, client: FlaskClient) -> None:
-        assert len(ServerConfig.query.all()) == 0
-        reply = client.post(
-            "/api/arma3/server",
-            json={
-                "name": "Test server!",
-                "description": "this is the description",
-                "server_name": "name of the server",
-                "password": "password for the server",
-                "admin_password": "admin password for the server",
-                "max_players": 64,
-                "mission_file": "/home/tests/something.miz",
-                "server_config_file": "/home/tests/server.cfg",
-                "basic_config_file": "/home/tests/basic.cfg",
-                "additional_params": "--bleh",
-                "server_binary": "/home/tests/a3.sh",
-                "is_active": False,
-            },
-        )
-        assert reply.status_code == HTTPStatus.OK
-        assert reply.json["result"] == 1
-        assert len(ServerConfig.query.all()) == 1
-
     def test_server_list(self, client: FlaskClient, add_server_to_db: None) -> None:
         add_server_to_db  # noqa: B018
         reply = client.get(
@@ -393,15 +370,6 @@ class TestArma3API:
         )
         assert reply.status_code == HTTPStatus.OK
         assert reply.json["results"][0]["name"] == "wonderful server, now updated"
-
-    def test_server_delete(self, client: FlaskClient, add_server_to_db: None) -> None:
-        add_server_to_db  # noqa: B018
-        assert len(ServerConfig.query.all()) == 1
-        reply = client.delete(
-            "/api/arma3/server/1",
-        )
-        assert reply.status_code == HTTPStatus.OK
-        assert len(ServerConfig.query.all()) == 0
 
     def test_collection_create(self, client: FlaskClient) -> None:
         assert len(Collection.query.all()) == 0

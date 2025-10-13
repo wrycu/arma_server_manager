@@ -14,6 +14,7 @@ def make_shell_context() -> dict[str, object]:
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+        app.config["A3_SERVER_HELPER"].create_basic_server()
 
     debug_mode = app.config.get("DEBUG", False)
     app.run(debug=debug_mode, host="0.0.0.0", port=5000)

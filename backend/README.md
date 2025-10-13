@@ -140,11 +140,10 @@ uv run celery -A app.celery worker --loglevel=info
 | `/api/arma3/mod/collection/{id}/mods/{mod_id}`                  | PATCH              | Remove mods from existing collection                                                                        |
 | `/api/arma3/mods/update`                                        | POST               | Triggers an immediate update of all mods. This stops and restarts the server, if it was running.            |
 | `/api/arma3/servers`                                            | GET                | Get all server profiles                                                                                     |
-| `/api/arma3/server`                                             | POST               | Add new server profile                                                                                      |
 | `/api/arma3/server/update`                                      | POST               | Update the local server binary (restarts the server if it's running)                                        |
 | `/api/arma3/server/start`                                       | POST               | Start the first active server profile                                                                       |
 | `/api/arma3/server/stop`                                        | POST               | Stop the currently-running active server                                                                    |
-| `/api/arma3/server/{id}`                                        | GET, PATCH, DELETE | Read, update, delete server profiles                                                                        |
+| `/api/arma3/server/{id}`                                        | GET, PATCH         | Read, update server profiles                                                                                |
 | `/api/arma3/hc/start`                                           | POST               | Start the headless client with the current server profile                                                   |
 | `/api/arma3/hc/stop`                                            | POST               | Stop the headless client with the current server profile                                                    |
 
