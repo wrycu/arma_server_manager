@@ -12,6 +12,7 @@ import psutil
 import sqlalchemy
 
 from app import db
+from app.models import TaskLogEntry
 from app.models.collection import Collection
 from app.models.mod import Mod, ModStatus
 from app.models.mod_collection_entry import ModCollectionEntry
@@ -965,6 +966,15 @@ class TaskHelper:
             current_app.logger.warning(msg)
         else:
             current_app.logger.error(msg)
+
+        log_entry = TaskLogEntry(
+            schedule_id=schedule_id,
+            message=msg,
+            message_level=level,
+        )
+        db.session.add(log_entry)
+        db.session.commit()
+
         current_task.update_state(state=status, meta=msg)
         try:
             self.log_scheduled_task_outcome(schedule_id, msg)

@@ -2,13 +2,16 @@
 
 import enum
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import Boolean, DateTime, Enum, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from .. import db
+
+if TYPE_CHECKING:
+    from .task_log import TaskLogEntry
 
 
 class ScheduleAction(enum.Enum):
@@ -63,13 +66,20 @@ class Schedule(db.Model):  # type: ignore[name-defined]
         DateTime, default=func.now(), onupdate=func.now()
     )
 
+    # Relationships
+    task_log_entry: Mapped[list["TaskLogEntry"]] = relationship(
+        "TaskLogEntry",
+        back_populates="schedule",
+        cascade="all, delete-orphan",
+    )
+
     def to_dict(self) -> dict[str, Any]:
         """Convert schedule instance to dictionary representation.
 
         Returns:
             Dictionary containing schedule data
         """
-        return {
+        result = {
             "id": self.id,
             "name": self.name,
             "celery_name": self.celery_name.name,
@@ -80,6 +90,11 @@ class Schedule(db.Model):  # type: ignore[name-defined]
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+
+        if self.task_log_entry:
+            result["log_entries"] = [entry.to_dict() for entry in self.task_log_entry]
+
+        return result
 
     def __repr__(self) -> str:
         """String representation of Schedule instance."""
