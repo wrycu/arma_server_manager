@@ -709,6 +709,24 @@ class Arma3ServerHelper:
         self.server_install_path = arma3_path
         self.arma3_app_id = 107410
 
+    def create_basic_server(self):
+        if len(ServerConfig.query.all()) == 0:
+            self.create_server(
+                {
+                    "name": "Arma3 Server",
+                    "description": "Arma3 Server",
+                    "server_name": "Arma3 Server",
+                    "password": "",
+                    "admin_password": "",
+                    "max_players": "64",
+                    "mission_file": "",
+                    "server_config_file": "config.cfg",
+                    "basic_config_file": "basic.cfg",
+                    "additional_params": "",
+                    "server_binary": "/path/to/arma3",
+                }
+            )
+
     @staticmethod
     def get_servers(include_sensitive: bool) -> list[dict[str, str]]:
         """
@@ -723,13 +741,13 @@ class Arma3ServerHelper:
     @staticmethod
     def create_server(server_data: dict[str, str]) -> int:
         """
-        Create a new schedule
+        Create a new server
         :param server_data: JSON payload to create a schedule from
             must contain the user-defined name, the celery schedule, the action to take, and if it is enabled or not
         :return: ID of the newly-created schedule
                 id: Primary key identifier
         """
-        schedule = ServerConfig(
+        server = ServerConfig(
             name=server_data["name"],
             description=server_data["description"],
             server_name=server_data["server_name"],
@@ -744,14 +762,14 @@ class Arma3ServerHelper:
             collection_id=server_data.get("collection_id", None),
             is_active=False,
         )
-        db.session.add(schedule)
+        db.session.add(server)
         db.session.commit()
-        return schedule.id
+        return server.id
 
     @staticmethod
     def get_server(server_id: int, include_sensitive: bool) -> ServerConfig:
         """
-        Retrieve a specific schedule
+        Retrieve a specific server
         :param server_id: the ID of the schedule to retrieve
         :param include_sensitive: whether to include sensitive information, such as the password
         :return: JSON representation of the schedule
@@ -797,17 +815,6 @@ class Arma3ServerHelper:
     def get_active_server_details():
         active_server = ServerConfig.query.filter(ServerConfig.is_active).first()
         return active_server.to_dict(include_sensitive=True)
-
-    @staticmethod
-    def activate_server(server_id: int) -> None:
-        active_servers = ServerConfig.query.filter(ServerConfig.is_active).all()
-        for active_server in active_servers:
-            active_server.is_active = False
-        new_active_server = ServerConfig.query.filter(
-            ServerConfig.id == server_id
-        ).first()
-        new_active_server.is_active = True
-        db.session.commit()
 
     @staticmethod
     def is_server_running() -> bool:
@@ -875,7 +882,7 @@ class Arma3ServerHelper:
         :param headless_client:
         :return: - ([command_with_args], working_directory)
         """
-        entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+        entry = ServerConfig.query.first()
         if not entry:
             raise Exception("Unable to start server: no server is defined!")
         server_details = entry.to_dict(include_sensitive=True)
@@ -967,13 +974,14 @@ class TaskHelper:
         else:
             current_app.logger.error(msg)
 
-        log_entry = TaskLogEntry(
-            schedule_id=schedule_id,
-            message=msg,
-            message_level=level,
-        )
-        db.session.add(log_entry)
-        db.session.commit()
+        if schedule_id > 0:
+            log_entry = TaskLogEntry(
+                schedule_id=schedule_id,
+                message=msg,
+                message_level=level,
+            )
+            db.session.add(log_entry)
+            db.session.commit()
 
         current_task.update_state(state=status, meta=msg)
         try:

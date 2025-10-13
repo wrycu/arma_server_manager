@@ -384,7 +384,7 @@ def server_start(schedule_id: int = 0) -> None:
             msg=f"Arma 3 server command failed: {str(e)}",
         )
         return
-    entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+    entry = ServerConfig.query.first()
     entry.is_active = True
     db.session.commit()
     helper.update_task_state(
@@ -414,7 +414,7 @@ def server_stop(schedule_id: int = 0) -> None:
     server_helper = current_app.config["A3_SERVER_HELPER"]
     stopped = server_helper.stop_server()
     if stopped:
-        entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+        entry = ServerConfig.query.first()
         entry.is_active = False
         db.session.commit()
         helper.update_task_state(
@@ -662,7 +662,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
             msg=f"Failed to start Arma 3 headless client: {str(e)}",
         )
         return
-    entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+    entry = ServerConfig.query.first()
     entry.is_active = True
     db.session.commit()
     helper.update_task_state(
@@ -699,7 +699,7 @@ def headless_client_stop(schedule_id: int = 0) -> None:
     server_helper = current_app.config["A3_SERVER_HELPER"]
     stopped = server_helper.stop_headless_client()
     if stopped:
-        entry = ServerConfig.query.filter(ServerConfig.id == 1).first()
+        entry = ServerConfig.query.first()
         entry.is_active = False
         db.session.commit()
         helper.update_task_state(
@@ -778,7 +778,7 @@ def check_for_server_death() -> None:
 
     try:
         server_helper = current_app.config["A3_SERVER_HELPER"]
-        server_saved_state = ServerConfig.query.filter(ServerConfig.id == 1).first()
+        server_saved_state = ServerConfig.query.first()
 
         if not server_helper.is_server_running() and server_saved_state.is_active:
             helper.update_task_state(
