@@ -5,7 +5,6 @@ import shutil
 import subprocess
 import time
 from datetime import datetime
-from typing import Any
 
 from celery import current_task, shared_task
 from flask import current_app
