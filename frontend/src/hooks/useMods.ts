@@ -1,7 +1,7 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { mods } from '@/services'
-import { handleApiError, showInfoToast } from '@/lib/error-handler'
+import { mods, pollAsyncJob } from '@/services'
+import { handleApiError } from '@/lib/error-handler'
 import { formatFileSize } from '@/lib/filesize'
 import type { ModHelper, ModSubscriptionResponse } from '@/types/api'
 import type { ModSubscription } from '@/types/mods'
@@ -27,6 +27,10 @@ const transformApiMods = (response: ModSubscriptionResponse[]): ModSubscription[
 
 export function useMods() {
   const queryClient = useQueryClient()
+
+  // Track which mod is currently being operated on
+  const [downloadingModId, setDownloadingModId] = useState<number | null>(null)
+  const [uninstallingModId, setUninstallingModId] = useState<number | null>(null)
 
   // Fetch mod subscriptions using React Query
   const {
@@ -98,27 +102,53 @@ export function useMods() {
 
   const downloadModMutation = useMutation({
     mutationFn: async (modId: number) => {
-      await mods.downloadMod(modId)
+      setDownloadingModId(modId)
+      return mods.downloadMod(modId)
     },
-    onSuccess: () => {
-      // Download is asynchronous, so we don't show completion toast here
-      // The user will be notified via the "Download Requested" toast in downloadMod()
-      queryClient.invalidateQueries({ queryKey: ['mods'] })
+    onSuccess: async (response) => {
+      // Poll for completion silently
+      await pollAsyncJob(
+        response.status,
+        undefined, // No status change callback
+        (status) => {
+          setDownloadingModId(null)
+          if (status.status === 'SUCCESS') {
+            queryClient.invalidateQueries({ queryKey: ['mods'] })
+          } else {
+            handleApiError(new Error(status.message), 'Download failed')
+          }
+        }
+      )
     },
     onError: (error) => {
-      handleApiError(error, 'Failed to download mod')
+      setDownloadingModId(null)
+      handleApiError(error, 'Download failed')
     },
   })
 
   const uninstallModMutation = useMutation({
     mutationFn: async (modId: number) => {
-      await mods.deleteMod(modId)
+      setUninstallingModId(modId)
+      return mods.deleteMod(modId)
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mods'] })
+    onSuccess: async (response) => {
+      // Poll for completion silently
+      await pollAsyncJob(
+        response.status,
+        undefined, // No status change callback
+        (status) => {
+          setUninstallingModId(null)
+          if (status.status === 'SUCCESS') {
+            queryClient.invalidateQueries({ queryKey: ['mods'] })
+          } else {
+            handleApiError(new Error(status.message), 'Uninstall failed')
+          }
+        }
+      )
     },
     onError: (error) => {
-      handleApiError(error, 'Failed to uninstall mod')
+      setUninstallingModId(null)
+      handleApiError(error, 'Uninstall failed')
     },
   })
 
@@ -160,9 +190,6 @@ export function useMods() {
     const mod = findModSubscription(steamId)
     if (!mod) return
 
-    // Show toast notification that download has been requested
-    showInfoToast('Download Requested')
-
     try {
       await downloadModMutation.mutateAsync(mod.id)
     } catch (error) {
@@ -173,9 +200,6 @@ export function useMods() {
   const uninstallMod = async (steamId: number): Promise<void> => {
     const mod = findModSubscription(steamId)
     if (!mod) return
-
-    // Show toast notification that uninstall has been requested
-    showInfoToast('Uninstall Requested')
 
     try {
       await uninstallModMutation.mutateAsync(mod.id)
@@ -204,8 +228,8 @@ export function useMods() {
     isAdding: addModSubscriptionMutation.isPending,
     isRemoving: removeModSubscriptionMutation.isPending,
     isUpdating: updateModSubscriptionMutation.isPending,
-    isDownloading: downloadModMutation.isPending,
-    isUninstalling: uninstallModMutation.isPending,
+    downloadingModId,
+    uninstallingModId,
 
     // Actions
     addModSubscription,

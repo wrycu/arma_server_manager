@@ -6,6 +6,7 @@ import {
   IconExternalLink,
   IconCloudDownload,
   IconAlertCircle,
+  IconLoader2,
 } from '@tabler/icons-react'
 
 import {
@@ -30,6 +31,8 @@ interface ModDetailSidebarProps {
   onDownload?: (steamId: number) => void
   onDelete?: (steamId: number) => void
   onUninstall?: (steamId: number) => void
+  isDownloading?: boolean
+  isUninstalling?: boolean
 }
 
 export function ModDetailSidebar({
@@ -41,6 +44,8 @@ export function ModDetailSidebar({
   onDownload,
   onDelete,
   onUninstall,
+  isDownloading = false,
+  isUninstalling = false,
 }: ModDetailSidebarProps) {
   // Form state
   const [editedIsServerMod, setEditedIsServerMod] = useState<boolean>(false)
@@ -55,15 +60,23 @@ export function ModDetailSidebar({
   // Uninstall confirmation state
   const [showUninstallConfirm, setShowUninstallConfirm] = useState(false)
 
-  // Reset form when mod changes or sidebar closes
+  // Reset form when mod changes
   useEffect(() => {
-    if (mod && open) {
+    if (mod) {
       setEditedIsServerMod(mod.isServerMod)
       setIsDirty(false)
       setShowDeleteConfirm(false)
       setShowUninstallConfirm(false)
     }
-  }, [mod, open])
+  }, [mod])
+
+  // Reset confirmation states when sidebar closes
+  useEffect(() => {
+    if (!open) {
+      setShowDeleteConfirm(false)
+      setShowUninstallConfirm(false)
+    }
+  }, [open])
 
   // Check if form has been modified
   useEffect(() => {
@@ -190,30 +203,6 @@ export function ModDetailSidebar({
             </div>
           )}
 
-          {/* Uninstall Confirmation (inline) */}
-          {showUninstallConfirm && (
-            <div className="rounded-md border border-orange-500/30 bg-orange-500/5 p-3">
-              <h3 className="text-sm font-medium text-orange-600 mb-1">Uninstall Local Files?</h3>
-              <p className="text-xs text-muted-foreground mb-2.5">
-                This will delete the local mod files but keep your subscription. You can re-download
-                the mod at any time.
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleUninstall}
-                  className="border-orange-500/30 text-orange-600 hover:bg-orange-500/10"
-                >
-                  Uninstall
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowUninstallConfirm(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
-
           {/* Mod Image */}
           {mod.imageAvailable && (
             <div className="w-full aspect-video rounded-md overflow-hidden bg-muted -mt-1">
@@ -236,7 +225,10 @@ export function ModDetailSidebar({
               <p className="text-xs text-muted-foreground mb-0.5">Download Status</p>
               <div className="flex items-center gap-1.5">
                 {mod.localPath ? (
-                  mod.shouldUpdate ? (
+                  mod.shouldUpdate &&
+                  mod.steamLastUpdated &&
+                  mod.lastUpdated &&
+                  new Date(mod.steamLastUpdated) > new Date(mod.lastUpdated) ? (
                     <>
                       <IconAlertCircle className="h-3.5 w-3.5 text-orange-600" />
                       <span className="font-medium text-sm text-orange-600">Update available</span>
@@ -318,65 +310,108 @@ export function ModDetailSidebar({
         </RightSidebarContent>
 
         {/* FOOTER: Primary Actions */}
-        {(onDownload || onRemove || onDelete || onUninstall) &&
-          !showDeleteConfirm &&
-          !showUninstallConfirm && (
-            <RightSidebarFooter>
-              <div className="space-y-1.5">
-                {/* Primary action: Download */}
-                {onDownload && !mod.localPath && (
-                  <Button
-                    variant="default"
-                    className="w-full"
-                    size="sm"
-                    onClick={() => onDownload(mod.steamId)}
-                  >
+        {(onDownload || onRemove || onDelete || onUninstall) && !showDeleteConfirm && (
+          <RightSidebarFooter>
+            <div className="space-y-1.5">
+              {/* Primary action: Download */}
+              {onDownload && !mod.localPath && (
+                <Button
+                  variant="default"
+                  className="w-full"
+                  size="sm"
+                  disabled={isDownloading}
+                  onClick={() => onDownload(mod.steamId)}
+                >
+                  {isDownloading ? (
+                    <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+                  ) : (
                     <IconDownload className="h-3.5 w-3.5 mr-2" />
-                    Download Mod
-                  </Button>
-                )}
+                  )}
+                  {isDownloading ? 'Downloading...' : 'Download Mod'}
+                </Button>
+              )}
 
-                {/* Uninstall local files (keeps subscription) */}
-                {onUninstall && mod.localPath && (
-                  <Button
-                    variant="outline"
-                    className="w-full border-orange-500/30 text-orange-600 hover:bg-orange-500/10 hover:text-orange-600"
-                    size="sm"
-                    onClick={() => setShowUninstallConfirm(true)}
-                  >
+              {/* Uninstall local files (keeps subscription) */}
+              {onUninstall && mod.localPath && !showUninstallConfirm && (
+                <Button
+                  variant="outline"
+                  className="w-full border-orange-500/30 text-orange-600 hover:bg-orange-500/10 hover:text-orange-600"
+                  size="sm"
+                  disabled={isUninstalling}
+                  onClick={() => setShowUninstallConfirm(true)}
+                >
+                  {isUninstalling ? (
+                    <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+                  ) : (
                     <IconTrash className="h-3.5 w-3.5 mr-2" />
-                    Uninstall Local Files
-                  </Button>
-                )}
+                  )}
+                  {isUninstalling ? 'Uninstalling...' : 'Uninstall Local Files'}
+                </Button>
+              )}
 
-                {/* Collection context: Remove from collection */}
-                {onRemove && (
-                  <Button
-                    variant="ghost"
-                    className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                    size="sm"
-                    onClick={() => setShowDeleteConfirm(true)}
-                  >
-                    <IconTrash className="h-3.5 w-3.5 mr-2" />
-                    Remove from Collection
-                  </Button>
-                )}
+              {/* Uninstall confirmation (inline in footer) */}
+              {onUninstall && mod.localPath && showUninstallConfirm && (
+                <div className="space-y-2">
+                  <div className="text-xs text-orange-600 font-medium">Uninstall Local Files?</div>
+                  <div className="text-xs text-muted-foreground">
+                    This will delete the local mod files but keep your subscription.
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleUninstall}
+                      className="flex-1 border-orange-500/30 text-orange-600 hover:bg-orange-500/10"
+                      disabled={isUninstalling}
+                    >
+                      {isUninstalling ? (
+                        <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+                      ) : (
+                        <IconTrash className="h-3.5 w-3.5 mr-2" />
+                      )}
+                      {isUninstalling ? 'Uninstalling...' : 'Uninstall'}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowUninstallConfirm(false)}
+                      className="flex-1"
+                      disabled={isUninstalling}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
 
-                {/* Mod subscription context: Delete subscription */}
-                {onDelete && !onRemove && (
-                  <Button
-                    variant="ghost"
-                    className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                    size="sm"
-                    onClick={() => setShowDeleteConfirm(true)}
-                  >
-                    <IconTrash className="h-3.5 w-3.5 mr-2" />
-                    Delete Subscription
-                  </Button>
-                )}
-              </div>
-            </RightSidebarFooter>
-          )}
+              {/* Collection context: Remove from collection */}
+              {onRemove && (
+                <Button
+                  variant="ghost"
+                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <IconTrash className="h-3.5 w-3.5 mr-2" />
+                  Remove from Collection
+                </Button>
+              )}
+
+              {/* Mod subscription context: Delete subscription */}
+              {onDelete && !onRemove && (
+                <Button
+                  variant="ghost"
+                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <IconTrash className="h-3.5 w-3.5 mr-2" />
+                  Delete Subscription
+                </Button>
+              )}
+            </div>
+          </RightSidebarFooter>
+        )}
       </div>
     </RightSidebar>
   )

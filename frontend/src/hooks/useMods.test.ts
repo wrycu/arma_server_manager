@@ -1,6 +1,6 @@
 /// <reference types="vitest/globals" />
 import React from 'react'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { useMods } from '@/hooks/useMods'
@@ -91,7 +91,9 @@ describe('useMods Hook - Download Functionality', () => {
     })
 
     // Call downloadMod with steamId
-    await result.current.downloadMod(12345)
+    await act(async () => {
+      await result.current.downloadMod(12345)
+    })
 
     // Verify the API was called with the correct mod ID (internal ID, not steamId)
     expect(modsService.modService.downloadMod).toHaveBeenCalledTimes(1)
@@ -113,7 +115,9 @@ describe('useMods Hook - Download Functionality', () => {
     })
 
     // Call downloadMod
-    await result.current.downloadMod(12345)
+    await act(async () => {
+      await result.current.downloadMod(12345)
+    })
 
     // Wait for error handling
     await waitFor(() => {
@@ -121,6 +125,6 @@ describe('useMods Hook - Download Functionality', () => {
     })
 
     // Verify error was handled
-    expect(mockHandleApiError).toHaveBeenCalledWith(error, 'Failed to download mod')
+    expect(mockHandleApiError).toHaveBeenCalledWith(error, 'Download failed')
   })
 })

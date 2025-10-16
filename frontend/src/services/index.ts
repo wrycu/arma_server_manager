@@ -9,3 +9,4 @@ export const mods = modService
 export const schedules = scheduleService
 
 export { api, healthCheck, getAsyncJobStatus } from './api'
+export { pollAsyncJob, getAsyncJobStatus as getJobStatus } from './async.service'
