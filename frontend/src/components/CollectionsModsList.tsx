@@ -8,7 +8,8 @@ import {
   IconAlertCircle,
   IconServer,
   IconDownload,
-  IconCloudOff,
+  IconLoader2,
+  IconCloudDownload,
 } from '@tabler/icons-react'
 import {
   DndContext,
@@ -84,38 +85,74 @@ function SortableModItem({
 
   // Render download state icon
   const renderDownloadIcon = () => {
-    if (!mod.localPath) {
+    // Installed locally: determine if update is actually available
+    if (mod.localPath) {
+      const hasNewerSteamUpdate =
+        !!mod.shouldUpdate &&
+        !!mod.steamLastUpdated &&
+        !!mod.lastUpdated &&
+        new Date(mod.steamLastUpdated) > new Date(mod.lastUpdated)
+
+      if (hasNewerSteamUpdate) {
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center">
+                <IconAlertCircle className="h-3.5 w-3.5 text-orange-600" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right">Update available</TooltipContent>
+          </Tooltip>
+        )
+      }
+
       return (
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex items-center">
-              <IconCloudOff className="h-3.5 w-3.5 text-destructive" />
+              <IconCheck className="h-3.5 w-3.5 text-green-600" />
             </div>
           </TooltipTrigger>
-          <TooltipContent side="right">Not downloaded</TooltipContent>
+          <TooltipContent side="right">Up to date</TooltipContent>
         </Tooltip>
       )
     }
-    if (mod.shouldUpdate) {
+
+    // Not installed locally: show backend-driven transient states when present
+    if (mod.status === 'install_requested') {
       return (
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex items-center">
-              <IconAlertCircle className="h-3.5 w-3.5 text-orange-600" />
+              <IconLoader2 className="h-3.5 w-3.5 text-muted-foreground animate-spin" />
             </div>
           </TooltipTrigger>
-          <TooltipContent side="right">Update available</TooltipContent>
+          <TooltipContent side="right">Downloading…</TooltipContent>
         </Tooltip>
       )
     }
+
+    if (mod.status === 'install_failed') {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center">
+              <IconAlertCircle className="h-3.5 w-3.5 text-red-600" />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="right">Download failed</TooltipContent>
+        </Tooltip>
+      )
+    }
+
     return (
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="flex items-center">
-            <IconCheck className="h-3.5 w-3.5 text-green-600" />
+            <IconCloudDownload className="h-3.5 w-3.5 text-muted-foreground" />
           </div>
         </TooltipTrigger>
-        <TooltipContent side="right">Up to date</TooltipContent>
+        <TooltipContent side="right">Not downloaded</TooltipContent>
       </Tooltip>
     )
   }
