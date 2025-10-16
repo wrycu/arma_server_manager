@@ -6,8 +6,10 @@
     "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
     "dev:backend": "cd backend && uv run python main.py",
     "dev:frontend": "cd frontend && pnpm dev",
-    "dev:celery": "cd backend && uv run celery -A app.celery worker -B --loglevel=info",
-    "dev:full": "concurrently \"pnpm run dev:backend\" \"wait-on http://localhost:5000 && pnpm run dev:celery\" \"wait-on http://localhost:5000 && pnpm run dev:frontend\"",
+    "dev:celery": "cd backend && cross-env PYTHONPATH=. uv run celery -A app.celery worker --loglevel=info --pool=solo",
+    "dev:celery-beat": "cd backend && cross-env PYTHONPATH=. uv run celery -A app.celery beat --loglevel=info",
+    "dev:full": "concurrently --names \"backend,celery,frontend\" --prefix-colors \"blue,green,yellow\" \"pnpm run dev:backend\" \"pnpm run dev:celery\" \"pnpm run dev:frontend\"",
+    "dev:full-with-beat": "concurrently --names \"backend,celery,celery-beat,frontend\" --prefix-colors \"blue,green,cyan,yellow\" \"pnpm run dev:backend\" \"pnpm run dev:celery\" \"pnpm run dev:celery-beat\" \"pnpm run dev:frontend\"",
     "install:all": "pnpm install && cd backend && uv sync && cd ../frontend && pnpm install",
     "build": "pnpm run build:frontend",
     "build:frontend": "cd frontend && pnpm build",
@@ -28,8 +30,7 @@
   "devDependencies": {
     "concurrently": "^9.2.0",
     "cross-env": "^7.0.3",
-    "husky": "^9.1.7",
-    "wait-on": "^8.0.4"
+    "husky": "^9.1.7"
   },
   "keywords": [
     "arma3",
