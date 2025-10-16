@@ -37,12 +37,13 @@ export function CollectionDetailPage() {
   const { servers, refetchServers } = useServer()
   const server = servers?.[0] || null
 
-  const { updateModSubscription, uninstallMod, downloadMod } = useMods()
+  const { updateModSubscription, uninstallMod, downloadMod, downloadingModId, uninstallingModId } =
+    useMods()
 
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
   const [isAddModsDialogOpen, setIsAddModsDialogOpen] = useState(false)
   const [modToRemove, setModToRemove] = useState<ModToRemove | null>(null)
-  const [selectedMod, setSelectedMod] = useState<ModSubscription | null>(null)
+  const [selectedModId, setSelectedModId] = useState<number | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState(search?.search || '')
 
@@ -59,6 +60,10 @@ export function CollectionDetailPage() {
 
   // Find the collection by ID
   const collection = collections.find((c) => c.id === collectionIdNum)
+
+  // Derive selectedMod from current collection data to ensure it's always up-to-date
+  const selectedMod =
+    selectedModId && collection ? collection.mods.find((m) => m.id === selectedModId) || null : null
 
   const handleRemoveModFromCollection = (collectionId: number, modId: number, modName: string) => {
     setModToRemove({ collectionId, modId, modName })
@@ -106,7 +111,7 @@ export function CollectionDetailPage() {
   }
 
   const handleModClick = (mod: ModSubscription) => {
-    setSelectedMod(mod)
+    setSelectedModId(mod.id)
     setIsSidebarOpen(true)
   }
 
@@ -285,11 +290,18 @@ export function CollectionDetailPage() {
       <ModDetailSidebar
         mod={selectedMod}
         open={isSidebarOpen}
-        onOpenChange={setIsSidebarOpen}
+        onOpenChange={(open) => {
+          setIsSidebarOpen(open)
+          if (!open) {
+            setSelectedModId(null)
+          }
+        }}
         onRemove={handleRemoveFromSidebar}
         onSave={handleSaveModSettings}
         onDownload={handleDownload}
         onUninstall={handleUninstall}
+        isDownloading={selectedMod ? downloadingModId === selectedMod.id : false}
+        isUninstalling={selectedMod ? uninstallingModId === selectedMod.id : false}
       />
 
       <RemoveModDialog

@@ -22,6 +22,8 @@ const transformApiMods = (response: ModSubscriptionResponse[]): ModSubscription[
     steamLastUpdated: mod.steam_last_updated,
     shouldUpdate: mod.should_update,
     imageAvailable: mod.image_available || false,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    status: (mod as any).status,
   }))
 }
 
@@ -93,7 +95,9 @@ export function useMods() {
       })
     },
     onSuccess: () => {
+      // Invalidate both mods and collections to ensure all UI updates
       queryClient.invalidateQueries({ queryKey: ['mods'] })
+      queryClient.invalidateQueries({ queryKey: ['collections'] })
     },
     onError: (error) => {
       handleApiError(error, 'Failed to update mod subscription')
@@ -112,10 +116,16 @@ export function useMods() {
         undefined, // No status change callback
         (status) => {
           setDownloadingModId(null)
-          if (status.status === 'SUCCESS') {
+          const successStatuses = ['SUCCESS', 'SUCCEEDED']
+          if (successStatuses.includes(status.status)) {
+            console.log('✅ Download completed successfully, invalidating queries...')
+            // Invalidate both mods and collections to ensure all UI updates
             queryClient.invalidateQueries({ queryKey: ['mods'] })
+            queryClient.invalidateQueries({ queryKey: ['collections'] })
+            console.log('✅ Queries invalidated - should trigger refetch')
           } else {
-            handleApiError(new Error(status.message), 'Download failed')
+            // Show error with actual backend message
+            handleApiError(new Error(status.message), `Download failed: ${status.message}`)
           }
         }
       )
@@ -138,10 +148,14 @@ export function useMods() {
         undefined, // No status change callback
         (status) => {
           setUninstallingModId(null)
-          if (status.status === 'SUCCESS') {
+          const successStatuses = ['SUCCESS', 'SUCCEEDED']
+          if (successStatuses.includes(status.status)) {
+            // Invalidate both mods and collections to ensure all UI updates
             queryClient.invalidateQueries({ queryKey: ['mods'] })
+            queryClient.invalidateQueries({ queryKey: ['collections'] })
           } else {
-            handleApiError(new Error(status.message), 'Uninstall failed')
+            // Show error with actual backend message
+            handleApiError(new Error(status.message), `Uninstall failed: ${status.message}`)
           }
         }
       )

@@ -1,7 +1,16 @@
 import { BACKEND_BASE_URL } from './api'
 
 export interface AsyncJobStatus {
-  status: 'PENDING' | 'SUCCESS' | 'FAILURE' | 'RETRY' | 'REVOKED'
+  status:
+    | 'PENDING'
+    | 'SUCCESS'
+    | 'SUCCEEDED'
+    | 'FAILURE'
+    | 'FAILED'
+    | 'RETRY'
+    | 'REVOKED'
+    | 'RUNNING'
+    | 'ABORTED'
   message: string
 }
 
@@ -44,8 +53,9 @@ export async function pollAsyncJob(
       // Notify of status change
       onStatusChange?.(status)
 
-      // Check if job is complete
-      if (status.status === 'SUCCESS' || status.status === 'FAILURE') {
+      // Check if job is complete (handle both Celery defaults and custom statuses)
+      const completedStatuses = ['SUCCESS', 'SUCCEEDED', 'FAILURE', 'FAILED', 'ABORTED']
+      if (completedStatuses.includes(status.status)) {
         onComplete?.(status)
         return status
       }
