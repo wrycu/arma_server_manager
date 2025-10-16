@@ -239,6 +239,16 @@ export function ModDetailSidebar({
                       <span className="font-medium text-sm text-green-600">Up to date</span>
                     </>
                   )
+                ) : mod.status === 'install_requested' ? (
+                  <>
+                    <IconLoader2 className="h-3.5 w-3.5 text-muted-foreground animate-spin" />
+                    <span className="font-medium text-sm text-muted-foreground">Downloading…</span>
+                  </>
+                ) : mod.status === 'install_failed' ? (
+                  <>
+                    <IconAlertCircle className="h-3.5 w-3.5 text-red-600" />
+                    <span className="font-medium text-sm text-red-600">Download failed</span>
+                  </>
                 ) : (
                   <>
                     <IconCloudDownload className="h-3.5 w-3.5 text-muted-foreground" />

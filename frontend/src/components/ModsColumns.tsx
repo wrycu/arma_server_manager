@@ -86,21 +86,41 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
   },
   {
     accessorKey: 'localPath',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Downloaded" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
       const localPath = row.getValue('localPath') as string | null
+      const status = row.original.status
+
+      // Show richer status using backend-provided status when available
+      if (status === 'install_requested') {
+        return (
+          <div className="flex items-center gap-1.5">
+            <div className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            <span className="text-sm text-muted-foreground">Downloading…</span>
+          </div>
+        )
+      }
+      if (status === 'install_failed') {
+        return (
+          <div className="flex items-center gap-1.5">
+            <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+            <span className="text-sm text-muted-foreground">Failed</span>
+          </div>
+        )
+      }
+
       const isDownloaded = localPath !== null
       return (
         <div className="flex items-center gap-1.5">
           {isDownloaded ? (
             <>
               <div className="h-1.5 w-1.5 rounded-full bg-green-500" />
-              <span className="text-sm text-muted-foreground">Yes</span>
+              <span className="text-sm text-muted-foreground">Installed</span>
             </>
           ) : (
             <>
               <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/30" />
-              <span className="text-sm text-muted-foreground/50">No</span>
+              <span className="text-sm text-muted-foreground/50">Not installed</span>
             </>
           )}
         </div>

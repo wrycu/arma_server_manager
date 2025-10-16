@@ -13,6 +13,14 @@ export interface ModSubscription {
   readonly steamLastUpdated: string | null
   readonly shouldUpdate: boolean
   readonly imageAvailable: boolean
+  readonly status?:
+    | 'not_installed'
+    | 'install_requested'
+    | 'installed'
+    | 'install_failed'
+    | 'uninstall_requested'
+    | 'uninstall_failed'
+    | 'update_requested'
 }
 
 // Extended shape used by UI tables (optional fields for display/filtering)
