@@ -9,7 +9,7 @@ import { ModsSubscribeDialog } from '@/components/ModsSubscribeDialog'
 import { ModDetailSidebar } from '@/components/ModDetailSidebar'
 import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { toast } from 'sonner'
-import type { ExtendedModSubscription, ModSubscription } from '@/types/mods'
+import type { ExtendedModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
 export function SubscribedModsManager() {
@@ -20,6 +20,8 @@ export function SubscribedModsManager() {
     updateModSubscription,
     downloadMod,
     uninstallMod,
+    downloadingModId,
+    uninstallingModId,
   } = useMods()
 
   // Transform mod subscriptions to match UI expectations
@@ -71,15 +73,18 @@ export function SubscribedModsManager() {
   }
 
   // Sidebar state and handlers
-  const [selectedMod, setSelectedMod] = useState<ModSubscription | null>(null)
+  const [selectedModId, setSelectedModId] = useState<number | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // Batch delete confirmation state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [modsToDelete, setModsToDelete] = useState<number[]>([]) // Steam IDs
 
+  // Get the current mod data for the sidebar
+  const selectedMod = selectedModId ? mods.find((mod) => mod.id === selectedModId) || null : null
+
   const handleRowClick = (mod: ExtendedModSubscription) => {
-    setSelectedMod(mod)
+    setSelectedModId(mod.id)
     setIsSidebarOpen(true)
   }
 
@@ -131,11 +136,18 @@ export function SubscribedModsManager() {
       <ModDetailSidebar
         mod={selectedMod}
         open={isSidebarOpen}
-        onOpenChange={setIsSidebarOpen}
+        onOpenChange={(open) => {
+          setIsSidebarOpen(open)
+          if (!open) {
+            setSelectedModId(null)
+          }
+        }}
         onSave={handleSave}
         onDownload={handleDownload}
         onDelete={handleDelete}
         onUninstall={handleUninstall}
+        isDownloading={selectedMod ? downloadingModId === selectedMod.id : false}
+        isUninstalling={selectedMod ? uninstallingModId === selectedMod.id : false}
       />
 
       <ConfirmationDialog
