@@ -24,7 +24,8 @@ const mockMods = [
     lastUpdated: null,
     steamLastUpdated: '2024-01-01T00:00:00Z',
     shouldUpdate: true,
-    imageAvailable: true,
+    // Avoid hitting image endpoints in tests
+    imageAvailable: false,
   },
 ]
 
