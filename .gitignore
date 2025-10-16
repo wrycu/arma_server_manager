@@ -108,8 +108,13 @@ jspm_packages/
 .env.production.local
 
 # Celery
-celerybeat-schedule
+celerybeat-schedule*
 celerybeat.pid
+celery.db
+celery_results.db
+
+# Git worktrees
+.cursor/worktrees.json
 
 # Redis dump
 dump.rdb
