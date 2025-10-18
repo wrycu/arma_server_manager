@@ -42,15 +42,20 @@ def collection_extract(collection_id: int) -> tuple[dict[str, str], int]:
         False: False,
     }
 
-    return {
-        "results": current_app.config["MOD_MANAGERS"][
-            "ARMA3"
-        ].steam_api.get_collection_mods(
-            collection_id,
-            str_to_bool[request.args.get("exclude_subscribed", False)],
-        ),
-        "message": "Retrieved successfully",
-    }, HTTPStatus.OK
+    try:
+        return {
+            "results": current_app.config["MOD_MANAGERS"][
+                "ARMA3"
+            ].steam_api.get_collection_mods(
+                collection_id,
+                str_to_bool[request.args.get("exclude_subscribed", False)],
+            ),
+            "message": "Retrieved successfully",
+        }, HTTPStatus.OK
+    except KeyError:
+        return {
+            "message": "Not a collection",
+        }, HTTPStatus.BAD_REQUEST
 
 
 @a3_bp.route("/mod/helper/<int:mod_id>", methods=["GET"])
