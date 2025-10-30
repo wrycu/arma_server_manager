@@ -46,6 +46,16 @@ class Arma3ModManager:
         self._validate_steam_cmd()
         self.steam_api = SteamAPI()
 
+    def empty_mod_staging_dir(self):
+        """
+        Deletes the cached download folder, as it sometimes gets messed up and blocks further mod downloads
+        :return:
+            N/A
+        """
+        if os.path.isdir(self.staging_dir):
+            shutil.rmtree(self.staging_dir)
+            os.makedirs(self.staging_dir)
+
     @staticmethod
     def get_subscribed_mods() -> list[dict[str, str]]:
         """
