@@ -27,6 +27,7 @@ import type { ServerActionRequest, ServerStatusResponse } from '@/types/api'
 interface CompactServerStatusProps {
   server: ServerConfig | null
   serverStatus?: ServerStatusResponse | null
+  isServerRunning?: boolean
   isLoading: boolean
   collections: Collection[]
   selectedStartupCollection: Collection | null
@@ -38,6 +39,7 @@ interface CompactServerStatusProps {
 export function CompactServerStatus({
   server,
   serverStatus,
+  isServerRunning,
   isLoading: _isLoading,
   collections,
   selectedStartupCollection,
@@ -68,12 +70,14 @@ export function CompactServerStatus({
     )
   }
 
-  // Mock server status - in a real implementation this would come from props
-  const isServerRunning = serverStatus?.status === 'online' || false
+  const derivedServerRunning =
+    typeof isServerRunning === 'boolean'
+      ? isServerRunning
+      : serverStatus?.status === 'online' || false
 
   // Determine available actions based on server state
-  const canStart = !isServerRunning
-  const canStop = isServerRunning
+  const canStart = !derivedServerRunning
+  const canStop = derivedServerRunning
   const canRestart = true // Always allow restart
 
   const handleServerAction = (action: 'start' | 'stop' | 'restart') => {
@@ -94,7 +98,10 @@ export function CompactServerStatus({
             {server.server_name}
           </CardTitle>
           <div className="flex items-center gap-2">
-            {isServerRunning && <Badge variant="default">Running</Badge>}
+            {derivedServerRunning && <Badge variant="default">Running</Badge>}
+            {!derivedServerRunning && server?.headless_client_active && (
+              <Badge variant="outline">HC Active</Badge>
+            )}
             {server.is_active && <Badge variant="secondary">Active</Badge>}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -132,10 +139,10 @@ export function CompactServerStatus({
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">Status</div>
             <div className="text-sm">
-              {server.is_active ? (
-                <span className="text-green-600">Active configuration</span>
+              {derivedServerRunning ? (
+                <span className="text-green-600">Server is running</span>
               ) : (
-                <span className="text-amber-600">Inactive - will be activated when starting</span>
+                <span className="text-amber-600">Server is offline</span>
               )}
             </div>
           </div>

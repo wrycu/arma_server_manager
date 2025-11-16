@@ -19,7 +19,14 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 import type { Schedule } from '@/types/server'
-import { getActionLabel, getStatusBadgeVariant, getStatusText } from '@/lib/schedules'
+import {
+  getActionLabel,
+  getLatestLogEntry,
+  getOutcomeBadgeVariant,
+  getOutcomeLabel,
+  getStatusBadgeVariant,
+  getStatusText,
+} from '@/lib/schedules'
 import { formatDateTime } from '@/lib/date'
 
 const actionOptions = [
@@ -155,6 +162,10 @@ export function ScheduleDetailSidebar({
   const frequencyLabel =
     celeryScheduleOptions.find((opt) => opt.value === schedule.celery_name)?.label ||
     schedule.celery_name
+  const sortedLogs = [...(schedule.log_entries ?? [])].sort(
+    (a, b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime()
+  )
+  const latestLog = getLatestLogEntry(schedule.log_entries)
 
   return (
     <RightSidebar open={open} onOpenChange={onOpenChange}>
@@ -210,6 +221,54 @@ export function ScheduleDetailSidebar({
               <p className="text-xs text-muted-foreground mb-0.5">Updated</p>
               <p className="font-medium text-sm">{formatDateTime(schedule.updated_at)}</p>
             </div>
+          </div>
+
+          {/* Last Result */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">Last Result</p>
+              {schedule.last_run && (
+                <span className="text-xs text-muted-foreground">
+                  {formatDateTime(schedule.last_run)}
+                </span>
+              )}
+            </div>
+            {schedule.last_run ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge
+                  variant={getOutcomeBadgeVariant(schedule.last_outcome)}
+                  className="capitalize"
+                >
+                  {getOutcomeLabel(schedule.last_outcome)}
+                </Badge>
+                {latestLog && (
+                  <span className="text-xs text-muted-foreground">{latestLog.message_level}</span>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground/70 italic">Not run yet</p>
+            )}
+            {schedule.last_run && latestLog && (
+              <p className="text-xs text-muted-foreground">
+                Latest message:{' '}
+                <span className="font-medium text-foreground">{latestLog.message}</span>
+              </p>
+            )}
+            {sortedLogs.length > 0 && (
+              <div className="space-y-2 rounded-md border bg-muted/10 p-3 max-h-48 overflow-y-auto">
+                {sortedLogs.slice(0, 8).map((entry) => (
+                  <div key={entry.id} className="space-y-1">
+                    <div className="flex items-center justify-between text-[11px] text-muted-foreground uppercase tracking-wide">
+                      <span className="font-semibold">{entry.message_level}</span>
+                      <span className="text-xs normal-case">
+                        {formatDateTime(entry.received_at)}
+                      </span>
+                    </div>
+                    <p className="text-sm leading-snug text-foreground">{entry.message}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Divider before editable section */}

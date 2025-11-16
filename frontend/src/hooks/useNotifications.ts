@@ -22,8 +22,7 @@ export function useNotifications() {
   })
 
   const createNotificationMutation = useMutation({
-    mutationFn: (data: CreateNotificationRequest) =>
-      notificationsService.createNotification(data),
+    mutationFn: (data: CreateNotificationRequest) => notificationsService.createNotification(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
@@ -79,5 +78,3 @@ export function useNotifications() {
     isDeleting: deleteNotificationMutation.isPending,
   }
 }
-
-

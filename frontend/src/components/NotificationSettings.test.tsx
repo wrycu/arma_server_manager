@@ -60,6 +60,4 @@ describe('NotificationSettings component', () => {
     const updated = handleUpdate.mock.calls[0][0] as NotificationSettingsType
     expect(updated.notificationTypes.serverStartStop).toBe(false)
   })
-}
-
-
+})

@@ -1,4 +1,12 @@
 // ----- Backend-aligned server config types (arma3/server endpoints) -----
+import type { CollectionResponse } from '@/types/api'
+
+export interface ServerResources {
+  cpu_usage_percent: number
+  ram_usage_percent: number
+  uptime_in_seconds: number
+}
+
 export interface ServerConfig {
   id: number
   name: string
@@ -8,12 +16,20 @@ export interface ServerConfig {
   mission_file: string | null
   server_config_file: string | null
   basic_config_file: string | null
-  server_mods: string | null
-  client_mods: string | null
+  server_mods?: string | null
+  client_mods?: string | null
   additional_params: string | null
   server_binary: string
   collection_id: number | null
+  collection: CollectionResponse | Record<string, never> | null
+  activeCollection?: {
+    id: number
+    name: string
+  } | null
   is_active: boolean
+  use_headless_client: boolean
+  headless_client_active: boolean
+  resources: ServerResources
   created_at: string
   updated_at: string
   // Sensitive (optional, only returned when include_sensitive=true)
@@ -40,6 +56,14 @@ export interface CreateServerRequest {
 export type UpdateServerRequest = Partial<CreateServerRequest>
 
 // ----- Schedule types (matches backend arma3.py schedule endpoints) -----
+export interface TaskLogEntry {
+  id: number
+  schedule_id: number | null
+  message: string
+  message_level: string
+  received_at: string
+}
+
 export interface Schedule {
   id: number
   name: string
@@ -48,6 +72,9 @@ export interface Schedule {
   enabled: boolean
   created_at: string
   updated_at: string
+  last_outcome?: string | null
+  last_run?: string | null
+  log_entries?: TaskLogEntry[]
 }
 
 export interface CreateScheduleRequest {

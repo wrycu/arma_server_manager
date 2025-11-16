@@ -1,5 +1,4 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/router-devtools'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/AppSidebar'
 import { NavigationCommandDialog } from '@/components/NavigationCommandDialog'
@@ -26,7 +25,6 @@ export const Route = createRootRoute({
         </SidebarProvider>
         <NavigationCommandDialog />
         <Toaster position="bottom-center" duration={2000} />
-        <TanStackRouterDevtools />
       </div>
     </div>
   ),

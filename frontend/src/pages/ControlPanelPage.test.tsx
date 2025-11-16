@@ -41,7 +41,7 @@ const mockServer: ServerConfig = {
   description: 'A test server',
   server_name: 'Test Server',
   max_players: 32,
-  is_active: true,
+  is_active: false,
   mission_file: 'test.mission',
   server_config_file: 'server.cfg',
   basic_config_file: 'basic.cfg',
@@ -52,6 +52,14 @@ const mockServer: ServerConfig = {
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',
   collection_id: null,
+  collection: null,
+  use_headless_client: false,
+  headless_client_active: false,
+  resources: {
+    cpu_usage_percent: 0,
+    ram_usage_percent: 0,
+    uptime_in_seconds: 0,
+  },
 }
 
 // Test wrapper component
