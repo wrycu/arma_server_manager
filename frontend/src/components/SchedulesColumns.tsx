@@ -8,14 +8,30 @@ import { getActionLabel, getStatusText } from '@/lib/schedules'
 export const getColumns = (): ColumnDef<Schedule>[] => [
   {
     accessorKey: 'name',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Schedule" />,
     cell: ({ row }) => {
-      const name = row.getValue('name') as string
+      const schedule = row.original
+      const hasRun = Boolean(schedule.last_run)
+      const statusText = hasRun
+        ? schedule.last_outcome?.trim() || 'Result unavailable'
+        : 'Not run yet'
+
       return (
-        <div className="max-w-[200px]">
-          <div className="text-sm truncate">{name}</div>
+        <div className="max-w-[300px] space-y-1">
+          <div className="text-sm font-medium truncate">{schedule.name}</div>
+          <p className="text-xs text-muted-foreground">
+            {hasRun ? `${formatDateTime(schedule.last_run!)} • ${statusText}` : statusText}
+          </p>
         </div>
       )
+    },
+  },
+  {
+    accessorKey: 'celery_name',
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Frequency" />,
+    cell: ({ row }) => {
+      const cadenceLabel = row.original.celery_name.replace(/_/g, ' ')
+      return <span className="text-sm text-muted-foreground capitalize">{cadenceLabel}</span>
     },
   },
   {

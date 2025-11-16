@@ -231,6 +231,14 @@ export interface UpdateServerConfigRequest {
 }
 
 // Schedule API types - matches backend arma3.py endpoints
+export interface TaskLogEntryResponse {
+  id: number
+  schedule_id: number | null
+  message: string
+  message_level: string
+  received_at: string
+}
+
 export interface ScheduleResponse {
   id: number
   name: string
@@ -239,6 +247,9 @@ export interface ScheduleResponse {
   enabled: boolean
   created_at: string
   updated_at: string
+  last_outcome?: string | null
+  last_run?: string | null
+  log_entries?: TaskLogEntryResponse[]
 }
 
 export interface SchedulesListResponse {

@@ -13,6 +13,9 @@ const transformScheduleResponse = (apiSchedule: ScheduleResponse): Schedule => (
   enabled: apiSchedule.enabled,
   created_at: apiSchedule.created_at,
   updated_at: apiSchedule.updated_at,
+  last_outcome: apiSchedule.last_outcome ?? null,
+  last_run: apiSchedule.last_run ?? null,
+  log_entries: apiSchedule.log_entries ?? [],
 })
 
 export function useSchedules() {

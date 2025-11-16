@@ -7,24 +7,17 @@ import { useCollections } from '@/hooks/useCollections'
 import { useServer } from '@/hooks/useServer'
 import { serverService } from '@/services/server.service'
 import type { Collection } from '@/types/collections'
-import type { ServerActionRequest, ServerStatusResponse } from '@/types/api'
+import type { ServerConfig } from '@/types/server'
+import type { ServerActionRequest } from '@/types/api'
 
 export function ControlPanelPage() {
   const { collections } = useCollections()
   const { servers, isServersLoading, refetchServers } = useServer()
 
-  // Get the first (and only) server
-  const server = servers?.[0] || null
-
   const [selectedStartupCollection, setSelectedStartupCollection] = useState<Collection | null>(
     null
   )
-
-  // Mock server status - real status checking not yet implemented
-  const [serverStatus] = useState<ServerStatusResponse | null>(null)
-
-  // Confirmation dialog state
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [serverPendingDelete, setServerPendingDelete] = useState<ServerConfig | null>(null)
 
   // Refetch server data when component mounts to ensure fresh data
   useEffect(() => {
@@ -38,9 +31,12 @@ export function ControlPanelPage() {
     }
   }, [collections, selectedStartupCollection])
 
-  const handleServerAction = async (action: ServerActionRequest, _collectionId?: number) => {
+  const handleServerAction = async (
+    server: ServerConfig | null,
+    action: ServerActionRequest,
+    _collectionId?: number
+  ) => {
     if (!server) return
-
     try {
       const actionText =
         action.action === 'start' ? 'start' : action.action === 'stop' ? 'stop' : 'restart'
@@ -69,23 +65,25 @@ export function ControlPanelPage() {
     setSelectedStartupCollection(collection)
   }
 
-  const handleDeleteServer = () => {
-    if (!server) return
-    setShowDeleteDialog(true)
+  const handleDeleteServer = (serverToDelete: ServerConfig | null) => {
+    if (!serverToDelete) return
+    setServerPendingDelete(serverToDelete)
   }
 
   const confirmDeleteServer = async () => {
-    if (!server) return
+    if (!serverPendingDelete) return
 
     try {
-      await serverService.deleteServer(server.id)
-      toast.success(`Server "${server.server_name}" deleted successfully`)
+      await serverService.deleteServer(serverPendingDelete.id)
+      toast.success(`Server "${serverPendingDelete.server_name}" deleted successfully`)
       refetchServers()
     } catch (error) {
       console.error('Failed to delete server:', error)
       toast.error(
         `Failed to delete server: ${error instanceof Error ? error.message : String(error)}`
       )
+    } finally {
+      setServerPendingDelete(null)
     }
   }
 
@@ -109,23 +107,38 @@ export function ControlPanelPage() {
       <PageTitle title="Control Panel" description="Manage your ARMA server" />
 
       {/* Server Management Panel */}
-      <CompactServerStatus
-        server={server}
-        serverStatus={serverStatus}
-        isLoading={false}
-        collections={collections}
-        selectedStartupCollection={selectedStartupCollection}
-        onServerAction={handleServerAction}
-        onStartupCollectionChange={handleStartupCollectionChange}
-        onDeleteServer={handleDeleteServer}
-      />
+      <div className="space-y-4">
+        {(servers.length ? servers : [null]).map((server, index) => (
+          <CompactServerStatus
+            key={server?.id ?? `server-card-${index}`}
+            server={server}
+            isServerRunning={server?.is_active ?? false}
+            isLoading={false}
+            collections={collections}
+            selectedStartupCollection={selectedStartupCollection}
+            onServerAction={(action, collectionId) =>
+              handleServerAction(server, action, collectionId)
+            }
+            onStartupCollectionChange={handleStartupCollectionChange}
+            onDeleteServer={server ? () => handleDeleteServer(server) : undefined}
+          />
+        ))}
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
-        open={showDeleteDialog}
-        onOpenChange={setShowDeleteDialog}
+        open={Boolean(serverPendingDelete)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setServerPendingDelete(null)
+          }
+        }}
         title="Delete Server"
-        description={`Are you sure you want to delete server "${server?.server_name}"? This action cannot be undone.`}
+        description={
+          serverPendingDelete
+            ? `Are you sure you want to delete server "${serverPendingDelete.server_name}"? This action cannot be undone.`
+            : 'Are you sure you want to delete this server? This action cannot be undone.'
+        }
         confirmText="Delete Server"
         cancelText="Cancel"
         variant="destructive"
