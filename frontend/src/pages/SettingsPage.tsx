@@ -10,8 +10,10 @@ import { NotificationSettings } from '@/components/NotificationSettings'
 import { ServerSettings } from '@/components/ServerSettings'
 import { useServer } from '@/hooks/useServer'
 import { serverService } from '@/services/server.service'
+import { notificationsService } from '@/services/notifications.service'
+import { handleApiError } from '@/lib/error-handler'
 import type { SettingsData, SettingsTab } from '@/types/settings'
-import type { ServerConfig, CreateServerRequest, UpdateServerRequest } from '@/types/server'
+import type { ServerConfig, CreateServerRequest } from '@/types/server'
 
 // Default initial data for new configurations
 const getInitialSettings = (serverConfig?: ServerConfig): SettingsData => ({
@@ -48,6 +50,8 @@ export function Settings() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('server')
   const [isLoading, setIsLoading] = useState(false)
   const [currentServerId, setCurrentServerId] = useState<number | null>(null)
+  const [notificationId, setNotificationId] = useState<number | null>(null)
+  const [isNotificationsLoading, setIsNotificationsLoading] = useState(false)
 
   // Load server configuration when servers are available
   useEffect(() => {
@@ -57,6 +61,41 @@ export function Settings() {
       setSettings(getInitialSettings(server))
     }
   }, [servers, isServersLoading])
+
+  // Load notification settings when the page mounts
+  useEffect(() => {
+    const loadNotifications = async () => {
+      setIsNotificationsLoading(true)
+      try {
+        const notifications = await notificationsService.getNotifications()
+        if (notifications.length > 0) {
+          const primary = notifications[0]
+          setNotificationId(primary.id)
+          setSettings((prev) => ({
+            ...prev,
+            notifications: {
+              enableNotifications: primary.enabled,
+              webhookUrl: primary.URL,
+              notificationTypes: {
+                serverStartStop: primary.send_server,
+                modUpdates: primary.send_mod_update,
+                // Player events are not yet supported by the backend; keep local preference
+                playerEvents: prev.notifications.notificationTypes.playerEvents,
+              },
+            },
+          }))
+        }
+      } catch (error) {
+        // Surface error but do not block the rest of the settings UI
+        console.error('Failed to load notification settings:', error)
+        handleApiError(error, 'Failed to load notification settings')
+      } finally {
+        setIsNotificationsLoading(false)
+      }
+    }
+
+    void loadNotifications()
+  }, [])
 
   const handleNotificationUpdate = (notificationSettings: SettingsData['notifications']) => {
     setSettings((prev) => ({
@@ -72,89 +111,111 @@ export function Settings() {
     }))
   }
 
-  const handleCreateServer = async () => {
-    setIsLoading(true)
-    try {
-      const serverData: CreateServerRequest = {
-        name: settings.server.name,
-        description: settings.server.description || null,
-        server_name: settings.server.server_name,
-        password: settings.server.password || null,
-        admin_password: settings.server.admin_password,
-        max_players: settings.server.max_players,
-        mission_file: settings.server.mission_file || null,
-        server_config_file: settings.server.server_config_file || null,
-        basic_config_file: settings.server.basic_config_file || null,
-        server_mods: settings.server.server_mods || null,
-        client_mods: settings.server.client_mods || null,
-        additional_params: settings.server.additional_params || null,
-        server_binary: settings.server.server_binary,
-      }
+  const buildServerRequest = (): CreateServerRequest => ({
+    name: settings.server.name,
+    description: settings.server.description || null,
+    server_name: settings.server.server_name,
+    password: settings.server.password || null,
+    admin_password: settings.server.admin_password,
+    max_players: settings.server.max_players,
+    mission_file: settings.server.mission_file || null,
+    server_config_file: settings.server.server_config_file || null,
+    basic_config_file: settings.server.basic_config_file || null,
+    server_mods: settings.server.server_mods || null,
+    client_mods: settings.server.client_mods || null,
+    additional_params: settings.server.additional_params || null,
+    server_binary: settings.server.server_binary,
+  })
 
-      const response = await serverService.createServer(serverData)
-      setCurrentServerId(response.result)
-      toast.success('Server configuration created successfully!')
-    } catch (error) {
-      console.error('Failed to create server configuration:', error)
-      toast.error(
-        `Failed to create server: ${error instanceof Error ? error.message : String(error)}`
-      )
-    } finally {
-      setIsLoading(false)
+  const saveServerConfiguration = async (): Promise<number> => {
+    const serverData = buildServerRequest()
+
+    if (currentServerId) {
+      await serverService.updateServer(currentServerId, serverData)
+      return currentServerId
+    }
+
+    const response = await serverService.createServer(serverData)
+    return response.result
+  }
+
+  const buildNotificationPayload = () => {
+    const { notifications } = settings
+    return {
+      URL: notifications.webhookUrl,
+      enabled: notifications.enableNotifications,
+      send_server: notifications.notificationTypes.serverStartStop,
+      send_mod_update: notifications.notificationTypes.modUpdates,
     }
   }
 
-  const handleUpdateServer = async () => {
-    if (!currentServerId) return
+  const saveNotificationSettings = async () => {
+    const payload = buildNotificationPayload()
 
-    setIsLoading(true)
-    try {
-      const serverData: UpdateServerRequest = {
-        name: settings.server.name,
-        description: settings.server.description || null,
-        server_name: settings.server.server_name,
-        password: settings.server.password || null,
-        admin_password: settings.server.admin_password,
-        max_players: settings.server.max_players,
-        mission_file: settings.server.mission_file || null,
-        server_config_file: settings.server.server_config_file || null,
-        basic_config_file: settings.server.basic_config_file || null,
-        server_mods: settings.server.server_mods || null,
-        client_mods: settings.server.client_mods || null,
-        additional_params: settings.server.additional_params || null,
-        server_binary: settings.server.server_binary,
+    const shouldPersistNotification =
+      payload.URL || payload.enabled || payload.send_server || payload.send_mod_update
+
+    // If there is no meaningful notification configuration, just ensure any existing
+    // notification is disabled and return.
+    if (!shouldPersistNotification) {
+      if (notificationId != null) {
+        await notificationsService.updateNotification(notificationId, { enabled: false })
       }
+      return
+    }
 
-      await serverService.updateServer(currentServerId, serverData)
-      toast.success('Server configuration updated successfully!')
-    } catch (error) {
-      console.error('Failed to update server configuration:', error)
-      toast.error(
-        `Failed to update server: ${error instanceof Error ? error.message : String(error)}`
-      )
-    } finally {
-      setIsLoading(false)
+    if (notificationId == null) {
+      const response = await notificationsService.createNotification(payload)
+      setNotificationId(response.result)
+    } else {
+      await notificationsService.updateNotification(notificationId, payload)
     }
   }
 
   const handleSaveSettings = async () => {
-    if (currentServerId) {
-      await handleUpdateServer()
-    } else {
-      await handleCreateServer()
+    setIsLoading(true)
+
+    let serverSaved = false
+    let notificationsSaved = false
+
+    try {
+      const serverId = await saveServerConfiguration()
+      setCurrentServerId(serverId)
+      serverSaved = true
+    } catch (error) {
+      console.error('Failed to save server configuration:', error)
+      handleApiError(error, 'Failed to save server configuration')
+    }
+
+    try {
+      await saveNotificationSettings()
+      notificationsSaved = true
+    } catch (error) {
+      console.error('Failed to save notification settings:', error)
+      handleApiError(error, 'Failed to save notification settings')
+    } finally {
+      setIsLoading(false)
+    }
+
+    if (serverSaved && notificationsSaved) {
+      toast.success('Settings saved successfully!')
+    } else if (serverSaved && !notificationsSaved) {
+      toast.error('Server settings saved, but failed to save notification settings.')
+    } else if (!serverSaved && notificationsSaved) {
+      toast.error('Notification settings saved, but failed to save server settings.')
     }
   }
 
-  if (isServersLoading) {
+  if (isServersLoading || isNotificationsLoading) {
     return (
-      <div className="h-screen flex flex-col bg-background">
+      <div className="mx-auto max-w-5xl h-screen flex flex-col bg-background">
         <div className="bg-background/95 backdrop-blur">
           <PageTitle title="Settings" description="Configure your server manager preferences" />
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading server configurations...</p>
+            <p className="text-muted-foreground">Loading settings...</p>
           </div>
         </div>
       </div>
@@ -162,7 +223,7 @@ export function Settings() {
   }
 
   return (
-    <div className="bg-background">
+    <div className="mx-auto max-w-5xl bg-background">
       <PageTitle
         title="Settings"
         description={
