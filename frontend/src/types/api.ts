@@ -272,3 +272,48 @@ export interface UpdateScheduleResponse {
 export interface TriggerScheduleResponse {
   message: string
 }
+
+// Notification API types - matches backend notification model and /api/notification routes
+export interface NotificationApi {
+  id: number
+  enabled: boolean
+  URL: string
+  send_server: boolean
+  send_mod_update: boolean
+  last_run: string | null
+  created_at: string | null
+  updated_at: string | null
+}
+
+export interface NotificationsListResponse {
+  results: NotificationApi[]
+  message: string
+}
+
+export interface NotificationDetailsResponse {
+  results: NotificationApi
+  message: string
+}
+
+export interface CreateNotificationRequest {
+  URL: string
+  enabled: boolean
+  send_server?: boolean
+  send_mod_update?: boolean
+}
+
+export interface CreateNotificationResponse {
+  result: number
+  message: string
+}
+
+export interface UpdateNotificationRequest {
+  URL?: string
+  enabled?: boolean
+  send_server?: boolean
+  send_mod_update?: boolean
+}
+
+export interface UpdateNotificationResponse {
+  message: string
+}

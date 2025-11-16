@@ -91,7 +91,7 @@ export function ControlPanelPage() {
 
   if (isServersLoading) {
     return (
-      <div className="space-y-6">
+      <div className="mx-auto max-w-5xl space-y-6">
         <PageTitle title="Control Panel" description="Manage your ARMA 3 server" />
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
@@ -104,7 +104,7 @@ export function ControlPanelPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
       <PageTitle title="Control Panel" description="Manage your ARMA server" />
 
