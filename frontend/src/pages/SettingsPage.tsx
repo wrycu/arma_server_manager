@@ -130,11 +130,21 @@ export function Settings() {
   const saveServerConfiguration = async (): Promise<number> => {
     const serverData = buildServerRequest()
 
+    // If we have a current server ID, always use PATCH to update
     if (currentServerId) {
       await serverService.updateServer(currentServerId, serverData)
       return currentServerId
     }
 
+    // If we have servers but no currentServerId set, update the first one (editing existing)
+    if (servers.length > 0) {
+      const serverId = servers[0].id
+      await serverService.updateServer(serverId, serverData)
+      setCurrentServerId(serverId)
+      return serverId
+    }
+
+    // Only create a new server if there are no existing servers
     const response = await serverService.createServer(serverData)
     return response.result
   }
