@@ -61,6 +61,7 @@ export function NotificationSettings({ settings, onUpdate }: NotificationSetting
             <Switch
               checked={settings.enableNotifications}
               onCheckedChange={handleToggleNotifications}
+              aria-label="Enable Notifications"
             />
           </div>
 
@@ -96,6 +97,7 @@ export function NotificationSettings({ settings, onUpdate }: NotificationSetting
               checked={settings.notificationTypes.serverStartStop}
               onCheckedChange={(value) => handleNotificationTypeToggle('serverStartStop', value)}
               disabled={!settings.enableNotifications}
+              aria-label="Server Start/Stop"
             />
           </div>
 
