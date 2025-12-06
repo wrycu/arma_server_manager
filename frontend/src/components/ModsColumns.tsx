@@ -109,7 +109,7 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
         )
       }
 
-      const isDownloaded = localPath !== null
+      const isDownloaded = !!localPath
       return (
         <div className="flex items-center gap-1.5">
           {isDownloaded ? (

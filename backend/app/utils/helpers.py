@@ -57,12 +57,38 @@ class Arma3ModManager:
             os.makedirs(self.staging_dir)
 
     @staticmethod
+    def _validate_mod_filesystem_state(mod: Mod) -> None:
+        """
+        Validates that a mod's local_path still exists on disk and updates the database if not.
+        This ensures the database stays in sync with the actual filesystem state.
+
+        :param mod: The Mod instance to validate
+        """
+        # Only validate if the mod is marked as installed with a non-empty local_path
+        # Don't validate during active operations (downloads/updates/uninstalls)
+        if mod.status != ModStatus.installed:
+            return
+
+        if not mod.local_path or not mod.local_path.strip():
+            return
+
+        # At this point, local_path is guaranteed to be a non-empty string
+        if not os.path.exists(mod.local_path):
+            # Filesystem and database are out of sync - update database
+            mod.local_path = None
+            mod.status = ModStatus.not_installed
+            db.session.commit()
+
+    @staticmethod
     def get_subscribed_mods() -> list[dict[str, str]]:
         """
         Retrieves details about subscribed mods
         """
         results = []
         for result in Mod.query.all():
+            # Validate filesystem state and auto-correct if needed
+            Arma3ModManager._validate_mod_filesystem_state(result)
+
             details = result.to_dict()
             try:
                 ModImage.query.filter(ModImage.id == result.id).first()
@@ -80,6 +106,10 @@ class Arma3ModManager:
         :return:
         """
         result = Mod.query.filter(Mod.id == mod_id).first()
+
+        # Validate filesystem state and auto-correct if needed
+        Arma3ModManager._validate_mod_filesystem_state(result)
+
         details = result.to_dict()
         try:
             ModImage.query.filter(ModImage.id == result.id).first()

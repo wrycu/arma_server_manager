@@ -76,7 +76,7 @@ class Mod(db.Model):  # type: ignore[name-defined]
     last_updated: Mapped[datetime | None] = mapped_column(DateTime)
     steam_last_updated: Mapped[datetime | None] = mapped_column(DateTime)
     should_update: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    status: Mapped[ModType] = mapped_column(
+    status: Mapped[ModStatus] = mapped_column(
         Enum(ModStatus), default=ModStatus.not_installed, nullable=False
     )
 
