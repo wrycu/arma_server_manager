@@ -39,8 +39,9 @@ describe('NotificationSettings component', () => {
     render(<NotificationSettings settings={baseSettings} onUpdate={handleUpdate} />)
 
     const input = screen.getByLabelText(/webhook url/i)
-    await user.clear(input)
-    await user.type(input, 'https://new.example.com/hook')
+    await user.click(input)
+    await user.keyboard('{Control>}a{/Control}')
+    await user.paste('https://new.example.com/hook')
 
     expect(handleUpdate).toHaveBeenCalled()
     const updated = handleUpdate.mock.calls.at(-1)?.[0] as NotificationSettingsType
