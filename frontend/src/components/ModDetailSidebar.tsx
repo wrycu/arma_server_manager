@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
   IconCheck,
   IconDownload,
@@ -18,9 +19,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { ModSubscription } from '@/types/mods'
-import { BACKEND_BASE_URL } from '@/services/api'
+import { mods } from '@/services'
 import { formatDate } from '@/lib/date'
+import { blobUrlCache } from '@/lib/helpers/blobUrlCache'
 
 interface ModDetailSidebarProps {
   mod: ModSubscription | null
@@ -59,6 +62,79 @@ export function ModDetailSidebar({
 
   // Uninstall confirmation state
   const [showUninstallConfirm, setShowUninstallConfirm] = useState(false)
+
+  // Image state
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageLoaded, setImageLoaded] = useState(false)
+  const imgRef = useRef<HTMLImageElement | null>(null)
+  const loadedModIdRef = useRef<number | null>(null)
+  const cacheKey = mod ? `mod-${mod.id}` : null
+
+  // Memoize queryFn to prevent new function reference on every render
+  const imageQueryFn = useMemo(
+    () => () => (mod ? mods.getModSubscriptionImage(mod.id) : Promise.reject()),
+    [mod]
+  )
+
+  // Fetch mod image with caching
+  const { data: imageBlob, isFetching: isImageFetching } = useQuery({
+    queryKey: ['mod-image', mod?.id],
+    queryFn: imageQueryFn,
+    enabled: !!mod?.imageAvailable && open,
+    staleTime: Infinity, // Images don't change frequently
+    gcTime: 1000 * 60 * 30, // Cache for 30 minutes
+  })
+
+  // Create or retrieve cached object URL and preload the image
+  useEffect(() => {
+    if (imageBlob && mod && cacheKey) {
+      // Get or create cached URL (increments ref count)
+      const url = blobUrlCache.getOrCreate(cacheKey, imageBlob)
+
+      // Preload the image
+      const img = new Image()
+      img.onload = () => {
+        setImageUrl(url)
+        setImageLoaded(true)
+        loadedModIdRef.current = mod.id
+      }
+      img.onerror = () => {
+        // Image failed to load - mark as loaded to hide skeleton and show nothing
+        console.warn(`Failed to load image for mod ${mod.id}`)
+        setImageLoaded(true)
+        setImageUrl(null)
+        loadedModIdRef.current = mod.id
+      }
+      img.src = url
+      imgRef.current = img
+    }
+  }, [imageBlob, mod, cacheKey])
+
+  // Reset loaded state only when mod id actually changes to a different value
+  useEffect(() => {
+    if (loadedModIdRef.current !== null && mod && loadedModIdRef.current !== mod.id) {
+      setImageLoaded(false)
+      setImageUrl(null)
+    }
+  }, [mod])
+
+  // Release reference on unmount or when mod changes
+  useEffect(() => {
+    const currentCacheKey = cacheKey
+
+    return () => {
+      // Release the cache reference (only revokes when ref count reaches 0)
+      if (currentCacheKey) {
+        blobUrlCache.release(currentCacheKey)
+      }
+
+      if (imgRef.current) {
+        imgRef.current.onload = null
+        imgRef.current.onerror = null
+        imgRef.current = null
+      }
+    }
+  }, [cacheKey])
 
   // Reset form when mod changes
   useEffect(() => {
@@ -206,12 +282,11 @@ export function ModDetailSidebar({
           {/* Mod Image */}
           {mod.imageAvailable && (
             <div className="w-full aspect-video rounded-md overflow-hidden bg-muted -mt-1">
-              <img
-                src={`${BACKEND_BASE_URL}/api/arma3/mod/subscription/${mod.id}/image`}
-                alt={mod.name}
-                className="w-full h-full object-contain"
-                crossOrigin="anonymous"
-              />
+              {imageLoaded && imageUrl ? (
+                <img src={imageUrl} alt={mod.name} className="w-full h-full object-contain" />
+              ) : isImageFetching || !imageLoaded ? (
+                <Skeleton className="w-full h-full" />
+              ) : null}
             </div>
           )}
 

@@ -2,7 +2,7 @@ import { PageTitle } from '@/components/PageTitle'
 import { useMods } from '@/hooks/useMods'
 import { DataTable } from '@/components/ModsDataTable'
 import { getColumns } from '@/components/ModsColumns'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { IconPlus } from '@tabler/icons-react'
 import { ModsSubscribeDialog } from '@/components/ModsSubscribeDialog'
@@ -93,7 +93,8 @@ export function SubscribedModsManager() {
     toast.success('Mod settings updated successfully')
   }
 
-  const columns = getColumns()
+  // Memoize columns to prevent recreation on every render
+  const columns = useMemo(() => getColumns(), [])
 
   // Subscribe dialog state and handler
   const [subscribeOpen, setSubscribeOpen] = useState(false)

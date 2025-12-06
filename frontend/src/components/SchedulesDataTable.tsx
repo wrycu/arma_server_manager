@@ -63,7 +63,9 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
     getSortedRowModel: getSortedRowModel(),
   })
 
-  if (isLoading) {
+  // Only show skeleton on first load with no data
+  // If we have data (even stale), keep the table visible
+  if (isLoading && data.length === 0) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -111,6 +113,9 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
             </Select>
           )}
         </div>
+        {isLoading && (
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
+        )}
       </div>
       <div className="rounded-md border">
         <Table>

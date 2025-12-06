@@ -67,6 +67,8 @@ export const modService = {
   },
 
   // Get mod subscription image (returns binary data)
+  // Images are cached by React Query with staleTime: Infinity
+  // Browser also caches based on server's Cache-Control headers (set to 1 hour)
   getModSubscriptionImage: async (modId: number): Promise<Blob> => {
     const response = await api.get<Blob>(`/arma3/mod/subscription/${modId}/image`, {
       responseType: 'blob',

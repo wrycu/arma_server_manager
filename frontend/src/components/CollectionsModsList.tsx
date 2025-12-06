@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import {
   IconFolder,
   IconPlus,
@@ -32,7 +32,6 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 
 import { Button } from '@/components/ui/button'
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import {
   Item,
@@ -43,7 +42,7 @@ import {
   ItemActions,
 } from '@/components/ui/item'
 import type { ModSubscription } from '@/types/mods'
-import { modService } from '@/services/mods.service'
+import { ModAvatar } from '@/components/ModAvatar'
 
 interface ModsListProps {
   mods: ModSubscription[]
@@ -62,16 +61,14 @@ interface SortableModItemProps {
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
   onModClick?: (mod: ModSubscription) => void
   onDownload?: (steamId: number) => void
-  imageUrl: string | null
 }
 
-function SortableModItem({
+const SortableModItem = memo(function SortableModItem({
   mod,
   collectionId,
   onRemoveMod,
   onModClick,
   onDownload,
-  imageUrl,
 }: SortableModItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: mod.id,
@@ -84,7 +81,7 @@ function SortableModItem({
   }
 
   // Render download state icon
-  const renderDownloadIcon = () => {
+  const downloadIcon = useMemo(() => {
     // Installed locally: determine if update is actually available
     if (mod.localPath) {
       const hasNewerSteamUpdate =
@@ -155,7 +152,7 @@ function SortableModItem({
         <TooltipContent side="right">Not downloaded</TooltipContent>
       </Tooltip>
     )
-  }
+  }, [mod.localPath, mod.shouldUpdate, mod.steamLastUpdated, mod.lastUpdated, mod.status])
 
   return (
     <div ref={setNodeRef} style={style} className="group/sortable flex items-start">
@@ -181,24 +178,19 @@ function SortableModItem({
         tabIndex={0}
       >
         <ItemMedia>
-          <Avatar className="h-8 w-8">
-            <AvatarImage
-              src={imageUrl || undefined}
-              alt={mod.name}
-              className="object-cover antialiased"
-              style={{ imageRendering: 'auto' }}
-            />
-            <AvatarFallback className="text-xs">
-              {mod.name.substring(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          <ModAvatar
+            modId={mod.id}
+            name={mod.name}
+            imageAvailable={mod.imageAvailable}
+            className="h-8 w-8"
+          />
         </ItemMedia>
 
         <ItemContent>
           <ItemTitle>{mod.name}</ItemTitle>
           <ItemDescription>
             <div className="flex items-center gap-2">
-              {renderDownloadIcon()}
+              {downloadIcon}
               {mod.isServerMod && (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -243,7 +235,7 @@ function SortableModItem({
       </Item>
     </div>
   )
-}
+})
 
 export function ModsList({
   mods,
@@ -257,11 +249,11 @@ export function ModsList({
 }: ModsListProps) {
   const [items, setItems] = useState(mods)
   const [activeId, setActiveId] = useState<number | null>(null)
-  const [imageCache, setImageCache] = useState<Map<number, string>>(new Map())
 
   // Filter mods based on search query
-  const filteredMods = mods.filter((mod) =>
-    mod.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredMods = useMemo(
+    () => mods.filter((mod) => mod.name.toLowerCase().includes(searchQuery.toLowerCase())),
+    [mods, searchQuery]
   )
 
   const sensors = useSensors(
@@ -292,43 +284,9 @@ export function ModsList({
     }
   }, [filteredMods, activeId, items])
 
-  // Load and cache mod images
-  useEffect(() => {
-    const loadImages = async () => {
-      const newCache = new Map(imageCache)
-      const modsToLoad = mods.filter((mod) => !imageCache.has(mod.id))
-
-      for (const mod of modsToLoad) {
-        try {
-          const blob = await modService.getModSubscriptionImage(mod.id)
-          const objectUrl = URL.createObjectURL(blob)
-          newCache.set(mod.id, objectUrl)
-        } catch (error) {
-          console.error('Failed to load mod image:', error)
-        }
-      }
-
-      if (modsToLoad.length > 0) {
-        setImageCache(newCache)
-      }
-    }
-
-    loadImages()
-
-    // Cleanup: revoke URLs for mods that are no longer in the list
-    return () => {
-      const currentModIds = new Set(mods.map((mod) => mod.id))
-      imageCache.forEach((url, modId) => {
-        if (!currentModIds.has(modId)) {
-          URL.revokeObjectURL(url)
-        }
-      })
-    }
-  }, [mods, imageCache])
-
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as number)
-  }
+  }, [])
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
@@ -352,16 +310,16 @@ export function ModsList({
       if (onReorderMod) {
         onReorderMod(collectionId, active.id as number, newIndex + 1).catch((error: unknown) => {
           console.error('Failed to reorder mod:', error)
-          setItems(filteredMods)
+          setItems(mods)
         })
       }
     },
-    [items, collectionId, onReorderMod, filteredMods]
+    [items, collectionId, onReorderMod, mods]
   )
 
-  const handleDragCancel = (_event: DragCancelEvent) => {
+  const handleDragCancel = useCallback((_event: DragCancelEvent) => {
     setActiveId(null)
-  }
+  }, [])
 
   if (filteredMods.length === 0) {
     return (
@@ -398,7 +356,6 @@ export function ModsList({
               onRemoveMod={onRemoveMod}
               onModClick={onModClick}
               onDownload={onDownload}
-              imageUrl={imageCache.get(mod.id) || null}
             />
           ))}
         </div>

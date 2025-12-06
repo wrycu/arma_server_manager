@@ -43,9 +43,10 @@ export function useMods() {
     queryKey: ['mods'],
     queryFn: async () => {
       console.log('🔄 Fetching mod subscriptions from API...')
-      const apiModSubscriptions = await mods.getModSubscriptions()
-      return transformApiMods(apiModSubscriptions)
+      return await mods.getModSubscriptions()
     },
+    // Use select for transformation - preserves structural sharing
+    select: transformApiMods,
   })
 
   // Helper functions
@@ -69,8 +70,12 @@ export function useMods() {
     mutationFn: async (modId: number) => {
       await mods.removeModSubscription(modId)
     },
-    onSuccess: () => {
+    onSuccess: (_data, modId) => {
+      // Invalidate mod list to refresh the UI
       queryClient.invalidateQueries({ queryKey: ['mods'] })
+      // Invalidate the image cache for this mod so if a new mod with the same ID
+      // is added later, we don't show the wrong image
+      queryClient.removeQueries({ queryKey: ['mod-image', modId] })
     },
     onError: (error) => {
       handleApiError(error, 'Failed to remove mod subscription')
