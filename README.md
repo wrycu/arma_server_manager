@@ -79,12 +79,11 @@ Build a Python wheel package that users can install with `uv` or `pip`:
 
 3. **Users run the application**:
    ```bash
-   # Start the web server
+   # Single command runs both web server and Celery worker
    arma-server-manager
-   
-   # In a separate terminal, start Celery worker
-   arma-server-manager-celery
    ```
+   
+   The application automatically starts both the Flask web server (with Gunicorn) and the Celery background worker in separate processes.
 
 **Requirements for end users**:
 - Python 3.11+ (or `uv` which installs Python automatically)
@@ -113,6 +112,14 @@ For deploying on a server with Python already installed:
    ```
 
 3. **Start the production server**:
+   
+   **Option A - Using the wheel package (recommended):**
+   ```bash
+   # Single command runs both server and Celery worker
+   arma-server-manager
+   ```
+   
+   **Option B - Development mode with separate processes:**
    ```bash
    # Start Celery worker (in separate terminal/process)
    cd backend && uv run celery -A app.celery worker --loglevel=info
@@ -125,6 +132,7 @@ The production server uses:
 - Gunicorn WSGI server for Flask
 - Pre-built static frontend files served by Flask
 - Celery for background task processing
+- Both server and worker managed by single entry point (wheel package)
 
 ### Production Configuration
 

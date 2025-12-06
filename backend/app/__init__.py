@@ -28,15 +28,6 @@ def create_app(config_name: str | None = None) -> Flask:
     app = Flask(__name__)
     load_dotenv(override=False)
 
-    # Replace default config with our custom lazy-loading config
-    # This must be done after Flask() but before from_object()
-    from .config import LazyConfig
-
-    # Create new LazyConfig instance and copy existing config values
-    new_config = LazyConfig(app.root_path, app.default_config)
-    new_config.update(app.config)
-    app.config = new_config
-
     # Load configuration
     if config_name is None:
         config_name = os.environ.get("FLASK_ENV", "development")
@@ -58,6 +49,16 @@ def create_app(config_name: str | None = None) -> Flask:
     db.init_app(app)
     migrate.init_app(app, db)
     CORS(app, origins=app.config.get("CORS_ORIGINS", []))
+
+    # Pre-populate config with helpers (so routes can access them)
+    from .config import Config as ConfigClass
+
+    config_instance = ConfigClass()
+    app.config["MOD_MANAGERS"] = config_instance.MOD_MANAGERS
+    app.config["A3_SERVER_HELPER"] = config_instance.A3_SERVER_HELPER
+    app.config["SCHEDULE_HELPER"] = config_instance.SCHEDULE_HELPER
+    app.config["STEAM_API_HELPER"] = config_instance.STEAM_API_HELPER
+    app.config["TASK_HELPER"] = config_instance.TASK_HELPER
 
     # Configure Celery
     celery.conf.update(app.config)

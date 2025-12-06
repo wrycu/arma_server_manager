@@ -17,19 +17,24 @@ def _run_server():
         db.create_all()
         # Create basic server configuration if it doesn't exist
         try:
-            app.config["A3_SERVER_HELPER"].create_basic_server()
+            from app.config import Config
+
+            config = Config()
+            config.A3_SERVER_HELPER.create_basic_server()
         except Exception as e:
             app.logger.warning(f"Could not create basic server: {e}")
 
         # Clean mod staging directory
         try:
-            app.config["MOD_MANAGERS"]["ARMA3"].empty_mod_staging_dir()
+            from app.config import Config
+
+            config = Config()
+            config.MOD_MANAGERS["ARMA3"].empty_mod_staging_dir()
         except Exception as e:
             app.logger.warning(f"Could not empty mod staging directory: {e}")
 
     # Run with Gunicorn if available, otherwise Flask dev server
     try:
-        import multiprocessing
         import os
 
         import gunicorn.app.wsgiapp as wsgi_app  # noqa: PLC0415
@@ -91,13 +96,19 @@ def main_server():
         db.create_all()
         # Create basic server configuration if it doesn't exist
         try:
-            app.config["A3_SERVER_HELPER"].create_basic_server()
+            from app.config import Config
+
+            config = Config()
+            config.A3_SERVER_HELPER.create_basic_server()
         except Exception as e:
             app.logger.warning(f"Could not create basic server: {e}")
 
         # Clean mod staging directory
         try:
-            app.config["MOD_MANAGERS"]["ARMA3"].empty_mod_staging_dir()
+            from app.config import Config
+
+            config = Config()
+            config.MOD_MANAGERS["ARMA3"].empty_mod_staging_dir()
         except Exception as e:
             app.logger.warning(f"Could not empty mod staging directory: {e}")
 
@@ -143,12 +154,18 @@ with app.app_context():
     db.create_all()
     # Create basic server configuration if it doesn't exist
     try:
-        app.config["A3_SERVER_HELPER"].create_basic_server()
+        from app.config import Config
+
+        config = Config()
+        config.A3_SERVER_HELPER.create_basic_server()
     except Exception as e:
         app.logger.warning(f"Could not create basic server: {e}")
 
     # Clean mod staging directory
     try:
-        app.config["MOD_MANAGERS"]["ARMA3"].empty_mod_staging_dir()
+        from app.config import Config
+
+        config = Config()
+        config.MOD_MANAGERS["ARMA3"].empty_mod_staging_dir()
     except Exception as e:
         app.logger.warning(f"Could not empty mod staging directory: {e}")
