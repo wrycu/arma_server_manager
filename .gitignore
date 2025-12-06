@@ -52,6 +52,16 @@ frontend/dist/
 frontend/.vite/
 frontend/coverage/
 
+# Backend static files (production build copies frontend here)
+backend/app/static/
+
+# Build artifacts
+build/
+*.spec
+
+# Wheel distribution (keep backend/dist/ for built wheels)
+# backend/dist/ is intentionally not ignored so wheels can be committed if desired
+
 
 # IDEs
 .vscode/

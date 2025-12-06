@@ -456,10 +456,13 @@ def server_update(schedule_id: int = 0) -> None:
     server_running = server_helper.is_server_running()
     if server_running:
         server_stop()
+
+    login_args = ["+login", server_helper.steam_cmd_user]
+
     command = [
         server_helper.steam_cmd_path,
         f"+force_install_dir {server_helper.server_install_path}",
-        f"+login {server_helper.steam_cmd_user}",
+        *login_args,
         f"+app_update {server_helper.arma3_app_id}",
         "validate",
         "+quit",
@@ -473,9 +476,23 @@ def server_update(schedule_id: int = 0) -> None:
         status="RUNNING",
         msg=f"Running steamcmd command {' '.join(command)} to update Arma 3 server...",
     )
-    subprocess.check_call(
-        command,
-    )
+
+    try:
+        subprocess.check_call(command, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        if server_helper.steam_cmd_password:
+            login_args.append(server_helper.steam_cmd_password)
+            command = [
+                server_helper.steam_cmd_path,
+                f"+force_install_dir {server_helper.server_install_path}",
+                *login_args,
+                f"+app_update {server_helper.arma3_app_id}",
+                "validate",
+                "+quit",
+            ]
+            subprocess.check_call(command)
+        else:
+            raise
     helper.update_task_state(
         current_task=current_task,
         current_app=current_app,

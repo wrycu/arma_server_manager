@@ -26,8 +26,16 @@ def create_app(config_name: str | None = None) -> Flask:
         Configured Flask application instance
     """
     app = Flask(__name__)
-    # load .env file
-    load_dotenv()
+    load_dotenv(override=False)
+
+    # Replace default config with our custom lazy-loading config
+    # This must be done after Flask() but before from_object()
+    from .config import LazyConfig
+
+    # Create new LazyConfig instance and copy existing config values
+    new_config = LazyConfig(app.root_path, app.default_config)
+    new_config.update(app.config)
+    app.config = new_config
 
     # Load configuration
     if config_name is None:
@@ -107,12 +115,28 @@ def create_app(config_name: str | None = None) -> Flask:
         @app.route("/", defaults={"path": ""})
         @app.route("/<path:path>")
         def serve_static(path: str) -> Response:
-            """Serve React static files in production."""
+            """Serve React static files in production.
+
+            All non-API routes serve static files from the static directory.
+            For SPA routing, non-existent paths serve index.html.
+            """
+            # API routes are handled by blueprints, this should not be reached for /api/*
+            # but check anyway for safety
+            if path.startswith("api/"):
+                from flask import abort
+
+                abort(404)
+
             static_dir = os.path.join(app.root_path, "static")
-            if path != "" and os.path.exists(os.path.join(static_dir, path)):
-                return send_from_directory(static_dir, path)
-            else:
-                return send_from_directory(static_dir, "index.html")
+
+            # Try to serve the requested file if it exists
+            if path != "":
+                file_path = os.path.join(static_dir, path)
+                if os.path.exists(file_path) and os.path.isfile(file_path):
+                    return send_from_directory(static_dir, path)
+
+            # For all other routes (including root), serve index.html for SPA routing
+            return send_from_directory(static_dir, "index.html")
 
     class ContextTask(Task):
         """Make celery tasks work with Flask app context."""

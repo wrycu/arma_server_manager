@@ -33,11 +33,14 @@ class Arma3ModManager:
         self,
         steam_cmd_path: str,
         steam_cmd_user: str,
+        steam_cmd_password: str,
         mod_staging_dir: str,
         mod_dest_dir: str,
     ) -> None:
-        self.steam_cmd_path = steam_cmd_path
+        # Normalize the steam_cmd_path (expand user, resolve relative paths, normalize separators)
+        self.steam_cmd_path = os.path.normpath(os.path.expanduser(steam_cmd_path))
         self.steam_cmd_user = steam_cmd_user
+        self.steam_cmd_password = steam_cmd_password
         self.arma3_app_id = 107410
         self.staging_dir = mod_staging_dir
         self.dst_dir = mod_dest_dir
@@ -246,17 +249,36 @@ class Arma3ModManager:
         :param dst_dir: - STR, the destination directory to move the downloaded mod to
         :return:
         """
-        subprocess.check_call(
-            [
-                self.steam_cmd_path,
-                f"+force_install_dir {self.staging_dir}",
-                # TODO: handle first-time login / cached credential problems
-                f"+login {self.steam_cmd_user}",
-                f"+workshop_download_item {self.arma3_app_id} {mod_id}",
-                "validate",
-                "+quit",
-            ],
-        )
+        login_args = ["+login", self.steam_cmd_user]
+
+        try:
+            subprocess.check_call(
+                [
+                    self.steam_cmd_path,
+                    f"+force_install_dir {self.staging_dir}",
+                    *login_args,
+                    f"+workshop_download_item {self.arma3_app_id} {mod_id}",
+                    "validate",
+                    "+quit",
+                ],
+                stderr=subprocess.DEVNULL,
+            )
+        except subprocess.CalledProcessError:
+            if self.steam_cmd_password:
+                login_args.append(self.steam_cmd_password)
+                subprocess.check_call(
+                    [
+                        self.steam_cmd_path,
+                        f"+force_install_dir {self.staging_dir}",
+                        *login_args,
+                        f"+workshop_download_item {self.arma3_app_id} {mod_id}",
+                        "validate",
+                        "+quit",
+                    ],
+                )
+            else:
+                raise
+
         self._move_single_mod_(mod_id, dst_dir)
 
     def _move_single_mod_(self, mod_id: int, dst_dir: str):
@@ -334,13 +356,21 @@ class Arma3ModManager:
                     ) from e
 
     def _validate_steam_cmd(self):
-        if (
-            not os.path.isfile(self.steam_cmd_path)
-            and os.environ.get("FLASK_ENV") != "testing"
-        ):
-            raise Exception(
-                "SteamCMD is not set properly. Please check the path you have set!"
-            )
+        """Validate that SteamCMD is either a file or available in PATH."""
+        if os.environ.get("FLASK_ENV") == "testing":
+            return
+
+        if os.path.isfile(self.steam_cmd_path):
+            return
+
+        path_result = shutil.which(self.steam_cmd_path)
+        if path_result is not None:
+            self.steam_cmd_path = path_result
+            return
+
+        raise Exception(
+            "SteamCMD is not set properly. Please check the path you have set!"
+        )
 
     @staticmethod
     def _delete_mod_(mod_dir: str):
@@ -743,9 +773,12 @@ class ScheduleHelper:
 
 
 class Arma3ServerHelper:
-    def __init__(self, steam_cmd_path, steam_cmd_user, arma3_path) -> None:
+    def __init__(
+        self, steam_cmd_path, steam_cmd_user, steam_cmd_password, arma3_path
+    ) -> None:
         self.steam_cmd_path = steam_cmd_path
         self.steam_cmd_user = steam_cmd_user
+        self.steam_cmd_password = steam_cmd_password
         self.server_install_path = arma3_path
         self.arma3_app_id = 107410
 
