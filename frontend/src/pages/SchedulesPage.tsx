@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Clock, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -81,7 +81,8 @@ export function SchedulesManager() {
     toast.success('Schedule deleted successfully')
   }
 
-  const columns = getColumns()
+  // Memoize columns to prevent recreation on every render
+  const columns = useMemo(() => getColumns(), [])
 
   return (
     <div className="space-y-6">

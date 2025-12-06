@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark" style="background-color: oklch(0.15 0.01 255.5424); color: oklch(0.92 0.005 264.5349);">
+<html lang="en" class="dark" style="background-color: oklch(0.2029 0.0062 188.5965); color: oklch(0.9189 0 0);">
 
 <head>
   <meta charset="UTF-8" />
@@ -10,23 +10,23 @@
   <meta name="author" content="wrycu">
   <meta name="keywords" content="ARMA, Server, Manager, Mods, Collections, Steam Workshop">
   <style>
-    /* Prevent white flash with immediate dark background */
+    /* Prevent white flash with immediate dark background matching Tailwind theme */
     body {
-      background-color: oklch(0.15 0.01 255.5424) !important;
-      color: oklch(0.92 0.005 264.5349) !important;
+      background-color: oklch(0.2029 0.0062 188.5965) !important;
+      color: oklch(0.9189 0 0) !important;
       margin: 0;
       padding: 0;
     }
   </style>
   <script>
-    // Prevent flash by immediately applying theme with darkest background
+    // Prevent flash by immediately applying theme matching Tailwind colors
     (function() {
       const theme = localStorage.getItem('theme') || 'dark';
       document.documentElement.className = theme;
       document.documentElement.style.colorScheme = theme;
       if (theme === 'dark') {
-        document.documentElement.style.backgroundColor = 'oklch(0.15 0.01 255.5424)';
-        document.documentElement.style.color = 'oklch(0.92 0.005 264.5349)';
+        document.documentElement.style.backgroundColor = 'oklch(0.2029 0.0062 188.5965)';
+        document.documentElement.style.color = 'oklch(0.9189 0 0)';
       }
     })();
   </script>

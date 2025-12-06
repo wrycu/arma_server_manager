@@ -2,6 +2,7 @@
 import React from 'react'
 import { render } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { ModsList } from '@/components/CollectionsModsList'
 import * as modsService from '@/services/mods.service'
@@ -9,6 +10,18 @@ import type { ModSubscription } from '@/types/mods'
 
 // Mock image fetch used by component
 vi.mock('@/services/mods.service')
+
+// Test wrapper component
+const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  })
+
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+}
 
 const baseMod: ModSubscription = {
   id: 1,
@@ -30,15 +43,17 @@ const renderWithMod = (mod: Partial<ModSubscription>) => {
   vi.mocked(modsService.modService.getModSubscriptionImage).mockResolvedValue(new Blob())
 
   render(
-    <ModsList
-      mods={[{ ...baseMod, ...mod }] as ModSubscription[]}
-      collectionId={42}
-      onRemoveMod={vi.fn()}
-      onAddMods={vi.fn()}
-      onModClick={vi.fn()}
-      onReorderMod={vi.fn()}
-      onDownload={vi.fn()}
-    />
+    <TestWrapper>
+      <ModsList
+        mods={[{ ...baseMod, ...mod }] as ModSubscription[]}
+        collectionId={42}
+        onRemoveMod={vi.fn()}
+        onAddMods={vi.fn()}
+        onModClick={vi.fn()}
+        onReorderMod={vi.fn()}
+        onDownload={vi.fn()}
+      />
+    </TestWrapper>
   )
 }
 

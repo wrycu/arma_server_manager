@@ -87,24 +87,15 @@ export function ControlPanelPage() {
     }
   }
 
-  if (isServersLoading) {
-    return (
-      <div className="mx-auto max-w-5xl space-y-6">
-        <PageTitle title="Control Panel" description="Manage your ARMA 3 server" />
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading server...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
-      <PageTitle title="Control Panel" description="Manage your ARMA server" />
+      <div className="flex items-center justify-between">
+        <PageTitle title="Control Panel" description="Manage your ARMA server" />
+        {isServersLoading && (
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+        )}
+      </div>
 
       {/* Server Management Panel */}
       <div className="space-y-4">

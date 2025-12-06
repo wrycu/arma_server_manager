@@ -6,7 +6,7 @@ export const queryClient = new QueryClient({
     queries: {
       // Data will be considered stale after 5 minutes
       staleTime: 5 * 60 * 1000,
-      // Cache data for 10 minutes
+      // Cache data for 10 minutes in memory
       gcTime: 10 * 60 * 1000,
       // Retry failed requests up to 2 times
       retry: 2,
@@ -16,6 +16,8 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       // Refetch when reconnecting
       refetchOnReconnect: 'always',
+      // Network mode - fail queries when offline
+      networkMode: 'online',
     },
     mutations: {
       // Retry mutations once on failure

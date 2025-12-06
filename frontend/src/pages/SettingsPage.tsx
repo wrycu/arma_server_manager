@@ -216,32 +216,21 @@ export function Settings() {
     }
   }
 
-  if (isServersLoading || isNotificationsLoading) {
-    return (
-      <div className="mx-auto max-w-5xl h-screen flex flex-col bg-background">
-        <div className="bg-background/95 backdrop-blur">
-          <PageTitle title="Settings" description="Configure your server manager preferences" />
-        </div>
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading settings...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="mx-auto max-w-5xl bg-background">
-      <PageTitle
-        title="Settings"
-        description={
-          currentServerId
-            ? 'Configure your server manager preferences'
-            : 'Configure your server manager preferences - create your first server configuration below'
-        }
-      />
+      <div className="flex items-center justify-between">
+        <PageTitle
+          title="Settings"
+          description={
+            currentServerId
+              ? 'Configure your server manager preferences'
+              : 'Configure your server manager preferences - create your first server configuration below'
+          }
+        />
+        {(isServersLoading || isNotificationsLoading) && (
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+        )}
+      </div>
 
       <div className="py-6 space-y-6">
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as SettingsTab)}>
