@@ -11,10 +11,17 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Plus, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Trash2, Filter, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { DataTableButton } from '@/components/DataTableButton'
+import { cn } from '@/lib/utils'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   Select,
   SelectContent,
@@ -41,6 +48,8 @@ interface DataTableProps<TData, TValue> {
   onCreateCollection?: (collection: CreateCollectionRequest) => void
   onBatchDelete?: (steamIds: number[]) => void
   onRowClick?: (row: TData) => void
+  onSubscribeClick?: () => void
+  tabSwitcher?: React.ReactNode
 }
 
 export function DataTable<TData, TValue>({
@@ -49,12 +58,15 @@ export function DataTable<TData, TValue>({
   onCreateCollection,
   onBatchDelete,
   onRowClick,
+  onSubscribeClick,
+  tabSwitcher,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
   const [createCollectionDialogOpen, setCreateCollectionDialogOpen] = React.useState(false)
+  const [searchInput, setSearchInput] = React.useState('')
 
   const table = useReactTable({
     data,
@@ -75,6 +87,15 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
+
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      table.getColumn('name')?.setFilterValue(searchInput)
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [searchInput, table])
 
   // Get selected mods for collection creation
   const selectedRows = table.getFilteredSelectedRowModel().rows
@@ -98,52 +119,110 @@ export function DataTable<TData, TValue>({
     setRowSelection({})
   }
 
+  const typeFilterRaw = table.getColumn('modType')?.getFilterValue()
+  const typeFilterValue = (Array.isArray(typeFilterRaw) ? typeFilterRaw[0] : typeFilterRaw) ?? 'all'
+  const hasActiveFilters = searchInput || typeFilterValue !== 'all'
+
+  const handleClearSearch = React.useCallback(() => {
+    setSearchInput('')
+    table.getColumn('name')?.setFilterValue('')
+  }, [table])
+
+  const handleClearAllFilters = React.useCallback(() => {
+    setSearchInput('')
+    table.getColumn('name')?.setFilterValue('')
+    table.getColumn('modType')?.setFilterValue('all')
+  }, [table])
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Input
-            placeholder="Filter mods..."
-            value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-            onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-            className="max-w-sm"
-          />
-          <Select
-            value={(table.getColumn('modType')?.getFilterValue() as string) ?? 'all'}
-            onValueChange={(value) =>
-              table.getColumn('modType')?.setFilterValue(value === 'all' ? '' : [value])
-            }
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter by type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="mod">Mods</SelectItem>
-              <SelectItem value="mission">Missions</SelectItem>
-              <SelectItem value="map">Maps</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        {hasSelectedMods && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="default"
-              size="sm"
-              onClick={() => setCreateCollectionDialogOpen(true)}
-              className="h-8"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create Collection
-            </Button>
-            {onBatchDelete && (
-              <Button variant="destructive" size="sm" onClick={handleBatchDelete} className="h-8">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete ({selectedRows.length})
+        <div className="flex flex-1 items-center">{tabSwitcher}</div>
+        <div className="flex items-center gap-2">
+          {hasSelectedMods && (
+            <>
+              <DataTableButton onClick={() => setCreateCollectionDialogOpen(true)}>
+                Create Collection
+              </DataTableButton>
+              {onBatchDelete && (
+                <DataTableButton variant="destructive" onClick={handleBatchDelete}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete ({selectedRows.length})
+                </DataTableButton>
+              )}
+            </>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  'h-8 gap-1 text-muted-foreground hover:text-foreground data-[state=open]:bg-accent',
+                  hasActiveFilters && 'text-foreground'
+                )}
+              >
+                <Filter className="h-3.5 w-3.5" />
+                {hasActiveFilters && <span className="flex h-1.5 w-1.5 rounded-full bg-primary" />}
               </Button>
-            )}
-          </div>
-        )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80">
+              <div className="p-3 space-y-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Search</label>
+                  <div className="relative">
+                    <Input
+                      placeholder="Filter by name..."
+                      value={searchInput}
+                      onChange={(event) => setSearchInput(event.target.value)}
+                      className="h-8 text-sm pr-8"
+                    />
+                    {searchInput && (
+                      <button
+                        onClick={handleClearSearch}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-muted-foreground">Type</label>
+                  <Select
+                    value={typeFilterValue}
+                    onValueChange={(value) =>
+                      table.getColumn('modType')?.setFilterValue(value === 'all' ? '' : [value])
+                    }
+                  >
+                    <SelectTrigger className="h-8 text-sm">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="mod">Mods</SelectItem>
+                      <SelectItem value="mission">Missions</SelectItem>
+                      <SelectItem value="map">Maps</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {hasActiveFilters && (
+                  <div className="border-t pt-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full h-7 text-xs text-muted-foreground hover:text-foreground"
+                      onClick={handleClearAllFilters}
+                    >
+                      Clear filters
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {onSubscribeClick && <DataTableButton onClick={onSubscribeClick}>New</DataTableButton>}
+        </div>
       </div>
 
       <div className="rounded-md border">

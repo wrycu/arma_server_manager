@@ -22,6 +22,7 @@ export function NavSection({
     title: string
     url: string
     icon?: Icon
+    disabled?: boolean
   }[]
   enableNavigation?: boolean
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
@@ -29,17 +30,24 @@ export function NavSection({
   const currentPath = routerState.location.pathname
 
   return (
-    <SidebarGroup {...props}>
-      <SidebarGroupLabel>{title}</SidebarGroupLabel>
+    <SidebarGroup className="py-1" {...props}>
+      <SidebarGroupLabel className="mb-0.5">{title}</SidebarGroupLabel>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="gap-0.5">
           {items.map((item) => {
-            const isActive = enableNavigation && currentPath === `/${item.url}`
+            const isActive = enableNavigation && !item.disabled && currentPath === `/${item.url}`
+            const isDisabled = item.disabled || false
 
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title} isActive={isActive}>
-                  <Link to={enableNavigation ? `/${item.url}` : '#'}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  isActive={isActive}
+                  disabled={isDisabled}
+                  className={isDisabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}
+                >
+                  <Link to={enableNavigation && !isDisabled ? `/${item.url}` : '#'}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </Link>

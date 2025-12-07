@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { SubscribedModsManager } from '@/pages/ModsPage'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/mod-subscriptions')({
-  component: SubscribedModsManager,
+  beforeLoad: () => {
+    throw redirect({ to: '/collections' })
+  },
 })

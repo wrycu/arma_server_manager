@@ -1,6 +1,9 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { ControlPanelPage } from '@/pages/ControlPanelPage'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
-  component: ControlPanelPage,
+  beforeLoad: async () => {
+    throw redirect({
+      to: '/arma3/control-panel',
+    })
+  },
 })

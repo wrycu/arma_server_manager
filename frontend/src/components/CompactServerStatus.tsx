@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   IconServer,
   IconPlayerPlay,
@@ -5,15 +6,19 @@ import {
   IconRefresh,
   IconDeviceFloppy,
   IconSettings,
+  IconCalendarTime,
 } from '@tabler/icons-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { CollectionSelector } from '@/components/ServerCollectionSelector'
 import { ServerSettings } from '@/components/ServerSettings'
+import { SchedulesDataTable } from '@/components/SchedulesDataTable'
+import { ScheduleDetailSidebar } from '@/components/ScheduleDetailSidebar'
+import { getColumns } from '@/components/SchedulesColumns'
 import { useNavigate } from '@tanstack/react-router'
 import type { Collection } from '@/types/collections'
-import type { ServerConfig } from '@/types/server'
+import type { ServerConfig, Schedule } from '@/types/server'
 import type { ServerActionRequest, ServerStatusResponse } from '@/types/api'
 import type { ServerConfiguration } from '@/types/settings'
 
@@ -32,6 +37,22 @@ interface CompactServerStatusProps {
   onSettingsOpenChange?: (open: boolean) => void
   onServerSettingsUpdate?: (settings: ServerConfiguration) => void
   onSaveServerSettings?: () => void
+  schedules?: Schedule[]
+  selectedSchedule?: Schedule | null
+  isSchedulesOpen?: boolean
+  isSchedulesLoading?: boolean
+  isCreatingSchedule?: boolean
+  onSchedulesOpenChange?: (open: boolean) => void
+  onScheduleRowClick?: (schedule: Schedule) => void
+  onCreateSchedule?: (data: { name: string; action: string; celeryName: string }) => Promise<void>
+  onScheduleSave?: (
+    id: number,
+    updates: { name: string; action: string; celeryName: string; enabled: boolean }
+  ) => Promise<void>
+  onScheduleExecute?: (id: number) => Promise<void>
+  onScheduleDelete?: (id: number) => Promise<void>
+  isScheduleSidebarOpen?: boolean
+  onScheduleSidebarOpenChange?: (open: boolean) => void
 }
 
 export function CompactServerStatus({
@@ -49,8 +70,24 @@ export function CompactServerStatus({
   onSettingsOpenChange,
   onServerSettingsUpdate,
   onSaveServerSettings,
+  schedules = [],
+  selectedSchedule = null,
+  isSchedulesOpen = false,
+  isSchedulesLoading = false,
+  isCreatingSchedule = false,
+  onSchedulesOpenChange,
+  onScheduleRowClick,
+  onCreateSchedule,
+  onScheduleSave,
+  onScheduleExecute,
+  onScheduleDelete,
+  isScheduleSidebarOpen = false,
+  onScheduleSidebarOpenChange,
 }: CompactServerStatusProps) {
   const navigate = useNavigate()
+
+  // Memoize columns to prevent recreation on every render
+  const schedulesColumns = useMemo(() => getColumns(), [])
 
   if (!server) {
     return (
@@ -138,22 +175,45 @@ export function CompactServerStatus({
 
         {/* Bottom Control Bar */}
         <div className="flex items-center justify-between pt-4 -mx-6 -mb-6 px-4 pb-8 mt-4">
-          {/* Settings Toggle - Bottom Left */}
-          {serverSettings && onSettingsOpenChange && (
-            <Button
-              onClick={() => onSettingsOpenChange(!isSettingsOpen)}
-              variant="ghost"
-              size="sm"
-              className={`flex items-center justify-center gap-2 h-8 ${
-                isSettingsOpen
-                  ? 'text-yellow-500 hover:text-yellow-600'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <IconSettings className="h-4 w-4" />
-              <span className="text-sm font-medium">Settings</span>
-            </Button>
-          )}
+          {/* Settings and Schedules Toggle - Bottom Left */}
+          <div className="flex items-center gap-2">
+            {serverSettings && onSettingsOpenChange && (
+              <Button
+                onClick={() => {
+                  if (isSchedulesOpen) onSchedulesOpenChange?.(false)
+                  onSettingsOpenChange(!isSettingsOpen)
+                }}
+                variant="ghost"
+                size="sm"
+                className={`flex items-center justify-center gap-2 h-8 ${
+                  isSettingsOpen
+                    ? 'text-yellow-500 hover:text-yellow-600'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <IconSettings className="h-4 w-4" />
+                <span className="text-sm font-medium">Settings</span>
+              </Button>
+            )}
+            {onSchedulesOpenChange && (
+              <Button
+                onClick={() => {
+                  if (isSettingsOpen) onSettingsOpenChange?.(false)
+                  onSchedulesOpenChange(!isSchedulesOpen)
+                }}
+                variant="ghost"
+                size="sm"
+                className={`flex items-center justify-center gap-2 h-8 ${
+                  isSchedulesOpen
+                    ? 'text-yellow-500 hover:text-yellow-600'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <IconCalendarTime className="h-4 w-4" />
+                <span className="text-sm font-medium">Schedules</span>
+              </Button>
+            )}
+          </div>
 
           {/* Server Actions - Bottom Right */}
           <div className="flex gap-2">
@@ -202,7 +262,6 @@ export function CompactServerStatus({
               <div className="border-t -mx-6 -mb-6">
                 <CollapsibleContent>
                   <div className="p-6 space-y-4">
-                    <div className="text-sm font-semibold">Configuration</div>
                     <ServerSettings
                       settings={serverSettings}
                       onUpdate={onServerSettingsUpdate}
@@ -228,7 +287,39 @@ export function CompactServerStatus({
               </div>
             </Collapsible>
           )}
+
+        {/* Schedules Drawer */}
+        {onSchedulesOpenChange && (
+          <Collapsible open={isSchedulesOpen} onOpenChange={onSchedulesOpenChange}>
+            <div className="border-t -mx-6 -mb-6">
+              <CollapsibleContent>
+                <div className="p-6 space-y-4">
+                  <SchedulesDataTable
+                    columns={schedulesColumns}
+                    data={schedules}
+                    isLoading={isSchedulesLoading}
+                    onRowClick={onScheduleRowClick}
+                    onCreateSchedule={onCreateSchedule}
+                    isCreating={isCreatingSchedule}
+                  />
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
+        )}
       </CardContent>
+
+      {/* Schedule Detail Sidebar */}
+      {onScheduleSidebarOpenChange && (
+        <ScheduleDetailSidebar
+          schedule={selectedSchedule}
+          open={isScheduleSidebarOpen}
+          onOpenChange={onScheduleSidebarOpenChange}
+          onSave={onScheduleSave}
+          onExecute={onScheduleExecute}
+          onDelete={onScheduleDelete}
+        />
+      )}
     </Card>
   )
 }

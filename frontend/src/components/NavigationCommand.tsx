@@ -1,11 +1,4 @@
-import {
-  IconServer,
-  IconSettings,
-  IconFolder,
-  IconPackage,
-  IconLogout,
-  IconCalendarTime,
-} from '@tabler/icons-react'
+import { IconServer, IconSettings, IconPuzzle, IconCalendarTime } from '@tabler/icons-react'
 import { useRouter } from '@tanstack/react-router'
 
 import {
@@ -36,15 +29,9 @@ const navigationData = {
   ],
   contentLibrary: [
     {
-      title: 'Collections',
-      url: 'collections',
-      icon: IconFolder,
-      shortcut: '⌘O',
-    },
-    {
-      title: 'Subscriptions',
-      url: 'mod-subscriptions',
-      icon: IconPackage,
+      title: 'Mods',
+      url: 'mods',
+      icon: IconPuzzle,
       shortcut: '⌘M',
     },
   ],
@@ -54,13 +41,6 @@ const navigationData = {
       url: 'settings',
       icon: IconSettings,
       shortcut: '⌘S',
-    },
-    {
-      title: 'Logout',
-      url: 'logout',
-      icon: IconLogout,
-      shortcut: '⌘L',
-      action: 'logout',
     },
   ],
 }
@@ -74,13 +54,8 @@ export function NavigationCommand({ className, onNavigate }: NavigationCommandPr
   const router = useRouter()
 
   const handleItemSelect = (item: { action?: string; url: string }) => {
-    if (item.action === 'logout') {
-      // TODO: Implement logout logic
-      console.log('Logout clicked')
-    } else {
-      const path = item.url === '' ? '/' : `/${item.url}`
-      router.navigate({ to: path })
-    }
+    const path = item.url === '' ? '/' : `/${item.url}`
+    router.navigate({ to: path })
     onNavigate?.()
   }
 
