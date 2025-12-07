@@ -31,7 +31,5 @@ export interface SecuritySettings {
 
 export interface SettingsData {
   notifications: NotificationSettings
-  server: ServerConfiguration
+  server?: ServerConfiguration
 }
-
-export type SettingsTab = 'server' | 'notifications'
