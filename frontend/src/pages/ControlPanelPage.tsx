@@ -2,22 +2,39 @@ import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { PageTitle } from '@/components/PageTitle'
 import { CompactServerStatus } from '@/components/CompactServerStatus'
-import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { useCollections } from '@/hooks/useCollections'
 import { useServer } from '@/hooks/useServer'
 import { serverService } from '@/services/server.service'
+import { handleApiError } from '@/lib/error-handler'
 import type { Collection } from '@/types/collections'
-import type { ServerConfig } from '@/types/server'
+import type { ServerConfig, CreateServerRequest } from '@/types/server'
 import type { ServerActionRequest } from '@/types/api'
+import type { ServerConfiguration } from '@/types/settings'
 
 export function ControlPanelPage() {
   const { collections } = useCollections()
-  const { servers, isServersLoading, refetchServers } = useServer()
+  const { servers, isServersLoading, refetchServers } = useServer(undefined, true)
 
   const [selectedStartupCollection, setSelectedStartupCollection] = useState<Collection | null>(
     null
   )
-  const [serverPendingDelete, setServerPendingDelete] = useState<ServerConfig | null>(null)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [serverSettings, setServerSettings] = useState<ServerConfiguration>({
+    name: '',
+    description: '',
+    server_name: '',
+    password: '',
+    admin_password: '',
+    max_players: 32,
+    mission_file: '',
+    server_config_file: '',
+    basic_config_file: '',
+    server_mods: '',
+    client_mods: '',
+    additional_params: '',
+    server_binary: '',
+  })
 
   // Refetch server data when component mounts to ensure fresh data
   useEffect(() => {
@@ -30,6 +47,28 @@ export function ControlPanelPage() {
       setSelectedStartupCollection(collections[0])
     }
   }, [collections, selectedStartupCollection])
+
+  // Load server settings when servers are available
+  useEffect(() => {
+    if (!isServersLoading && servers.length > 0) {
+      const server = servers[0]
+      setServerSettings({
+        name: server.name || '',
+        description: server.description || '',
+        server_name: server.server_name || '',
+        password: server.password || '',
+        admin_password: server.admin_password || '',
+        max_players: server.max_players || 32,
+        mission_file: server.mission_file || '',
+        server_config_file: server.server_config_file || '',
+        basic_config_file: server.basic_config_file || '',
+        server_mods: server.server_mods || '',
+        client_mods: server.client_mods || '',
+        additional_params: server.additional_params || '',
+        server_binary: server.server_binary || '',
+      })
+    }
+  }, [servers, isServersLoading])
 
   const handleServerAction = async (
     server: ServerConfig | null,
@@ -65,25 +104,45 @@ export function ControlPanelPage() {
     setSelectedStartupCollection(collection)
   }
 
-  const handleDeleteServer = (serverToDelete: ServerConfig | null) => {
-    if (!serverToDelete) return
-    setServerPendingDelete(serverToDelete)
+  const handleServerSettingsUpdate = (settings: ServerConfiguration) => {
+    setServerSettings(settings)
   }
 
-  const confirmDeleteServer = async () => {
-    if (!serverPendingDelete) return
+  const handleSaveServerSettings = async () => {
+    if (!servers.length) {
+      toast.error('No server found to update')
+      return
+    }
+
+    const server = servers[0]
+    setIsSaving(true)
 
     try {
-      await serverService.deleteServer(serverPendingDelete.id)
-      toast.success(`Server "${serverPendingDelete.server_name}" deleted successfully`)
+      const serverData: CreateServerRequest = {
+        name: serverSettings.name,
+        description: serverSettings.description || null,
+        server_name: serverSettings.server_name,
+        password: serverSettings.password || null,
+        admin_password: serverSettings.admin_password,
+        max_players: serverSettings.max_players,
+        mission_file: serverSettings.mission_file || null,
+        server_config_file: serverSettings.server_config_file || null,
+        basic_config_file: serverSettings.basic_config_file || null,
+        server_mods: serverSettings.server_mods || null,
+        client_mods: serverSettings.client_mods || null,
+        additional_params: serverSettings.additional_params || null,
+        server_binary: serverSettings.server_binary,
+      }
+
+      await serverService.updateServer(server.id, serverData)
+      toast.success('Server settings saved successfully!')
       refetchServers()
+      setIsSettingsOpen(false)
     } catch (error) {
-      console.error('Failed to delete server:', error)
-      toast.error(
-        `Failed to delete server: ${error instanceof Error ? error.message : String(error)}`
-      )
+      console.error('Failed to save server settings:', error)
+      handleApiError(error, 'Failed to save server settings')
     } finally {
-      setServerPendingDelete(null)
+      setIsSaving(false)
     }
   }
 
@@ -111,30 +170,15 @@ export function ControlPanelPage() {
               handleServerAction(server, action, collectionId)
             }
             onStartupCollectionChange={handleStartupCollectionChange}
-            onDeleteServer={server ? () => handleDeleteServer(server) : undefined}
+            serverSettings={server ? serverSettings : undefined}
+            isSettingsOpen={isSettingsOpen}
+            isSaving={isSaving}
+            onSettingsOpenChange={setIsSettingsOpen}
+            onServerSettingsUpdate={handleServerSettingsUpdate}
+            onSaveServerSettings={handleSaveServerSettings}
           />
         ))}
       </div>
-
-      {/* Delete Confirmation Dialog */}
-      <ConfirmationDialog
-        open={Boolean(serverPendingDelete)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setServerPendingDelete(null)
-          }
-        }}
-        title="Delete Server"
-        description={
-          serverPendingDelete
-            ? `Are you sure you want to delete server "${serverPendingDelete.server_name}"? This action cannot be undone.`
-            : 'Are you sure you want to delete this server? This action cannot be undone.'
-        }
-        confirmText="Delete Server"
-        cancelText="Cancel"
-        variant="destructive"
-        onConfirm={confirmDeleteServer}
-      />
     </div>
   )
 }

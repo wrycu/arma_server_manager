@@ -3,26 +3,19 @@ import {
   IconPlayerPlay,
   IconPlayerStop,
   IconRefresh,
+  IconDeviceFloppy,
   IconSettings,
-  IconTrash,
-  IconDots,
 } from '@tabler/icons-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
 import { CollectionSelector } from '@/components/ServerCollectionSelector'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { formatDate } from '@/lib/date'
+import { ServerSettings } from '@/components/ServerSettings'
 import { useNavigate } from '@tanstack/react-router'
 import type { Collection } from '@/types/collections'
 import type { ServerConfig } from '@/types/server'
 import type { ServerActionRequest, ServerStatusResponse } from '@/types/api'
+import type { ServerConfiguration } from '@/types/settings'
 
 interface CompactServerStatusProps {
   server: ServerConfig | null
@@ -33,7 +26,12 @@ interface CompactServerStatusProps {
   selectedStartupCollection: Collection | null
   onServerAction: (action: ServerActionRequest, collectionId?: number) => void
   onStartupCollectionChange: (collection: Collection | null) => void
-  onDeleteServer?: () => void
+  serverSettings?: ServerConfiguration
+  isSettingsOpen?: boolean
+  isSaving?: boolean
+  onSettingsOpenChange?: (open: boolean) => void
+  onServerSettingsUpdate?: (settings: ServerConfiguration) => void
+  onSaveServerSettings?: () => void
 }
 
 export function CompactServerStatus({
@@ -45,7 +43,12 @@ export function CompactServerStatus({
   selectedStartupCollection,
   onServerAction,
   onStartupCollectionChange,
-  onDeleteServer,
+  serverSettings,
+  isSettingsOpen = false,
+  isSaving = false,
+  onSettingsOpenChange,
+  onServerSettingsUpdate,
+  onSaveServerSettings,
 }: CompactServerStatusProps) {
   const navigate = useNavigate()
 
@@ -92,41 +95,10 @@ export function CompactServerStatus({
     <Card className="overflow-hidden">
       {/* Clean Header with Server Icon and Name */}
       <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-3 text-2xl">
-            <IconServer className="size-6 text-primary" />
-            {server.server_name}
-          </CardTitle>
-          <div className="flex items-center gap-2">
-            {derivedServerRunning && <Badge variant="default">Running</Badge>}
-            {!derivedServerRunning && server?.headless_client_active && (
-              <Badge variant="outline">HC Active</Badge>
-            )}
-            {server.is_active && <Badge variant="secondary">Active</Badge>}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <IconDots className="size-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
-                  <IconSettings className="size-4 mr-2" />
-                  Settings
-                </DropdownMenuItem>
-                {onDeleteServer && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={onDeleteServer} variant="destructive">
-                      <IconTrash className="size-4 mr-2" />
-                      Delete Server
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
+        <CardTitle className="flex items-center gap-3 text-2xl">
+          <IconServer className="size-6 text-primary" />
+          {server.server_name}
+        </CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
@@ -164,24 +136,56 @@ export function CompactServerStatus({
           />
         </div>
 
-        {/* Server Actions */}
-        <div className="space-y-3">
-          <div className="text-sm font-semibold">Server Actions</div>
-          <div className="flex gap-2 flex-wrap">
+        {/* Bottom Control Bar */}
+        <div className="flex items-center justify-between pt-4 -mx-6 -mb-6 px-4 pb-8 mt-4">
+          {/* Settings Toggle - Bottom Left */}
+          {serverSettings && onSettingsOpenChange && (
+            <Button
+              onClick={() => onSettingsOpenChange(!isSettingsOpen)}
+              variant="ghost"
+              size="sm"
+              className={`flex items-center justify-center gap-2 h-8 ${
+                isSettingsOpen
+                  ? 'text-yellow-500 hover:text-yellow-600'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <IconSettings className="h-4 w-4" />
+              <span className="text-sm font-medium">Settings</span>
+            </Button>
+          )}
+
+          {/* Server Actions - Bottom Right */}
+          <div className="flex gap-2">
             {canStart && (
-              <Button onClick={() => handleServerAction('start')} size="sm" variant="default">
+              <Button
+                onClick={() => handleServerAction('start')}
+                size="sm"
+                variant="ghost"
+                className="flex items-center justify-center h-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+              >
                 <IconPlayerPlay className="size-4 mr-1" />
                 Start
               </Button>
             )}
             {canStop && (
-              <Button onClick={() => handleServerAction('stop')} size="sm" variant="destructive">
+              <Button
+                onClick={() => handleServerAction('stop')}
+                size="sm"
+                variant="ghost"
+                className="flex items-center justify-center h-8 text-muted-foreground hover:text-foreground"
+              >
                 <IconPlayerStop className="size-4 mr-1" />
                 Stop
               </Button>
             )}
             {canRestart && (
-              <Button onClick={() => handleServerAction('restart')} size="sm" variant="outline">
+              <Button
+                onClick={() => handleServerAction('restart')}
+                size="sm"
+                variant="ghost"
+                className="flex items-center justify-center h-8 text-muted-foreground hover:text-foreground"
+              >
                 <IconRefresh className="size-4 mr-1" />
                 Restart
               </Button>
@@ -189,13 +193,41 @@ export function CompactServerStatus({
           </div>
         </div>
 
-        {/* Footer with timestamps */}
-        <div className="pt-4 border-t border-border/30">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Created {formatDate(server.created_at)}</span>
-            <span>Updated {formatDate(server.updated_at)}</span>
-          </div>
-        </div>
+        {/* Server Settings Drawer */}
+        {serverSettings &&
+          onSettingsOpenChange &&
+          onServerSettingsUpdate &&
+          onSaveServerSettings && (
+            <Collapsible open={isSettingsOpen} onOpenChange={onSettingsOpenChange}>
+              <div className="border-t -mx-6 -mb-6">
+                <CollapsibleContent>
+                  <div className="p-6 space-y-4">
+                    <div className="text-sm font-semibold">Configuration</div>
+                    <ServerSettings
+                      settings={serverSettings}
+                      onUpdate={onServerSettingsUpdate}
+                      showCard={false}
+                    />
+                    <div className="flex justify-end gap-2 mt-4">
+                      <Button
+                        onClick={onSaveServerSettings}
+                        disabled={
+                          isSaving ||
+                          !serverSettings.name ||
+                          !serverSettings.server_name ||
+                          !serverSettings.admin_password
+                        }
+                        className="flex items-center gap-2"
+                      >
+                        <IconDeviceFloppy className="h-4 w-4" />
+                        {isSaving ? 'Saving...' : 'Save'}
+                      </Button>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </div>
+            </Collapsible>
+          )}
       </CardContent>
     </Card>
   )
