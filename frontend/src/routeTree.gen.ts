@@ -11,13 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ServerConfigsRouteImport } from './routes/server-configs'
-import { Route as SchedulesRouteImport } from './routes/schedules'
 import { Route as ModSubscriptionsRouteImport } from './routes/mod-subscriptions'
-import { Route as ControlPanelRouteImport } from './routes/control-panel'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
-import { Route as CollectionsCollectionIdRouteImport } from './routes/collections/$collectionId'
+import { Route as Arma3ControlPanelRouteImport } from './routes/arma3/control-panel'
+import { Route as Arma3ModsIndexRouteImport } from './routes/arma3/mods/index'
+import { Route as Arma3ModsCollectionIdRouteImport } from './routes/arma3/mods/$collectionId'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -29,19 +28,9 @@ const ServerConfigsRoute = ServerConfigsRouteImport.update({
   path: '/server-configs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SchedulesRoute = SchedulesRouteImport.update({
-  id: '/schedules',
-  path: '/schedules',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ModSubscriptionsRoute = ModSubscriptionsRouteImport.update({
   id: '/mod-subscriptions',
   path: '/mod-subscriptions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ControlPanelRoute = ControlPanelRouteImport.update({
-  id: '/control-panel',
-  path: '/control-panel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -54,97 +43,95 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
-  id: '/collections/',
-  path: '/collections/',
+const Arma3ControlPanelRoute = Arma3ControlPanelRouteImport.update({
+  id: '/arma3/control-panel',
+  path: '/arma3/control-panel',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionsCollectionIdRoute = CollectionsCollectionIdRouteImport.update({
-  id: '/collections/$collectionId',
-  path: '/collections/$collectionId',
+const Arma3ModsIndexRoute = Arma3ModsIndexRouteImport.update({
+  id: '/arma3/mods/',
+  path: '/arma3/mods/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Arma3ModsCollectionIdRoute = Arma3ModsCollectionIdRouteImport.update({
+  id: '/arma3/mods/$collectionId',
+  path: '/arma3/mods/$collectionId',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
-  '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/settings': typeof SettingsRoute
-  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
-  '/collections': typeof CollectionsIndexRoute
+  '/arma3/control-panel': typeof Arma3ControlPanelRoute
+  '/arma3/mods/$collectionId': typeof Arma3ModsCollectionIdRoute
+  '/arma3/mods': typeof Arma3ModsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
-  '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/settings': typeof SettingsRoute
-  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
-  '/collections': typeof CollectionsIndexRoute
+  '/arma3/control-panel': typeof Arma3ControlPanelRoute
+  '/arma3/mods/$collectionId': typeof Arma3ModsCollectionIdRoute
+  '/arma3/mods': typeof Arma3ModsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/control-panel': typeof ControlPanelRoute
   '/mod-subscriptions': typeof ModSubscriptionsRoute
-  '/schedules': typeof SchedulesRoute
   '/server-configs': typeof ServerConfigsRoute
   '/settings': typeof SettingsRoute
-  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
-  '/collections/': typeof CollectionsIndexRoute
+  '/arma3/control-panel': typeof Arma3ControlPanelRoute
+  '/arma3/mods/$collectionId': typeof Arma3ModsCollectionIdRoute
+  '/arma3/mods/': typeof Arma3ModsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
-    | '/control-panel'
     | '/mod-subscriptions'
-    | '/schedules'
     | '/server-configs'
     | '/settings'
-    | '/collections/$collectionId'
-    | '/collections'
+    | '/arma3/control-panel'
+    | '/arma3/mods/$collectionId'
+    | '/arma3/mods'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/control-panel'
     | '/mod-subscriptions'
-    | '/schedules'
     | '/server-configs'
     | '/settings'
-    | '/collections/$collectionId'
-    | '/collections'
+    | '/arma3/control-panel'
+    | '/arma3/mods/$collectionId'
+    | '/arma3/mods'
   id:
     | '__root__'
     | '/'
     | '/auth'
-    | '/control-panel'
     | '/mod-subscriptions'
-    | '/schedules'
     | '/server-configs'
     | '/settings'
-    | '/collections/$collectionId'
-    | '/collections/'
+    | '/arma3/control-panel'
+    | '/arma3/mods/$collectionId'
+    | '/arma3/mods/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
-  ControlPanelRoute: typeof ControlPanelRoute
   ModSubscriptionsRoute: typeof ModSubscriptionsRoute
-  SchedulesRoute: typeof SchedulesRoute
   ServerConfigsRoute: typeof ServerConfigsRoute
   SettingsRoute: typeof SettingsRoute
-  CollectionsCollectionIdRoute: typeof CollectionsCollectionIdRoute
-  CollectionsIndexRoute: typeof CollectionsIndexRoute
+  Arma3ControlPanelRoute: typeof Arma3ControlPanelRoute
+  Arma3ModsCollectionIdRoute: typeof Arma3ModsCollectionIdRoute
+  Arma3ModsIndexRoute: typeof Arma3ModsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -163,25 +150,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServerConfigsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/schedules': {
-      id: '/schedules'
-      path: '/schedules'
-      fullPath: '/schedules'
-      preLoaderRoute: typeof SchedulesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/mod-subscriptions': {
       id: '/mod-subscriptions'
       path: '/mod-subscriptions'
       fullPath: '/mod-subscriptions'
       preLoaderRoute: typeof ModSubscriptionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/control-panel': {
-      id: '/control-panel'
-      path: '/control-panel'
-      fullPath: '/control-panel'
-      preLoaderRoute: typeof ControlPanelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -198,18 +171,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections/': {
-      id: '/collections/'
-      path: '/collections'
-      fullPath: '/collections'
-      preLoaderRoute: typeof CollectionsIndexRouteImport
+    '/arma3/control-panel': {
+      id: '/arma3/control-panel'
+      path: '/arma3/control-panel'
+      fullPath: '/arma3/control-panel'
+      preLoaderRoute: typeof Arma3ControlPanelRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections/$collectionId': {
-      id: '/collections/$collectionId'
-      path: '/collections/$collectionId'
-      fullPath: '/collections/$collectionId'
-      preLoaderRoute: typeof CollectionsCollectionIdRouteImport
+    '/arma3/mods/': {
+      id: '/arma3/mods/'
+      path: '/arma3/mods'
+      fullPath: '/arma3/mods'
+      preLoaderRoute: typeof Arma3ModsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/arma3/mods/$collectionId': {
+      id: '/arma3/mods/$collectionId'
+      path: '/arma3/mods/$collectionId'
+      fullPath: '/arma3/mods/$collectionId'
+      preLoaderRoute: typeof Arma3ModsCollectionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -218,13 +198,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
-  ControlPanelRoute: ControlPanelRoute,
   ModSubscriptionsRoute: ModSubscriptionsRoute,
-  SchedulesRoute: SchedulesRoute,
   ServerConfigsRoute: ServerConfigsRoute,
   SettingsRoute: SettingsRoute,
-  CollectionsCollectionIdRoute: CollectionsCollectionIdRoute,
-  CollectionsIndexRoute: CollectionsIndexRoute,
+  Arma3ControlPanelRoute: Arma3ControlPanelRoute,
+  Arma3ModsCollectionIdRoute: Arma3ModsCollectionIdRoute,
+  Arma3ModsIndexRoute: Arma3ModsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -215,6 +215,23 @@ export function useCollections() {
     }
   }
 
+  const updateCollection = async (
+    collectionId: number,
+    updates: { name: string; description: string }
+  ) => {
+    const existingCollection = findCollection(collectionId)
+    if (!existingCollection) return
+
+    try {
+      await updateCollectionMutation.mutateAsync({
+        id: collectionId,
+        updates,
+      })
+    } catch (error) {
+      console.error('Update collection failed:', error)
+    }
+  }
+
   const reorderModInCollection = async (
     collectionId: number,
     modId: number,
@@ -236,6 +253,7 @@ export function useCollections() {
     collections,
     isLoading,
     error,
+    isCreating: createCollectionMutation.isPending,
     createCollection,
     deleteCollection,
     toggleMod,
@@ -243,6 +261,7 @@ export function useCollections() {
     addModsToCollection,
     setActive,
     updateCollectionName,
+    updateCollection,
     reorderModInCollection,
   }
 }
