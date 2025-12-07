@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from '@tanstack/react-router'
+import { useState, useMemo, useEffect } from 'react'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 import { PageTitle } from '@/components/PageTitle'
@@ -25,7 +25,15 @@ import type { ExtendedModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
 export function ModsPage() {
-  const [activeTab, setActiveTab] = useState('collections')
+  const search = useSearch({ from: '/arma3/mods/' }) as { tab?: string; modId?: number }
+  const [activeTab, setActiveTab] = useState(search.tab || 'collections')
+
+  // Update active tab when search params change
+  useEffect(() => {
+    if (search.tab) {
+      setActiveTab(search.tab)
+    }
+  }, [search.tab])
 
   return (
     <div className="space-y-6">
@@ -145,6 +153,9 @@ function SubscriptionsTabContent({
   activeTab: string
   onTabChange: (tab: string) => void
 }) {
+  const search = useSearch({ from: '/arma3/mods/' }) as { tab?: string; modId?: number }
+  const navigate = useNavigate()
+
   const {
     modSubscriptions,
     addModSubscription,
@@ -214,6 +225,23 @@ function SubscriptionsTabContent({
 
   // Get the current mod data for the sidebar
   const selectedMod = selectedModId ? mods.find((mod) => mod.id === selectedModId) || null : null
+
+  // Auto-open sidebar when modId is in URL search params
+  useEffect(() => {
+    if (search.modId && mods.length > 0) {
+      const mod = mods.find((m) => m.id === search.modId)
+      if (mod) {
+        setSelectedModId(mod.id)
+        setIsSidebarOpen(true)
+        // Clear the modId from URL after opening
+        navigate({
+          to: '/arma3/mods',
+          search: { tab: 'subscriptions' },
+          replace: true,
+        })
+      }
+    }
+  }, [search.modId, mods, navigate])
 
   const handleRowClick = (mod: ExtendedModSubscription) => {
     setSelectedModId(mod.id)
