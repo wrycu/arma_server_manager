@@ -1,18 +1,150 @@
+import { useState, useMemo } from 'react'
+import { useNavigate } from '@tanstack/react-router'
+import { toast } from 'sonner'
+
 import { PageTitle } from '@/components/PageTitle'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+// Collections imports
+import { useCollections } from '@/hooks/useCollections'
+import { useServer } from '@/hooks/useServer'
+import { serverService } from '@/services/server.service'
+import { CollectionsDataTable } from '@/components/CollectionsDataTable'
+import { CollectionDetailSidebar } from '@/components/CollectionDetailSidebar'
+import { getColumns as getCollectionsColumns } from '@/components/CollectionsColumns'
+import type { Collection } from '@/types/collections'
+
+// Subscriptions imports
 import { useMods } from '@/hooks/useMods'
 import { DataTable } from '@/components/ModsDataTable'
-import { getColumns } from '@/components/ModsColumns'
-import { useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { IconPlus } from '@tabler/icons-react'
+import { getColumns as getModsColumns } from '@/components/ModsColumns'
 import { ModsSubscribeDialog } from '@/components/ModsSubscribeDialog'
 import { ModDetailSidebar } from '@/components/ModDetailSidebar'
 import { ConfirmationDialog } from '@/components/ConfirmationDialog'
-import { toast } from 'sonner'
 import type { ExtendedModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
-export function SubscribedModsManager() {
+export function ModsPage() {
+  const [activeTab, setActiveTab] = useState('collections')
+
+  return (
+    <div className="space-y-6">
+      <PageTitle title="Mods" description="Manage your mod collections and subscriptions" />
+
+      <div className="space-y-4">
+        {activeTab === 'collections' ? (
+          <CollectionsTabContent activeTab={activeTab} onTabChange={setActiveTab} />
+        ) : (
+          <SubscriptionsTabContent activeTab={activeTab} onTabChange={setActiveTab} />
+        )}
+      </div>
+    </div>
+  )
+}
+
+// Collections Tab Component
+function CollectionsTabContent({
+  activeTab,
+  onTabChange,
+}: {
+  activeTab: string
+  onTabChange: (tab: string) => void
+}) {
+  const navigate = useNavigate()
+  const { collections, createCollection, deleteCollection, updateCollection, isCreating } =
+    useCollections()
+
+  const { servers, refetchServers } = useServer()
+  const server = servers?.[0] || null
+
+  const [selectedCollection, _setSelectedCollection] = useState<Collection | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  const handleCreateCollection = async (newCollection: { name: string; description: string }) => {
+    await createCollection(newCollection)
+  }
+
+  const handleRowClick = (collection: Collection) => {
+    // Navigate to collection detail page
+    navigate({ to: `/arma3/mods/${collection.id}` })
+  }
+
+  const handleSetActiveCollection = async (collection: Collection) => {
+    if (!server) {
+      toast.error('No server configuration found')
+      return
+    }
+
+    try {
+      await serverService.updateServerCollectionId(server.id, collection.id)
+      toast.success(`Set "${collection.name}" as active collection`)
+      // Refetch server data to get updated collection_id
+      refetchServers()
+      setIsSidebarOpen(false)
+    } catch (error) {
+      console.error('Failed to set active collection:', error)
+      toast.error(
+        `Failed to set active collection: ${error instanceof Error ? error.message : String(error)}`
+      )
+    }
+  }
+
+  const handleSave = async (id: number, updates: { name: string; description: string }) => {
+    await updateCollection(id, updates)
+    toast.success('Collection updated successfully')
+  }
+
+  const handleDelete = async (id: number) => {
+    await deleteCollection(id)
+    setIsSidebarOpen(false)
+    toast.success('Collection deleted successfully')
+  }
+
+  // Memoize columns to prevent recreation on every render
+  const columns = useMemo(
+    () => getCollectionsColumns(server?.collection_id),
+    [server?.collection_id]
+  )
+
+  return (
+    <>
+      <CollectionsDataTable
+        columns={columns}
+        data={collections}
+        onRowClick={handleRowClick}
+        onCreateCollection={handleCreateCollection}
+        isCreating={isCreating}
+        tabSwitcher={
+          <Tabs value={activeTab} onValueChange={onTabChange} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="collections">Collections</TabsTrigger>
+              <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
+      />
+
+      <CollectionDetailSidebar
+        collection={selectedCollection}
+        open={isSidebarOpen}
+        onOpenChange={setIsSidebarOpen}
+        onSave={handleSave}
+        onSetActive={handleSetActiveCollection}
+        onDelete={handleDelete}
+        isActive={server?.collection_id === selectedCollection?.id}
+      />
+    </>
+  )
+}
+
+// Subscriptions Tab Component
+function SubscriptionsTabContent({
+  activeTab,
+  onTabChange,
+}: {
+  activeTab: string
+  onTabChange: (tab: string) => void
+}) {
   const {
     modSubscriptions,
     addModSubscription,
@@ -94,7 +226,7 @@ export function SubscribedModsManager() {
   }
 
   // Memoize columns to prevent recreation on every render
-  const columns = useMemo(() => getColumns(), [])
+  const columns = useMemo(() => getModsColumns(), [])
 
   // Subscribe dialog state and handler
   const [subscribeOpen, setSubscribeOpen] = useState(false)
@@ -111,21 +243,22 @@ export function SubscribedModsManager() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <PageTitle title="Mod Subscriptions" description="Manage your installed content" />
-        <Button size="xs" onClick={() => setSubscribeOpen(true)}>
-          <IconPlus className="h-4 w-4" />
-          New
-        </Button>
-      </div>
-
+    <>
       <DataTable
         columns={columns}
         data={mods}
         onCreateCollection={handleCreateCollection}
         onBatchDelete={handleBatchDelete}
         onRowClick={handleRowClick}
+        onSubscribeClick={() => setSubscribeOpen(true)}
+        tabSwitcher={
+          <Tabs value={activeTab} onValueChange={onTabChange} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="collections">Collections</TabsTrigger>
+              <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        }
       />
 
       <ModsSubscribeDialog
@@ -161,6 +294,10 @@ export function SubscribedModsManager() {
         variant="destructive"
         onConfirm={confirmBatchDelete}
       />
-    </div>
+    </>
   )
 }
+
+// Export legacy names for backwards compatibility
+export const SubscribedModsManager = ModsPage
+export const CollectionsListPage = ModsPage

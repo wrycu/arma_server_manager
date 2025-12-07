@@ -2,12 +2,10 @@ import * as React from 'react'
 import {
   IconServer,
   IconSettings,
-  IconFolder,
-  IconPackage,
-  IconLogout,
+  IconPuzzle,
   IconChevronsLeft,
   IconChevronsRight,
-  IconCalendarTime,
+  IconGift,
 } from '@tabler/icons-react'
 import { Link, useRouterState } from '@tanstack/react-router'
 
@@ -24,28 +22,24 @@ import {
 } from '@/components/ui/sidebar'
 
 const data = {
-  navControl: [
+  arma3: [
     {
       title: 'Control Panel',
-      url: 'control-panel',
+      url: 'arma3/control-panel',
       icon: IconServer,
     },
     {
-      title: 'Schedules',
-      url: 'schedules',
-      icon: IconCalendarTime,
+      title: 'Mods',
+      url: 'arma3/mods',
+      icon: IconPuzzle,
     },
   ],
-  navContent: [
+  armaReforger: [
     {
-      title: 'Collections',
-      url: 'collections',
-      icon: IconFolder,
-    },
-    {
-      title: 'Subscriptions',
-      url: 'mod-subscriptions',
-      icon: IconPackage,
+      title: 'Coming Soon',
+      url: '#',
+      icon: IconGift,
+      disabled: true,
     },
   ],
 }
@@ -70,9 +64,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <NavSection title="Server Management" items={data.navControl} />
-        <NavSection title="Content Library" items={data.navContent} />
+      <SidebarContent className="gap-1">
+        <NavSection title="ARMA 3" items={data.arma3} />
+        <NavSection title="ARMA Reforger" items={data.armaReforger} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -80,29 +74,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               onClick={toggleSidebar}
               tooltip={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              className="text-muted-foreground hover:text-foreground"
             >
               {isCollapsed ? <IconChevronsRight /> : <IconChevronsLeft />}
               <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Settings" isActive={currentPath === '/settings'}>
+            <SidebarMenuButton
+              asChild
+              tooltip="Settings"
+              isActive={currentPath === '/settings'}
+              className="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground"
+            >
               <Link to="/settings">
                 <IconSettings />
                 <span>Settings</span>
               </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => {
-                // TODO: Implement logout logic
-                console.log('Logout clicked')
-              }}
-              tooltip="Logout"
-            >
-              <IconLogout />
-              <span>Logout</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

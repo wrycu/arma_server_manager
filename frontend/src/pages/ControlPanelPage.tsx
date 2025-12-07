@@ -4,16 +4,26 @@ import { PageTitle } from '@/components/PageTitle'
 import { CompactServerStatus } from '@/components/CompactServerStatus'
 import { useCollections } from '@/hooks/useCollections'
 import { useServer } from '@/hooks/useServer'
+import { useSchedules } from '@/hooks/useSchedules'
 import { serverService } from '@/services/server.service'
 import { handleApiError } from '@/lib/error-handler'
 import type { Collection } from '@/types/collections'
-import type { ServerConfig, CreateServerRequest } from '@/types/server'
+import type { ServerConfig, CreateServerRequest, Schedule } from '@/types/server'
 import type { ServerActionRequest } from '@/types/api'
 import type { ServerConfiguration } from '@/types/settings'
 
 export function ControlPanelPage() {
   const { collections } = useCollections()
   const { servers, isServersLoading, refetchServers } = useServer(undefined, true)
+  const {
+    schedules,
+    isLoading: isSchedulesLoading,
+    createSchedule,
+    updateSchedule,
+    executeSchedule,
+    deleteSchedule,
+    isCreating: isCreatingSchedule,
+  } = useSchedules()
 
   const [selectedStartupCollection, setSelectedStartupCollection] = useState<Collection | null>(
     null
@@ -35,6 +45,11 @@ export function ControlPanelPage() {
     additional_params: '',
     server_binary: '',
   })
+
+  // Schedules state
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null)
+  const [isSchedulesOpen, setIsSchedulesOpen] = useState(false)
+  const [isScheduleSidebarOpen, setIsScheduleSidebarOpen] = useState(false)
 
   // Refetch server data when component mounts to ensure fresh data
   useEffect(() => {
@@ -146,6 +161,54 @@ export function ControlPanelPage() {
     }
   }
 
+  // Schedules handlers
+  const handleCreateSchedule = async (scheduleData: {
+    name: string
+    action: string
+    celeryName: string
+  }) => {
+    await createSchedule({
+      name: scheduleData.name.trim(),
+      action: scheduleData.action,
+      celeryName: scheduleData.celeryName,
+      enabled: true,
+    })
+  }
+
+  const handleScheduleRowClick = (schedule: Schedule) => {
+    setSelectedSchedule(schedule)
+    setIsScheduleSidebarOpen(true)
+  }
+
+  const handleScheduleSave = async (
+    id: number,
+    updates: {
+      name: string
+      action: string
+      celeryName: string
+      enabled: boolean
+    }
+  ) => {
+    await updateSchedule(id, {
+      name: updates.name.trim(),
+      action: updates.action,
+      celery_name: updates.celeryName,
+      enabled: updates.enabled,
+    })
+    toast.success('Schedule updated successfully')
+  }
+
+  const handleScheduleExecute = async (id: number) => {
+    await executeSchedule(id)
+    toast.success('Schedule executed successfully')
+  }
+
+  const handleScheduleDelete = async (id: number) => {
+    await deleteSchedule(id)
+    setIsScheduleSidebarOpen(false)
+    toast.success('Schedule deleted successfully')
+  }
+
   return (
     <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
@@ -176,6 +239,19 @@ export function ControlPanelPage() {
             onSettingsOpenChange={setIsSettingsOpen}
             onServerSettingsUpdate={handleServerSettingsUpdate}
             onSaveServerSettings={handleSaveServerSettings}
+            schedules={schedules}
+            selectedSchedule={selectedSchedule}
+            isSchedulesOpen={isSchedulesOpen}
+            isSchedulesLoading={isSchedulesLoading}
+            isCreatingSchedule={isCreatingSchedule}
+            onSchedulesOpenChange={setIsSchedulesOpen}
+            onScheduleRowClick={handleScheduleRowClick}
+            onCreateSchedule={handleCreateSchedule}
+            onScheduleSave={handleScheduleSave}
+            onScheduleExecute={handleScheduleExecute}
+            onScheduleDelete={handleScheduleDelete}
+            isScheduleSidebarOpen={isScheduleSidebarOpen}
+            onScheduleSidebarOpenChange={setIsScheduleSidebarOpen}
           />
         ))}
       </div>
