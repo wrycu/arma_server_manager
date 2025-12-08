@@ -1,7 +1,6 @@
-from http import HTTPStatus
 import os
 
-from flask import Blueprint, Response, current_app, request, send_from_directory
+from flask import Blueprint, Response, current_app, send_from_directory
 
 frontend_bp = Blueprint("frontend", __name__)
 
