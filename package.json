@@ -4,7 +4,7 @@
   "description": "Arma 3 server manager with mod management, server configuration, and scheduling capabilities",
   "scripts": {
     "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
-    "dev:backend": "cd backend && uv run python main.py",
+    "dev:backend": "cd backend && cross-env FLASK_ENV=production uv run python main.py",
     "dev:frontend": "cd frontend && pnpm dev",
     "dev:celery": "cd backend && cross-env PYTHONPATH=. uv run celery -A app.celery worker --loglevel=info --pool=solo",
     "dev:celery-beat": "cd backend && cross-env PYTHONPATH=. uv run celery -A app.celery beat --loglevel=info",
