@@ -25,7 +25,7 @@ def create_app(config_name: str | None = None) -> Flask:
     Returns:
         Configured Flask application instance
     """
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder="assets")
     # load .env file
     load_dotenv()
 
