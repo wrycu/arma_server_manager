@@ -1,6 +1,7 @@
 """Flask application factory with Celery integration."""
 
 import os
+import sys
 
 from celery import Celery, Task
 from celery.schedules import crontab
@@ -31,7 +32,13 @@ def create_app(config_name: str | None = None) -> Flask:
 
     # Load configuration
     if config_name is None:
-        config_name = os.environ.get("FLASK_ENV", "development")
+        # When running as a PyInstaller-built executable, default to
+        # production settings so static assets and other prod-only routes
+        # are correctly configured.
+        if getattr(sys, "frozen", False):
+            config_name = "production"
+        else:
+            config_name = os.environ.get("FLASK_ENV", "development")
 
     if config_name == "development":
         from .config import DevelopmentConfig
@@ -110,11 +117,10 @@ def create_app(config_name: str | None = None) -> Flask:
         @app.route("/<path:path>")
         def serve_static(path: str) -> Response:
             """Serve React static files in production."""
-            static_dir = os.path.join(app.root_path, "static")
-            if path != "" and os.path.exists(os.path.join(static_dir, path)):
+            static_dir = app.static_folder
+            if path and os.path.exists(os.path.join(static_dir, path)):  # type: ignore[arg-type]
                 return send_from_directory(static_dir, path)
-            else:
-                return send_from_directory(static_dir, "index.html")
+            return send_from_directory(static_dir, "index.html")
 
     class ContextTask(Task):
         """Make celery tasks work with Flask app context."""

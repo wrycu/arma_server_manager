@@ -5,7 +5,7 @@ a = Analysis(
     ['backend/main.py'],
     pathex=[],
     binaries=[],
-    datas=[("frontend/dist", "app/assets"), ("frontend/dist/assets", "app/assets")],
+    datas=[("backend/app/assets", "app/assets")],
     hiddenimports=[
         "celery.fixups",
         "celery.fixups.django",

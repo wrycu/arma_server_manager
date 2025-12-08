@@ -6,6 +6,7 @@ __pycache__/
 .Python
 develop-eggs/
 dist/
+build/main/
 downloads/
 eggs/
 .eggs/
@@ -51,6 +52,8 @@ pnpm-debug.log*
 frontend/dist/
 frontend/.vite/
 frontend/coverage/
+backend/app/assets/
+backend/app/static/
 
 
 # IDEs

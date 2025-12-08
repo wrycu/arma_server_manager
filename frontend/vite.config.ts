@@ -16,6 +16,14 @@ export default defineConfig(({ mode }) => {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
       },
     },
+    base: '/',
+    build: {
+      outDir: '../backend/app/assets',
+      emptyOutDir: true,
+      // Put built JS/CSS directly into the assets folder
+      // instead of an extra nested "assets" directory.
+      assetsDir: '.',
+    },
     server: {
       host: '0.0.0.0',
       port: 5173,

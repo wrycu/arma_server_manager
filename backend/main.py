@@ -39,6 +39,11 @@ def _run_app():
 
 
 if __name__ == "__main__":
+    # Only needed on Windows (esp. with PyInstaller) to avoid
+    # recursive process spawning and ensure multiprocessing works.
+    if platform.system() == "Windows":
+        multiprocessing.freeze_support()
+
     app_process = multiprocessing.Process(target=_run_app, name="app")
     celery_process = multiprocessing.Process(target=_run_celery, name="celery")
 

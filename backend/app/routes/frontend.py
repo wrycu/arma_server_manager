@@ -1,4 +1,4 @@
-from flask import Blueprint, Response, send_from_directory
+from flask import Blueprint, Response, current_app, send_from_directory
 
 frontend_bp = Blueprint("frontend", __name__)
 
@@ -13,5 +13,4 @@ def serve_static_files() -> Response:
     Returns:
         The actual web UI (files are built)
     """
-
-    return send_from_directory("assets", "index.html")
+    return send_from_directory(current_app.static_folder, "index.html")
