@@ -21,7 +21,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { useCommandPalette } from '@/contexts/CommandPaletteContext'
+import { useCommandPalette } from '@/hooks/useCommandPalette'
 
 const data = {
   arma3: [

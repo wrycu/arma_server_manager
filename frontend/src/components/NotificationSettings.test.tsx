@@ -23,9 +23,9 @@ describe('NotificationSettings component', () => {
 
     render(<NotificationSettings settings={baseSettings} onUpdate={handleUpdate} />)
 
-    // Toggle the main enable switch
-    const enableSwitch = screen.getByRole('switch', { name: /enable notifications/i })
-    await user.click(enableSwitch)
+    // Toggle the main enable checkbox
+    const enableCheckbox = screen.getByRole('checkbox', { name: /enable notifications/i })
+    await user.click(enableCheckbox)
 
     expect(handleUpdate).toHaveBeenCalled()
     const updated = handleUpdate.mock.calls[0][0] as NotificationSettingsType
@@ -54,8 +54,8 @@ describe('NotificationSettings component', () => {
 
     render(<NotificationSettings settings={baseSettings} onUpdate={handleUpdate} />)
 
-    const serverToggle = screen.getByRole('switch', { name: /server start\/stop/i })
-    await user.click(serverToggle)
+    const serverCheckbox = screen.getByRole('checkbox', { name: /server start\/stop/i })
+    await user.click(serverCheckbox)
 
     expect(handleUpdate).toHaveBeenCalled()
     const updated = handleUpdate.mock.calls[0][0] as NotificationSettingsType
