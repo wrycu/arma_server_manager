@@ -1,6 +1,6 @@
 import { NavigationCommand } from '@/components/NavigationCommand'
 import { CommandDialog } from '@/components/ui/command'
-import { useCommandPalette } from '@/contexts/CommandPaletteContext'
+import { useCommandPalette } from '@/hooks/useCommandPalette'
 
 export function NavigationCommandDialog() {
   const { open, setOpen } = useCommandPalette()

@@ -18,6 +18,14 @@ vi.mock('@/hooks/useServer', () => ({
   }),
 }))
 
+// Mock mods service to prevent image fetch requests
+// Return a rejected promise that React Query can handle gracefully
+vi.mock('@/services', () => ({
+  mods: {
+    getModSubscriptionImage: vi.fn(() => Promise.reject(new Error('Image not available in tests'))),
+  },
+}))
+
 // Mock TanStack Router hooks
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual('@tanstack/react-router')
@@ -102,8 +110,20 @@ const mockUseCollections = {
 const TestWrapper = ({ children }: { children: React.ReactNode }) => {
   const queryClient = new QueryClient({
     defaultOptions: {
-      queries: { retry: false },
+      queries: {
+        retry: false,
+        // Suppress query errors in tests to prevent noise
+        onError: () => {
+          // Silently handle query errors in tests
+        },
+      },
       mutations: { retry: false },
+    },
+    // Suppress logger to reduce noise
+    logger: {
+      log: () => {},
+      warn: () => {},
+      error: () => {},
     },
   })
 

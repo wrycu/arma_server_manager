@@ -5,7 +5,8 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-import { ModsList, getModStatus } from '@/components/CollectionsModsList'
+import { ModsList } from '@/components/CollectionsModsList'
+import { getModStatus } from '@/lib/modStatus'
 import * as modsService from '@/services/mods.service'
 import type { ModSubscription } from '@/types/mods'
 
