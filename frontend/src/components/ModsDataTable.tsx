@@ -41,6 +41,7 @@ import {
 import { CreateCollectionDialog } from '@/components/CollectionsCreateDialog'
 import type { CreateCollectionRequest } from '@/types/api'
 import { ModSubscription } from '@/types/mods'
+import { useDataTablePagination } from '@/hooks/useDataTablePagination'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -67,10 +68,16 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({})
   const [createCollectionDialogOpen, setCreateCollectionDialogOpen] = React.useState(false)
   const [searchInput, setSearchInput] = React.useState('')
+  const [pageSize, setPageSize] = useDataTablePagination()
 
   const table = useReactTable({
     data,
     columns,
+    initialState: {
+      pagination: {
+        pageSize,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -87,6 +94,13 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
   })
+
+  // Sync pageSize from hook to table when it changes
+  React.useEffect(() => {
+    if (table.getState().pagination.pageSize !== pageSize) {
+      table.setPageSize(pageSize)
+    }
+  }, [pageSize, table])
 
   // Debounce search input
   React.useEffect(() => {
@@ -292,16 +306,18 @@ export function DataTable<TData, TValue>({
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
-              table.setPageSize(Number(value))
+              const newPageSize = Number(value)
+              setPageSize(newPageSize)
+              table.setPageSize(newPageSize)
             }}
           >
             <SelectTrigger className="h-8 w-[70px] border-0 bg-transparent hover:bg-muted/50">
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
-              {[10, 20, 50, 100].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
+              {[20, 50, 100].map((size) => (
+                <SelectItem key={size} value={`${size}`}>
+                  {size}
                 </SelectItem>
               ))}
             </SelectContent>
