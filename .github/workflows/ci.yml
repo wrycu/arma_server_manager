@@ -55,6 +55,10 @@ jobs:
   frontend:
     name: Frontend CI
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
 
     steps:
       - name: Checkout code
@@ -90,9 +94,11 @@ jobs:
 
       - name: Run tests
         working-directory: ./frontend
+        env:
+          CI: true
         run: |
           mkdir -p test-results
-          pnpm test -- --reporter=verbose --reporter=github-actions --reporter=junit --outputFile=./test-results/junit.xml
+          pnpm test
 
       - name: Upload test results
         if: always()
