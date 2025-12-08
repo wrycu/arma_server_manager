@@ -25,7 +25,7 @@ def async_status(job_id: str) -> tuple[dict[str, str], int]:
     Returns:
         JSON response with current status and result (if applicable)
     """
-    print("hello world")
+
     try:
         result = AsyncResult(job_id)
         if result.state == "SUCCESS":
