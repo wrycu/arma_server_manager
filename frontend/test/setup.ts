@@ -7,6 +7,8 @@ console.error = (...args: unknown[]) => {
   if (
     msg.includes('Failed to load mod image') ||
     msg.includes('Network Error') ||
+    msg.includes('API Error:') ||
+    msg.includes('ERR_NETWORK') ||
     msg.includes('connect ECONNREFUSED') ||
     msg.includes('Download failed:') ||
     msg.includes('Download mod failed') ||
@@ -42,9 +44,16 @@ console.log = (...args: unknown[]) => {
   originalLog(...args)
 }
 
-// Polyfill URL.createObjectURL for jsdom
+// Polyfill URL.createObjectURL and URL.revokeObjectURL for jsdom
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 if (!(global as any).URL.createObjectURL) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(global as any).URL.createObjectURL = () => 'blob://test'
+}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+if (!(global as any).URL.revokeObjectURL) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ;(global as any).URL.revokeObjectURL = () => {
+    // No-op in tests
+  }
 }

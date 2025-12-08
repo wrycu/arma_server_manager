@@ -63,6 +63,111 @@ interface SortableModItemProps {
   onDownload?: (steamId: number) => void
 }
 
+export type ModStatusType =
+  | 'up-to-date'
+  | 'update-available'
+  | 'updating'
+  | 'not-downloaded'
+  | 'downloading'
+  | 'download-failed'
+
+export interface ModStatusInfo {
+  type: ModStatusType
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+  iconClassName: string
+}
+
+/**
+ * Determines the mod status based on mod properties.
+ * This is a pure function that can be easily unit tested.
+ */
+export function getModStatus(mod: ModSubscription): ModStatusInfo {
+  // Installed locally: determine if update is actually available
+  if (mod.localPath) {
+    // Show loading spinner when update is in progress
+    if (mod.status === 'update_requested') {
+      return {
+        type: 'updating',
+        label: 'Updating…',
+        icon: IconLoader2,
+        iconClassName: 'h-3.5 w-3.5 text-muted-foreground animate-spin',
+      }
+    }
+
+    const hasNewerSteamUpdate =
+      !!mod.shouldUpdate &&
+      !!mod.steamLastUpdated &&
+      !!mod.lastUpdated &&
+      new Date(mod.steamLastUpdated) > new Date(mod.lastUpdated)
+
+    if (hasNewerSteamUpdate) {
+      return {
+        type: 'update-available',
+        label: 'Update available',
+        icon: IconAlertCircle,
+        iconClassName: 'h-3.5 w-3.5 text-orange-600',
+      }
+    }
+
+    return {
+      type: 'up-to-date',
+      label: 'Up to date',
+      icon: IconCheck,
+      iconClassName: 'h-3.5 w-3.5 text-green-600',
+    }
+  }
+
+  // Not installed locally: show backend-driven transient states when present
+  if (mod.status === 'install_requested') {
+    return {
+      type: 'downloading',
+      label: 'Downloading…',
+      icon: IconLoader2,
+      iconClassName: 'h-3.5 w-3.5 text-muted-foreground animate-spin',
+    }
+  }
+
+  if (mod.status === 'install_failed') {
+    return {
+      type: 'download-failed',
+      label: 'Download failed',
+      icon: IconAlertCircle,
+      iconClassName: 'h-3.5 w-3.5 text-red-600',
+    }
+  }
+
+  return {
+    type: 'not-downloaded',
+    label: 'Not downloaded',
+    icon: IconCloudDownload,
+    iconClassName: 'h-3.5 w-3.5 text-muted-foreground',
+  }
+}
+
+interface ModStatusIndicatorProps {
+  status: ModStatusInfo
+}
+
+const ModStatusIndicator = memo(function ModStatusIndicator({ status }: ModStatusIndicatorProps) {
+  const Icon = status.icon
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          className="flex items-center"
+          role="status"
+          aria-label={status.label}
+          data-testid={`mod-status-${status.type}`}
+        >
+          <Icon className={status.iconClassName} aria-hidden="true" />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="right">{status.label}</TooltipContent>
+    </Tooltip>
+  )
+})
+
 const SortableModItem = memo(function SortableModItem({
   mod,
   collectionId,
@@ -80,89 +185,24 @@ const SortableModItem = memo(function SortableModItem({
     opacity: isDragging ? 0.5 : 1,
   }
 
-  // Render download state icon
-  const downloadIcon = useMemo(() => {
-    // Installed locally: determine if update is actually available
-    if (mod.localPath) {
-      const hasNewerSteamUpdate =
-        !!mod.shouldUpdate &&
-        !!mod.steamLastUpdated &&
-        !!mod.lastUpdated &&
-        new Date(mod.steamLastUpdated) > new Date(mod.lastUpdated)
-
-      if (hasNewerSteamUpdate) {
-        return (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center">
-                <IconAlertCircle className="h-3.5 w-3.5 text-orange-600" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="right">Update available</TooltipContent>
-          </Tooltip>
-        )
-      }
-
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center">
-              <IconCheck className="h-3.5 w-3.5 text-green-600" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="right">Up to date</TooltipContent>
-        </Tooltip>
-      )
-    }
-
-    // Not installed locally: show backend-driven transient states when present
-    if (mod.status === 'install_requested') {
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center">
-              <IconLoader2 className="h-3.5 w-3.5 text-muted-foreground animate-spin" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="right">Downloading…</TooltipContent>
-        </Tooltip>
-      )
-    }
-
-    if (mod.status === 'install_failed') {
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center">
-              <IconAlertCircle className="h-3.5 w-3.5 text-red-600" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="right">Download failed</TooltipContent>
-        </Tooltip>
-      )
-    }
-
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center">
-            <IconCloudDownload className="h-3.5 w-3.5 text-muted-foreground" />
-          </div>
-        </TooltipTrigger>
-        <TooltipContent side="right">Not downloaded</TooltipContent>
-      </Tooltip>
-    )
-  }, [mod.localPath, mod.shouldUpdate, mod.steamLastUpdated, mod.lastUpdated, mod.status])
+  const modStatus = useMemo(() => getModStatus(mod), [mod])
 
   return (
-    <div ref={setNodeRef} style={style} className="group/sortable flex items-start">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="group/sortable flex items-start"
+      data-testid={`mod-item-${mod.id}`}
+    >
       <div
         {...attributes}
         {...listeners}
         className="opacity-0 group-hover/sortable:opacity-100 cursor-grab active:cursor-grabbing transition-opacity duration-150 flex items-center justify-center w-8 h-6 shrink-0 mt-2"
         onClick={(e) => e.stopPropagation()}
+        aria-label="Drag to reorder"
+        data-testid={`mod-drag-handle-${mod.id}`}
       >
-        <IconGripVertical className="h-4 w-4 text-muted-foreground" />
+        <IconGripVertical className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
       </div>
       <Item
         variant="muted"
@@ -176,6 +216,9 @@ const SortableModItem = memo(function SortableModItem({
           }
         }}
         tabIndex={0}
+        role="button"
+        aria-label={`Mod: ${mod.name}`}
+        data-testid={`mod-item-button-${mod.id}`}
       >
         <ItemMedia>
           <ModAvatar
@@ -189,13 +232,21 @@ const SortableModItem = memo(function SortableModItem({
         <ItemContent>
           <ItemTitle>{mod.name}</ItemTitle>
           <ItemDescription>
-            <div className="flex items-center gap-2">
-              {downloadIcon}
+            <div className="flex items-center gap-2" data-testid={`mod-status-container-${mod.id}`}>
+              <ModStatusIndicator status={modStatus} />
               {mod.isServerMod && (
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex items-center">
-                      <IconServer className="h-3.5 w-3.5 text-muted-foreground" />
+                    <div
+                      className="flex items-center"
+                      role="img"
+                      aria-label="Server-side mod"
+                      data-testid={`mod-server-indicator-${mod.id}`}
+                    >
+                      <IconServer
+                        className="h-3.5 w-3.5 text-muted-foreground"
+                        aria-hidden="true"
+                      />
                     </div>
                   </TooltipTrigger>
                   <TooltipContent side="right">Server-side mod</TooltipContent>
@@ -216,8 +267,11 @@ const SortableModItem = memo(function SortableModItem({
                 onDownload(mod.steamId)
               }}
               title="Download mod"
+              disabled={mod.status === 'install_requested'}
+              aria-label="Download mod"
+              data-testid={`mod-download-button-${mod.id}`}
             >
-              <IconDownload className="h-3 w-3" />
+              <IconDownload className="h-3 w-3" aria-hidden="true" />
             </Button>
           )}
           <Button
@@ -228,8 +282,11 @@ const SortableModItem = memo(function SortableModItem({
               e.stopPropagation()
               onRemoveMod(collectionId, mod.id, mod.name)
             }}
+            aria-label="Remove from collection"
+            title="Remove from collection"
+            data-testid={`mod-remove-button-${mod.id}`}
           >
-            <IconTrash className="h-3 w-3" />
+            <IconTrash className="h-3 w-3" aria-hidden="true" />
           </Button>
         </ItemActions>
       </Item>
@@ -267,22 +324,33 @@ export function ModsList({
     })
   )
 
-  // Only sync from props when the set of mod IDs changes (additions/removals), not just reordering
+  // Sync from props when mod IDs change or when mod data changes
   useEffect(() => {
-    const currentIds = items
-      .map((item) => item.id)
-      .sort()
-      .join(',')
-    const propsIds = filteredMods
-      .map((mod) => mod.id)
-      .sort()
-      .join(',')
+    // Don't update during drag
+    if (activeId) return
 
-    // Only update if the set of mods has changed (not just reordered)
-    if (currentIds !== propsIds && !activeId) {
-      setItems(filteredMods)
-    }
-  }, [filteredMods, activeId, items])
+    setItems((currentItems) => {
+      const currentIds = currentItems
+        .map((item) => item.id)
+        .sort()
+        .join(',')
+      const propsIds = filteredMods
+        .map((mod) => mod.id)
+        .sort()
+        .join(',')
+
+      // IDs changed - reset with new mods
+      if (currentIds !== propsIds) {
+        return filteredMods
+      }
+
+      // IDs same but data might have changed - update while preserving order
+      return currentItems.map((item) => {
+        const updated = filteredMods.find((m) => m.id === item.id)
+        return updated || item
+      })
+    })
+  }, [filteredMods, activeId])
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(event.active.id as number)
@@ -323,14 +391,21 @@ export function ModsList({
 
   if (filteredMods.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
-        <IconFolder className="h-12 w-12 text-muted-foreground/30 mb-3" />
+      <div
+        className="flex flex-col items-center justify-center h-64 text-center"
+        data-testid="mods-list-empty"
+      >
+        <IconFolder className="h-12 w-12 text-muted-foreground/30 mb-3" aria-hidden="true" />
         <p className="text-sm text-muted-foreground mb-3">
           {searchQuery ? 'No mods match your search' : 'No mods in this collection'}
         </p>
         {!searchQuery && (
-          <Button size="xs" onClick={() => onAddMods(collectionId)}>
-            <IconPlus className="h-4 w-4" />
+          <Button
+            size="xs"
+            onClick={() => onAddMods(collectionId)}
+            data-testid="mods-list-add-button"
+          >
+            <IconPlus className="h-4 w-4" aria-hidden="true" />
             Add Mods
           </Button>
         )}
@@ -347,7 +422,7 @@ export function ModsList({
       onDragCancel={handleDragCancel}
     >
       <SortableContext items={items.map((mod) => mod.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-1">
+        <div className="space-y-1" data-testid="mods-list">
           {items.map((mod) => (
             <SortableModItem
               key={mod.id}

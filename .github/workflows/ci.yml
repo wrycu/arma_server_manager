@@ -1,4 +1,4 @@
-name: CI 
+name: CI
 
 on:
   pull_request:
@@ -12,40 +12,40 @@ jobs:
   backend:
     name: Backend CI
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Install uv
         uses: astral-sh/setup-uv@v4
         with:
           version: "latest"
           enable-cache: true
-          
+
       - name: Set up Python
         run: uv python install 3.11
-        
+
       - name: Install backend dependencies
         working-directory: ./backend
         run: uv sync
-        
+
       - name: Lint with Ruff
         working-directory: ./backend
         run: uv run ruff check .
-        
+
       - name: Check formatting with Ruff
         working-directory: ./backend
         run: uv run ruff format --check .
-        
+
       - name: Check formatting with Black
         working-directory: ./backend
         run: uv run black --check .
-        
+
       - name: Type check with MyPy
         working-directory: ./backend
         run: uv run mypy .
-        
+
       - name: Run tests
         working-directory: ./backend
         env:
@@ -55,43 +55,63 @@ jobs:
   frontend:
     name: Frontend CI
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: latest
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'pnpm'
           cache-dependency-path: frontend/pnpm-lock.yaml
-          
+
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: pnpm install
-        
+
       - name: Lint with ESLint
         working-directory: ./frontend
         run: pnpm lint
-        
+
       - name: Check formatting with Prettier
         working-directory: ./frontend
         run: pnpm exec prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
-        
+
       - name: Type check with TypeScript
         working-directory: ./frontend
         run: pnpm exec tsc --noEmit
-        
+
       - name: Run tests
         working-directory: ./frontend
-        run: pnpm test
-        
+        run: |
+          mkdir -p test-results
+          pnpm test -- --reporter=verbose --reporter=github-actions --reporter=junit --outputFile=./test-results/junit.xml
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: frontend/test-results/junit.xml
+          retention-days: 7
+
+      - name: Publish test results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: frontend/test-results/junit.xml
+          check_name: Frontend Unit Tests
+          comment_mode: create new
+          report_individual_runs: true
+          deduplicate_classes_by_file_name: true
+
       - name: Build application
         working-directory: ./frontend
         run: pnpm build
