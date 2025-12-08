@@ -108,7 +108,7 @@ jobs:
         with:
           files: frontend/test-results/junit.xml
           check_name: Frontend Unit Tests
-          comment_mode: create new
+          comment_mode: failures
           report_individual_runs: true
           deduplicate_classes_by_file_name: true
 
