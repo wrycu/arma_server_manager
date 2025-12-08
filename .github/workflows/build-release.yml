@@ -42,14 +42,7 @@ jobs:
           pnpm install --frozen-lockfile
 
       - name: Build frontend
-        run: |
-          cd frontend
-          pnpm run build
-
-      - name: Copy frontend to backend static
-        run: |
-          rm -rf backend/app/static
-          cp -r frontend/dist backend/app/static
+        run: pnpm run build:frontend
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
@@ -61,18 +54,11 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Build wheel with uv
-        run: |
-          cd backend
-          uv build
+      - name: Install PyInstaller
+        run: uv pip install --system pyinstaller
 
-      - name: Find wheel file
-        id: wheel
-        run: |
-          WHEEL=$(find backend/dist -name "*.whl" | head -n 1)
-          echo "wheel_path=$WHEEL" >> $GITHUB_OUTPUT
-          echo "wheel_name=$(basename $WHEEL)" >> $GITHUB_OUTPUT
-          echo "Found wheel: $WHEEL"
+      - name: Build executable with PyInstaller
+        run: pyinstaller main.spec
 
       - name: Get release ID for tag push
         id: release
@@ -92,27 +78,27 @@ jobs:
               core.setOutput('release_id', '');
             }
 
-      - name: Upload wheel as release asset (from release event)
+      - name: Upload executable as release asset (from release event)
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.wheel.outputs.wheel_path }}
+          files: dist/main/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload wheel as release asset (from tag push)
+      - name: Upload executable as release asset (from tag push)
         if: github.event_name == 'push' && steps.release.outputs.release_id != ''
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.wheel.outputs.wheel_path }}
+          files: dist/main/*
           tag: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload wheel as artifact (for manual releases)
+      - name: Upload executable as artifact (for manual releases)
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: wheel-package
-          path: ${{ steps.wheel.outputs.wheel_path }}
+          name: arma-server-manager-linux
+          path: dist/main/
           retention-days: 30
