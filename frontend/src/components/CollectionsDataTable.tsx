@@ -38,26 +38,28 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
-import type { Schedule } from '@/types/server'
-import { CreateScheduleDialog } from '@/components/SchedulesCreateDialog'
+import type { Collection } from '@/types/collections'
+import { CreateCollectionDialog } from '@/components/CollectionsCreateDialog'
 
-export interface SchedulesDataTableProps {
-  columns: ColumnDef<Schedule>[]
-  data: Schedule[]
+export interface CollectionsDataTableProps {
+  columns: ColumnDef<Collection>[]
+  data: Collection[]
   isLoading?: boolean
-  onRowClick?: (schedule: Schedule) => void
-  onCreateSchedule?: (data: { name: string; action: string; celeryName: string }) => Promise<void>
+  onRowClick?: (collection: Collection) => void
+  onCreateCollection?: (data: { name: string; description: string }) => void
   isCreating?: boolean
+  tabSwitcher?: React.ReactNode
 }
 
-export function SchedulesDataTable(props: SchedulesDataTableProps) {
+export function CollectionsDataTable(props: CollectionsDataTableProps) {
   const {
     columns,
     data,
     isLoading = false,
     onRowClick,
-    onCreateSchedule,
-    isCreating = false,
+    onCreateCollection,
+    isCreating: _isCreating = false,
+    tabSwitcher,
   } = props
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -91,8 +93,7 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
     return () => clearTimeout(timer)
   }, [searchInput, table])
 
-  const statusFilterValue = (table.getColumn('enabled')?.getFilterValue() as string) ?? 'all'
-  const hasActiveFilters = searchInput || statusFilterValue !== 'all'
+  const hasActiveFilters = searchInput
 
   const handleClearSearch = React.useCallback(() => {
     setSearchInput('')
@@ -102,8 +103,18 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
   const handleClearAllFilters = React.useCallback(() => {
     setSearchInput('')
     table.getColumn('name')?.setFilterValue('')
-    table.getColumn('enabled')?.setFilterValue(undefined)
   }, [table])
+
+  const handleCreateCollection = async (collectionData: { name: string; description: string }) => {
+    if (onCreateCollection) {
+      try {
+        await onCreateCollection(collectionData)
+        setCreateDialogOpen(false)
+      } catch (error) {
+        console.error('Failed to create collection:', error)
+      }
+    }
+  }
 
   // Only show skeleton on first load with no data
   // If we have data (even stale), keep the table visible
@@ -127,25 +138,10 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
     )
   }
 
-  const handleCreateSchedule = async (scheduleData: {
-    name: string
-    action: string
-    celeryName: string
-  }) => {
-    if (onCreateSchedule) {
-      try {
-        await onCreateSchedule(scheduleData)
-        setCreateDialogOpen(false)
-      } catch (error) {
-        console.error('Failed to create schedule:', error)
-      }
-    }
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex flex-1 items-center">{/* Empty space on left */}</div>
+        <div className="flex flex-1 items-center">{tabSwitcher}</div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -182,26 +178,6 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
                     )}
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Status</label>
-                  <Select
-                    value={statusFilterValue}
-                    onValueChange={(value) =>
-                      table
-                        .getColumn('enabled')
-                        ?.setFilterValue(value === 'all' ? undefined : value)
-                    }
-                  >
-                    <SelectTrigger className="h-8 text-sm">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 {hasActiveFilters && (
                   <div className="border-t pt-2">
                     <Button
@@ -220,12 +196,11 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
           {isLoading && (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
           )}
-          {onCreateSchedule && (
-            <CreateScheduleDialog
+          {onCreateCollection && (
+            <CreateCollectionDialog
               open={createDialogOpen}
               onOpenChange={setCreateDialogOpen}
-              onCreateSchedule={handleCreateSchedule}
-              isCreating={isCreating}
+              onCreate={handleCreateCollection}
               trigger={<DataTableButton>New</DataTableButton>}
             />
           )}
@@ -266,7 +241,7 @@ export function SchedulesDataTable(props: SchedulesDataTableProps) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No schedules found.
+                  No collections found.
                 </TableCell>
               </TableRow>
             )}

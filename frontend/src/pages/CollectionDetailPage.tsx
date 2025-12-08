@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useSearch } from '@tanstack/react-router'
-import { IconPlus, IconCheck, IconX } from '@tabler/icons-react'
+import { IconCheck, IconX } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { PageTitle } from '@/components/PageTitle'
+import { DataTableButton } from '@/components/DataTableButton'
 
 import { useCollections } from '@/hooks/useCollections'
 import { useServer } from '@/hooks/useServer'
@@ -21,8 +22,8 @@ import type { ModToRemove } from '@/types/collections'
 import type { ModSubscription } from '@/types/mods'
 
 export function CollectionDetailPage() {
-  const { collectionId } = useParams({ from: '/collections/$collectionId' })
-  const search = useSearch({ from: '/collections/$collectionId' }) as { search?: string }
+  const { collectionId } = useParams({ from: '/arma3/mods/$collectionId' })
+  const search = useSearch({ from: '/arma3/mods/$collectionId' }) as { search?: string }
   const navigate = useNavigate()
   const collectionIdNum = parseInt(collectionId, 10)
 
@@ -107,7 +108,7 @@ export function CollectionDetailPage() {
   }
 
   const handleBackToCollections = () => {
-    navigate({ to: '/collections' })
+    navigate({ to: '/arma3/mods' })
   }
 
   const handleModClick = (mod: ModSubscription) => {
@@ -140,7 +141,7 @@ export function CollectionDetailPage() {
   const handleSearchChange = (value: string) => {
     setSearchQuery(value)
     navigate({
-      to: '/collections/$collectionId',
+      to: '/arma3/mods/$collectionId',
       params: { collectionId },
       search: value ? { search: value } : {},
     })
@@ -244,20 +245,15 @@ export function CollectionDetailPage() {
           </div>
           <div className="flex items-center gap-2">
             {server && server.collection_id !== collection.id && (
-              <Button variant="outline" size="xs" onClick={handleSetActiveCollection}>
-                Set Active
-              </Button>
+              <DataTableButton onClick={handleSetActiveCollection}>Set Active</DataTableButton>
             )}
             {server && server.collection_id === collection.id && (
-              <Button variant="outline" size="xs" disabled>
+              <DataTableButton variant="ghost" disabled>
                 Active
-              </Button>
+              </DataTableButton>
             )}
             {collection.mods.length > 0 && (
-              <Button variant="outline" size="xs" onClick={() => handleAddMods(collection.id)}>
-                <IconPlus className="h-4 w-4" />
-                Add Mods
-              </Button>
+              <DataTableButton onClick={() => handleAddMods(collection.id)}>Add</DataTableButton>
             )}
           </div>
         </div>

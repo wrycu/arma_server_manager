@@ -2,12 +2,11 @@ import * as React from 'react'
 import {
   IconServer,
   IconSettings,
-  IconFolder,
-  IconPackage,
-  IconLogout,
+  IconPuzzle,
   IconChevronsLeft,
   IconChevronsRight,
-  IconCalendarTime,
+  IconGift,
+  IconSearch,
 } from '@tabler/icons-react'
 import { Link, useRouterState } from '@tanstack/react-router'
 
@@ -22,30 +21,27 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { useCommandPalette } from '@/contexts/CommandPaletteContext'
 
 const data = {
-  navControl: [
+  arma3: [
     {
       title: 'Control Panel',
-      url: 'control-panel',
+      url: 'arma3/control-panel',
       icon: IconServer,
     },
     {
-      title: 'Schedules',
-      url: 'schedules',
-      icon: IconCalendarTime,
+      title: 'Mods',
+      url: 'arma3/mods',
+      icon: IconPuzzle,
     },
   ],
-  navContent: [
+  armaReforger: [
     {
-      title: 'Collections',
-      url: 'collections',
-      icon: IconFolder,
-    },
-    {
-      title: 'Subscriptions',
-      url: 'mod-subscriptions',
-      icon: IconPackage,
+      title: 'Coming Soon',
+      url: '#',
+      icon: IconGift,
+      disabled: true,
     },
   ],
 }
@@ -55,6 +51,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isCollapsed = state === 'collapsed'
   const routerState = useRouterState()
   const currentPath = routerState.location.pathname
+  const { setOpen } = useCommandPalette()
+
+  // Detect if user is on Mac
+  const isMac =
+    typeof navigator !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0
+  const commandKey = isMac ? '⌘' : 'Ctrl'
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -70,9 +72,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <NavSection title="Server Management" items={data.navControl} />
-        <NavSection title="Content Library" items={data.navContent} />
+      <SidebarContent className="gap-1">
+        <NavSection title="ARMA 3" items={data.arma3} />
+        <NavSection title="ARMA Reforger" items={data.armaReforger} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
@@ -80,29 +82,37 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton
               onClick={toggleSidebar}
               tooltip={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+              className="text-muted-foreground hover:text-foreground"
             >
               {isCollapsed ? <IconChevronsRight /> : <IconChevronsLeft />}
               <span>{isCollapsed ? 'Expand' : 'Collapse'}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Settings" isActive={currentPath === '/settings'}>
-              <Link to="/settings">
-                <IconSettings />
-                <span>Settings</span>
-              </Link>
+            <SidebarMenuButton
+              onClick={() => setOpen(true)}
+              tooltip={{
+                children: (
+                  <span>Quick search for pages, mods, and collections ({commandKey}+K)</span>
+                ),
+              }}
+              className="cursor-pointer text-muted-foreground hover:text-foreground"
+            >
+              <IconSearch />
+              <span>Search</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={() => {
-                // TODO: Implement logout logic
-                console.log('Logout clicked')
-              }}
-              tooltip="Logout"
+              asChild
+              tooltip="Settings"
+              isActive={currentPath === '/settings'}
+              className="text-muted-foreground hover:text-foreground data-[active=true]:text-foreground"
             >
-              <IconLogout />
-              <span>Logout</span>
+              <Link to="/settings">
+                <IconSettings />
+                <span>Settings</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
