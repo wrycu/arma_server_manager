@@ -31,7 +31,9 @@ def _run_app():
         app.config["MOD_MANAGERS"]["ARMA3"].empty_mod_staging_dir()
 
     debug_mode = app.config.get("DEBUG", False)
-    app.run(debug=debug_mode, host="0.0.0.0", port=5000)
+    # Disable reloader when running in multiprocessing context (Windows compatibility)
+    # The reloader uses multiprocessing which conflicts with our Process-based setup
+    app.run(debug=debug_mode, host="0.0.0.0", port=5000, use_reloader=False)
 
 
 if __name__ == "__main__":
