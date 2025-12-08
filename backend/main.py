@@ -1,6 +1,7 @@
 """Application entry point for Flask development server."""
 
 import multiprocessing
+import platform
 
 from app import celery, create_app, db
 
@@ -31,7 +32,10 @@ def _run_app():
         app.config["MOD_MANAGERS"]["ARMA3"].empty_mod_staging_dir()
 
     debug_mode = app.config.get("DEBUG", False)
-    app.run(debug=debug_mode, host="0.0.0.0", port=5000)
+    # Disable reloader on Windows when running in multiprocessing context
+    # The reloader uses multiprocessing which conflicts with our Process-based setup on Windows
+    use_reloader = debug_mode and platform.system() != "Windows"
+    app.run(debug=debug_mode, host="0.0.0.0", port=5000, use_reloader=use_reloader)
 
 
 if __name__ == "__main__":
