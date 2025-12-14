@@ -7,6 +7,7 @@ a = Analysis(
     binaries=[],
     datas=[("backend/app/assets", "app/assets")],
     hiddenimports=[
+        "celery",
         "celery.fixups",
         "celery.fixups.django",
         "celery.loaders.app",
@@ -23,6 +24,7 @@ a = Analysis(
         "celery.app.events",
         "celery.backends.database",
         "celery.worker.strategy",
+        "celery.loaders.default",
     ],
     hookspath=[],
     hooksconfig={},
