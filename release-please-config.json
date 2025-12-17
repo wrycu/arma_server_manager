@@ -1,9 +1,20 @@
 {
   "packages": {
     ".": {
-      "release-type": "python",
-      "version-file": "backend/pyproject.toml",
-      "package-name": "arma-server-manager"
+      "release-type": "simple",
+      "package-name": "arma-server-manager",
+      "extra-files": [
+        {
+          "type": "json",
+          "path": "package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "toml",
+          "path": "backend/pyproject.toml",
+          "jsonpath": "$.project.version"
+        }
+      ]
     }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
