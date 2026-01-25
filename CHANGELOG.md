@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.3.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.2.0...arma-server-manager-v0.3.0) (2026-01-25)
+
+
+### Features
+
+* add install scripts and rename executable ([#143](https://github.com/wrycu/arma_server_manager/issues/143)) ([d60acaf](https://github.com/wrycu/arma_server_manager/commit/d60acaf41dc17f577035affa795f8d9c116556ab))
+* **frontend:** add batch download button for selected mods in subscriptions tab ([#135](https://github.com/wrycu/arma_server_manager/issues/135)) ([c643e75](https://github.com/wrycu/arma_server_manager/commit/c643e7533262ba70d96274ef3fdefc166cdc053b))
+
+
+### Bug Fixes
+
+* **frontend:** consolidate server action toasts to prevent duplicates ([#141](https://github.com/wrycu/arma_server_manager/issues/141)) ([0e64139](https://github.com/wrycu/arma_server_manager/commit/0e641399ae2ed8464352d33f4bff1280e8a8bdb7))
+* **frontend:** memoize useServer hook functions to prevent infinite refetch loop ([582ce6f](https://github.com/wrycu/arma_server_manager/commit/582ce6fd682d9324e1c1178f327c7ea2380da29b))
+* **frontend:** prevent settings form state from being overwritten during refetches ([11844ef](https://github.com/wrycu/arma_server_manager/commit/11844ef884247a0fdf999789ddf159d68ca9c4f3))
+* **server:** actually load mods ([#142](https://github.com/wrycu/arma_server_manager/issues/142)) ([f167873](https://github.com/wrycu/arma_server_manager/commit/f16787382ed58bcf4b4f4dc328679cacc368f3e0))
+
 ## [0.2.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.1.0...arma-server-manager-v0.2.0) (2025-12-17)
 
 
