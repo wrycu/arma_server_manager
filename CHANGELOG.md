@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.2](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.1...arma-server-manager-v0.3.2) (2026-01-25)
+
+
+### Bug Fixes
+
+* **ci:** add multi-platform release builds for Windows and Linux ([#146](https://github.com/wrycu/arma_server_manager/issues/146)) ([8e26371](https://github.com/wrycu/arma_server_manager/commit/8e263711cfad01fccfe17122438e4457c46a225b))
+* **server:** scheduled tasks ([e09ec91](https://github.com/wrycu/arma_server_manager/commit/e09ec91858835fdc84d7701c7efe4abbff7dd899))
+
 ## [0.3.1](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.0...arma-server-manager-v0.3.1) (2026-01-25)
 
 
