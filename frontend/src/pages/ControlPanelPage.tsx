@@ -97,26 +97,20 @@ export function ControlPanelPage() {
   ) => {
     if (!server) return
     try {
-      const actionText =
-        action.action === 'start' ? 'start' : action.action === 'stop' ? 'stop' : 'restart'
-
-      toast.info(`${actionText.charAt(0).toUpperCase() + actionText.slice(1)}ing server...`)
-
       const result = await serverService.performServerAction(action.action, _collectionId)
 
-      toast.success(result.message)
-
-      if (selectedStartupCollection) {
-        toast.info(`Using collection: ${selectedStartupCollection.name}`)
-      }
+      // Combine all information into a single toast message
+      const collectionInfo = selectedStartupCollection
+        ? ` using collection: ${selectedStartupCollection.name}`
+        : ''
+      toast.success(`${result.message}${collectionInfo}`)
 
       // Refetch server data to get updated status
       refetchServers()
     } catch (error) {
+      // Error toast is already handled by the API interceptor in api.ts
+      // Just log the error here for debugging purposes
       console.error(`Failed to ${action.action} server:`, error)
-      toast.error(
-        `Failed to ${action.action} server: ${error instanceof Error ? error.message : String(error)}`
-      )
     }
   }
 
