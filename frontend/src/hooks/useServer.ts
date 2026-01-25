@@ -1,3 +1,4 @@
+import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { server } from '@/services'
 import { handleApiError } from '@/lib/error-handler'
@@ -36,20 +37,23 @@ export function useServer(serverId?: number, includeSensitive: boolean = false) 
     enabled: !!serverId,
   })
 
-  // Utility functions for cache management
-  const invalidateServers = () => {
+  // Utility functions for cache management - memoized to prevent infinite re-renders
+  const invalidateServers = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['servers'] })
-  }
+  }, [queryClient])
 
-  const invalidateServer = (id?: number) => {
-    if (id) {
-      queryClient.invalidateQueries({ queryKey: ['server', id] })
-    }
-  }
+  const invalidateServer = useCallback(
+    (id?: number) => {
+      if (id) {
+        queryClient.invalidateQueries({ queryKey: ['server', id] })
+      }
+    },
+    [queryClient]
+  )
 
-  const refetchServers = () => {
+  const refetchServers = useCallback(() => {
     queryClient.refetchQueries({ queryKey: ['servers'] })
-  }
+  }, [queryClient])
 
   return {
     // Data
