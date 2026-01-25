@@ -947,7 +947,7 @@ class Arma3ServerHelper:
             for mod in sorted(
                 server_details["collection"]["mods"], key=lambda x: x["load_order"]
             ):
-                if mod["status"] not in [ModStatus.installed]:
+                if mod["mod"]["status"] not in ["installed"]:
                     # do not attempt to load mods which are not downloaded
                     continue
                 if mod["mod"]["server_mod"] and not headless_client:
