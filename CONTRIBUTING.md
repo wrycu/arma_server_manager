@@ -44,6 +44,66 @@ Ensure you have the following installed:
    pnpm run dev:full
    ```
 
+6. **Access the application**:
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:5000
+
+## Development Commands
+
+| Command | Description |
+|---------|-------------|
+| `pnpm run dev` | Start backend and frontend |
+| `pnpm run dev:full` | Start all services including Celery |
+| `pnpm run test` | Run all tests |
+| `pnpm run lint` | Lint all code |
+| `pnpm run format` | Format all code |
+| `pnpm run install:all` | Install all dependencies |
+
+### Backend Commands
+
+| Command | Description |
+|---------|-------------|
+| `cd backend && uv run python main.py` | Start Flask server |
+| `cd backend && uv run pytest` | Run Python tests |
+| `cd backend && uv run ruff check . && uv run mypy .` | Lint and type check |
+| `cd backend && uv run ruff format .` | Format Python code |
+| `cd backend && uv run celery -A app.celery worker --loglevel=info` | Start Celery worker |
+
+### Frontend Commands
+
+| Command | Description |
+|---------|-------------|
+| `cd frontend && pnpm dev` | Start Vite dev server |
+| `cd frontend && pnpm build` | Build for production |
+| `cd frontend && pnpm lint` | Lint TypeScript/React |
+| `cd frontend && pnpm format` | Format frontend code |
+
+## Architecture Overview
+
+### Backend
+- **Flask** application with SQLAlchemy ORM using SQLite database
+- **Celery** for background tasks (mod downloads, server operations)
+- **Models**: Core entities are `Mod`, `Collection`, `ModCollectionEntry`, `ServerConfig`
+- **API Routes**: RESTful API in `app/routes/api.py`
+- **Background Tasks**: Celery tasks in `app/tasks/background.py`
+
+### Frontend
+- **React** with TypeScript and Vite build system
+- **Tailwind CSS** with **Shadcn/UI** components
+- **Axios** for API communication
+- **React Query** for data fetching and caching
+
+### Key Concepts
+- **Mods**: Arma 3 mods with Steam Workshop integration
+- **Collections**: Groups of mods that can be applied to server configurations
+- **Server Configurations**: Complete Arma 3 server setups with mod lists
+
+### Environment Configuration
+- Backend: Uses `.env` file (see `backend/.env.example`)
+- Frontend: Uses `.env.local` file (see `frontend/.env.example`)
+- Default ports: Backend (5000), Frontend (5173), Redis (6379)
+- Celery can use SQLite (default) or Redis via docker-compose
+
 ## Development Workflow
 
 ### Making Changes
@@ -387,6 +447,16 @@ This project adheres to a Code of Conduct. By participating, you are expected to
 - Gracefully accept constructive criticism
 - Focus on what is best for the community
 - Show empathy towards other community members
+
+## Building from Source
+
+To build a distributable binary:
+
+1. Install dependencies (`pnpm`, `pyinstaller`)
+2. Build the frontend: `pnpm run build:frontend`
+3. Build the binary: `pyinstaller main.spec`
+
+The built binary will be in `dist/main/`.
 
 ## License
 
