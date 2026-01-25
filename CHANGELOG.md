@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.0...arma-server-manager-v0.3.1) (2026-01-25)
+
+
+### Bug Fixes
+
+* **ci:** include PyInstaller executable in release assets ([#144](https://github.com/wrycu/arma_server_manager/issues/144)) ([6971dd0](https://github.com/wrycu/arma_server_manager/commit/6971dd0823ce73c11657d19e4351abf1c3b5850e))
+
 ## [0.3.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.2.0...arma-server-manager-v0.3.0) (2026-01-25)
 
 
