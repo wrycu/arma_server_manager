@@ -185,6 +185,14 @@ function SubscriptionsTabContent({
     setDeleteConfirmOpen(true)
   }
 
+  const handleBatchDownload = async (steamIds: number[]) => {
+    if (steamIds.length === 0) return
+    toast.info(`Starting download of ${steamIds.length} mod(s)...`)
+    for (const steamId of steamIds) {
+      await downloadMod(steamId)
+    }
+  }
+
   const confirmBatchDelete = async () => {
     try {
       // Delete all selected mods using their Steam IDs
@@ -277,6 +285,7 @@ function SubscriptionsTabContent({
         data={mods}
         onCreateCollection={handleCreateCollection}
         onBatchDelete={handleBatchDelete}
+        onBatchDownload={handleBatchDownload}
         onRowClick={handleRowClick}
         onSubscribeClick={() => setSubscribeOpen(true)}
         tabSwitcher={
