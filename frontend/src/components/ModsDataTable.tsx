@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ChevronLeft, ChevronRight, Trash2, Filter, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Trash2, Filter, X, Download } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -48,6 +48,7 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   onCreateCollection?: (collection: CreateCollectionRequest) => void
   onBatchDelete?: (steamIds: number[]) => void
+  onBatchDownload?: (steamIds: number[]) => void
   onRowClick?: (row: TData) => void
   onSubscribeClick?: () => void
   tabSwitcher?: React.ReactNode
@@ -58,6 +59,7 @@ export function DataTable<TData, TValue>({
   data,
   onCreateCollection,
   onBatchDelete,
+  onBatchDownload,
   onRowClick,
   onSubscribeClick,
   tabSwitcher,
@@ -133,6 +135,22 @@ export function DataTable<TData, TValue>({
     setRowSelection({})
   }
 
+  const handleBatchDownload = () => {
+    if (onBatchDownload) {
+      // Only download mods that aren't already installed
+      const modsToDownload = selectedMods.filter((mod) => !mod.localPath)
+      const steamIds = modsToDownload.map((mod) => mod.steamId)
+      if (steamIds.length > 0) {
+        onBatchDownload(steamIds)
+      }
+    }
+    // Clear selection after initiating downloads
+    setRowSelection({})
+  }
+
+  // Count how many selected mods can be downloaded (not already installed)
+  const downloadableModsCount = selectedMods.filter((mod) => !mod.localPath).length
+
   const typeFilterRaw = table.getColumn('modType')?.getFilterValue()
   const typeFilterValue = (Array.isArray(typeFilterRaw) ? typeFilterRaw[0] : typeFilterRaw) ?? 'all'
   const hasActiveFilters = searchInput || typeFilterValue !== 'all'
@@ -158,6 +176,12 @@ export function DataTable<TData, TValue>({
               <DataTableButton onClick={() => setCreateCollectionDialogOpen(true)}>
                 Create Collection
               </DataTableButton>
+              {onBatchDownload && downloadableModsCount > 0 && (
+                <DataTableButton onClick={handleBatchDownload}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download ({downloadableModsCount})
+                </DataTableButton>
+              )}
               {onBatchDelete && (
                 <DataTableButton variant="destructive" onClick={handleBatchDelete}>
                   <Trash2 className="mr-2 h-4 w-4" />
