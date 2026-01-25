@@ -90,7 +90,12 @@ download_and_install() {
     mkdir -p "$INSTALL_DIR"
 
     # Find the executable in the extracted files
-    if [ -f "$temp_dir/$BINARY_NAME" ]; then
+    # The archive contains a directory with the same name as the binary
+    local extracted_dir="$temp_dir/$BINARY_NAME"
+    if [ -d "$extracted_dir" ] && [ -f "$extracted_dir/$BINARY_NAME" ]; then
+        # Copy the entire directory contents (executable + supporting files)
+        cp -r "$extracted_dir"/* "$INSTALL_DIR/"
+    elif [ -f "$temp_dir/$BINARY_NAME" ]; then
         mv "$temp_dir/$BINARY_NAME" "$INSTALL_DIR/"
     elif [ -f "$temp_dir/main" ]; then
         mv "$temp_dir/main" "$INSTALL_DIR/$BINARY_NAME"
