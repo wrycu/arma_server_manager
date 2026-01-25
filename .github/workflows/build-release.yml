@@ -64,7 +64,7 @@ jobs:
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/main/*
+          files: dist/arma_server_manager/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -72,7 +72,7 @@ jobs:
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/main/*
+          files: dist/arma_server_manager/*
           tag_name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -82,5 +82,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: arma-server-manager-linux
-          path: dist/main/
+          path: dist/arma_server_manager/
           retention-days: 30
