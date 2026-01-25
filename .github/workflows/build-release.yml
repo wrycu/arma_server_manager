@@ -17,7 +17,16 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            archive_ext: tar.gz
+          - os: windows-latest
+            platform: windows
+            archive_ext: zip
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,27 +69,40 @@ jobs:
       - name: Build executable with PyInstaller
         run: pyinstaller main.spec
 
-      - name: Upload executable as release asset (from release event)
+      - name: Package archive (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          cd dist
+          tar -czvf arma_server_manager-${{ matrix.platform }}-x64.${{ matrix.archive_ext }} arma_server_manager
+
+      - name: Package archive (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          cd dist
+          Compress-Archive -Path arma_server_manager -DestinationPath arma_server_manager-${{ matrix.platform }}-x64.${{ matrix.archive_ext }}
+
+      - name: Upload archive as release asset (from release event)
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/arma_server_manager/*
+          files: dist/arma_server_manager-${{ matrix.platform }}-x64.${{ matrix.archive_ext }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload executable as release asset (from tag push)
+      - name: Upload archive as release asset (from tag push)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/arma_server_manager/*
+          files: dist/arma_server_manager-${{ matrix.platform }}-x64.${{ matrix.archive_ext }}
           tag_name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload executable as artifact (for manual releases)
+      - name: Upload archive as artifact (for manual releases)
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
-          name: arma-server-manager-linux
-          path: dist/arma_server_manager/
+          name: arma-server-manager-${{ matrix.platform }}-x64
+          path: dist/arma_server_manager-${{ matrix.platform }}-x64.${{ matrix.archive_ext }}
           retention-days: 30

@@ -78,25 +78,22 @@ function Install-ArmaServerManager {
             $exePath = Get-ChildItem -Path $tempDir -Recurse -Filter "*.exe" | Select-Object -First 1
         }
 
-        if ($exePath) {
-            $destPath = Join-Path $InstallDir "$BinaryName.exe"
-            Copy-Item -Path $exePath.FullName -Destination $destPath -Force
-        }
-        else {
+        if (-not $exePath) {
             Write-Error "Could not find executable in archive"
             exit 1
         }
 
-        # Copy all other files from the archive (DLLs, etc.)
-        $extractedDir = Join-Path $tempDir "main"
+        # The archive contains a directory named 'arma_server_manager' with all files
+        $extractedDir = Join-Path $tempDir $BinaryName
         if (-not (Test-Path $extractedDir)) {
+            # Fallback to temp dir if directory structure is different
             $extractedDir = $tempDir
         }
 
-        Get-ChildItem -Path $extractedDir -File | Where-Object { $_.Extension -ne ".zip" } | ForEach-Object {
-            if ($_.Name -ne $exePath.Name) {
-                Copy-Item -Path $_.FullName -Destination $InstallDir -Force
-            }
+        # Copy entire directory contents (executable + supporting files like DLLs, _internal, etc.)
+        Write-Status "Copying application files..."
+        Get-ChildItem -Path $extractedDir | Where-Object { $_.Extension -ne ".zip" } | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination $InstallDir -Recurse -Force
         }
     }
     finally {
