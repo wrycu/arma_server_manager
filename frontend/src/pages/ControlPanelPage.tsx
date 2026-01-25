@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { toast } from 'sonner'
 import { PageTitle } from '@/components/PageTitle'
 import { CompactServerStatus } from '@/components/CompactServerStatus'
@@ -51,6 +51,9 @@ export function ControlPanelPage() {
   const [isSchedulesOpen, setIsSchedulesOpen] = useState(false)
   const [isScheduleSidebarOpen, setIsScheduleSidebarOpen] = useState(false)
 
+  // Track if we've done the initial population of server settings
+  const hasInitializedSettings = useRef(false)
+
   // Refetch server data when component mounts to ensure fresh data
   useEffect(() => {
     refetchServers()
@@ -63,9 +66,10 @@ export function ControlPanelPage() {
     }
   }, [collections, selectedStartupCollection])
 
-  // Load server settings when servers are available
+  // Load server settings only once when servers are first available
+  // This prevents form state from being overwritten during refetches
   useEffect(() => {
-    if (!isServersLoading && servers.length > 0) {
+    if (!isServersLoading && servers.length > 0 && !hasInitializedSettings.current) {
       const server = servers[0]
       setServerSettings({
         name: server.name || '',
@@ -82,6 +86,7 @@ export function ControlPanelPage() {
         additional_params: server.additional_params || '',
         server_binary: server.server_binary || '',
       })
+      hasInitializedSettings.current = true
     }
   }, [servers, isServersLoading])
 
@@ -151,6 +156,8 @@ export function ControlPanelPage() {
 
       await serverService.updateServer(server.id, serverData)
       toast.success('Server settings saved successfully!')
+      // Reset the initialization flag so next refetch will update form state
+      hasInitializedSettings.current = false
       refetchServers()
       setIsSettingsOpen(false)
     } catch (error) {
