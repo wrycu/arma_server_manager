@@ -18,6 +18,7 @@ def _run_celery():
     celery.worker_main(
         [
             "worker",
+            "--beat",
             "--loglevel=info",
             "--pool=solo",
             "--concurrency=1",
