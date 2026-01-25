@@ -11,7 +11,7 @@ from flask import current_app
 from sqlalchemy.sql import and_
 
 from app import db
-from app.models.mod import Mod, ModStatus
+from app.models.mod import Mod, ModStatus, ModType
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
 
@@ -65,7 +65,7 @@ def download_arma3_mod(mod_id: int) -> None:
         current_app.config["MOD_MANAGERS"]["ARMA3"].dst_dir,
         f"{mod_data.filename}",
     )
-    if mod_data.mod_type == "mission":
+    if mod_data.mod_type == ModType.mission:
         mod_dir = os.path.join(
             current_app.config["MOD_MANAGERS"]["ARMA3"].mission_dir,
             f"{mod_data.filename}",
