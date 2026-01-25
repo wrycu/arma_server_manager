@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.2.0...arma-server-manager-v0.3.0) (2026-01-25)
+
+
+### Features
+
+* **frontend:** add batch download button for selected mods in subscriptions tab ([#135](https://github.com/wrycu/arma_server_manager/issues/135)) ([c643e75](https://github.com/wrycu/arma_server_manager/commit/c643e7533262ba70d96274ef3fdefc166cdc053b))
+
 ## [0.2.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.1.0...arma-server-manager-v0.2.0) (2025-12-17)
 
 
