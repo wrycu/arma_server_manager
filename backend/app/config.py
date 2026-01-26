@@ -29,10 +29,10 @@ class Config:
         or "db+sqlite:///celery_results.db",
     }
 
-    # CORS settings
-    CORS_ORIGINS = os.environ.get(
-        "CORS_ORIGINS", "http://localhost:3000,http://localhost:5173"
-    ).split(",")
+    # CORS settings - default to allowing all origins in development
+    # Override with CORS_ORIGINS env var for production (comma-separated list)
+    _cors_env = os.environ.get("CORS_ORIGINS", "")
+    CORS_ORIGINS = _cors_env.split(",") if _cors_env else ["*"]
 
     # SteamCMD settings
     STEAMCMD = {
