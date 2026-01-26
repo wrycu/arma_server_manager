@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.3...arma-server-manager-v0.3.4) (2026-01-26)
+
+
+### Bug Fixes
+
+* **ci:** use ubuntu-22.04 in release-please workflow ([#152](https://github.com/wrycu/arma_server_manager/issues/152)) ([5f88edd](https://github.com/wrycu/arma_server_manager/commit/5f88eddf527bc0a49307b4f4453846b5c2208819))
+
 ## [0.3.3](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.2...arma-server-manager-v0.3.3) (2026-01-26)
 
 
