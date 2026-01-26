@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Git ref to build from (branch, tag, or SHA). Leave empty for current branch.'
+        required: false
 
 permissions:
   contents: write
@@ -32,7 +37,7 @@ jobs:
 
   build-and-upload:
     needs: release-please
-    if: needs.release-please.outputs.release_created
+    if: needs.release-please.outputs.release_created || github.event_name == 'workflow_dispatch'
     strategy:
       matrix:
         include:
@@ -47,7 +52,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
+          ref: ${{ github.event.inputs.tag || needs.release-please.outputs.tag_name || github.ref }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -79,8 +84,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install PyInstaller
-        run: uv pip install --system pyinstaller
+      - name: Install backend dependencies and PyInstaller
+        run: uv pip install --system ./backend pyinstaller
 
       - name: Build executable with PyInstaller
         run: pyinstaller main.spec
@@ -99,9 +104,18 @@ jobs:
           Compress-Archive -Path arma_server_manager -DestinationPath arma_server_manager-${{ matrix.platform }}-x64.${{ matrix.archive_ext }}
 
       - name: Upload archive as release asset
+        if: needs.release-please.outputs.release_created
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: dist/arma_server_manager-${{ matrix.platform }}-x64.${{ matrix.archive_ext }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload archive as artifact (manual builds)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: arma-server-manager-${{ matrix.platform }}-x64
+          path: dist/arma_server_manager-${{ matrix.platform }}-x64.${{ matrix.archive_ext }}
+          retention-days: 30
