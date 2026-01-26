@@ -436,11 +436,7 @@ export function ModDetailSidebar({
                     : 'This will permanently remove the mod subscription. This action cannot be undone.'}
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDeleteConfirm(false)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
                     Cancel
                   </Button>
                   <Button
@@ -456,50 +452,52 @@ export function ModDetailSidebar({
             )}
 
             {/* Action buttons - side by side, right aligned */}
-            {!showUninstallConfirm && !showDeleteConfirm && (onUninstall && mod.localPath || onRemove || (onDelete && !onRemove)) && (
-              <div className="flex justify-end gap-2">
-                {/* Uninstall local files (keeps subscription) */}
-                {onUninstall && mod.localPath && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={isUninstalling}
-                    onClick={() => setShowUninstallConfirm(true)}
-                  >
-                    {isUninstalling ? (
-                      <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-                    ) : (
-                      <IconTrash className="h-3.5 w-3.5 mr-2" />
-                    )}
-                    {isUninstalling ? 'Uninstalling...' : 'Uninstall'}
-                  </Button>
-                )}
+            {!showUninstallConfirm &&
+              !showDeleteConfirm &&
+              ((onUninstall && mod.localPath) || onRemove || (onDelete && !onRemove)) && (
+                <div className="flex justify-end gap-2">
+                  {/* Uninstall local files (keeps subscription) */}
+                  {onUninstall && mod.localPath && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={isUninstalling}
+                      onClick={() => setShowUninstallConfirm(true)}
+                    >
+                      {isUninstalling ? (
+                        <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+                      ) : (
+                        <IconTrash className="h-3.5 w-3.5 mr-2" />
+                      )}
+                      {isUninstalling ? 'Uninstalling...' : 'Uninstall'}
+                    </Button>
+                  )}
 
-                {/* Collection context: Remove from collection */}
-                {onRemove && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setShowDeleteConfirm(true)}
-                  >
-                    <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
-                    Remove
-                  </Button>
-                )}
+                  {/* Collection context: Remove from collection */}
+                  {onRemove && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setShowDeleteConfirm(true)}
+                    >
+                      <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
+                      Remove
+                    </Button>
+                  )}
 
-                {/* Mod subscription context: Unsubscribe */}
-                {onDelete && !onRemove && (
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => setShowDeleteConfirm(true)}
-                  >
-                    <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
-                    Unsubscribe
-                  </Button>
-                )}
-              </div>
-            )}
+                  {/* Mod subscription context: Unsubscribe */}
+                  {onDelete && !onRemove && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setShowDeleteConfirm(true)}
+                    >
+                      <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
+                      Unsubscribe
+                    </Button>
+                  )}
+                </div>
+              )}
           </RightSidebarFooter>
         )}
       </div>
