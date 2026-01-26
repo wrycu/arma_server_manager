@@ -1,6 +1,5 @@
 <p align="center">
-  <!-- TODO: Add logo here -->
-  <!-- <img src="docs/images/logo.png" alt="Arma Server Manager" width="200"> -->
+  <img src="docs/images/logo.jpg" alt="Arma Server Manager" width="200">
   <h1 align="center">Arma Server Manager</h1>
   <p align="center">A modern web application for managing Arma 3 dedicated servers</p>
 </p>
@@ -29,11 +28,13 @@
 ### Quick Install
 
 **Linux / macOS:**
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/wrycu/arma_server_manager/main/install.sh | bash
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 irm https://raw.githubusercontent.com/wrycu/arma_server_manager/main/install.ps1 | iex
 ```
@@ -42,17 +43,18 @@ irm https://raw.githubusercontent.com/wrycu/arma_server_manager/main/install.ps1
 
 Download the latest release for your platform from the [Releases](https://github.com/wrycu/arma_server_manager/releases) page:
 
-| Platform | Download |
-|----------|----------|
-| Windows | `arma_server_manager-windows-x64.zip` |
-| Linux | `arma_server_manager-linux-x64.tar.gz` |
-| macOS | `arma_server_manager-macos-arm64.tar.gz` |
+| Platform | Download                                 |
+| -------- | ---------------------------------------- |
+| Windows  | `arma_server_manager-windows-x64.zip`    |
+| Linux    | `arma_server_manager-linux-x64.tar.gz`   |
+| macOS    | `arma_server_manager-macos-arm64.tar.gz` |
 
 Extract and run `arma_server_manager` to start the application.
 
 ## Usage
 
 After installation, run:
+
 ```bash
 arma_server_manager
 ```
