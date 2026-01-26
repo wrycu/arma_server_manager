@@ -1,77 +1,71 @@
-# Arma 3 Server Manager
+<p align="center">
+  <img src="docs/images/logo.jpg" alt="Arma Server Manager" width="200">
+  <h1 align="center">Arma Server Manager</h1>
+  <p align="center">A modern web application for managing Arma 3 dedicated servers</p>
+</p>
 
-A modern web application for managing Arma 3 dedicated servers with mod collections and Steam Workshop integration.
+<p align="center">
+  <a href="https://github.com/wrycu/arma_server_manager/releases"><img src="https://img.shields.io/github/v/release/wrycu/arma_server_manager" alt="Release"></a>
+  <a href="https://github.com/wrycu/arma_server_manager/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-GPL-blue.svg" alt="License"></a>
+</p>
 
-![License](https://img.shields.io/badge/license-GPL-blue.svg)
-![Python](https://img.shields.io/badge/python-3.11+-blue.svg)
-![Node](https://img.shields.io/badge/node-18+-green.svg)
+<!-- TODO: Add screenshot here -->
+<!-- <p align="center">
+  <img src="docs/images/screenshot.png" alt="Screenshot" width="800">
+</p> -->
+
+---
 
 ## Features
 
-- **Server Management**: Create and configure multiple Arma 3 server instances
-- **Mod Collections**: Organize and manage Steam Workshop mods in collections
-- **Steam Workshop Integration**: Automatic mod downloading and updates
-- **Background Processing**: Async task handling with Celery
-- **Modern Stack**: Flask + React with TypeScript and Tailwind CSS
+- **Server Management** - Create and configure multiple Arma 3 server instances
+- **Mod Collections** - Organize Steam Workshop mods into reusable collections
+- **Steam Workshop Integration** - Automatic mod downloading and updates
+- **Server Lifecycle** - Start, stop, and monitor your servers from a single interface
 
-## Quick Start
+## Installation
 
-1. **Install dependencies**:
-   ```bash
-   pnpm run install:all
-   ```
+### Quick Install
 
-2. **Set up environment**:
-   ```bash
-   cp backend/.env.example backend/.env
-   cp frontend/.env.example frontend/.env.local
-   ```
+**Linux / macOS:**
 
-3. **Start development environment**:
-   ```bash
-   pnpm run dev:full
-   ```
-
-4. **Access the application**:
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:5000
-
-## Project Structure
-
-```
-├── backend/           # Flask API server
-├── frontend/          # React TypeScript app
-├── .github/           # CI/CD workflows
-└── docs/              # Additional documentation
+```bash
+curl -fsSL https://raw.githubusercontent.com/wrycu/arma_server_manager/main/install.sh | bash
 ```
 
-## Documentation
+**Windows (PowerShell):**
 
-- [Backend Documentation](./backend/README.md) - Flask API, database, and task management
-- [Frontend Documentation](./frontend/README.md) - React components and UI architecture
-- [Contributing Guide](./CONTRIBUTING.md) - Development workflow and guidelines
+```powershell
+irm https://raw.githubusercontent.com/wrycu/arma_server_manager/main/install.ps1 | iex
+```
 
-## Development Commands
+### Manual Download
 
-| Command | Description |
-|---------|-------------|
-| `pnpm run dev` | Start backend and frontend |
-| `pnpm run dev:full` | Start all services including Redis and Celery |
-| `pnpm run test` | Run all tests |
-| `pnpm run lint` | Lint all code |
-| `pnpm run format` | Format all code |
+Download the latest release for your platform from the [Releases](https://github.com/wrycu/arma_server_manager/releases) page:
 
-## Requirements
+| Platform | Download                                 |
+| -------- | ---------------------------------------- |
+| Windows  | `arma_server_manager-windows-x64.zip`    |
+| Linux    | `arma_server_manager-linux-x64.tar.gz`   |
+| macOS    | `arma_server_manager-macos-arm64.tar.gz` |
 
-- Python 3.11+
-- Node.js 18+
-- pnpm
-- uv (Python package manager)
-- Redis (optional, for production Celery setup)
+Extract and run `arma_server_manager` to start the application.
+
+## Usage
+
+After installation, run:
+
+```bash
+arma_server_manager
+```
+
+The web interface will be available at `http://localhost:5000`.
+
+For detailed usage documentation, see the [Documentation](https://notion.so/arma-server-manager) site.
 
 ## Contributing
 
-We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md) for details on our development process, coding standards, and how to submit pull requests.
+Interested in contributing? See [CONTRIBUTING.md](./CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 
