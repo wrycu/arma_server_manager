@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.4.0...arma-server-manager-v0.4.1) (2026-01-26)
+
+
+### Bug Fixes
+
+* **cors:** default to allowing all origins for easier setup ([#158](https://github.com/wrycu/arma_server_manager/issues/158)) ([d1b94b6](https://github.com/wrycu/arma_server_manager/commit/d1b94b66021b05afc58f1ed715344beb79914b3b))
+
 ## [0.4.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.5...arma-server-manager-v0.4.0) (2026-01-26)
 
 
