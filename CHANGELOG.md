@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.4...arma-server-manager-v0.3.5) (2026-01-26)
+
+
+### Bug Fixes
+
+* **ci:** bundle backend dependencies in PyInstaller builds ([#154](https://github.com/wrycu/arma_server_manager/issues/154)) ([aaf72ad](https://github.com/wrycu/arma_server_manager/commit/aaf72ad948753ab5dab4f770e0ab5204d20bba9f))
+
 ## [0.3.4](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.3...arma-server-manager-v0.3.4) (2026-01-26)
 
 

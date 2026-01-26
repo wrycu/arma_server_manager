@@ -1,6 +1,6 @@
 {
   "name": "arma-server-manager",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Arma 3 server manager with mod management, server configuration, and scheduling capabilities",
   "scripts": {
     "dev": "concurrently \"pnpm run dev:backend\" \"pnpm run dev:frontend\"",
