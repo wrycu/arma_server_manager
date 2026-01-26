@@ -8,6 +8,7 @@ import {
   IconCloudDownload,
   IconAlertCircle,
   IconLoader2,
+  IconCircleMinus,
 } from '@tabler/icons-react'
 
 import {
@@ -253,32 +254,6 @@ export function ModDetailSidebar({
 
         {/* CONTENT: All information always visible */}
         <RightSidebarContent className="space-y-5">
-          {/* Delete Confirmation (inline) */}
-          {showDeleteConfirm && (
-            <div className="rounded-md border border-destructive/30 bg-destructive/5 p-3">
-              <h3 className="text-sm font-medium text-destructive mb-1">
-                {onRemove ? 'Remove from Collection?' : 'Delete Subscription?'}
-              </h3>
-              <p className="text-xs text-muted-foreground mb-2.5">
-                {onRemove
-                  ? 'This will remove the mod from this collection. The mod files will remain.'
-                  : 'This will permanently delete the mod subscription. This action cannot be undone.'}
-              </p>
-              <div className="flex gap-2">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={onRemove ? handleRemove : handleDelete}
-                >
-                  {onRemove ? 'Remove' : 'Delete'}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
-
           {/* Mod Image */}
           {mod.imageAvailable && (
             <div className="w-full aspect-video rounded-md overflow-hidden bg-muted -mt-1">
@@ -395,14 +370,13 @@ export function ModDetailSidebar({
         </RightSidebarContent>
 
         {/* FOOTER: Primary Actions */}
-        {(onDownload || onRemove || onDelete || onUninstall) && !showDeleteConfirm && (
+        {(onDownload || onRemove || onDelete || onUninstall) && (
           <RightSidebarFooter>
-            <div className="space-y-1.5">
-              {/* Primary action: Download */}
-              {onDownload && !mod.localPath && (
+            {/* Download action */}
+            {onDownload && !mod.localPath && !showDeleteConfirm && !showUninstallConfirm && (
+              <div className="flex justify-end mb-2">
                 <Button
                   variant="default"
-                  className="w-full"
                   size="sm"
                   disabled={isDownloading}
                   onClick={() => onDownload(mod.steamId)}
@@ -414,87 +388,118 @@ export function ModDetailSidebar({
                   )}
                   {isDownloading ? 'Downloading...' : 'Download Mod'}
                 </Button>
-              )}
+              </div>
+            )}
 
-              {/* Uninstall local files (keeps subscription) */}
-              {onUninstall && mod.localPath && !showUninstallConfirm && (
-                <Button
-                  variant="outline"
-                  className="w-full border-orange-500/30 text-orange-600 hover:bg-orange-500/10 hover:text-orange-600"
-                  size="sm"
-                  disabled={isUninstalling}
-                  onClick={() => setShowUninstallConfirm(true)}
-                >
-                  {isUninstalling ? (
-                    <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-                  ) : (
-                    <IconTrash className="h-3.5 w-3.5 mr-2" />
-                  )}
-                  {isUninstalling ? 'Uninstalling...' : 'Uninstall Local Files'}
-                </Button>
-              )}
-
-              {/* Uninstall confirmation (inline in footer) */}
-              {onUninstall && mod.localPath && showUninstallConfirm && (
-                <div className="space-y-2">
-                  <div className="text-xs text-orange-600 font-medium">Uninstall Local Files?</div>
-                  <div className="text-xs text-muted-foreground">
-                    This will delete the local mod files but keep your subscription.
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleUninstall}
-                      className="flex-1 border-orange-500/30 text-orange-600 hover:bg-orange-500/10"
-                      disabled={isUninstalling}
-                    >
-                      {isUninstalling ? (
-                        <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-                      ) : (
-                        <IconTrash className="h-3.5 w-3.5 mr-2" />
-                      )}
-                      {isUninstalling ? 'Uninstalling...' : 'Uninstall'}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowUninstallConfirm(false)}
-                      className="flex-1"
-                      disabled={isUninstalling}
-                    >
-                      Cancel
-                    </Button>
-                  </div>
+            {/* Uninstall confirmation (inline in footer) */}
+            {onUninstall && mod.localPath && showUninstallConfirm && (
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground font-medium">Uninstall?</div>
+                <div className="text-xs text-muted-foreground">
+                  This will delete the local mod files but keep your subscription.
                 </div>
-              )}
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowUninstallConfirm(false)}
+                    disabled={isUninstalling}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleUninstall}
+                    disabled={isUninstalling}
+                  >
+                    {isUninstalling ? (
+                      <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+                    ) : (
+                      <IconTrash className="h-3.5 w-3.5 mr-2" />
+                    )}
+                    {isUninstalling ? 'Uninstalling...' : 'Uninstall'}
+                  </Button>
+                </div>
+              </div>
+            )}
 
-              {/* Collection context: Remove from collection */}
-              {onRemove && (
-                <Button
-                  variant="ghost"
-                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(true)}
-                >
-                  <IconTrash className="h-3.5 w-3.5 mr-2" />
-                  Remove from Collection
-                </Button>
-              )}
+            {/* Remove/Unsubscribe confirmation (inline in footer) */}
+            {(onRemove || onDelete) && showDeleteConfirm && (
+              <div className="space-y-2">
+                <div className="text-xs text-destructive font-medium">
+                  {onRemove ? 'Remove from Collection?' : 'Unsubscribe?'}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {onRemove
+                    ? 'This will remove the mod from this collection. The mod files will remain.'
+                    : 'This will permanently remove the mod subscription. This action cannot be undone.'}
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={onRemove ? handleRemove : handleDelete}
+                  >
+                    <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
+                    {onRemove ? 'Remove' : 'Unsubscribe'}
+                  </Button>
+                </div>
+              </div>
+            )}
 
-              {/* Mod subscription context: Delete subscription */}
-              {onDelete && !onRemove && (
-                <Button
-                  variant="ghost"
-                  className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(true)}
-                >
-                  <IconTrash className="h-3.5 w-3.5 mr-2" />
-                  Delete Subscription
-                </Button>
-              )}
-            </div>
+            {/* Action buttons - side by side, right aligned */}
+            {!showUninstallConfirm && !showDeleteConfirm && (onUninstall && mod.localPath || onRemove || (onDelete && !onRemove)) && (
+              <div className="flex justify-end gap-2">
+                {/* Uninstall local files (keeps subscription) */}
+                {onUninstall && mod.localPath && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={isUninstalling}
+                    onClick={() => setShowUninstallConfirm(true)}
+                  >
+                    {isUninstalling ? (
+                      <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
+                    ) : (
+                      <IconTrash className="h-3.5 w-3.5 mr-2" />
+                    )}
+                    {isUninstalling ? 'Uninstalling...' : 'Uninstall'}
+                  </Button>
+                )}
+
+                {/* Collection context: Remove from collection */}
+                {onRemove && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                  >
+                    <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
+                    Remove
+                  </Button>
+                )}
+
+                {/* Mod subscription context: Unsubscribe */}
+                {onDelete && !onRemove && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setShowDeleteConfirm(true)}
+                  >
+                    <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
+                    Unsubscribe
+                  </Button>
+                )}
+              </div>
+            )}
           </RightSidebarFooter>
         )}
       </div>
