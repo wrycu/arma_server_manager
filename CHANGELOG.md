@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.5.0...arma-server-manager-v0.6.0) (2026-01-26)
+
+
+### Features
+
+* **frontend:** improve mod sidebar button UX and terminology ([#165](https://github.com/wrycu/arma_server_manager/issues/165)) ([0b7ed0a](https://github.com/wrycu/arma_server_manager/commit/0b7ed0acdd51e5932c02f1bdecfcce8bc47059f6))
+
 ## [0.5.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.4.1...arma-server-manager-v0.5.0) (2026-01-26)
 
 
