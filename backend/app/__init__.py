@@ -16,16 +16,14 @@ from flask_sqlalchemy import SQLAlchemy
 # Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
-celery = Celery(__name__)
 
-# Configure Celery defaults at module level so workers can start without
-# needing create_app() to be called first. Uses SQLite by default.
-celery.conf.update(
-    broker_url=os.environ.get("CELERY_BROKER_URL", "sqlalchemy+sqlite:///celery.db"),
-    result_backend=os.environ.get(
-        "CELERY_RESULT_BACKEND", "db+sqlite:///celery_results.db"
-    ),
+# Initialize Celery with SQLite broker (can be overridden via env vars)
+celery = Celery(
+    __name__,
+    broker=os.environ.get("CELERY_BROKER_URL", "sqlalchemy+sqlite:///celery.db"),
+    backend=os.environ.get("CELERY_RESULT_BACKEND", "db+sqlite:///celery_results.db"),
 )
+celery.set_default()
 
 
 def _get_config_dir() -> Path:
@@ -98,8 +96,12 @@ def create_app(config_name: str | None = None) -> Flask:
     cors_origins = app.config.get("CORS_ORIGINS", ["*"])
     CORS(app, origins=cors_origins, supports_credentials=(cors_origins != ["*"]))
 
-    # Configure Celery
-    celery.conf.update(app.config)
+    # Apply Flask config's Celery settings (if any)
+    celery_config = app.config.get("CELERY", {})
+    celery.conf.broker_url = celery_config.get("broker_url", celery.conf.broker_url)
+    celery.conf.result_backend = celery_config.get(
+        "result_backend", celery.conf.result_backend
+    )
     # set up a kick-off job to launch other scheduled activities
     celery.conf.beat_schedule = {
         "every_hour": {
