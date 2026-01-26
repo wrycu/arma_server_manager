@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.2...arma-server-manager-v0.3.3) (2026-01-26)
+
+
+### Bug Fixes
+
+* **ci:** use ubuntu-22.04 for Linux builds to fix GLIBC compatibility ([#150](https://github.com/wrycu/arma_server_manager/issues/150)) ([ead5d3f](https://github.com/wrycu/arma_server_manager/commit/ead5d3fd17b8bffbb3ad46df27e5e952143686e2))
+
 ## [0.3.2](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.1...arma-server-manager-v0.3.2) (2026-01-25)
 
 
