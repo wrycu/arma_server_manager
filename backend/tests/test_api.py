@@ -371,6 +371,46 @@ class TestArma3API:
         assert reply.status_code == HTTPStatus.OK
         assert reply.json["results"][0]["name"] == "wonderful server, now updated"
 
+    def test_server_create(self, client: FlaskClient) -> None:
+        assert len(ServerConfig.query.all()) == 0
+        reply = client.post(
+            "/api/arma3/server",
+            json={
+                "name": "New Test Server",
+                "description": "A new test server",
+                "server_name": "My ARMA 3 Server",
+                "password": "serverpass",
+                "admin_password": "adminpass",
+                "max_players": 64,
+                "mission_file": "/path/to/mission.pbo",
+                "server_config_file": "/path/to/server.cfg",
+                "basic_config_file": "/path/to/basic.cfg",
+                "additional_params": "-enableHT",
+                "server_binary": "/path/to/arma3server",
+            },
+        )
+        assert reply.status_code == HTTPStatus.CREATED
+        assert reply.json["result"] == 1
+        assert len(ServerConfig.query.all()) == 1
+        # Verify the server was created correctly
+        server = ServerConfig.query.first()
+        assert server.name == "New Test Server"
+        assert server.server_name == "My ARMA 3 Server"
+        assert server.max_players == 64
+        assert server.is_active is False
+
+    def test_server_create_missing_field(self, client: FlaskClient) -> None:
+        assert len(ServerConfig.query.all()) == 0
+        reply = client.post(
+            "/api/arma3/server",
+            json={
+                "name": "Incomplete Server",
+                # Missing required fields like server_name, admin_password, server_binary
+            },
+        )
+        assert reply.status_code == HTTPStatus.BAD_REQUEST
+        assert len(ServerConfig.query.all()) == 0
+
     def test_collection_create(self, client: FlaskClient) -> None:
         assert len(Collection.query.all()) == 0
         reply = client.post(

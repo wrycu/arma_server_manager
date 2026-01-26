@@ -526,6 +526,30 @@ def get_server_404() -> tuple[dict[str, str], int]:
     }, HTTPStatus.BAD_REQUEST
 
 
+@a3_bp.route("/server", methods=["POST"])
+def create_server() -> tuple[dict[str, Any], int]:
+    """
+    Creates a new server configuration.
+
+    Returns:
+        JSON response with message and the ID of the created server
+    """
+    try:
+        server_id = current_app.config["A3_SERVER_HELPER"].create_server(request.json)
+        return {
+            "message": "Server created successfully",
+            "result": server_id,
+        }, HTTPStatus.CREATED
+    except KeyError as e:
+        return {
+            "message": f"Missing required field: {e}",
+        }, HTTPStatus.BAD_REQUEST
+    except Exception as e:
+        return {
+            "message": str(e),
+        }, HTTPStatus.BAD_REQUEST
+
+
 @a3_bp.route("/server/update", methods=["POST"])
 def update_server_binary() -> tuple[dict[str, str], int]:
     """

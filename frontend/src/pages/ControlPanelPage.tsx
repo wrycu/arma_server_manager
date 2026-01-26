@@ -50,6 +50,7 @@ export function ControlPanelPage() {
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null)
   const [isSchedulesOpen, setIsSchedulesOpen] = useState(false)
   const [isScheduleSidebarOpen, setIsScheduleSidebarOpen] = useState(false)
+  const [isCreatingServer, setIsCreatingServer] = useState(false)
 
   // Track if we've done the initial population of server settings
   const hasInitializedSettings = useRef(false)
@@ -120,6 +121,38 @@ export function ControlPanelPage() {
 
   const handleServerSettingsUpdate = (settings: ServerConfiguration) => {
     setServerSettings(settings)
+  }
+
+  const handleCreateServer = async (settings: ServerConfiguration) => {
+    setIsCreatingServer(true)
+    try {
+      const serverData: CreateServerRequest = {
+        name: settings.name,
+        description: settings.description || null,
+        server_name: settings.server_name,
+        password: settings.password || null,
+        admin_password: settings.admin_password,
+        max_players: settings.max_players,
+        mission_file: settings.mission_file || null,
+        server_config_file: settings.server_config_file || null,
+        basic_config_file: settings.basic_config_file || null,
+        server_mods: settings.server_mods || null,
+        client_mods: settings.client_mods || null,
+        additional_params: settings.additional_params || null,
+        server_binary: settings.server_binary,
+      }
+
+      await serverService.createServer(serverData)
+      toast.success('Server created successfully!')
+      // Reset the initialization flag so next refetch will update form state
+      hasInitializedSettings.current = false
+      refetchServers()
+    } catch (error) {
+      console.error('Failed to create server:', error)
+      handleApiError(error, 'Failed to create server')
+    } finally {
+      setIsCreatingServer(false)
+    }
   }
 
   const handleSaveServerSettings = async () => {
@@ -240,6 +273,8 @@ export function ControlPanelPage() {
             onSettingsOpenChange={setIsSettingsOpen}
             onServerSettingsUpdate={handleServerSettingsUpdate}
             onSaveServerSettings={handleSaveServerSettings}
+            onCreateServer={handleCreateServer}
+            isCreatingServer={isCreatingServer}
             schedules={schedules}
             selectedSchedule={selectedSchedule}
             isSchedulesOpen={isSchedulesOpen}

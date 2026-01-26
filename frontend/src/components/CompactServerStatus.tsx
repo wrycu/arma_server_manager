@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   IconServer,
   IconPlayerPlay,
@@ -16,7 +16,6 @@ import { ServerSettings } from '@/components/ServerSettings'
 import { SchedulesDataTable } from '@/components/SchedulesDataTable'
 import { ScheduleDetailSidebar } from '@/components/ScheduleDetailSidebar'
 import { getColumns } from '@/components/SchedulesColumns'
-import { useNavigate } from '@tanstack/react-router'
 import type { Collection } from '@/types/collections'
 import type { ServerConfig, Schedule } from '@/types/server'
 import type { ServerActionRequest, ServerStatusResponse } from '@/types/api'
@@ -37,6 +36,8 @@ interface CompactServerStatusProps {
   onSettingsOpenChange?: (open: boolean) => void
   onServerSettingsUpdate?: (settings: ServerConfiguration) => void
   onSaveServerSettings?: () => void
+  onCreateServer?: (settings: ServerConfiguration) => Promise<void>
+  isCreatingServer?: boolean
   schedules?: Schedule[]
   selectedSchedule?: Schedule | null
   isSchedulesOpen?: boolean
@@ -55,6 +56,22 @@ interface CompactServerStatusProps {
   onScheduleSidebarOpenChange?: (open: boolean) => void
 }
 
+const defaultNewServerSettings: ServerConfiguration = {
+  name: '',
+  description: '',
+  server_name: '',
+  password: '',
+  admin_password: '',
+  max_players: 32,
+  mission_file: '',
+  server_config_file: '',
+  basic_config_file: '',
+  server_mods: '',
+  client_mods: '',
+  additional_params: '',
+  server_binary: '',
+}
+
 export function CompactServerStatus({
   server,
   serverStatus,
@@ -70,6 +87,8 @@ export function CompactServerStatus({
   onSettingsOpenChange,
   onServerSettingsUpdate,
   onSaveServerSettings,
+  onCreateServer,
+  isCreatingServer = false,
   schedules = [],
   selectedSchedule = null,
   isSchedulesOpen = false,
@@ -84,27 +103,79 @@ export function CompactServerStatus({
   isScheduleSidebarOpen = false,
   onScheduleSidebarOpenChange,
 }: CompactServerStatusProps) {
-  const navigate = useNavigate()
+  const [isCreationFormOpen, setIsCreationFormOpen] = useState(false)
+  const [newServerSettings, setNewServerSettings] =
+    useState<ServerConfiguration>(defaultNewServerSettings)
 
   // Memoize columns to prevent recreation on every render
   const schedulesColumns = useMemo(() => getColumns(), [])
+
+  const handleCreateServerSubmit = async () => {
+    if (onCreateServer) {
+      await onCreateServer(newServerSettings)
+      setNewServerSettings(defaultNewServerSettings)
+      setIsCreationFormOpen(false)
+    }
+  }
+
+  const canSubmitNewServer =
+    newServerSettings.name.trim() !== '' &&
+    newServerSettings.server_name.trim() !== '' &&
+    newServerSettings.admin_password.trim() !== '' &&
+    newServerSettings.server_binary.trim() !== ''
 
   if (!server) {
     return (
       <Card className="overflow-hidden">
         <CardContent className="p-8">
-          <div className="text-center space-y-4">
-            <div className="space-y-2">
-              <IconServer className="size-12 text-muted-foreground mx-auto" />
-              <h3 className="text-lg font-semibold">No Server Configured</h3>
-              <p className="text-muted-foreground">
-                Get started by creating your first ARMA 3 server configuration
-              </p>
+          {!isCreationFormOpen ? (
+            <div className="text-center space-y-4">
+              <div className="space-y-2">
+                <IconServer className="size-12 text-muted-foreground mx-auto" />
+                <h3 className="text-lg font-semibold">No Server Configured</h3>
+                <p className="text-muted-foreground">
+                  Get started by creating your first ARMA 3 server configuration
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <Button onClick={() => setIsCreationFormOpen(true)}>Get Started</Button>
+              </div>
             </div>
-            <div className="flex justify-center">
-              <Button onClick={() => navigate({ to: '/settings' })}>Get Started</Button>
+          ) : (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Create Server Configuration</h3>
+                <p className="text-sm text-muted-foreground">
+                  Configure your ARMA 3 server settings. Fields marked with * are required.
+                </p>
+              </div>
+              <ServerSettings
+                settings={newServerSettings}
+                onUpdate={setNewServerSettings}
+                showCard={false}
+              />
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setNewServerSettings(defaultNewServerSettings)
+                    setIsCreationFormOpen(false)
+                  }}
+                  disabled={isCreatingServer}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreateServerSubmit}
+                  disabled={!canSubmitNewServer || isCreatingServer}
+                  className="flex items-center gap-2"
+                >
+                  <IconDeviceFloppy className="h-4 w-4" />
+                  {isCreatingServer ? 'Creating...' : 'Create Server'}
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     )
