@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.5...arma-server-manager-v0.4.0) (2026-01-26)
+
+
+### Features
+
+* **install:** add configuration wizard to install scripts ([#156](https://github.com/wrycu/arma_server_manager/issues/156)) ([f2ce3e5](https://github.com/wrycu/arma_server_manager/commit/f2ce3e5f8531c3a0545aa39798e53c1d65efd76e))
+
 ## [0.3.5](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.3.4...arma-server-manager-v0.3.5) (2026-01-26)
 
 
