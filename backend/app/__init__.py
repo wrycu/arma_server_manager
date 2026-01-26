@@ -1,7 +1,9 @@
 """Flask application factory with Celery integration."""
 
 import os
+import platform
 import sys
+from pathlib import Path
 
 from celery import Celery, Task
 from celery.schedules import crontab
@@ -17,6 +19,27 @@ migrate = Migrate()
 celery = Celery(__name__)
 
 
+def _get_config_dir() -> Path:
+    """Get the platform-specific configuration directory.
+
+    Returns:
+        Path to the configuration directory.
+    """
+    system = platform.system()
+    if system == "Windows":
+        base = os.environ.get("APPDATA", os.path.expanduser("~"))
+    elif system == "Darwin":
+        base = os.environ.get(
+            "XDG_CONFIG_HOME",
+            os.path.join(os.path.expanduser("~"), "Library", "Application Support"),
+        )
+    else:
+        base = os.environ.get(
+            "XDG_CONFIG_HOME", os.path.join(os.path.expanduser("~"), ".config")
+        )
+    return Path(base) / "arma_server_manager"
+
+
 def create_app(config_name: str | None = None) -> Flask:
     """Create and configure Flask application.
 
@@ -27,7 +50,14 @@ def create_app(config_name: str | None = None) -> Flask:
         Configured Flask application instance
     """
     app = Flask(__name__, static_folder="assets")
-    # load .env file
+
+    # Load configuration from .env files
+    # Priority: environment variables > local .env > config directory .env
+    # Load config directory first (lower priority), then local .env (higher priority)
+    config_env_path = _get_config_dir() / ".env"
+    if config_env_path.exists():
+        load_dotenv(config_env_path)
+    # Load local .env file (overrides config directory values)
     load_dotenv()
 
     # Load configuration
