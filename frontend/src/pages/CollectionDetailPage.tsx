@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useSearch } from '@tanstack/react-router'
-import { IconCheck, IconX } from '@tabler/icons-react'
+import { IconCheck, IconX, IconFilter } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -10,10 +10,8 @@ import { PageTitle } from '@/components/PageTitle'
 import { DataTableButton } from '@/components/DataTableButton'
 
 import { useCollections } from '@/hooks/useCollections'
-import { useServer } from '@/hooks/useServer'
 import { useMods } from '@/hooks/useMods'
 import { useTitleEditing } from '@/hooks/useTitleEditing'
-import { serverService } from '@/services/server.service'
 import { RemoveModDialog } from '@/components/CollectionsRemoveModDialog'
 import { AddModsDialog } from '@/components/AddModsDialog'
 import { ModsList } from '@/components/CollectionsModsList'
@@ -35,9 +33,6 @@ export function CollectionDetailPage() {
     updateCollectionName,
   } = useCollections()
 
-  const { servers, refetchServers } = useServer()
-  const server = servers?.[0] || null
-
   const { updateModSubscription, uninstallMod, downloadMod, downloadingModId, uninstallingModId } =
     useMods()
 
@@ -47,6 +42,7 @@ export function CollectionDetailPage() {
   const [selectedModId, setSelectedModId] = useState<number | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState(search?.search || '')
+  const [isFilterVisible, setIsFilterVisible] = useState(false)
 
   // Title editing state
   const {
@@ -86,25 +82,6 @@ export function CollectionDetailPage() {
   const handleAddModsToCollection = (modIds: number[]) => {
     if (!collection) return
     addModsToCollection(collection.id, modIds)
-  }
-
-  const handleSetActiveCollection = async () => {
-    if (!server || !collection) {
-      toast.error('No server configuration found')
-      return
-    }
-
-    try {
-      await serverService.updateServerCollectionId(server.id, collection.id)
-      toast.success(`Set "${collection.name}" as active collection`)
-      // Refetch server data to get updated collection_id
-      refetchServers()
-    } catch (error) {
-      console.error('Failed to set active collection:', error)
-      toast.error(
-        `Failed to set active collection: ${error instanceof Error ? error.message : String(error)}`
-      )
-    }
   }
 
   const handleBackToCollections = () => {
@@ -244,28 +221,28 @@ export function CollectionDetailPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {server && server.collection_id !== collection.id && (
-              <DataTableButton onClick={handleSetActiveCollection}>Set Active</DataTableButton>
-            )}
-            {server && server.collection_id === collection.id && (
-              <DataTableButton variant="ghost" disabled>
-                Active
-              </DataTableButton>
-            )}
-            {collection.mods.length > 0 && (
-              <DataTableButton onClick={() => handleAddMods(collection.id)}>Add</DataTableButton>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setIsFilterVisible(!isFilterVisible)}
+            >
+              <IconFilter className="h-4 w-4" />
+            </Button>
+            <DataTableButton onClick={() => handleAddMods(collection.id)}>Add</DataTableButton>
           </div>
         </div>
 
-        <div className="flex items-center">
-          <Input
-            placeholder="Filter mods..."
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="max-w-sm"
-          />
-        </div>
+        {isFilterVisible && (
+          <div className="flex items-center">
+            <Input
+              placeholder="Filter mods"
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="max-w-sm"
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex-1 min-h-0">
@@ -275,7 +252,6 @@ export function CollectionDetailPage() {
             collectionId={collection.id}
             searchQuery={searchQuery}
             onRemoveMod={handleRemoveModFromCollection}
-            onAddMods={handleAddMods}
             onModClick={handleModClick}
             onReorderMod={reorderModInCollection}
             onDownload={handleDownload}

@@ -44,7 +44,6 @@ const renderModsList = (
   mods: ModSubscription[],
   handlers: {
     onRemoveMod?: ReturnType<typeof vi.fn>
-    onAddMods?: ReturnType<typeof vi.fn>
     onModClick?: ReturnType<typeof vi.fn>
     onDownload?: ReturnType<typeof vi.fn>
   } = {}
@@ -53,7 +52,6 @@ const renderModsList = (
 
   const defaultHandlers = {
     onRemoveMod: vi.fn(),
-    onAddMods: vi.fn(),
     onModClick: vi.fn(),
     onReorderMod: vi.fn(),
     onDownload: vi.fn(),
@@ -167,23 +165,11 @@ describe('ModsList', () => {
   })
 
   describe('empty state', () => {
-    it('shows empty message and add button when no mods', () => {
+    it('shows empty message when no mods', () => {
       renderModsList([])
 
       expect(screen.getByTestId('mods-list-empty')).toBeInTheDocument()
       expect(screen.getByText(/no mods in this collection/i)).toBeInTheDocument()
-      expect(screen.getByTestId('mods-list-add-button')).toBeInTheDocument()
-    })
-
-    it('calls onAddMods when add button is clicked', async () => {
-      const user = userEvent.setup()
-      const onAddMods = vi.fn()
-
-      renderModsList([], { onAddMods })
-
-      await user.click(screen.getByTestId('mods-list-add-button'))
-
-      expect(onAddMods).toHaveBeenCalledWith(42)
     })
   })
 
