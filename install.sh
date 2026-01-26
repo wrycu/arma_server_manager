@@ -266,6 +266,11 @@ STEAMCMD_USER=$steamcmd_user
 MOD_STAGING_DIR=$mod_staging_dir
 MOD_INSTALL_DIR=$mod_install_dir
 ARMA3_INSTALL_DIR=$arma3_install_dir
+
+# CORS Configuration (optional)
+# By default, all origins are allowed. To restrict access to specific origins,
+# uncomment and set a comma-separated list of allowed origins:
+# CORS_ORIGINS=http://localhost:5173,http://your-server-ip:5173
 EOF
 
     print_header "================================================================================"
