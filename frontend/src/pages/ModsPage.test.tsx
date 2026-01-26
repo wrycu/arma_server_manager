@@ -153,7 +153,7 @@ describe('ModsPage - Subscription Management', () => {
     expect(screen.getByText(/steam id: 67890/i)).toBeInTheDocument()
   })
 
-  it('calls removeModSubscription when delete subscription is clicked', async () => {
+  it('calls removeModSubscription when unsubscribe is clicked', async () => {
     const user = userEvent.setup()
     const mockRemoveModSubscription = vi.fn().mockResolvedValue(undefined)
 
@@ -175,13 +175,13 @@ describe('ModsPage - Subscription Management', () => {
     const tableRow = screen.getByRole('row', { name: /test mod steam id: 12345/i })
     await user.click(tableRow)
 
-    // Click the delete button in the sidebar to show confirmation
-    const deleteButton = screen.getByRole('button', { name: /delete subscription/i })
-    await user.click(deleteButton)
+    // Click the unsubscribe button in the sidebar to show confirmation
+    const unsubscribeButton = screen.getByRole('button', { name: /^unsubscribe$/i })
+    await user.click(unsubscribeButton)
 
-    // Click the confirmation delete button
-    const confirmDeleteButton = await screen.findByRole('button', { name: /^delete$/i })
-    await user.click(confirmDeleteButton)
+    // Click the confirmation unsubscribe button
+    const confirmUnsubscribeButton = await screen.findByRole('button', { name: /^unsubscribe$/i })
+    await user.click(confirmUnsubscribeButton)
 
     // Verify removeModSubscription was called
     expect(mockRemoveModSubscription).toHaveBeenCalledWith(12345)
@@ -352,7 +352,7 @@ describe('ModsPage - Deletion Functionality', () => {
     await user.click(tableRow)
 
     // Click the uninstall button to show confirmation
-    const uninstallButton = screen.getByRole('button', { name: /uninstall local files/i })
+    const uninstallButton = screen.getByRole('button', { name: /^uninstall$/i })
     await user.click(uninstallButton)
 
     // Click the confirmation uninstall button
