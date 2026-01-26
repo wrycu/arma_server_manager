@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, memo } from 'react'
 import {
   IconFolder,
-  IconPlus,
   IconGripVertical,
   IconTrash,
   IconServer,
@@ -46,7 +45,6 @@ interface ModsListProps {
   collectionId: number
   searchQuery?: string
   onRemoveMod: (collectionId: number, modId: number, modName: string) => void
-  onAddMods: (collectionId: number) => void
   onModClick?: (mod: ModSubscription) => void
   onReorderMod?: (collectionId: number, modId: number, newPosition: number) => Promise<void>
   onDownload?: (steamId: number) => void
@@ -214,7 +212,6 @@ export function ModsList({
   collectionId,
   searchQuery = '',
   onRemoveMod,
-  onAddMods,
   onModClick,
   onReorderMod,
   onDownload,
@@ -311,19 +308,9 @@ export function ModsList({
         data-testid="mods-list-empty"
       >
         <IconFolder className="h-12 w-12 text-muted-foreground/30 mb-3" aria-hidden="true" />
-        <p className="text-sm text-muted-foreground mb-3">
+        <p className="text-sm text-muted-foreground">
           {searchQuery ? 'No mods match your search' : 'No mods in this collection'}
         </p>
-        {!searchQuery && (
-          <Button
-            size="xs"
-            onClick={() => onAddMods(collectionId)}
-            data-testid="mods-list-add-button"
-          >
-            <IconPlus className="h-4 w-4" aria-hidden="true" />
-            Add Mods
-          </Button>
-        )}
       </div>
     )
   }
