@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.4.1...arma-server-manager-v0.5.0) (2026-01-26)
+
+
+### Features
+
+* **frontend:** improve add mods dialog UX ([#162](https://github.com/wrycu/arma_server_manager/issues/162)) ([e4a4715](https://github.com/wrycu/arma_server_manager/commit/e4a471576bb135ea33f2b7cd32911dedbf3286b0))
+
+
+### Bug Fixes
+
+* **celery:** default to SQLite broker for simpler development setup ([#161](https://github.com/wrycu/arma_server_manager/issues/161)) ([68c1a1b](https://github.com/wrycu/arma_server_manager/commit/68c1a1bacce4277564b386182e925837d763350c))
+* **celery:** properly initialize broker config for shared_task ([#164](https://github.com/wrycu/arma_server_manager/issues/164)) ([8c05a9b](https://github.com/wrycu/arma_server_manager/commit/8c05a9b9b9ad775f9934258726cf8b564aec1185))
+
 ## [0.4.1](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.4.0...arma-server-manager-v0.4.1) (2026-01-26)
 
 
