@@ -41,7 +41,7 @@ Ensure you have the following installed:
 
 5. **Start the development environment**:
    ```bash
-   pnpm run dev:full
+   pnpm run dev
    ```
 
 6. **Access the application**:
@@ -52,8 +52,7 @@ Ensure you have the following installed:
 
 | Command | Description |
 |---------|-------------|
-| `pnpm run dev` | Start backend and frontend |
-| `pnpm run dev:full` | Start all services including Celery |
+| `pnpm run dev` | Start backend, Celery, and frontend |
 | `pnpm run test` | Run all tests |
 | `pnpm run lint` | Lint all code |
 | `pnpm run format` | Format all code |
@@ -323,7 +322,7 @@ test(backend): add tests for mod download validation
 
 3. **Verify functionality**:
    ```bash
-   pnpm run dev:full
+   pnpm run dev
    # Test your changes in the browser
    ```
 
