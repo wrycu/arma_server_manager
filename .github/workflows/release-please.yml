@@ -36,7 +36,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             platform: linux
             archive_ext: tar.gz
           - os: windows-latest
