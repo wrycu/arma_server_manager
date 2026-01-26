@@ -9,8 +9,7 @@ This is an Arma 3 server management application with a Flask backend and React f
 ## Development Commands
 
 ### Full Application
-- `pnpm run dev:full` - Start all services (backend, Celery worker, frontend)
-- `pnpm run dev` - Start backend and frontend only
+- `pnpm run dev` - Start all services (backend, Celery worker, frontend)
 - `pnpm run install:all` - Install dependencies for all projects
 - `pnpm run test` - Run tests for both backend and frontend
 - `pnpm run lint` - Lint both backend and frontend

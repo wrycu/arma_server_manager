@@ -18,6 +18,15 @@ db = SQLAlchemy()
 migrate = Migrate()
 celery = Celery(__name__)
 
+# Configure Celery defaults at module level so workers can start without
+# needing create_app() to be called first. Uses SQLite by default.
+celery.conf.update(
+    broker_url=os.environ.get("CELERY_BROKER_URL", "sqlalchemy+sqlite:///celery.db"),
+    result_backend=os.environ.get(
+        "CELERY_RESULT_BACKEND", "db+sqlite:///celery_results.db"
+    ),
+)
+
 
 def _get_config_dir() -> Path:
     """Get the platform-specific configuration directory.
