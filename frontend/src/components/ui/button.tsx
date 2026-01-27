@@ -8,15 +8,15 @@ import { cn } from '@/lib/utils'
  * Button Component
  *
  * Size Usage Guidelines:
- * - default (h-9): Standard buttons in forms and dialogs
- * - sm (h-8): Secondary actions, sidebar buttons, data tables
- * - xs (h-7): Compact buttons for page headers (e.g., "New" buttons)
- * - inline (h-6): Minimal inline actions that appear on hover in lists/cards
- * - lg (h-10): Primary CTAs and prominent actions
- * - icon: Square icon-only buttons
+ * - default (h-8): Standard buttons in forms and page-level CTAs
+ * - sm (h-7): Compact buttons for dialogs, sidebars, data tables (Notion-style)
+ * - xs (h-6): Minimal buttons for tight spaces
+ * - inline (h-5): Inline actions that appear on hover in lists/cards
+ * - lg (h-9): Large prominent CTAs
+ * - icon (h-7): Square icon-only buttons
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-lg text-sm font-medium transition-all !cursor-pointer disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
@@ -30,12 +30,12 @@ const buttonVariants = cva(
         link: 'text-primary underline-offset-4 hover:underline',
       },
       size: {
-        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
-        sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
-        xs: 'h-7 rounded-md gap-1.5 px-3 text-xs has-[>svg]:px-2.5',
-        inline: 'h-6 rounded-md gap-1 px-2 text-xs has-[>svg]:px-1.5',
-        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
-        icon: 'size-9',
+        default: 'h-8 px-3 py-1.5 has-[>svg]:px-2.5',
+        sm: 'h-7 px-2.5 text-sm has-[>svg]:px-2',
+        xs: 'h-6 px-2 text-xs has-[>svg]:px-1.5',
+        inline: 'h-5 px-1.5 text-xs has-[>svg]:px-1',
+        lg: 'h-9 px-4 has-[>svg]:px-3',
+        icon: 'size-7',
       },
     },
     defaultVariants: {
