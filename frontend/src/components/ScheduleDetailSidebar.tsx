@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { IconCheck, IconTrash, IconPlayerPlay, IconClock } from '@tabler/icons-react'
+import { IconTrash, IconClock } from '@tabler/icons-react'
 
 import {
   RightSidebar,
@@ -351,7 +351,6 @@ export function ScheduleDetailSidebar({
               {/* Save Button */}
               {isDirty && (
                 <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full">
-                  <IconCheck className="h-3.5 w-3.5 mr-1.5" />
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
               )}
@@ -372,7 +371,6 @@ export function ScheduleDetailSidebar({
                   onClick={handleExecute}
                   disabled={isExecuting}
                 >
-                  <IconPlayerPlay className="h-3.5 w-3.5 mr-2" />
                   {isExecuting ? 'Executing...' : 'Execute Now'}
                 </Button>
               )}

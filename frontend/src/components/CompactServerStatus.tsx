@@ -1,14 +1,5 @@
 import { useMemo } from 'react'
-import {
-  IconServer,
-  IconPlayerPlay,
-  IconPlayerStop,
-  IconRefresh,
-  IconDeviceFloppy,
-  IconSettings,
-  IconCalendarTime,
-  IconFileText,
-} from '@tabler/icons-react'
+import { IconServer, IconSettings, IconCalendarTime, IconFileText } from '@tabler/icons-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible'
@@ -197,7 +188,7 @@ export function CompactServerStatus({
                 }}
                 variant="ghost"
                 size="sm"
-                className={`flex items-center justify-center gap-2 h-8 ${
+                className={`flex items-center justify-center gap-2 ${
                   isSettingsOpen
                     ? 'text-yellow-500 hover:text-yellow-600'
                     : 'text-muted-foreground hover:text-foreground'
@@ -216,7 +207,7 @@ export function CompactServerStatus({
                 }}
                 variant="ghost"
                 size="sm"
-                className={`flex items-center justify-center gap-2 h-8 ${
+                className={`flex items-center justify-center gap-2 ${
                   isSchedulesOpen
                     ? 'text-yellow-500 hover:text-yellow-600'
                     : 'text-muted-foreground hover:text-foreground'
@@ -235,7 +226,7 @@ export function CompactServerStatus({
                 }}
                 variant="ghost"
                 size="sm"
-                className={`flex items-center justify-center gap-2 h-8 ${
+                className={`flex items-center justify-center gap-2 ${
                   isLogsOpen
                     ? 'text-yellow-500 hover:text-yellow-600'
                     : 'text-muted-foreground hover:text-foreground'
@@ -250,35 +241,17 @@ export function CompactServerStatus({
           {/* Server Actions - Bottom Right */}
           <div className="flex gap-2">
             {canStart && (
-              <Button
-                onClick={() => handleServerAction('start')}
-                size="sm"
-                variant="ghost"
-                className="flex items-center justify-center h-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-              >
-                <IconPlayerPlay className="size-4 mr-1" />
+              <Button onClick={() => handleServerAction('start')} size="sm" variant="outline">
                 Start
               </Button>
             )}
             {canStop && (
-              <Button
-                onClick={() => handleServerAction('stop')}
-                size="sm"
-                variant="ghost"
-                className="flex items-center justify-center h-8 text-muted-foreground hover:text-foreground"
-              >
-                <IconPlayerStop className="size-4 mr-1" />
+              <Button onClick={() => handleServerAction('stop')} size="sm" variant="outline">
                 Stop
               </Button>
             )}
             {canRestart && (
-              <Button
-                onClick={() => handleServerAction('restart')}
-                size="sm"
-                variant="ghost"
-                className="flex items-center justify-center h-8 text-muted-foreground hover:text-foreground"
-              >
-                <IconRefresh className="size-4 mr-1" />
+              <Button onClick={() => handleServerAction('restart')} size="sm" variant="outline">
                 Restart
               </Button>
             )}
@@ -308,9 +281,7 @@ export function CompactServerStatus({
                           !serverSettings.server_name ||
                           !serverSettings.admin_password
                         }
-                        className="flex items-center gap-2"
                       >
-                        <IconDeviceFloppy className="h-4 w-4" />
                         {isSaving ? 'Saving...' : 'Save'}
                       </Button>
                     </div>

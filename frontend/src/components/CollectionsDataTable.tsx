@@ -163,7 +163,7 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  'h-8 gap-1 text-muted-foreground hover:text-foreground data-[state=open]:bg-accent',
+                  'gap-1 text-muted-foreground hover:text-foreground data-[state=open]:bg-accent',
                   hasActiveFilters && 'text-foreground'
                 )}
               >
@@ -292,7 +292,7 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className=""
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -301,7 +301,7 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className=""
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >

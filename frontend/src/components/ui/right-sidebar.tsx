@@ -72,7 +72,7 @@ export function RightSidebarHeader({
       <div className="flex-1 min-w-0">{children}</div>
       <div className="flex items-center gap-1 ml-4 flex-shrink-0">
         {actions}
-        <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={onClose}>
           <IconX className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </Button>
