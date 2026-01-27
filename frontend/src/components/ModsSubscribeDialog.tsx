@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { IconPlus } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -137,7 +136,6 @@ export function ModsSubscribeDialog({ open, onOpenChange, onSubscribe }: ModsSub
             onClick={handleSubscribe}
             disabled={submitting || parseSteamIds(inputValue).length === 0}
           >
-            <IconPlus className="h-3 w-3 mr-1" />
             {submitting ? 'Subscribing...' : 'Subscribe'}{' '}
             {!submitting && parseSteamIds(inputValue).length > 0
               ? `(${parseSteamIds(inputValue).length})`

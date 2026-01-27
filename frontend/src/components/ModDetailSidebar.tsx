@@ -1,14 +1,11 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import {
-  IconCheck,
-  IconDownload,
-  IconTrash,
   IconExternalLink,
   IconCloudDownload,
   IconAlertCircle,
   IconLoader2,
-  IconCircleMinus,
+  IconCheck,
 } from '@tabler/icons-react'
 
 import {
@@ -229,7 +226,6 @@ export function ModDetailSidebar({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
               onClick={() =>
                 window.open(
                   `https://steamcommunity.com/sharedfiles/filedetails/?id=${mod.steamId}`,
@@ -361,7 +357,6 @@ export function ModDetailSidebar({
               {/* Save Button */}
               {isDirty && (
                 <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full">
-                  <IconCheck className="h-3.5 w-3.5 mr-1.5" />
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
               )}
@@ -381,11 +376,6 @@ export function ModDetailSidebar({
                   disabled={isDownloading}
                   onClick={() => onDownload(mod.steamId)}
                 >
-                  {isDownloading ? (
-                    <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-                  ) : (
-                    <IconDownload className="h-3.5 w-3.5 mr-2" />
-                  )}
                   {isDownloading ? 'Downloading...' : 'Download Mod'}
                 </Button>
               </div>
@@ -413,11 +403,6 @@ export function ModDetailSidebar({
                     onClick={handleUninstall}
                     disabled={isUninstalling}
                   >
-                    {isUninstalling ? (
-                      <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-                    ) : (
-                      <IconTrash className="h-3.5 w-3.5 mr-2" />
-                    )}
                     {isUninstalling ? 'Uninstalling...' : 'Uninstall'}
                   </Button>
                 </div>
@@ -444,7 +429,6 @@ export function ModDetailSidebar({
                     size="sm"
                     onClick={onRemove ? handleRemove : handleDelete}
                   >
-                    <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
                     {onRemove ? 'Remove' : 'Unsubscribe'}
                   </Button>
                 </div>
@@ -464,11 +448,6 @@ export function ModDetailSidebar({
                       disabled={isUninstalling}
                       onClick={() => setShowUninstallConfirm(true)}
                     >
-                      {isUninstalling ? (
-                        <IconLoader2 className="h-3.5 w-3.5 mr-2 animate-spin" />
-                      ) : (
-                        <IconTrash className="h-3.5 w-3.5 mr-2" />
-                      )}
                       {isUninstalling ? 'Uninstalling...' : 'Uninstall'}
                     </Button>
                   )}
@@ -480,7 +459,6 @@ export function ModDetailSidebar({
                       size="sm"
                       onClick={() => setShowDeleteConfirm(true)}
                     >
-                      <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
                       Remove
                     </Button>
                   )}
@@ -492,7 +470,6 @@ export function ModDetailSidebar({
                       size="sm"
                       onClick={() => setShowDeleteConfirm(true)}
                     >
-                      <IconCircleMinus className="h-3.5 w-3.5 mr-2" />
                       Unsubscribe
                     </Button>
                   )}

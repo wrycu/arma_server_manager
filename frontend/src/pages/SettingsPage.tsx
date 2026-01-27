@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { IconDeviceFloppy } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -150,12 +149,7 @@ export function Settings() {
         />
 
         <div className="flex justify-end">
-          <Button
-            onClick={handleSaveSettings}
-            disabled={isLoading || !hasSettingsChanged()}
-            className="flex items-center gap-2"
-          >
-            <IconDeviceFloppy className="h-4 w-4" />
+          <Button onClick={handleSaveSettings} disabled={isLoading || !hasSettingsChanged()}>
             {isLoading ? 'Saving...' : 'Save'}
           </Button>
         </div>

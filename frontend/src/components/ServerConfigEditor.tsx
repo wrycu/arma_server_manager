@@ -1,13 +1,5 @@
 import { useState } from 'react'
-import {
-  IconServer,
-  IconPlus,
-  IconEdit,
-  IconTrash,
-  IconDeviceFloppy,
-  IconX,
-  IconCopy,
-} from '@tabler/icons-react'
+import { IconServer, IconPlus, IconTrash, IconCopy } from '@tabler/icons-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -254,12 +246,7 @@ export function ServerConfigEditor() {
                     {selectedConfig.description || 'No description'}
                   </p>
                 </div>
-                {!isEditing && (
-                  <Button onClick={() => handleEdit(selectedConfig)}>
-                    <IconEdit className="size-4 mr-2" />
-                    Edit
-                  </Button>
-                )}
+                {!isEditing && <Button onClick={() => handleEdit(selectedConfig)}>Edit</Button>}
               </div>
             </div>
 
@@ -442,12 +429,8 @@ export function ServerConfigEditor() {
                     )}
 
                     <div className="flex gap-2 pt-4">
-                      <Button onClick={handleSave}>
-                        <IconDeviceFloppy className="size-4 mr-2" />
-                        Save Changes
-                      </Button>
+                      <Button onClick={handleSave}>Save Changes</Button>
                       <Button variant="outline" onClick={handleCancel}>
-                        <IconX className="size-4 mr-2" />
                         Cancel
                       </Button>
                     </div>

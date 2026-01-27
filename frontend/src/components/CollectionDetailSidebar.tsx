@@ -219,7 +219,6 @@ export function CollectionDetailSidebar({
               {/* Save Button */}
               {isDirty && (
                 <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full">
-                  <IconCheck className="h-3.5 w-3.5 mr-1.5" />
                   {isSaving ? 'Saving...' : 'Save Changes'}
                 </Button>
               )}
@@ -234,7 +233,6 @@ export function CollectionDetailSidebar({
               {/* Set Active action */}
               {onSetActive && !isActive && (
                 <Button variant="default" className="w-full" size="sm" onClick={handleSetActive}>
-                  <IconCheck className="h-3.5 w-3.5 mr-2" />
                   Set as Active
                 </Button>
               )}

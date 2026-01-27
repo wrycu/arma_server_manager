@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ChevronLeft, ChevronRight, Trash2, Filter, X, Download } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Filter, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -178,13 +178,11 @@ export function DataTable<TData, TValue>({
               </DataTableButton>
               {onBatchDownload && downloadableModsCount > 0 && (
                 <DataTableButton onClick={handleBatchDownload}>
-                  <Download className="mr-2 h-4 w-4" />
                   Download ({downloadableModsCount})
                 </DataTableButton>
               )}
               {onBatchDelete && (
                 <DataTableButton variant="destructive" onClick={handleBatchDelete}>
-                  <Trash2 className="mr-2 h-4 w-4" />
                   Delete ({selectedRows.length})
                 </DataTableButton>
               )}
@@ -196,7 +194,7 @@ export function DataTable<TData, TValue>({
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  'h-8 gap-1 text-muted-foreground hover:text-foreground data-[state=open]:bg-accent',
+                  'gap-1 text-muted-foreground hover:text-foreground data-[state=open]:bg-accent',
                   hasActiveFilters && 'text-foreground'
                 )}
               >
@@ -351,7 +349,7 @@ export function DataTable<TData, TValue>({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className=""
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -360,7 +358,7 @@ export function DataTable<TData, TValue>({
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8"
+            className=""
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
