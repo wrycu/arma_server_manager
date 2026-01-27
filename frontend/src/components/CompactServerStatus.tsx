@@ -7,6 +7,7 @@ import {
   IconDeviceFloppy,
   IconSettings,
   IconCalendarTime,
+  IconFileText,
 } from '@tabler/icons-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -15,10 +16,11 @@ import { CollectionSelector } from '@/components/ServerCollectionSelector'
 import { ServerSettings } from '@/components/ServerSettings'
 import { SchedulesDataTable } from '@/components/SchedulesDataTable'
 import { ScheduleDetailSidebar } from '@/components/ScheduleDetailSidebar'
+import { TaskLogsViewer } from '@/components/TaskLogsViewer'
 import { getColumns } from '@/components/SchedulesColumns'
 import { useNavigate } from '@tanstack/react-router'
 import type { Collection } from '@/types/collections'
-import type { ServerConfig, Schedule } from '@/types/server'
+import type { ServerConfig, Schedule, TaskLogEntry } from '@/types/server'
 import type { ServerActionRequest, ServerStatusResponse } from '@/types/api'
 import type { ServerConfiguration } from '@/types/settings'
 
@@ -53,6 +55,8 @@ interface CompactServerStatusProps {
   onScheduleDelete?: (id: number) => Promise<void>
   isScheduleSidebarOpen?: boolean
   onScheduleSidebarOpenChange?: (open: boolean) => void
+  isLogsOpen?: boolean
+  onLogsOpenChange?: (open: boolean) => void
 }
 
 export function CompactServerStatus({
@@ -83,11 +87,18 @@ export function CompactServerStatus({
   onScheduleDelete,
   isScheduleSidebarOpen = false,
   onScheduleSidebarOpenChange,
+  isLogsOpen = false,
+  onLogsOpenChange,
 }: CompactServerStatusProps) {
   const navigate = useNavigate()
 
   // Memoize columns to prevent recreation on every render
   const schedulesColumns = useMemo(() => getColumns(), [])
+
+  // Aggregate log entries from all schedules
+  const allLogEntries = useMemo((): TaskLogEntry[] => {
+    return schedules.flatMap((schedule) => schedule.log_entries || [])
+  }, [schedules])
 
   if (!server) {
     return (
@@ -181,6 +192,7 @@ export function CompactServerStatus({
               <Button
                 onClick={() => {
                   if (isSchedulesOpen) onSchedulesOpenChange?.(false)
+                  if (isLogsOpen) onLogsOpenChange?.(false)
                   onSettingsOpenChange(!isSettingsOpen)
                 }}
                 variant="ghost"
@@ -199,6 +211,7 @@ export function CompactServerStatus({
               <Button
                 onClick={() => {
                   if (isSettingsOpen) onSettingsOpenChange?.(false)
+                  if (isLogsOpen) onLogsOpenChange?.(false)
                   onSchedulesOpenChange(!isSchedulesOpen)
                 }}
                 variant="ghost"
@@ -211,6 +224,25 @@ export function CompactServerStatus({
               >
                 <IconCalendarTime className="h-4 w-4" />
                 <span className="text-sm font-medium">Schedules</span>
+              </Button>
+            )}
+            {onLogsOpenChange && (
+              <Button
+                onClick={() => {
+                  if (isSettingsOpen) onSettingsOpenChange?.(false)
+                  if (isSchedulesOpen) onSchedulesOpenChange?.(false)
+                  onLogsOpenChange(!isLogsOpen)
+                }}
+                variant="ghost"
+                size="sm"
+                className={`flex items-center justify-center gap-2 h-8 ${
+                  isLogsOpen
+                    ? 'text-yellow-500 hover:text-yellow-600'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <IconFileText className="h-4 w-4" />
+                <span className="text-sm font-medium">Logs</span>
               </Button>
             )}
           </div>
@@ -301,6 +333,23 @@ export function CompactServerStatus({
                     onRowClick={onScheduleRowClick}
                     onCreateSchedule={onCreateSchedule}
                     isCreating={isCreatingSchedule}
+                  />
+                </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
+        )}
+
+        {/* Logs Drawer */}
+        {onLogsOpenChange && (
+          <Collapsible open={isLogsOpen} onOpenChange={onLogsOpenChange}>
+            <div className="border-t -mx-6 -mb-6">
+              <CollapsibleContent>
+                <div className="p-6 space-y-4">
+                  <TaskLogsViewer
+                    logEntries={allLogEntries}
+                    isLoading={isSchedulesLoading}
+                    maxHeight="350px"
                   />
                 </div>
               </CollapsibleContent>
