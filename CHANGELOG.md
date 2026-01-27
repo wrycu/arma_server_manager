@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.6.0...arma-server-manager-v0.7.0) (2026-01-27)
+
+
+### Features
+
+* **frontend:** add task logs viewer to control panel ([#169](https://github.com/wrycu/arma_server_manager/issues/169)) ([61c61f4](https://github.com/wrycu/arma_server_manager/commit/61c61f413da46c2c49e0d9e4afc76001bf754d0b))
+
+
+### Performance Improvements
+
+* **frontend:** optimize topography background image with MOZJpeg ([#173](https://github.com/wrycu/arma_server_manager/issues/173)) ([19da5d3](https://github.com/wrycu/arma_server_manager/commit/19da5d3c2770bd59967cbada7a24e30a85e78432))
+
 ## [0.6.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.5.0...arma-server-manager-v0.6.0) (2026-01-26)
 
 
