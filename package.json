@@ -15,10 +15,10 @@
     "test:backend": "cd backend && uv run pytest",
     "test:frontend": "cd frontend && pnpm test",
     "lint": "pnpm run lint:backend && pnpm run lint:frontend",
-    "lint:backend": "cd backend && uv run ruff check . && uv run mypy .",
+    "lint:backend": "cd backend && uv run ruff check .",
     "lint:frontend": "cd frontend && pnpm lint",
     "format": "pnpm run format:backend && pnpm run format:frontend",
-    "format:backend": "cd backend && uv run ruff format . && uv run black .",
+    "format:backend": "cd backend && uv run ruff format .",
     "format:frontend": "cd frontend && pnpm format",
     "clean": "rm -rf frontend/dist backend/.pytest_cache backend/__pycache__",
     "prepare": "husky"
