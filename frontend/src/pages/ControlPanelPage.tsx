@@ -51,6 +51,9 @@ export function ControlPanelPage() {
   const [isSchedulesOpen, setIsSchedulesOpen] = useState(false)
   const [isScheduleSidebarOpen, setIsScheduleSidebarOpen] = useState(false)
 
+  // Logs state
+  const [isLogsOpen, setIsLogsOpen] = useState(false)
+
   // Track if we've done the initial population of server settings
   const hasInitializedSettings = useRef(false)
 
@@ -253,6 +256,8 @@ export function ControlPanelPage() {
             onScheduleDelete={handleScheduleDelete}
             isScheduleSidebarOpen={isScheduleSidebarOpen}
             onScheduleSidebarOpenChange={setIsScheduleSidebarOpen}
+            isLogsOpen={isLogsOpen}
+            onLogsOpenChange={setIsLogsOpen}
           />
         ))}
       </div>
