@@ -18,8 +18,8 @@ This is an Arma 3 server management application with a Flask backend and React f
 ### Backend (Python/Flask)
 - `cd backend && uv run python main.py` - Start Flask development server
 - `cd backend && uv run pytest` - Run Python tests
-- `cd backend && uv run ruff check . && uv run mypy .` - Lint and type check
-- `cd backend && uv run ruff format . && uv run black .` - Format Python code
+- `cd backend && uv run ruff check .` - Lint Python code
+- `cd backend && uv run ruff format .` - Format Python code
 - `cd backend && uv run celery -A app.celery worker --loglevel=info` - Start Celery worker
 
 ### Frontend (React/TypeScript)
@@ -28,23 +28,16 @@ This is an Arma 3 server management application with a Flask backend and React f
 - `cd frontend && pnpm lint` - Lint TypeScript/React code
 - `cd frontend && pnpm format` - Format frontend code
 
-### External Services (Docker Compose)
-- `docker-compose up redis` - Start Redis service for Celery (optional, SQLite default)
-- `docker-compose up redis redis-commander` - Start Redis with web UI management tool
-- `docker-compose down` - Stop all external services
-- `docker-compose up --profile tools` - Start all services including optional tools
-
 ### Dependencies
 - Backend uses `uv` for Python package management
 - Frontend uses `pnpm` for Node.js packages
 - SQLite is used by default for both application data and Celery background tasks
-- Redis can optionally be used for Celery via docker-compose
 
 ## Architecture Overview
 
 ### Backend Architecture
 - **Flask** application with SQLAlchemy ORM using SQLite database
-- **Celery** for background tasks (mod downloads, server operations) - supports SQLite or Redis broker
+- **Celery** for background tasks (mod downloads, server operations) using SQLite broker
 - **Models**: Core entities are `Mod`, `Collection`, `ModCollectionEntry`, `ServerConfig`
 - **API Routes**: RESTful API in `app/routes/api.py`
 - **Background Tasks**: Celery tasks in `app/tasks/background.py`
@@ -70,11 +63,11 @@ This is an Arma 3 server management application with a Flask backend and React f
 ### Environment Configuration
 - Backend: Uses `.env` file for Flask configuration, database URI, Celery broker
 - Frontend: Uses `.env.local` for Vite environment variables (API base URL)
-- Default ports: Backend (5000), Frontend (5173), Redis (6379), Redis Commander (8081)
-- Celery can use SQLite (default) or Redis (via docker-compose) - see `backend/.env.example`
+- Default ports: Backend (5000), Frontend (5173)
+- Celery uses SQLite by default - see `backend/.env.example`
 
 ### Code Quality Standards
-- **Python**: Type hints required, Ruff formatting (88 char line length), MyPy type checking, Pydoc docstrings
+- **Python**: Type hints required, Ruff linting and formatting (88 char line length), Pydoc docstrings
 - **TypeScript**: ESLint + Prettier, strict TypeScript configuration
 - **Database**: SQLAlchemy 2.0 with mapped columns and type annotations
 
