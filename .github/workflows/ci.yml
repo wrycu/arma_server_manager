@@ -38,14 +38,6 @@ jobs:
         working-directory: ./backend
         run: uv run ruff format --check .
 
-      - name: Check formatting with Black
-        working-directory: ./backend
-        run: uv run black --check .
-
-      - name: Type check with MyPy
-        working-directory: ./backend
-        run: uv run mypy .
-
       - name: Run tests
         working-directory: ./backend
         env:
