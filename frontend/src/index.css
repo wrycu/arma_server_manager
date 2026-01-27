@@ -280,6 +280,6 @@
   pointer-events: none;
   z-index: 999;
   zoom: 1.1;
-  background-image: url('/src/assets/russian-topography-bg.png');
+  background-image: url('/src/assets/russian-topography-bg.jpg');
   opacity: 0.019;
 }
