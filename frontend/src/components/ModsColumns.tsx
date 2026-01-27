@@ -61,18 +61,6 @@ export const getColumns = (): ColumnDef<ModSubscription>[] => [
     },
   },
   {
-    accessorKey: 'author',
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Author" />,
-    cell: ({ row }) => {
-      const author = row.getValue('author') as string
-      return (
-        <span className="text-sm text-muted-foreground max-w-[150px] truncate inline-block">
-          {author || 'Unknown'}
-        </span>
-      )
-    },
-  },
-  {
     accessorKey: 'modType',
     header: ({ column }) => <DataTableColumnHeader column={column} title="Type" />,
     cell: ({ row }) => {
