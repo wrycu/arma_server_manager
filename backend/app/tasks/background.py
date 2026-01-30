@@ -233,7 +233,7 @@ def remove_arma3_mod(mod_id: int) -> None:
             msg=f"Arma 3 mod {mod_id} not found",
         )
         return
-    if mod_data.status not in [ModStatus.installed, ModStatus.install_failed]:
+    if mod_data.status not in [ModStatus.installed, ModStatus.install_failed, ModStatus.uninstall_failed]:
         helper.update_task_state(
             current_task=current_task,
             current_app=current_app,
@@ -248,20 +248,19 @@ def remove_arma3_mod(mod_id: int) -> None:
     db.session.commit()
 
     try:
-        mod_dir = os.path.join(
-            current_app.config["MOD_MANAGERS"]["ARMA3"].dst_dir,
-            f"@{mod_data.name}",
-        )
-        if mod_data.mod_type == "mission":
+        if mod_data.mod_type == ModType.mission:
+            os.remove(mod_data.local_path)
+        else:
             mod_dir = os.path.join(
-                current_app.config["MOD_MANAGERS"]["ARMA3"].mission_dir,
+                current_app.config["MOD_MANAGERS"]["ARMA3"].dst_dir,
+                f"@{mod_data.name}",
             )
+            shutil.rmtree(mod_dir)
 
-        shutil.rmtree(mod_dir)
         mod_data.local_path = None
         mod_data.last_updated = datetime.now()
         mod_data.status = ModStatus.not_installed
-    except Exception:
+    except Exception as e:
         mod_data.status = ModStatus.uninstall_failed
         db.session.commit()
         helper.update_task_state(
@@ -271,7 +270,7 @@ def remove_arma3_mod(mod_id: int) -> None:
             task_type="mod_remove",
             level="error",
             status="FAILURE",
-            msg=f"Starting arma 3 mod download ({mod_id})",
+            msg=f"Uninstall of Arma 3 mod {mod_id} failed: {str(e)}",
         )
         return
     db.session.commit()
