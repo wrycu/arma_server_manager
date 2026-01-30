@@ -1,6 +1,14 @@
 import axios from 'axios'
 import { handleApiError } from '@/lib/error-handler'
 
+// Extend axios config to support custom options
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    /** Skip showing error toast for this request */
+    skipErrorToast?: boolean
+  }
+}
+
 // API base configuration
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'
 
@@ -44,8 +52,10 @@ api.interceptors.response.use(
       return Promise.reject(error)
     }
 
-    // Show error toast for other errors
-    handleApiError(error)
+    // Show error toast for other errors (unless skipErrorToast is set)
+    if (!error.config?.skipErrorToast) {
+      handleApiError(error)
+    }
 
     return Promise.reject(error)
   }

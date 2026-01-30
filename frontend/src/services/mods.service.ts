@@ -99,6 +99,8 @@ export const modService = {
   },
 
   // Get mods from Steam collection
+  // Note: skipErrorToast is used because callers typically fall back to treating
+  // the ID as a direct mod ID when this fails (e.g., 400 "Not a collection")
   getSteamCollectionMods: async (
     collectionId: number,
     excludeSubscribed = false
@@ -106,7 +108,7 @@ export const modService = {
     const params = excludeSubscribed ? { exclude_subscribed: 'true' } : {}
     const response = await api.get<SteamCollectionResponse>(
       `/arma3/steam/collection/${collectionId}`,
-      { params }
+      { params, skipErrorToast: true }
     )
     return response.data.results
   },
