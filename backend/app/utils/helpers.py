@@ -1,6 +1,7 @@
 """Utility helper functions."""
 
 import enum
+import glob
 import os
 import shutil
 import subprocess
@@ -239,13 +240,15 @@ class Arma3ModManager:
             .to_dict(include_data=True)
         )
 
-    def download_single_mod(self, mod_id: int, dst_dir: str):
+    def download_single_mod(self, mod_id: int, dst_dir: str, is_msn: bool):
         """
         Downloads a single mod using steamcmd
-        :param mod_id: - INT, the internal ID of the mod to get details for
+        :param mod_id: - INT, the steam ID of the mod to download
         :param dst_dir: - STR, the destination directory to move the downloaded mod to
+        :param is_msn: - BOOL, if the mod is MSN. used since missions follow a slightly different download strategy
         :return:
         """
+        self._nuke_steam_cache_()
         subprocess.check_call(
             [
                 self.steam_cmd_path,
@@ -257,12 +260,70 @@ class Arma3ModManager:
                 "+quit",
             ],
         )
-        self._move_single_mod_(mod_id, dst_dir)
+        if is_msn:
+            self._move_msn_mod_(mod_id, dst_dir)
+        else:
+            self._move_single_mod_(mod_id, dst_dir)
+
+    def _nuke_steam_cache_(self):
+        """
+        Deletes the steamcmd cache of what's been downloaded so it doesn't block downloads but report them as successful
+        :return:
+        """
+        try:
+            os.remove(
+                os.path.join(
+                    self.staging_dir,
+                    "steamapps",
+                    "workshop",
+                    f"appworkshop_{self.arma3_app_id}.acf",
+                )
+            )
+        except FileNotFoundError:
+            # cache may not exist yet, don't care if it fails to delete
+            pass
+
+    def _move_msn_mod_(self, mod_id: int, dst_dir: str):
+        """
+        Moves a downloaded mission to the mpmissions folder within Arma 3
+        :param mod_id: INT, the steam ID of the mod to move
+        :param dst_dir: STR, the destination directory to move the downloaded mod to
+            for example, /home/tim/arma3_install/mpmissions/<msn_name>
+        :return:
+        """
+        # extract the mission name from the destination directory
+        msn_final_filename = dst_dir.split("/")[-1]
+        # extract the directory (without the mission name) to move the mission to
+        msn_dst_dir = dst_dir[0 : dst_dir.rfind("/")]
+        # build the path the mission got downloaded to
+        src_dir = os.path.join(
+            self.staging_dir,
+            "steamapps",
+            "workshop",
+            "content",
+            str(self.arma3_app_id),
+            str(mod_id),
+        )
+        try:
+            # figure out the current mission filename, which starts as a bunch of numbers.bin
+            msn_current_filename = glob.glob(os.path.join(src_dir, "*.bin"))[0]
+            # recombine the filename and path
+            msn_dst = os.path.join(msn_dst_dir, msn_final_filename)
+            if os.path.exists(msn_dst):
+                # delete the old version so we can move the updated on there
+                # does not use _delete_mod as it's a file, not a folder
+                os.remove(msn_dst)
+            shutil.move(msn_current_filename, msn_dst)
+            os.rmdir(src_dir)
+        except IndexError as e:
+            raise Exception(
+                "Mission does not follow understood mission download format; download failed"
+            ) from e
 
     def _move_single_mod_(self, mod_id: int, dst_dir: str):
         """
         Moves a downloaded mod from the staging directory to the destination directory
-        :param mod_id: - INT, the internal ID of the mod to get details for
+        :param mod_id: - INT, the steam ID of the mod to get move
         :param dst_dir: - STR, the destination directory to move the downloaded mod to
         :return:
         """
