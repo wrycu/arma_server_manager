@@ -75,6 +75,7 @@ def download_arma3_mod(mod_id: int) -> None:
         current_app.config["MOD_MANAGERS"]["ARMA3"].download_single_mod(
             mod_data.steam_id,
             mod_dir,
+            mod_data.mod_type == ModType.mission,
         )
         mod_data.local_path = mod_dir
         mod_data.last_updated = datetime.now()
@@ -168,6 +169,7 @@ def update_arma3_mod(mod_id: int, schedule_id: int = 0) -> None:
         current_app.config["MOD_MANAGERS"]["ARMA3"].download_single_mod(
             mod_data.steam_id,
             mod_dir,
+            mod_data.mod_type == ModType.mission,
         )
 
         # update the DB to reflect this
