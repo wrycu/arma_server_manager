@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 import { PageTitle } from '@/components/PageTitle'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import type { ModsSearch } from '@/routes/arma3/mods/index'
 
 // Collections imports
 import { useCollections } from '@/hooks/useCollections'
@@ -25,15 +26,24 @@ import type { ExtendedModSubscription } from '@/types/mods'
 import type { CreateCollectionRequest } from '@/types/api'
 
 export function ModsPage() {
-  const search = useSearch({ from: '/arma3/mods/' }) as { tab?: string; modId?: number }
-  const [activeTab, setActiveTab] = useState(search.tab || 'collections')
+  const search = useSearch({ from: '/arma3/mods/' }) as ModsSearch
+  const navigate = useNavigate()
 
-  // Update active tab when search params change
-  useEffect(() => {
-    if (search.tab) {
-      setActiveTab(search.tab)
-    }
-  }, [search.tab])
+  // Derive active tab from URL, defaulting to 'collections'
+  const activeTab = search.tab || 'collections'
+
+  // Navigate to update the tab in URL
+  const handleTabChange = useCallback(
+    (tab: string) => {
+      const newTab = tab as ModsSearch['tab']
+      navigate({
+        to: '/arma3/mods',
+        search: { tab: newTab },
+        replace: true,
+      })
+    },
+    [navigate]
+  )
 
   return (
     <div className="space-y-6">
@@ -41,9 +51,9 @@ export function ModsPage() {
 
       <div className="space-y-4">
         {activeTab === 'collections' ? (
-          <CollectionsTabContent activeTab={activeTab} onTabChange={setActiveTab} />
+          <CollectionsTabContent activeTab={activeTab} onTabChange={handleTabChange} />
         ) : (
-          <SubscriptionsTabContent activeTab={activeTab} onTabChange={setActiveTab} />
+          <SubscriptionsTabContent activeTab={activeTab} onTabChange={handleTabChange} />
         )}
       </div>
     </div>
@@ -153,7 +163,7 @@ function SubscriptionsTabContent({
   activeTab: string
   onTabChange: (tab: string) => void
 }) {
-  const search = useSearch({ from: '/arma3/mods/' }) as { tab?: string; modId?: number }
+  const search = useSearch({ from: '/arma3/mods/' }) as ModsSearch
   const navigate = useNavigate()
 
   const {
@@ -223,37 +233,31 @@ function SubscriptionsTabContent({
     // This will be implemented when the collections API is available
   }
 
-  // Sidebar state and handlers
-  const [selectedModId, setSelectedModId] = useState<number | null>(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
   // Batch delete confirmation state
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [modsToDelete, setModsToDelete] = useState<number[]>([]) // Steam IDs
 
+  // Derive sidebar state from URL - modId in URL means sidebar is open
+  const selectedModId = search.modId ?? null
+  const isSidebarOpen = selectedModId !== null
+
   // Get the current mod data for the sidebar
   const selectedMod = selectedModId ? mods.find((mod) => mod.id === selectedModId) || null : null
 
-  // Auto-open sidebar when modId is in URL search params
-  useEffect(() => {
-    if (search.modId && mods.length > 0) {
-      const mod = mods.find((m) => m.id === search.modId)
-      if (mod) {
-        setSelectedModId(mod.id)
-        setIsSidebarOpen(true)
-        // Clear the modId from URL after opening
-        navigate({
-          to: '/arma3/mods',
-          search: { tab: 'subscriptions' },
-          replace: true,
-        })
-      }
-    }
-  }, [search.modId, mods, navigate])
+  // Helper to update modId in URL
+  const setModIdInUrl = useCallback(
+    (modId: number | null) => {
+      navigate({
+        to: '/arma3/mods',
+        search: modId ? { tab: 'subscriptions', modId } : { tab: 'subscriptions' },
+        replace: true,
+      })
+    },
+    [navigate]
+  )
 
   const handleRowClick = (mod: ExtendedModSubscription) => {
-    setSelectedModId(mod.id)
-    setIsSidebarOpen(true)
+    setModIdInUrl(mod.id)
   }
 
   const handleSave = async (steamId: number, updates: { isServerMod: boolean }) => {
@@ -308,9 +312,8 @@ function SubscriptionsTabContent({
         mod={selectedMod}
         open={isSidebarOpen}
         onOpenChange={(open) => {
-          setIsSidebarOpen(open)
           if (!open) {
-            setSelectedModId(null)
+            setModIdInUrl(null)
           }
         }}
         onSave={handleSave}

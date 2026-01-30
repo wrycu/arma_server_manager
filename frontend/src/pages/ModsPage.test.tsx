@@ -26,13 +26,20 @@ vi.mock('@/services', () => ({
   },
 }))
 
-// Mock TanStack Router hooks
+// Mock TanStack Router hooks with mutable state to simulate URL changes
+let mockSearchParams: { tab?: string; modId?: number } = { tab: 'subscriptions' }
+
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual('@tanstack/react-router')
   return {
     ...actual,
-    useSearch: () => ({ tab: 'subscriptions' }),
-    useNavigate: () => vi.fn(),
+    useSearch: () => mockSearchParams,
+    useNavigate: () =>
+      vi.fn(({ search }: { search?: { tab?: string; modId?: number } }) => {
+        if (search) {
+          mockSearchParams = { ...search }
+        }
+      }),
   }
 })
 
@@ -133,6 +140,7 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => {
 describe('ModsPage - Subscription Management', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockSearchParams = { tab: 'subscriptions' } // Reset URL state
     vi.mocked(useModsHook.useMods).mockReturnValue(mockUseMods)
     vi.mocked(useCollectionsHook.useCollections).mockReturnValue(mockUseCollections)
   })
@@ -162,18 +170,14 @@ describe('ModsPage - Subscription Management', () => {
       removeModSubscription: mockRemoveModSubscription,
     })
 
+    // Set URL state to have sidebar open for mod 1
+    mockSearchParams = { tab: 'subscriptions', modId: 1 }
+
     render(
       <TestWrapper>
         <SubscribedModsManager />
       </TestWrapper>
     )
-
-    const subscriptionsTab = screen.getByRole('tab', { name: /subscriptions/i })
-    await user.click(subscriptionsTab)
-
-    // Click on a table row to open the sidebar
-    const tableRow = screen.getByRole('row', { name: /test mod steam id: 12345/i })
-    await user.click(tableRow)
 
     // Click the unsubscribe button in the sidebar to show confirmation
     const unsubscribeButton = screen.getByRole('button', { name: /^unsubscribe$/i })
@@ -191,6 +195,7 @@ describe('ModsPage - Subscription Management', () => {
 describe('ModsPage - Download Functionality', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockSearchParams = { tab: 'subscriptions' } // Reset URL state
     vi.mocked(useModsHook.useMods).mockReturnValue(mockUseMods)
     vi.mocked(useCollectionsHook.useCollections).mockReturnValue(mockUseCollections)
   })
@@ -203,18 +208,14 @@ describe('ModsPage - Download Functionality', () => {
       downloadMod: mockDownloadMod,
     })
 
+    // Set URL state to have sidebar open for mod 1
+    mockSearchParams = { tab: 'subscriptions', modId: 1 }
+
     render(
       <TestWrapper>
         <SubscribedModsManager />
       </TestWrapper>
     )
-
-    const subscriptionsTab = screen.getByRole('tab', { name: /subscriptions/i })
-    await user.click(subscriptionsTab)
-
-    // Click on a table row to open the sidebar
-    const tableRow = screen.getByRole('row', { name: /test mod steam id: 12345/i })
-    await user.click(tableRow)
 
     // Click the download button in the sidebar
     const downloadButton = screen.getByRole('button', { name: /download mod/i })
@@ -226,26 +227,20 @@ describe('ModsPage - Download Functionality', () => {
   })
 
   it('shows download in progress state without reload', async () => {
-    const user = userEvent.setup()
-
     vi.mocked(useModsHook.useMods).mockReturnValue({
       ...mockUseMods,
       downloadingModId: 1, // Mod 1 is downloading
       downloadMod: vi.fn(),
     })
 
+    // Set URL state to have sidebar open for mod 1
+    mockSearchParams = { tab: 'subscriptions', modId: 1 }
+
     render(
       <TestWrapper>
         <SubscribedModsManager />
       </TestWrapper>
     )
-
-    const subscriptionsTab = screen.getByRole('tab', { name: /subscriptions/i })
-    await user.click(subscriptionsTab)
-
-    // Click on the downloading mod
-    const tableRow = screen.getByRole('row', { name: /test mod steam id: 12345/i })
-    await user.click(tableRow)
 
     // Verify download button shows loading state (text changes to "Downloading...")
     const downloadButton = screen.getByRole('button', { name: /downloading/i })
@@ -300,18 +295,14 @@ describe('ModsPage - Download Functionality', () => {
       downloadMod: mockDownloadMod,
     })
 
+    // Set URL state to have sidebar open for mod 1
+    mockSearchParams = { tab: 'subscriptions', modId: 1 }
+
     render(
       <TestWrapper>
         <SubscribedModsManager />
       </TestWrapper>
     )
-
-    const subscriptionsTab = screen.getByRole('tab', { name: /subscriptions/i })
-    await user.click(subscriptionsTab)
-
-    // Click on a table row to open the sidebar
-    const tableRow = screen.getByRole('row', { name: /test mod steam id: 12345/i })
-    await user.click(tableRow)
 
     // Click the download button in the sidebar
     const downloadButton = screen.getByRole('button', { name: /download mod/i })
@@ -325,6 +316,7 @@ describe('ModsPage - Download Functionality', () => {
 describe('ModsPage - Deletion Functionality', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockSearchParams = { tab: 'subscriptions' } // Reset URL state
     vi.mocked(useModsHook.useMods).mockReturnValue(mockUseMods)
     vi.mocked(useCollectionsHook.useCollections).mockReturnValue(mockUseCollections)
   })
@@ -338,18 +330,14 @@ describe('ModsPage - Deletion Functionality', () => {
       uninstallMod: mockUninstallMod,
     })
 
+    // Set URL state to have sidebar open for mod 2 (Installed Mod)
+    mockSearchParams = { tab: 'subscriptions', modId: 2 }
+
     render(
       <TestWrapper>
         <SubscribedModsManager />
       </TestWrapper>
     )
-
-    const subscriptionsTab = screen.getByRole('tab', { name: /subscriptions/i })
-    await user.click(subscriptionsTab)
-
-    // Click on installed mod
-    const tableRow = screen.getByRole('row', { name: /installed mod steam id: 67890/i })
-    await user.click(tableRow)
 
     // Click the uninstall button to show confirmation
     const uninstallButton = screen.getByRole('button', { name: /^uninstall$/i })
@@ -363,26 +351,20 @@ describe('ModsPage - Deletion Functionality', () => {
   })
 
   it('shows uninstall in progress state', async () => {
-    const user = userEvent.setup()
-
     vi.mocked(useModsHook.useMods).mockReturnValue({
       ...mockUseMods,
       uninstallingModId: 2, // Mod 2 is uninstalling
       uninstallMod: vi.fn(),
     })
 
+    // Set URL state to have sidebar open for mod 2 (Installed Mod)
+    mockSearchParams = { tab: 'subscriptions', modId: 2 }
+
     render(
       <TestWrapper>
         <SubscribedModsManager />
       </TestWrapper>
     )
-
-    const subscriptionsTab = screen.getByRole('tab', { name: /subscriptions/i })
-    await user.click(subscriptionsTab)
-
-    // Click on the uninstalling mod
-    const tableRow = screen.getByRole('row', { name: /installed mod steam id: 67890/i })
-    await user.click(tableRow)
 
     // Verify uninstalling button shows loading state (button text changes to "Uninstalling...")
     const uninstallingButton = screen.getByRole('button', { name: /uninstalling/i })
