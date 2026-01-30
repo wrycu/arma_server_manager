@@ -162,6 +162,7 @@ function SubscriptionsTabContent({
     removeModSubscription,
     updateModSubscription,
     downloadMod,
+    downloadModById,
     uninstallMod,
     downloadingModId,
     uninstallingModId,
@@ -267,13 +268,16 @@ function SubscriptionsTabContent({
   // Subscribe dialog state and handler
   const [subscribeOpen, setSubscribeOpen] = useState(false)
   const handleSubscribeMods = async (steamIds: number[], downloadNow: boolean) => {
-    for (const id of steamIds) {
-      await addModSubscription(id)
+    const createdModIds: number[] = []
+
+    for (const steamId of steamIds) {
+      const ids = await addModSubscription(steamId)
+      createdModIds.push(...ids)
     }
 
-    if (downloadNow) {
-      for (const id of steamIds) {
-        await downloadMod(id)
+    if (downloadNow && createdModIds.length > 0) {
+      for (const modId of createdModIds) {
+        await downloadModById(modId)
       }
     }
   }
