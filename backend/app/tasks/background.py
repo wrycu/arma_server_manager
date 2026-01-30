@@ -233,7 +233,11 @@ def remove_arma3_mod(mod_id: int) -> None:
             msg=f"Arma 3 mod {mod_id} not found",
         )
         return
-    if mod_data.status not in [ModStatus.installed, ModStatus.install_failed, ModStatus.uninstall_failed]:
+    if mod_data.status not in [
+        ModStatus.installed,
+        ModStatus.install_failed,
+        ModStatus.uninstall_failed,
+    ]:
         helper.update_task_state(
             current_task=current_task,
             current_app=current_app,

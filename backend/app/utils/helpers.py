@@ -294,7 +294,7 @@ class Arma3ModManager:
         # extract the mission name from the destination directory
         msn_final_filename = dst_dir.split("/")[-1]
         # extract the directory (without the mission name) to move the mission to
-        msn_dst_dir = dst_dir[0:dst_dir.rfind("/")]
+        msn_dst_dir = dst_dir[0 : dst_dir.rfind("/")]
         # build the path the mission got downloaded to
         src_dir = os.path.join(
             self.staging_dir,
@@ -316,7 +316,9 @@ class Arma3ModManager:
             shutil.move(msn_current_filename, msn_dst)
             os.rmdir(src_dir)
         except IndexError as e:
-            raise Exception("Mission does not follow understood mission download format; download failed") from e
+            raise Exception(
+                "Mission does not follow understood mission download format; download failed"
+            ) from e
 
     def _move_single_mod_(self, mod_id: int, dst_dir: str):
         """
