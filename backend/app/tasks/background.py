@@ -853,3 +853,15 @@ def task_kickoff(celery_name) -> None:
     for task in tasks:
         task_obj = task.to_dict()
         task_map[task_obj["action"]].delay(task_obj["id"])
+
+
+@shared_task()
+def task_trigger(task_name) -> str:
+    """
+    Trigger a one-time execution of a task by name
+    :param task_name:
+        Name of the task, e.g., app.tasks.background.check_for_server_death
+    :return:
+        str: the execution ID of the task
+    """
+    return task_trigger.app.send_task(f"app.tasks.background.{task_name}").id
