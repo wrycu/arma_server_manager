@@ -5,6 +5,8 @@ from http import HTTPStatus
 from celery.result import AsyncResult
 from flask import Blueprint, current_app, request
 
+from app.tasks.background import task_trigger
+
 api_bp = Blueprint("api", __name__)
 
 
@@ -220,13 +222,14 @@ def trigger_schedule(schedule_id: int) -> tuple[dict[str, str], int]:
         job ID
     """
     try:
-        print("hi, scheduled")
+        schedule = current_app.config["SCHEDULE_HELPER"].get_schedule(schedule_id)
+        task_id = task_trigger.delay(schedule["action"]).id
     except Exception as e:
         return {
             "message": str(e),
         }, HTTPStatus.BAD_REQUEST
 
-    return {"message": "Successfully triggered (but not really)"}, HTTPStatus.OK
+    return {"message": "Successfully triggered", "result": task_id}, HTTPStatus.OK
 
 
 @api_bp.route("/notifications", methods=["GET"])
