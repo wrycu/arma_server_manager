@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.8.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.7.0...arma-server-manager-v0.8.0) (2026-01-30)
+
+
+### Features
+
+* **frontend:** persist mods page state in URL ([#174](https://github.com/wrycu/arma_server_manager/issues/174)) ([9153e17](https://github.com/wrycu/arma_server_manager/commit/9153e1719eb53f2b3c5addf028a482a6cd2b5f11))
+
+
+### Bug Fixes
+
+* **server:** msn download ([928f0c2](https://github.com/wrycu/arma_server_manager/commit/928f0c28655f7fae61de5f1f64b6117bd5e56b4a))
+* **server:** msn uninstall ([24c2602](https://github.com/wrycu/arma_server_manager/commit/24c2602e27601ed9936b7d1bd5380cbe0787b254))
+
 ## [0.7.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.6.0...arma-server-manager-v0.7.0) (2026-01-27)
 
 
