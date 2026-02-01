@@ -8,6 +8,8 @@ export interface NotificationSettings {
   }
 }
 
+import type { CreatorDLCSettings } from '@/types/server'
+
 export interface ServerConfiguration {
   name: string
   description: string
@@ -22,6 +24,7 @@ export interface ServerConfiguration {
   client_mods: string
   additional_params: string
   server_binary: string
+  load_creator_dlc: CreatorDLCSettings
 }
 
 export interface SecuritySettings {

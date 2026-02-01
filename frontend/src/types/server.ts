@@ -1,6 +1,45 @@
 // ----- Backend-aligned server config types (arma3/server endpoints) -----
 import type { CollectionResponse } from '@/types/api'
 
+/**
+ * Creator DLC codes used by the backend.
+ * Note: Some codes differ from Arma 3's official codes:
+ * - pf (backend) = vn (Arma 3) - S.O.G. Prairie Fire
+ * - ic (backend) = csla (Arma 3) - CSLA Iron Curtain
+ * - sh (backend) = spe (Arma 3) - Spearhead 1944
+ */
+export type CreatorDLCCode = 'pf' | 'gm' | 'ic' | 'ws' | 'sh' | 'rf' | 'ef'
+
+export interface CreatorDLCSettings {
+  pf: boolean // S.O.G. Prairie Fire
+  gm: boolean // Global Mobilization
+  ic: boolean // CSLA Iron Curtain
+  ws: boolean // Western Sahara
+  sh: boolean // Spearhead 1944
+  rf: boolean // Reaction Forces
+  ef: boolean // Expeditionary Forces
+}
+
+export const CREATOR_DLC_INFO: Record<CreatorDLCCode, { name: string; description: string }> = {
+  pf: { name: 'S.O.G. Prairie Fire', description: 'Vietnam War expansion' },
+  gm: { name: 'Global Mobilization', description: 'Cold War Germany expansion' },
+  ic: { name: 'CSLA Iron Curtain', description: 'Czechoslovak Army expansion' },
+  ws: { name: 'Western Sahara', description: 'North African conflict expansion' },
+  sh: { name: 'Spearhead 1944', description: 'World War II expansion' },
+  rf: { name: 'Reaction Forces', description: 'Modern military expansion' },
+  ef: { name: 'Expeditionary Forces', description: 'Expeditionary warfare expansion' },
+}
+
+export const DEFAULT_CREATOR_DLC_SETTINGS: CreatorDLCSettings = {
+  pf: false,
+  gm: false,
+  ic: false,
+  ws: false,
+  sh: false,
+  rf: false,
+  ef: false,
+}
+
 export interface ServerResources {
   cpu_usage_percent: number
   ram_usage_percent: number
@@ -32,6 +71,7 @@ export interface ServerConfig {
   resources: ServerResources
   created_at: string
   updated_at: string
+  load_creator_dlc: CreatorDLCSettings
   // Sensitive (optional, only returned when include_sensitive=true)
   password?: string | null
   admin_password?: string | null
@@ -51,6 +91,7 @@ export interface CreateServerRequest {
   client_mods?: string | null
   additional_params?: string | null
   server_binary: string
+  load_creator_dlc?: Partial<CreatorDLCSettings>
 }
 
 export type UpdateServerRequest = Partial<CreateServerRequest>
