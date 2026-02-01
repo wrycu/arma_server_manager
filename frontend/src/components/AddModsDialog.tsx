@@ -31,7 +31,7 @@ export function AddModsDialog({
   existingModIds,
   collectionName,
 }: AddModsDialogProps) {
-  const { modSubscriptions, addModSubscription, downloadMod } = useMods()
+  const { modSubscriptions, addModSubscription, downloadModById } = useMods()
   const [selectedModIds, setSelectedModIds] = useState<number[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isSubscribeDialogOpen, setIsSubscribeDialogOpen] = useState(false)
@@ -102,9 +102,9 @@ export function AddModsDialog({
     steamIds.forEach((id) => pendingSteamIds.current.add(id))
 
     for (const steamId of steamIds) {
-      await addModSubscription(steamId)
-      if (downloadNow) {
-        downloadMod(steamId)
+      const modId = await addModSubscription(steamId)
+      if (downloadNow && modId !== undefined) {
+        downloadModById(modId)
       }
     }
   }

@@ -56,7 +56,9 @@ export function useMods() {
   // Mutations
   const addModSubscriptionMutation = useMutation({
     mutationFn: async (steamId: number) => {
-      await mods.addModSubscriptions([{ steam_id: steamId }])
+      const response = await mods.addModSubscriptions([{ steam_id: steamId }])
+      // Return the first created mod ID (we only add one at a time)
+      return response.ids[0]
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mods'] })
@@ -172,11 +174,12 @@ export function useMods() {
   })
 
   // Action functions
-  const addModSubscription = async (steamId: number): Promise<void> => {
+  const addModSubscription = async (steamId: number): Promise<number | undefined> => {
     try {
-      await addModSubscriptionMutation.mutateAsync(steamId)
+      return await addModSubscriptionMutation.mutateAsync(steamId)
     } catch (error) {
       console.error('Add mod subscription failed:', error)
+      return undefined
     }
   }
 
@@ -211,6 +214,14 @@ export function useMods() {
 
     try {
       await downloadModMutation.mutateAsync(mod.id)
+    } catch (error) {
+      console.error('Download mod failed:', error)
+    }
+  }
+
+  const downloadModById = async (modId: number): Promise<void> => {
+    try {
+      await downloadModMutation.mutateAsync(modId)
     } catch (error) {
       console.error('Download mod failed:', error)
     }
@@ -255,6 +266,7 @@ export function useMods() {
     removeModSubscription,
     updateModSubscription,
     downloadMod,
+    downloadModById,
     uninstallMod,
     getModHelper,
 
