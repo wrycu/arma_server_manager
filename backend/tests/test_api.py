@@ -371,7 +371,7 @@ class TestArma3API:
         assert reply.status_code == HTTPStatus.OK
         assert reply.json["results"][0]["name"] == "wonderful server, now updated"
 
-        assert reply.json["results"][0]["load_creator_dlc"]["ef"] == False
+        assert reply.json["results"][0]["load_creator_dlc"]["ef"] == False  # noqa: E712
         reply = client.patch(
             "/api/arma3/server/1",
             json={
@@ -384,7 +384,7 @@ class TestArma3API:
             "/api/arma3/servers",
         )
         assert reply.status_code == HTTPStatus.OK
-        assert reply.json["results"][0]["load_creator_dlc"]["ef"] == True
+        assert reply.json["results"][0]["load_creator_dlc"]["ef"] == True  # noqa: E712
 
     def test_collection_create(self, client: FlaskClient) -> None:
         assert len(Collection.query.all()) == 0
