@@ -73,27 +73,13 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
     headless_client_active: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False
     )
-    dlc_load_pf: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    dlc_load_gm: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    dlc_load_ic: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    dlc_load_ws: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    dlc_load_sh: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    dlc_load_rf: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    dlc_load_ef: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
+    dlc_load_pf: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    dlc_load_gm: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    dlc_load_ic: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    dlc_load_ws: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    dlc_load_sh: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    dlc_load_rf: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    dlc_load_ef: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     # Relationships
     collection: Mapped[Collection] = relationship(

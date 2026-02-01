@@ -1012,7 +1012,7 @@ class Arma3ServerHelper:
             command.extend(["-client", "-connect=127.0.0.1"])
         # add any enabled CDLC to the startup list
         # NOTE: this requires A3 be installed on the creator DLC branch
-        for c_dlc_name, c_dlc_state in server_details['load_creator_dlc']:
+        for c_dlc_name, c_dlc_state in server_details["load_creator_dlc"]:
             if c_dlc_state:
                 command.extend([f"-mod={c_dlc_name}"])
         try:
