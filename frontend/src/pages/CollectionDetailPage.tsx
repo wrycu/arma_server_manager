@@ -242,7 +242,6 @@ export function CollectionDetailPage() {
             <Button
               variant="ghost"
               size="icon"
-              className="text-muted-foreground hover:text-destructive"
               onClick={() => setIsDeleteCollectionDialogOpen(true)}
             >
               <IconTrash className="h-4 w-4" />
