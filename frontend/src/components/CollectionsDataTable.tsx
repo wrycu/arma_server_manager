@@ -2,6 +2,7 @@ import * as React from 'react'
 import {
   type ColumnDef,
   type ColumnFiltersState,
+  type RowSelectionState,
   type SortingState,
   type VisibilityState,
   flexRender,
@@ -48,6 +49,7 @@ export interface CollectionsDataTableProps {
   isLoading?: boolean
   onRowClick?: (collection: Collection) => void
   onCreateCollection?: (data: { name: string; description: string }) => void
+  onBatchDelete?: (ids: number[]) => void
   isCreating?: boolean
   tabSwitcher?: React.ReactNode
 }
@@ -59,12 +61,14 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
     isLoading = false,
     onRowClick,
     onCreateCollection,
+    onBatchDelete,
     isCreating: _isCreating = false,
     tabSwitcher,
   } = props
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({})
   const [createDialogOpen, setCreateDialogOpen] = React.useState(false)
   const [searchInput, setSearchInput] = React.useState('')
   const [pageSize, setPageSize] = useDataTablePagination()
@@ -81,7 +85,10 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
       sorting,
       columnFilters,
       columnVisibility,
+      rowSelection,
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -106,6 +113,20 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
 
     return () => clearTimeout(timer)
   }, [searchInput, table])
+
+  // Get selected collections for batch operations
+  const selectedRows = table.getFilteredSelectedRowModel().rows
+  const selectedCollections: Collection[] = selectedRows.map((row) => row.original)
+  const hasSelectedCollections = selectedRows.length > 0
+
+  const handleBatchDelete = () => {
+    if (onBatchDelete) {
+      const ids = selectedCollections.map((collection) => collection.id)
+      onBatchDelete(ids)
+    }
+    // Clear selection after deleting
+    setRowSelection({})
+  }
 
   const hasActiveFilters = searchInput
 
@@ -157,6 +178,11 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
       <div className="flex items-center justify-between">
         <div className="flex flex-1 items-center">{tabSwitcher}</div>
         <div className="flex items-center gap-2">
+          {hasSelectedCollections && onBatchDelete && (
+            <DataTableButton variant="destructive" onClick={handleBatchDelete}>
+              Delete ({selectedRows.length})
+            </DataTableButton>
+          )}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -242,11 +268,25 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
                   className={onRowClick ? 'cursor-pointer hover:bg-muted/50' : ''}
                   onClick={() => onRowClick?.(row.original)}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      onClick={(e) => {
+                        // Prevent row click when clicking on checkbox
+                        const target = e.target as HTMLElement
+                        if (
+                          target.closest('button') ||
+                          target.closest('input[type="checkbox"]') ||
+                          target.closest('[role="button"]')
+                        ) {
+                          e.stopPropagation()
+                        }
+                      }}
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
@@ -264,7 +304,8 @@ export function CollectionsDataTable(props: CollectionsDataTableProps) {
       </div>
       <div className="flex items-center justify-between space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          {table.getFilteredSelectedRowModel().rows.length} of{' '}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
         </div>
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">Rows per page</p>
