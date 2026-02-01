@@ -1032,7 +1032,7 @@ class Arma3ServerHelper:
         return command, os.path.dirname(server_details["server_binary"])
 
 
-class TaskStatus(enum.Enum):
+class TaskStatus(enum.StrEnum):
     """
     Helper class for the possible states a task can be updated to
     """
@@ -1100,7 +1100,7 @@ class TaskHelper:
             self.log_scheduled_task_outcome(schedule_id, msg)
         except Exception as e:
             current_app.logger.error("Failed to update task state:", str(e))
-        if status in [TaskStatus.success, TaskStatus.failed]:
+        if status in [TaskStatus.success, TaskStatus.failed, TaskStatus.aborted]:
             try:
                 self.send_webhooks(task_type, msg)
             except Exception as e:
@@ -1145,8 +1145,7 @@ class TaskHelper:
                 httpx.post(
                     notification.URL,
                     json={
-                        "task_type": task_type,
-                        "outcome": task_outcome,
+                        "content": f"Task {task_type} has finished with outcome {task_outcome}",
                     },
                 )
                 notification.last_run = datetime.now()

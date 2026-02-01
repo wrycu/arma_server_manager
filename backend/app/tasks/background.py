@@ -14,6 +14,7 @@ from app import db
 from app.models.mod import Mod, ModStatus, ModType
 from app.models.schedule import Schedule
 from app.models.server_config import ServerConfig
+from app.utils.helpers import TaskStatus
 
 
 @shared_task
@@ -32,7 +33,7 @@ def download_arma3_mod(mod_id: int) -> None:
         schedule_id=0,
         task_type="mod_download",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg=f"Starting Arma 3 mod download ({mod_id})",
     )
     mod_data = Mod.query.get(mod_id)
@@ -43,7 +44,7 @@ def download_arma3_mod(mod_id: int) -> None:
             schedule_id=0,
             task_type="mod_download",
             level="warn",
-            status="ABORTED",
+            status=TaskStatus.aborted,
             msg=f"Arma 3 mod {mod_id} not found",
         )
         return
@@ -54,7 +55,7 @@ def download_arma3_mod(mod_id: int) -> None:
             schedule_id=0,
             task_type="mod_download",
             level="warn",
-            status="ABORTED",
+            status=TaskStatus.aborted,
             msg=f"Arma 3 mod {mod_id} already downloaded or download already requested",
         )
         return
@@ -89,7 +90,7 @@ def download_arma3_mod(mod_id: int) -> None:
             schedule_id=0,
             task_type="mod_download",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.failed,
             msg=f"Failed to download Arma 3 mod {mod_id}",
         )
         return
@@ -101,7 +102,7 @@ def download_arma3_mod(mod_id: int) -> None:
         schedule_id=0,
         task_type="mod_download",
         level="info",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg=f"Successfully downloaded Arma 3 mod {mod_id}",
     )
 
@@ -124,7 +125,7 @@ def update_arma3_mod(mod_id: int, schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="mod_update",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg=f"Starting Arma 3 mod update ({mod_id})",
     )
     mod_data = Mod.query.get(mod_id)
@@ -135,7 +136,7 @@ def update_arma3_mod(mod_id: int, schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="mod_update",
             level="warn",
-            status="ABORTED",
+            status=TaskStatus.aborted,
             msg=f"Arma 3 mod {mod_id} not found",
         )
         return
@@ -146,7 +147,7 @@ def update_arma3_mod(mod_id: int, schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="mod_update",
             level="warn",
-            status="ABORTED",
+            status=TaskStatus.aborted,
             msg=f"Arma 3 mod {mod_id} not installed",
         )
         return
@@ -185,7 +186,7 @@ def update_arma3_mod(mod_id: int, schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="mod_download",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.failed,
             msg=f"Failed to update Arma 3 mod {mod_id}: {str(e)}",
         )
         return
@@ -197,7 +198,7 @@ def update_arma3_mod(mod_id: int, schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="mod_update",
         level="info",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg=f"Successfully updated Arma 3 mod {mod_id}",
     )
 
@@ -218,7 +219,7 @@ def remove_arma3_mod(mod_id: int) -> None:
         schedule_id=0,
         task_type="mod_remove",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg=f"Starting Arma 3 mod uninstall {mod_id}",
     )
     mod_data = Mod.query.get(mod_id)
@@ -229,7 +230,7 @@ def remove_arma3_mod(mod_id: int) -> None:
             schedule_id=0,
             task_type="mod_remove",
             level="warn",
-            status="ABORTED",
+            status=TaskStatus.aborted,
             msg=f"Arma 3 mod {mod_id} not found",
         )
         return
@@ -244,7 +245,7 @@ def remove_arma3_mod(mod_id: int) -> None:
             schedule_id=0,
             task_type="mod_remove",
             level="warn",
-            status="ABORTED",
+            status=TaskStatus.aborted,
             msg=f"Arma 3 mod {mod_id} not downloaded, why are you even deleting it?!",
         )
         return
@@ -273,7 +274,7 @@ def remove_arma3_mod(mod_id: int) -> None:
             schedule_id=0,
             task_type="mod_remove",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.failed,
             msg=f"Uninstall of Arma 3 mod {mod_id} failed: {str(e)}",
         )
         return
@@ -285,7 +286,7 @@ def remove_arma3_mod(mod_id: int) -> None:
         schedule_id=0,
         task_type="mod_remove",
         level="info",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg=f"Uninstalled Arma 3 mod {mod_id}",
     )
 
@@ -299,7 +300,7 @@ def server_restart(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_restart",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Started restarting Arma 3 server",
     )
     server_stop(schedule_id)
@@ -310,7 +311,7 @@ def server_restart(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_restart",
         level="info",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg="Arma 3 server restarted successfully!",
     )
 
@@ -324,7 +325,7 @@ def server_start(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_start",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Beginning Arma 3 server start...",
     )
 
@@ -337,7 +338,7 @@ def server_start(schedule_id: int = 0) -> None:
                 schedule_id=schedule_id,
                 task_type="server_start",
                 level="warn",
-                status="ABORTED",
+                status=TaskStatus.aborted,
                 msg="Aborted starting Arma 3 server: server already running",
             )
             return
@@ -349,7 +350,7 @@ def server_start(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="server_start",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.failed,
             msg=f"Failed to start Arma 3 server: {str(e)}",
         )
         return
@@ -360,7 +361,7 @@ def server_start(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_start",
         level="debug",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg=f"Running Arma 3 start command: {' '.join(command)}",
     )
     try:
@@ -374,7 +375,7 @@ def server_start(schedule_id: int = 0) -> None:
                 schedule_id=schedule_id,
                 task_type="server_start",
                 level="error",
-                status="FAILURE",
+                status=TaskStatus.failed,
                 msg=f"Arma 3 server failed to start: {str(return_code)}",
             )
             return
@@ -385,7 +386,7 @@ def server_start(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="server_start",
             level="error",
-            status="RUNNING",
+            status=TaskStatus.failed,
             msg=f"Arma 3 server command failed: {str(e)}",
         )
         return
@@ -398,7 +399,7 @@ def server_start(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_start",
         level="info",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg="Arma 3 server successfully started",
     )
 
@@ -412,7 +413,7 @@ def server_stop(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Beginning Arma 3 server stop...",
     )
 
@@ -428,7 +429,7 @@ def server_stop(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="server_stop",
             level="info",
-            status="SUCCEEDED",
+            status=TaskStatus.success,
             msg="Arma 3 server successfully stopped",
         )
     else:
@@ -438,7 +439,7 @@ def server_stop(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="server_stop",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.failed,
             msg="Arma 3 server failed to stop! (permissions issue? not running?)",
         )
 
@@ -452,7 +453,7 @@ def server_update(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_update",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Beginning Arma 3 server binary update...",
     )
 
@@ -475,7 +476,7 @@ def server_update(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_update",
         level="debug",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg=f"Running steamcmd command {' '.join(command)} to update Arma 3 server...",
     )
     subprocess.check_call(
@@ -487,7 +488,7 @@ def server_update(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_update",
         level="debug",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Arma 3 command executed, checking if we need to start the server again...",
     )
     if server_running:
@@ -498,7 +499,7 @@ def server_update(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="server_update",
         level="info",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg="Arma 3 server binary successfully updated.",
     )
 
@@ -516,7 +517,7 @@ def mod_update(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="mod_update",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Updating installed Arma 3 mods!",
     )
     server_helper = current_app.config["A3_SERVER_HELPER"]
@@ -529,7 +530,7 @@ def mod_update(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="mod_update",
             level="debug",
-            status="RUNNING",
+            status=TaskStatus.running,
             msg="Stopping Arma 3 server to update mods...",
         )
         server_stop()
@@ -545,8 +546,8 @@ def mod_update(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="mod_update",
             level="warn",
-            status="ABORTED",
-            msg="No mods found to update! Aborting",
+            status=TaskStatus.aborted,
+            msg="No updates found for mods! Aborting",
         )
         return
     for mod in mods:
@@ -558,7 +559,7 @@ def mod_update(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="mod_update",
             level="debug",
-            status="RUNNING",
+            status=TaskStatus.running,
             msg="Starting server after mod updates",
         )
         server_start()
@@ -568,7 +569,7 @@ def mod_update(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="mod_update",
         level="info",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg="Successfully updated installed Arma 3 mods!",
     )
 
@@ -588,7 +589,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="hc_start",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Starting Arma 3 headless client",
     )
 
@@ -602,7 +603,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
                 schedule_id=schedule_id,
                 task_type="hc_start",
                 level="warn",
-                status="ABORTED",
+                status=TaskStatus.aborted,
                 msg="Arma 3 server not running, aborted headless client start",
             )
             return
@@ -614,7 +615,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
                 schedule_id=schedule_id,
                 task_type="hc_start",
                 level="warn",
-                status="ABORTED",
+                status=TaskStatus.aborted,
                 msg="Arma 3 headless client already running, aborted headless client start",
             )
             return
@@ -627,7 +628,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="hc_start",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.failed,
             msg=f"Failed starting Arma 3 headless client: {str(e)}",
         )
         return
@@ -638,7 +639,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="hc_start",
         level="debug",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg=f"Arma 3 headless client command: {' '.join(command)}",
     )
     try:
@@ -652,7 +653,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
                 schedule_id=schedule_id,
                 task_type="hc_start",
                 level="error",
-                status="FAILURE",
+                status=TaskStatus.failed,
                 msg=f"Failed to start Arma 3 headless client: {str(return_code)}",
             )
             return
@@ -663,7 +664,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="hc_start",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.failed,
             msg=f"Failed to start Arma 3 headless client: {str(e)}",
         )
         return
@@ -676,7 +677,7 @@ def headless_client_start(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="hc_start",
         level="info",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg="Arma 3 headless client started successfully",
     )
 
@@ -697,7 +698,7 @@ def headless_client_stop(schedule_id: int = 0) -> None:
         schedule_id=schedule_id,
         task_type="hc_stop",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Starting stopping Arma 3 headless client",
     )
 
@@ -713,7 +714,7 @@ def headless_client_stop(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="hc_stop",
             level="info",
-            status="SUCCEEDED",
+            status=TaskStatus.success,
             msg="Arma 3 headless client stopped successfully",
         )
     else:
@@ -723,7 +724,7 @@ def headless_client_stop(schedule_id: int = 0) -> None:
             schedule_id=schedule_id,
             task_type="hc_stop",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.failed,
             msg="Arma 3 headless client failed to stop (permissions issue? not running?)",
         )
 
@@ -743,7 +744,7 @@ def update_mod_steam_updated_time() -> None:
         schedule_id=-1,
         task_type="mod_steam_update",
         level="debug",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Updating mod steam updated time for all subscribed mods",
     )
     steam_helper = current_app.config["STEAM_API_HELPER"]
@@ -758,7 +759,7 @@ def update_mod_steam_updated_time() -> None:
         schedule_id=-1,
         task_type="mod_steam_update",
         level="debug",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg="Done Updating mod steam updated time",
     )
 
@@ -777,7 +778,7 @@ def check_for_server_death() -> None:
         schedule_id=-1,
         task_type="server_died",
         level="info",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg="Checking Arma 3 server death",
     )
 
@@ -792,7 +793,7 @@ def check_for_server_death() -> None:
                 schedule_id=-1,
                 task_type="server_died",
                 level="warn",
-                status="SUCCEEDED",
+                status=TaskStatus.aborted,
                 msg="Arma 3 server state mismatch: the server died or was killed!",
             )
             server_saved_state.is_active = False
@@ -805,7 +806,7 @@ def check_for_server_death() -> None:
             schedule_id=-1,
             task_type="server_died",
             level="error",
-            status="FAILURE",
+            status=TaskStatus.aborted,
             msg=f"Problem checking for Arma 3 server state mismatch: {str(e)}",
         )
         return
@@ -815,7 +816,7 @@ def check_for_server_death() -> None:
         schedule_id=-1,
         task_type="server_died",
         level="debug",
-        status="SUCCEEDED",
+        status=TaskStatus.success,
         msg="Arma 3 server state is correct, hooray!",
     )
 
@@ -838,7 +839,7 @@ def task_kickoff(celery_name) -> None:
         schedule_id=-1,
         task_type="",
         level="debug",
-        status="RUNNING",
+        status=TaskStatus.running,
         msg=f"Kicking off scheduled tasks for {celery_name}",
     )
     task_map = {
@@ -853,6 +854,15 @@ def task_kickoff(celery_name) -> None:
     for task in tasks:
         task_obj = task.to_dict()
         task_map[task_obj["action"]].delay(task_obj["id"])
+    helper.update_task_state(
+        current_task=current_task,
+        current_app=current_app,
+        schedule_id=-1,
+        task_type="",
+        level="debug",
+        status=TaskStatus.success,
+        msg=f"Finished kicking off scheduled tasks for {celery_name}",
+    )
 
 
 @shared_task()

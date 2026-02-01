@@ -135,7 +135,8 @@ def create_app(config_name: str | None = None) -> Flask:
             "args": [],
         },
     }
-    if config_name == "development":
+    print(config_name)
+    if config_name == "production":
         celery.conf.beat_schedule["every_10_seconds"] = {
             "task": "app.tasks.background.task_kickoff",
             "schedule": 10,
