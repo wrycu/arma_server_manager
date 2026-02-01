@@ -6,8 +6,10 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 
 import type { ServerConfiguration } from '@/types/settings'
+import { type CreatorDLCCode, CREATOR_DLC_INFO } from '@/types/server'
 
 interface ServerSettingsProps {
   settings: ServerConfiguration
@@ -28,6 +30,16 @@ export function ServerSettings({ settings, onUpdate, showCard = true }: ServerSe
         [field]: value,
       })
     }
+
+  const handleCDLCToggle = (dlcCode: CreatorDLCCode, enabled: boolean) => {
+    onUpdate({
+      ...settings,
+      load_creator_dlc: {
+        ...settings.load_creator_dlc,
+        [dlcCode]: enabled,
+      },
+    })
+  }
 
   const content = (
     <div className="space-y-6">
@@ -189,6 +201,38 @@ export function ServerSettings({ settings, onUpdate, showCard = true }: ServerSe
               onChange={handleInputChange('basic_config_file')}
             />
           </div>
+        </div>
+      </div>
+
+      {/* Creator DLC */}
+      <div className="space-y-4">
+        <h4 className="text-sm font-medium text-muted-foreground">Creator DLC</h4>
+        <p className="text-xs text-muted-foreground">
+          Select which Creator DLC content to load with the server. Players must own the DLC to
+          join.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {(Object.keys(CREATOR_DLC_INFO) as CreatorDLCCode[]).map((dlcCode) => {
+            const dlcInfo = CREATOR_DLC_INFO[dlcCode]
+            return (
+              <div
+                key={dlcCode}
+                className="flex items-center justify-between rounded-lg border p-3"
+              >
+                <div className="space-y-0.5">
+                  <Label htmlFor={`cdlc-${dlcCode}`} className="text-sm font-medium cursor-pointer">
+                    {dlcInfo.name}
+                  </Label>
+                  <p className="text-xs text-muted-foreground">{dlcInfo.description}</p>
+                </div>
+                <Switch
+                  id={`cdlc-${dlcCode}`}
+                  checked={settings.load_creator_dlc[dlcCode]}
+                  onCheckedChange={(checked) => handleCDLCToggle(dlcCode, checked)}
+                />
+              </div>
+            )
+          })}
         </div>
       </div>
 

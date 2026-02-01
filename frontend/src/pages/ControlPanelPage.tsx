@@ -9,6 +9,7 @@ import { serverService } from '@/services/server.service'
 import { handleApiError } from '@/lib/error-handler'
 import type { Collection } from '@/types/collections'
 import type { ServerConfig, CreateServerRequest, Schedule } from '@/types/server'
+import { DEFAULT_CREATOR_DLC_SETTINGS } from '@/types/server'
 import type { ServerActionRequest } from '@/types/api'
 import type { ServerConfiguration } from '@/types/settings'
 
@@ -44,6 +45,7 @@ export function ControlPanelPage() {
     client_mods: '',
     additional_params: '',
     server_binary: '',
+    load_creator_dlc: { ...DEFAULT_CREATOR_DLC_SETTINGS },
   })
 
   // Schedules state
@@ -88,6 +90,7 @@ export function ControlPanelPage() {
         client_mods: server.client_mods || '',
         additional_params: server.additional_params || '',
         server_binary: server.server_binary || '',
+        load_creator_dlc: server.load_creator_dlc || { ...DEFAULT_CREATOR_DLC_SETTINGS },
       })
       hasInitializedSettings.current = true
     }
@@ -149,6 +152,7 @@ export function ControlPanelPage() {
         client_mods: serverSettings.client_mods || null,
         additional_params: serverSettings.additional_params || null,
         server_binary: serverSettings.server_binary,
+        load_creator_dlc: serverSettings.load_creator_dlc,
       }
 
       await serverService.updateServer(server.id, serverData)
