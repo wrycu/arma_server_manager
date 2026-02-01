@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useSearch } from '@tanstack/react-router'
-import { IconCheck, IconX, IconFilter } from '@tabler/icons-react'
+import { IconCheck, IconX, IconFilter, IconTrash } from '@tabler/icons-react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import { useCollections } from '@/hooks/useCollections'
 import { useMods } from '@/hooks/useMods'
 import { useTitleEditing } from '@/hooks/useTitleEditing'
 import { RemoveModDialog } from '@/components/CollectionsRemoveModDialog'
+import { ConfirmationDialog } from '@/components/ConfirmationDialog'
 import { AddModsDialog } from '@/components/AddModsDialog'
 import { ModsList } from '@/components/CollectionsModsList'
 import { ModDetailSidebar } from '@/components/ModDetailSidebar'
@@ -31,6 +32,7 @@ export function CollectionDetailPage() {
     addModsToCollection,
     reorderModInCollection,
     updateCollectionName,
+    deleteCollection,
   } = useCollections()
 
   const { updateModSubscription, uninstallMod, downloadMod, downloadingModId, uninstallingModId } =
@@ -38,6 +40,7 @@ export function CollectionDetailPage() {
 
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
   const [isAddModsDialogOpen, setIsAddModsDialogOpen] = useState(false)
+  const [isDeleteCollectionDialogOpen, setIsDeleteCollectionDialogOpen] = useState(false)
   const [modToRemove, setModToRemove] = useState<ModToRemove | null>(null)
   const [selectedModId, setSelectedModId] = useState<number | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -139,6 +142,13 @@ export function CollectionDetailPage() {
     }
   }
 
+  const handleDeleteCollection = async () => {
+    if (!collection) return
+    await deleteCollection(collection.id)
+    toast.success('Collection deleted successfully')
+    navigate({ to: '/arma3/mods' })
+  }
+
   if (!collection) {
     return (
       <div className="space-y-4">
@@ -229,6 +239,14 @@ export function CollectionDetailPage() {
               <IconFilter className="h-4 w-4" />
             </Button>
             <DataTableButton onClick={() => handleAddMods(collection.id)}>Add</DataTableButton>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-muted-foreground hover:text-destructive"
+              onClick={() => setIsDeleteCollectionDialogOpen(true)}
+            >
+              <IconTrash className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
@@ -288,6 +306,17 @@ export function CollectionDetailPage() {
         onAddMods={handleAddModsToCollection}
         existingModIds={collection.mods.map((mod) => mod.id)}
         collectionName={collection.name}
+      />
+
+      <ConfirmationDialog
+        open={isDeleteCollectionDialogOpen}
+        onOpenChange={setIsDeleteCollectionDialogOpen}
+        title="Delete Collection"
+        description={`Are you sure you want to delete "${collection.name}"? This will permanently remove the collection and all mod associations. This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={handleDeleteCollection}
       />
     </div>
   )
