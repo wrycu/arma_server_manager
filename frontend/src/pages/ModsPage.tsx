@@ -77,9 +77,31 @@ function CollectionsTabContent({
 
   const [selectedCollection, _setSelectedCollection] = useState<Collection | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [collectionsToDelete, setCollectionsToDelete] = useState<number[]>([])
 
   const handleCreateCollection = async (newCollection: { name: string; description: string }) => {
     await createCollection(newCollection)
+  }
+
+  const handleBatchDelete = (ids: number[]) => {
+    if (ids.length === 0) return
+    setCollectionsToDelete(ids)
+    setDeleteConfirmOpen(true)
+  }
+
+  const confirmBatchDelete = async () => {
+    try {
+      for (const id of collectionsToDelete) {
+        await deleteCollection(id)
+      }
+      toast.success(`Successfully deleted ${collectionsToDelete.length} collection(s)`)
+    } catch (error) {
+      console.error('Failed to delete collections:', error)
+      toast.error('Failed to delete some collections')
+    } finally {
+      setCollectionsToDelete([])
+    }
   }
 
   const handleRowClick = (collection: Collection) => {
@@ -131,6 +153,7 @@ function CollectionsTabContent({
         data={collections}
         onRowClick={handleRowClick}
         onCreateCollection={handleCreateCollection}
+        onBatchDelete={handleBatchDelete}
         isCreating={isCreating}
         tabSwitcher={
           <Tabs value={activeTab} onValueChange={onTabChange} className="w-auto">
@@ -150,6 +173,17 @@ function CollectionsTabContent({
         onSetActive={handleSetActiveCollection}
         onDelete={handleDelete}
         isActive={server?.collection_id === selectedCollection?.id}
+      />
+
+      <ConfirmationDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Delete Collections"
+        description={`Are you sure you want to delete ${collectionsToDelete.length} collection(s)? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="destructive"
+        onConfirm={confirmBatchDelete}
       />
     </>
   )
