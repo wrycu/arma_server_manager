@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.9.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.8.0...arma-server-manager-v0.9.0) (2026-02-01)
+
+
+### Features
+
+* **frontend:** add checkbox selection and batch delete for collections ([#185](https://github.com/wrycu/arma_server_manager/issues/185)) ([77266e5](https://github.com/wrycu/arma_server_manager/commit/77266e5c8d4ac54a77b11735f7b6465057e6fb13))
+* **frontend:** add Creator DLC selection UI ([#182](https://github.com/wrycu/arma_server_manager/issues/182)) ([e2b3bb9](https://github.com/wrycu/arma_server_manager/commit/e2b3bb92198386adb64c674026851d593de22166))
+* **server:** creator DLC ([d12b214](https://github.com/wrycu/arma_server_manager/commit/d12b214178359c8df51b18480ffe36873795e317))
+* **server:** creator DLC ([4ff812b](https://github.com/wrycu/arma_server_manager/commit/4ff812bfd3a1d9b6a57b41778776680e0bee979f))
+
+
+### Bug Fixes
+
+* **frontend:** make download now checkbox trigger downloads on subscription ([#184](https://github.com/wrycu/arma_server_manager/issues/184)) ([7daa085](https://github.com/wrycu/arma_server_manager/commit/7daa08565d258deae1c2193d1ffe7a6fc86400de))
+* **frontend:** suppress error toast for expected collection check failure ([#183](https://github.com/wrycu/arma_server_manager/issues/183)) ([65563f7](https://github.com/wrycu/arma_server_manager/commit/65563f7466840c4fef4ad4fb08482a31bc655d80))
+* **schedule:** execution ([8d0e90d](https://github.com/wrycu/arma_server_manager/commit/8d0e90db380a9cb01b618e1d6b256056f2e8e2db))
+* **schedule:** execution ([f11886e](https://github.com/wrycu/arma_server_manager/commit/f11886eb59cecde9c36f1e0f05aff4468355c217))
+* **webhooks:** sending ([7820f4a](https://github.com/wrycu/arma_server_manager/commit/7820f4a2f8e2dd0c697ddaf951f3e8980acd0420))
+
+
+### Reverts
+
+* **webhooks:** debug statement ([63aa07a](https://github.com/wrycu/arma_server_manager/commit/63aa07aab15232a9e131a6fca25853b3a46cd4aa))
+* **webhooks:** debug statement ([183ffc4](https://github.com/wrycu/arma_server_manager/commit/183ffc4b52171d9fdaf8640fdac7f82b27a7df80))
+
 ## [0.8.0](https://github.com/wrycu/arma_server_manager/compare/arma-server-manager-v0.7.0...arma-server-manager-v0.8.0) (2026-01-30)
 
 
