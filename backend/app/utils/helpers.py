@@ -896,7 +896,13 @@ class Arma3ServerHelper:
                     "is_active",
                 ]  # do not allow certain fields to be modified
                 for key, value in server_data.items():
-                    if key not in disallowed_attrs:
+                    if key == "load_creator_dlc":
+                        for c_dlc_name, c_dlc_value in value.items():
+                            print(c_dlc_name, c_dlc_value)
+                            print(result.to_dict())
+                            setattr(result, f"dlc_load_{c_dlc_name}", c_dlc_value)
+                            print(result.to_dict())
+                    elif key not in disallowed_attrs:
                         setattr(result, key, value)
                 db.session.commit()
         except Exception as e:
@@ -1004,6 +1010,11 @@ class Arma3ServerHelper:
                 command.append(f"-mission={server_details['mission_file']}")
         else:
             command.extend(["-client", "-connect=127.0.0.1"])
+        # add any enabled CDLC to the startup list
+        # NOTE: this requires A3 be installed on the creator DLC branch
+        for c_dlc_name, c_dlc_state in server_details["load_creator_dlc"]:
+            if c_dlc_state:
+                command.extend([f"-mod={c_dlc_name}"])
         try:
             for mod in sorted(
                 server_details["collection"]["mods"], key=lambda x: x["load_order"]
