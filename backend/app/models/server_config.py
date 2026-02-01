@@ -73,6 +73,27 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
     headless_client_active: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False
     )
+    dlc_load_pf: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    dlc_load_gm: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    dlc_load_ic: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    dlc_load_ws: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    dlc_load_sh: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    dlc_load_rf: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    dlc_load_ef: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
 
     # Relationships
     collection: Mapped[Collection] = relationship(
@@ -110,6 +131,15 @@ class ServerConfig(db.Model):  # type: ignore[name-defined]
                 "cpu_usage_percent": psutil.cpu_percent(),
                 "ram_usage_percent": psutil.virtual_memory().percent,
                 "uptime_in_seconds": int(time.time() - psutil.boot_time()),
+            },
+            "load_creator_dlc": {
+                "pf": self.dlc_load_pf,
+                "gm": self.dlc_load_gm,
+                "ic": self.dlc_load_ic,
+                "ws": self.dlc_load_ws,
+                "sh": self.dlc_load_sh,
+                "rf": self.dlc_load_rf,
+                "ef": self.dlc_load_ef,
             },
         }
         if self.collection:
