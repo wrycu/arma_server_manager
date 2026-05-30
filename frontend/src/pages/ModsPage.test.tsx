@@ -107,7 +107,6 @@ const mockUseCollections = {
   toggleMod: vi.fn(),
   removeModFromCollection: vi.fn(),
   addModsToCollection: vi.fn(),
-  setActive: vi.fn(),
   updateCollectionName: vi.fn(),
   updateCollection: vi.fn(),
   reorderModInCollection: vi.fn(),

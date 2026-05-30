@@ -32,7 +32,6 @@ const mockCollection: Collection = {
   description: 'A test collection',
   createdAt: '2024-01-01T00:00:00Z',
   mods: [],
-  isActive: true,
 }
 
 const mockServer: ServerConfig = {
@@ -88,7 +87,6 @@ describe('ControlPanelPage Start Button', () => {
       toggleMod: vi.fn(),
       removeModFromCollection: vi.fn(),
       addModsToCollection: vi.fn(),
-      setActive: vi.fn(),
       updateCollectionName: vi.fn(),
     })
 

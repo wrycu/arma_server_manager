@@ -29,7 +29,6 @@ const transformApiCollections = (collections: CollectionResponse[]): Collection[
         imageAvailable: entry.mod!.image_available || false,
       })),
     createdAt: collection.created_at,
-    isActive: false, // TODO: Add isActive support when API provides it
   }))
 }
 
@@ -188,16 +187,6 @@ export function useCollections() {
     }
   }
 
-  const setActive = async (collectionId: number) => {
-    try {
-      // For now, this is just a local state update since API doesn't support it yet
-      // When API supports it, we'll make an API call here
-      console.log(`Setting collection ${collectionId} as active`)
-    } catch (error) {
-      console.error('Set active failed:', error)
-    }
-  }
-
   const updateCollectionName = async (collectionId: number, newName: string) => {
     const trimmedName = newName.trim()
     if (!trimmedName) return
@@ -259,7 +248,6 @@ export function useCollections() {
     toggleMod,
     removeModFromCollection,
     addModsToCollection,
-    setActive,
     updateCollectionName,
     updateCollection,
     reorderModInCollection,
