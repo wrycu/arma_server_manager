@@ -7,7 +7,6 @@ export interface Collection {
   name: string
   description: string
   mods: ModSubscription[]
-  isActive: boolean
 }
 
 export interface NewCollection {

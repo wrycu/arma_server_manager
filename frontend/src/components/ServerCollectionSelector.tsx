@@ -95,14 +95,7 @@ export function CollectionSelector({
                     .map((collection) => (
                       <SelectItem key={collection.id} value={collection.id.toString()}>
                         <div className="flex flex-col items-start">
-                          <span className="font-medium">
-                            {collection.name}
-                            {collection.isActive && (
-                              <span className="ml-2 text-xs bg-blue-100 px-1.5 py-0.5 rounded">
-                                Available
-                              </span>
-                            )}
-                          </span>
+                          <span className="font-medium">{collection.name}</span>
                         </div>
                       </SelectItem>
                     ))}
@@ -135,14 +128,7 @@ export function CollectionSelector({
                 {collections.map((collection) => (
                   <SelectItem key={collection.id} value={collection.id.toString()}>
                     <div className="flex flex-col items-start">
-                      <span className="font-medium">
-                        {collection.name}
-                        {collection.isActive && (
-                          <span className="ml-2 text-xs bg-green-100 text-green-800 px-1.5 py-0.5 rounded">
-                            Active
-                          </span>
-                        )}
-                      </span>
+                      <span className="font-medium">{collection.name}</span>
                     </div>
                   </SelectItem>
                 ))}

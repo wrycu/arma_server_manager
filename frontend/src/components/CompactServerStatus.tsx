@@ -164,7 +164,7 @@ export function CompactServerStatus({
           <div className="space-y-1">
             <div className="text-sm font-semibold">Mod Collection</div>
             <div className="text-xs text-muted-foreground">
-              Collection selection not yet integrated with server actions
+              The selected collection is saved and loaded when the server starts
             </div>
           </div>
           <CollectionSelector

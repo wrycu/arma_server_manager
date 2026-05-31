@@ -64,12 +64,22 @@ export function ControlPanelPage() {
     refetchServers()
   }, [refetchServers])
 
-  // Set the selected collection when collections are loaded
+  // Seed the selected startup collection from the value persisted on the server
+  // config so the dropdown reflects the saved collection after a refresh, rather
+  // than always reverting to the first collection in the list. Fall back to the
+  // first collection only when nothing has been persisted yet.
   useEffect(() => {
-    if (collections.length > 0 && !selectedStartupCollection) {
+    const activeServer = servers[0]
+    const persisted =
+      activeServer?.collection_id != null
+        ? collections.find((c) => c.id === activeServer.collection_id)
+        : undefined
+    if (persisted) {
+      setSelectedStartupCollection(persisted)
+    } else if (collections.length > 0 && !selectedStartupCollection) {
       setSelectedStartupCollection(collections[0])
     }
-  }, [collections, selectedStartupCollection])
+  }, [servers, collections, selectedStartupCollection])
 
   // Load server settings only once when servers are first available
   // This prevents form state from being overwritten during refetches
@@ -120,8 +130,23 @@ export function ControlPanelPage() {
     }
   }
 
-  const handleStartupCollectionChange = (collection: Collection | null) => {
+  const handleStartupCollectionChange = async (collection: Collection | null) => {
     setSelectedStartupCollection(collection)
+
+    const activeServer = servers[0]
+    if (!activeServer) return
+
+    try {
+      // Persist the selection so it is used the next time the server starts and
+      // survives a page refresh.
+      await serverService.updateServerCollectionId(activeServer.id, collection?.id ?? null)
+      toast.success(
+        collection ? `Startup collection set to "${collection.name}"` : 'Startup collection cleared'
+      )
+      refetchServers()
+    } catch (error) {
+      handleApiError(error, 'Failed to update startup collection')
+    }
   }
 
   const handleServerSettingsUpdate = (settings: ServerConfiguration) => {

@@ -11,6 +11,9 @@ import { DataTableButton } from '@/components/DataTableButton'
 
 import { useCollections } from '@/hooks/useCollections'
 import { useMods } from '@/hooks/useMods'
+import { useServer } from '@/hooks/useServer'
+import { serverService } from '@/services/server.service'
+import { handleApiError } from '@/lib/error-handler'
 import { useTitleEditing } from '@/hooks/useTitleEditing'
 import { RemoveModDialog } from '@/components/CollectionsRemoveModDialog'
 import { AddModsDialog } from '@/components/AddModsDialog'
@@ -35,6 +38,10 @@ export function CollectionDetailPage() {
 
   const { updateModSubscription, uninstallMod, downloadMod, downloadingModId, uninstallingModId } =
     useMods()
+
+  const { servers, refetchServers } = useServer()
+  const server = servers[0]
+  const isActiveCollection = !!server && server.collection_id === collectionIdNum
 
   const [isRemoveDialogOpen, setIsRemoveDialogOpen] = useState(false)
   const [isAddModsDialogOpen, setIsAddModsDialogOpen] = useState(false)
@@ -122,6 +129,21 @@ export function CollectionDetailPage() {
       params: { collectionId },
       search: value ? { search: value } : {},
     })
+  }
+
+  const handleSetActiveCollection = async () => {
+    if (!server) {
+      toast.error('No server configuration found to assign the collection to')
+      return
+    }
+    try {
+      // The active collection is the one assigned to the server config.
+      await serverService.updateServerCollectionId(server.id, collectionIdNum)
+      toast.success(`Set "${collection?.name}" as the active collection`)
+      refetchServers()
+    } catch (error) {
+      handleApiError(error, 'Failed to set active collection')
+    }
   }
 
   const handleSaveCollectionName = async (newName: string) => {
@@ -221,6 +243,16 @@ export function CollectionDetailPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {isActiveCollection ? (
+              <span className="inline-flex items-center gap-1.5 text-sm text-green-600">
+                <IconCheck className="h-4 w-4" />
+                Active
+              </span>
+            ) : (
+              <Button variant="outline" size="sm" onClick={handleSetActiveCollection}>
+                Set as Active
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
